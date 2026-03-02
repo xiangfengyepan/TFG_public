@@ -1,0 +1,208 @@
+"#","Name","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Prompt 2 Type","Prompt 2","URL Prompt 2","Prompt 3 Type","Prompt 3","URL Prompt 3","URL Prompt 4","URL Tool 1","Comment"
+"1","DefaultAgent","The agent handles the behaviour of the model and how it interacts with the environment. Use tools: HandleTools and DefaultHistoryProcessor","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/agents.py#L443","SYSTEM","system_template: str = """"""<setting>You are an expert software engineer overseeing junior developers. They suggest actions to take to solve a problem. You must choose the best action to take. </setting>""""""","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105","PROXY","instance_template: str = dedent(""""""
+    We're solving the following problem
+
+    <problem_statement>
+    {{problem_statement}}
+    </problem_statement>
+
+    So far, we've performed the following actions:
+
+    <trajectory>
+    {{traj}}
+    </trajectory>
+    """""")
+
+    comparison_template: str = dedent(""""""
+    Two junior developers suggested the following actions:
+
+    <thought1>
+    {{thought1}}
+    </thought1>
+
+    <action1>
+    {{action1}}
+    </action1>
+
+    <thought2>
+    {{thought2}}
+    </thought2>
+
+    <action2>
+    {{action2}}
+    </action2>
+
+    Please compare the two actions in detail.
+
+    Which action should we take?
+
+    If you think the first action is better, respond with ""first"".
+    If you think the second action is better, respond with ""second"".
+
+    The last line of your response MUST be ""first"" or ""second"".
+    """""")","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106","HUMAN","comparison_template: str = dedent(""""""
+    Two junior developers suggested the following actions:
+
+    <thought1>
+    {{thought1}}
+    </thought1>
+
+    <action1>
+    {{action1}}
+    </action1>
+
+    <thought2>
+    {{thought2}}
+    </thought2>
+
+    <action2>
+    {{action2}}
+    </action2>
+
+    Please compare the two actions in detail.
+
+    Which action should we take?
+
+    If you think the first action is better, respond with ""first"".
+    If you think the second action is better, respond with ""second"".
+
+    The last line of your response MUST be ""first"" or ""second"".
+    """""")","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L120","","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227","All there as the same Promt an tools since shellAgent inherit and Retry use it"
+"2","RetryAgent","Use Default agent as an ""agent"". Additionaly, uie ReviewSubmission.","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/agents.py#L257","SYSTEM","system_template: str = """"""<setting>You are an expert software engineer overseeing junior developers. They suggest actions to take to solve a problem. You must choose the best action to take. </setting>""""""","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105","PROXY","instance_template: str = dedent(""""""
+    We're solving the following problem
+
+    <problem_statement>
+    {{problem_statement}}
+    </problem_statement>
+
+    So far, we've performed the following actions:
+
+    <trajectory>
+    {{traj}}
+    </trajectory>
+    """""")
+
+    comparison_template: str = dedent(""""""
+    Two junior developers suggested the following actions:
+
+    <thought1>
+    {{thought1}}
+    </thought1>
+
+    <action1>
+    {{action1}}
+    </action1>
+
+    <thought2>
+    {{thought2}}
+    </thought2>
+
+    <action2>
+    {{action2}}
+    </action2>
+
+    Please compare the two actions in detail.
+
+    Which action should we take?
+
+    If you think the first action is better, respond with ""first"".
+    If you think the second action is better, respond with ""second"".
+
+    The last line of your response MUST be ""first"" or ""second"".
+    """""")","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106","HUMAN","comparison_template: str = dedent(""""""
+    Two junior developers suggested the following actions:
+
+    <thought1>
+    {{thought1}}
+    </thought1>
+
+    <action1>
+    {{action1}}
+    </action1>
+
+    <thought2>
+    {{thought2}}
+    </thought2>
+
+    <action2>
+    {{action2}}
+    </action2>
+
+    Please compare the two actions in detail.
+
+    Which action should we take?
+
+    If you think the first action is better, respond with ""first"".
+    If you think the second action is better, respond with ""second"".
+
+    The last line of your response MUST be ""first"" or ""second"".
+    """""")","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L120","","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227","All there as the same Promt an tools since shellAgent inherit and Retry use it"
+"3","ShellAgent","Agent that inherit from DefaultAgent. So it also use toolsHandle","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/extra/shell_agent.py#L13","SYSTEM","system_template: str = """"""<setting>You are an expert software engineer overseeing junior developers. They suggest actions to take to solve a problem. You must choose the best action to take. </setting>""""""","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105","PROXY","instance_template: str = dedent(""""""
+    We're solving the following problem
+
+    <problem_statement>
+    {{problem_statement}}
+    </problem_statement>
+
+    So far, we've performed the following actions:
+
+    <trajectory>
+    {{traj}}
+    </trajectory>
+    """""")
+
+    comparison_template: str = dedent(""""""
+    Two junior developers suggested the following actions:
+
+    <thought1>
+    {{thought1}}
+    </thought1>
+
+    <action1>
+    {{action1}}
+    </action1>
+
+    <thought2>
+    {{thought2}}
+    </thought2>
+
+    <action2>
+    {{action2}}
+    </action2>
+
+    Please compare the two actions in detail.
+
+    Which action should we take?
+
+    If you think the first action is better, respond with ""first"".
+    If you think the second action is better, respond with ""second"".
+
+    The last line of your response MUST be ""first"" or ""second"".
+    """""")","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106","HUMAN","comparison_template: str = dedent(""""""
+    Two junior developers suggested the following actions:
+
+    <thought1>
+    {{thought1}}
+    </thought1>
+
+    <action1>
+    {{action1}}
+    </action1>
+
+    <thought2>
+    {{thought2}}
+    </thought2>
+
+    <action2>
+    {{action2}}
+    </action2>
+
+    Please compare the two actions in detail.
+
+    Which action should we take?
+
+    If you think the first action is better, respond with ""first"".
+    If you think the second action is better, respond with ""second"".
+
+    The last line of your response MUST be ""first"" or ""second"".
+    """""")","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L120","","https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227","All there as the same Promt an tools since shellAgent inherit and Retry use it"
