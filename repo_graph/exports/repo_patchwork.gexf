@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="double"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="tool_url" title="tool_url" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_patchwork" label="patchwork">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155"/>
+          <attvalue for="commits" value="1320"/>
+          <attvalue for="releases" value="NA"/>
+          <attvalue for="stars" value="2"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="framework itself"/>
+          <attvalue for="dependency_graph" value="patched-codes_patchwork_b5f0bb.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="15"/>
+          <attvalue for="topology_description" value="null"/>
+          <attvalue for="topology_file" value="null"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- each agent are defined as a step"/>
+          <attvalue for="rawSize" value="40"/>
+        </attvalues>
+        <viz:color r="196" g="125" b="62"/>
+        <viz:size value="40"/>
+        <viz:position x="-77.64571353075645" y="-289.7777478867204"/>
+      </node>
+      <node id="agent_patchwork_0" label="AgenticLLM">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.142857142857142"/>
+          <attvalue for="agent_name" value="AgenticLLM"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="The Agentic LLM module appears to be part of the `patchwork` package designed to handle Large Language Model (LLM) interactions using a predefined agentic strategy. This implementation facilitates the elicitation of responses from a language model, manages API keys, and defines the input and output data structures for the interactions."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/AgenticLLM/AgenticLLM.py#L10"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="12.142857142857142"/>
+        <viz:position x="-181.67146190554533" y="-571.8351859837779"/>
+      </node>
+      <node id="tool_82747703d4" label="tool.py#L12">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/tool.py#L12"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-974.1720724952761" y="-1140.6089484000458"/>
+      </node>
+      <node id="agent_patchwork_1" label="AgenticLLMV2">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.142857142857142"/>
+          <attvalue for="agent_name" value="AgenticLLMV2"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="The `AgenticLLMV2` module provides a step for executing a multi-turn conversation strategy using the `AgenticStrategyV2` framework. This is part of a system that involves complex conversational models and tool integrations. The module is composed of three scripts: an initializer, the main class implementation, and type definitions for controlled inputs and outputs."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/AgenticLLMV2/AgenticLLMV2.py#L13"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="12.142857142857142"/>
+        <viz:position x="-177.92494498534313" y="-573.0119666743118"/>
+      </node>
+      <node id="agent_patchwork_2" label="FileAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="18.57142857142857"/>
+          <attvalue for="agent_name" value="FileAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="assistant that is supposed to help me with a set of files."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/FileAgent/FileAgent.py#L16"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="18.57142857142857"/>
+        <viz:position x="-174.17080635267797" y="-574.1642014393252"/>
+      </node>
+      <node id="prompt_patchwork_2_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a assistant ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a assistant that is supposed to help me with a set of files. These files are commonly tabular formatted like csv, xls or xlsx.&#xD;&#xA;If you find a tabular formatted file you should use the `in2csv_tool` tool to convert the files into CSV.&#xD;&#xA;&#xD;&#xA;After that is done, then run other tools to assist me.&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/FileAgent/FileAgent.py#L40"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-261.2562095290169" y="-861.2463021589878"/>
+      </node>
+      <node id="tool_8523503fa6" label="csvkit_tool.py#L14">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/csvkit_tool.py#L14"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-881.6778784387099" y="-1213.525491562421"/>
+      </node>
+      <node id="tool_4bb593429b" label="code_edit_tools.py#L11">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/code_edit_tools.py#L11"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-783.747847073924" y="-1278.960246531138"/>
+      </node>
+      <node id="tool_1910a9c090" label="grep_tool.py#L13">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/grep_tool.py#L13"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-680.9857496093204" y="-1336.5097862825517"/>
+      </node>
+      <node id="agent_patchwork_3" label="BrowserUse">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.142857142857142"/>
+          <attvalue for="agent_name" value="BrowserUse"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="&quot;&quot;&quot;&#xD;&#xA;    Step implementation for browser automation tasks.&#xD;&#xA;&#xD;&#xA;    This class provides a high-level interface for executing browser-based tasks&#xD;&#xA;    using various LLM providers (Google, OpenAI, Anthropic) to control the browser.&#xD;&#xA;    &quot;&quot;&quot;"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/BrowserUse/BrowserUse.py#L14"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="12.142857142857142"/>
+        <viz:position x="-170.4092068223541" y="-575.2918409209157"/>
+      </node>
+      <node id="prompt_patchwork_3_1" label="HUMAN: user_prompt=f&quot;&quot;&quot;&#xD;&#xA;You are a helpful assi">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="user_prompt=f&quot;&quot;&quot;&#xD;&#xA;You are a helpful assistant that formats a history of browser actions and conversations into a JSON object.&#xD;&#xA;You are provided with a JSON schema for the history.&#xD;&#xA;Only include the JSON object in your response, nothing else.&#xD;&#xA;&#xD;&#xA;Here is the history:&#xD;&#xA;&lt;history>&#xD;&#xA;{self.history.final_result()}&#xD;&#xA;&lt;/history>&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/BrowserUse/BrowserUse.py#L132"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-255.61381023353113" y="-862.9377613813735"/>
+      </node>
+      <node id="agent_patchwork_4" label="DatabaseAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="agent_name" value="DatabaseAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="You are a {db_dialect} database query execution assistant."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/DatabaseAgent/DatabaseAgent.py#L15"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-166.64030752877585" y="-576.394836814761"/>
+      </node>
+      <node id="prompt_patchwork_4_1" label="SYSTEM: system_prompt=f&quot;&quot;&quot;\&#xA;You are a {db_dialec">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=f&quot;&quot;&quot;\&#xA;You are a {db_dialect} database query execution assistant. Assist me in completing a task.&#xA;Before you begin you should first try to know all tables currently available.&#xA;Then find out what data is held in the relevant tables.&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/DatabaseAgent/DatabaseAgent.py#L38"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-249.96046129316377" y="-864.5922552221416"/>
+      </node>
+      <node id="tool_085efadba1" label="db_query_tool.py#L7">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/db_query_tool.py#L7"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-574.0251485476355" y="-1385.8192987669297"/>
+      </node>
+      <node id="agent_patchwork_5" label="FixIssue">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="18.57142857142857"/>
+          <attvalue for="agent_name" value="FixIssue"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="&quot;&quot;&quot;Initialize the FixIssue step.&#xD;&#xA;&#xD;&#xA;        Args:&#xD;&#xA;            inputs: Dictionary containing input parameters including:&#xD;&#xA;                - base_path: Optional path to the repository root&#xD;&#xA;                - Other LLM-related parameters&#xD;&#xA;        &quot;&quot;&quot;"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/FixIssue/FixIssue.py#L99"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="18.57142857142857"/>
+        <viz:position x="-162.86426991904503" y="-577.4731418721882"/>
+      </node>
+      <node id="prompt_patchwork_5_1" label="SYSTEM: analysis_prompt_template=f&quot;&quot;&quot;\&#xD;&#xA;&lt;uploade">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="analysis_prompt_template=f&quot;&quot;&quot;\&#xD;&#xA;&lt;uploaded_files>&#xD;&#xA;{path}&#xD;&#xA;&lt;/uploaded_files>&#xD;&#xA;I've uploaded a code repository in the current working directory.&#xD;&#xA;&#xD;&#xA;Consider the following issue:&#xD;&#xA;&#xD;&#xA;&lt;issue_description>&#xD;&#xA;{{{{issue}}}}&#xD;&#xA;&lt;/issue_description>&#xD;&#xA;&#xD;&#xA;Let's first explore and analyze the repository to understand where the issue is located.&#xD;&#xA;Please analyze the repository structure and try to locate the specific files and code sections that need to be modified.&#xD;&#xA;&#xD;&#xA;1. First explore the repo structure&#xD;&#xA;2. Identify the relevant files that likely need changes&#xD;&#xA;3. Create and run a script to reproduce the error&#xD;&#xA;4. Once you've confirmed the error, identify the specific code sections that need to be modified&#xD;&#xA;&#xD;&#xA;Provide your findings in this format:&#xD;&#xA;&lt;analysis>&#xD;&#xA;&lt;files>List the relevant files that need changes&lt;/files>&#xD;&#xA;&lt;error_reproduction>The error reproduction script and its output&lt;/error_reproduction>&#xD;&#xA;&lt;changes_needed>Description of the specific changes needed&lt;/changes_needed>&#xD;&#xA;&lt;/analysis>&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/FixIssue/FixIssue.py#L28"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-271.9457366506391" y="-857.9309507865661"/>
+      </node>
+      <node id="prompt_patchwork_5_2" label="SYSTEM: implementation_prompt_template=f&quot;&quot;&quot;\&#xD;&#xA;&lt;u">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="implementation_prompt_template=f&quot;&quot;&quot;\&#xD;&#xA;&lt;uploaded_files>&#xD;&#xA;{path}&#xD;&#xA;&lt;/uploaded_files>&#xD;&#xA;I've uploaded a code repository in the current working directory (not in /tmp/inputs).&#xD;&#xA;&#xD;&#xA;Based on our previous analysis:&#xD;&#xA;&#xD;&#xA;&lt;previous_analysis>&#xD;&#xA;{{{{analysis_results}}}}&#xD;&#xA;&lt;/previous_analysis>&#xD;&#xA;&#xD;&#xA;Let's implement the necessary changes:&#xD;&#xA;&#xD;&#xA;1. Edit the sourcecode of the repo to resolve the issue&#xD;&#xA;2. Rerun the reproduction script to confirm the error is fixed&#xD;&#xA;3. Think about edge cases and make sure your fix handles them as well&#xD;&#xA;&#xD;&#xA;I've already taken care of all changes to any of the test files described in the PR. &#xD;&#xA;This means you DON'T have to modify the testing logic or any of the tests in any way!&#xD;&#xA;&#xD;&#xA;Let me know when you're done by outputting &lt;/DONE>.&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/FixIssue/FixIssue.py#L54"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-216.39583281817602" y="-873.5976439637003"/>
+      </node>
+      <node id="tool_d79cc27f66" label="code_edit_tools.py#L95">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/code_edit_tools.py#L95"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-463.52549156242134" y="-1426.5847744427303"/>
+      </node>
+      <node id="agent_patchwork_6" label="GitHubAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="16.42857142857143"/>
+          <attvalue for="agent_name" value="GitHubAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="helping the program manager to obtain some data from GitHub."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/GitHubAgent/GitHubAgent.py#L15"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="16.42857142857143"/>
+        <viz:position x="-159.0812557460453" y="-578.5267099021975"/>
+      </node>
+      <node id="prompt_patchwork_6_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#xA;You are a senior soft">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=&quot;&quot;&quot;\&#xA;You are a senior software developer helping the program manager to obtain some data from GitHub.&#xA;You can access github through the `gh` CLI app through the `github_tool`, and `git` through the `git_tool`.&#xA;Your `gh` app has already been authenticated.&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/GitHubAgent/GitHubAgent.py#L42"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-238.62188361906792" y="-867.7900648532961"/>
+      </node>
+      <node id="tool_087dda27b4" label="git_tool.py#L9">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/git_tool.py#L9"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-350.16804578385774" y="-1458.554880596515"/>
+      </node>
+      <node id="tool_66d97e5e8e" label="github_tool.py#L9">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/github_tool.py#L9"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="-234.65169756034655" y="-1481.5325108927066"/>
+      </node>
+      <node id="agent_patchwork_7" label="ManageEngineAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="agent_name" value="ManageEngineAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="goal is to retrieve, create, or modify service desk tickets and related information."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/ManageEngineAgent/ManageEngineAgent.py#L13"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-155.2914270615129" y="-579.5554957734408"/>
+      </node>
+      <node id="prompt_patchwork_7_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are an senior so">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are an senior software developer helping the program manager to interact with ManageEngine ServiceDesk via the ServiceDeskPlus API.&#xD;&#xA;Your goal is to retrieve, create, or modify service desk tickets and related information.&#xD;&#xA;Use the `make_api_request` tool to interact with the ManageEngine API.&#xD;&#xA;Skip the headers for the api requests as they are already provided.&#xD;&#xA;The base url for the ServiceDeskPlus API is https://sdpondemand.manageengine.com/app/itdesk/api/v3&#xD;&#xA;&#xD;&#xA;For modifying or creating data, the data should be a json string.&#xD;&#xA;When you have the result of the information user requested, return the response of the final result tool as is.&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/ManageEngineAgent/ManageEngineAgent.py#L56"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-232.93714059226937" y="-869.3332436601613"/>
+      </node>
+      <node id="tool_66f40a5621" label="api_tool.py#L11">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="tool_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/api_tool.py#L11"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-117.68864359176702" y="-1495.376000599692"/>
+      </node>
+      <node id="agent_patchwork_8" label="SlackAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="agent_name" value="SlackAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="goal is to retrieve, create, or modify messages, channels, and other Slack resources."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/SlackAgent/SlackAgent.py#L14"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-151.49494620909522" y="-580.5594554161557"/>
+      </node>
+      <node id="prompt_patchwork_8_1" label="SYSTEM: system_prompt=f&quot;&quot;&quot;\&#xD;&#xA;You are a senior so">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=f&quot;&quot;&quot;\&#xD;&#xA;You are a senior software developer helping users interact with Slack via the Slack Web API.&#xD;&#xA;Your goal is to retrieve, create, or modify messages, channels, and other Slack resources.&#xD;&#xA;Use the `make_api_request` tool to interact with the Slack API.&#xD;&#xA;Skip the headers for the API requests as they are already provided.&#xD;&#xA;&#xD;&#xA;The base URL for the Slack Web API is https://slack.com/api&#xD;&#xA;&#xD;&#xA;Common Slack API endpoints:&#xD;&#xA;- POST /chat.postMessage - Send a message to a channel&#xD;&#xA;- GET /conversations.list - List all channels in the workspace&#xD;&#xA;- GET /conversations.history - Get message history from a channel (requires 'channel' parameter)&#xD;&#xA;- POST /conversations.create - Create a new channel&#xD;&#xA;- POST /conversations.join - Join a channel&#xD;&#xA;- POST /conversations.leave - Leave a channel&#xD;&#xA;- GET /users.list - List all users in the workspace&#xD;&#xA;- GET /users.info - Get information about a specific user&#xD;&#xA;- POST /reactions.add - Add a reaction to a message&#xD;&#xA;- POST /reactions.remove - Remove a reaction from a message&#xD;&#xA;- GET /users.info - Get information about a specific user (requires 'user' parameter)&#xD;&#xA;IMPORTANT: For GET requests the prompt_value will contain the params to pass instead of data&#xD;&#xA;&#xD;&#xA;For modifying or creating data, the data should be a JSON string.&#xD;&#xA;When you have the result of the information user requested, return the response of the final result tool as is.&#xD;&#xA;&#xD;&#xA;Note: All API responses include a boolean 'ok' field indicating success/failure.&#xD;&#xA;If 'ok' is false, check the 'error' field for details about what went wrong.&#xD;&#xA;&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/SlackAgent/SlackAgent.py#L57"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-227.2424193136428" y="-870.8391831242337"/>
+      </node>
+      <node id="agent_patchwork_9" label="ZohoDeskAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="agent_name" value="ZohoDeskAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="Your goal is to retrieve, create, or modify tickets, contacts, and other Zoho Desk resources."/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/ZohoDeskAgent/ZohoDeskAgent.py#L13"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-147.69197581739624" y="-581.5385458240526"/>
+      </node>
+      <node id="prompt_patchwork_9_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a senior sof">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a senior software developer helping users interact with Zoho Desk via the Zoho Desk API.&#xD;&#xA;Your goal is to retrieve, create, or modify tickets, contacts, and other Zoho Desk resources.&#xD;&#xA;Use the `make_api_request` tool to interact with the Zoho Desk API.&#xD;&#xA;Skip the headers for the API requests as they are already provided.&#xD;&#xA;&#xD;&#xA;The base URL for the Zoho Desk API is https://desk.zoho.com/api/v1&#xD;&#xA;&#xD;&#xA;For modifying or creating data, the data should be a JSON string.&#xD;&#xA;When you have the result of the information user requested, return the response of the final result tool as is.&#xD;&#xA;&#xD;&#xA;Here are some common Zoho Desk API endpoints:&#xD;&#xA;- GET /tickets - List tickets&#xD;&#xA;- GET /tickets/{ticketId} - Get ticket details&#xD;&#xA;- POST /tickets - Create a ticket&#xD;&#xA;- PUT /tickets/{ticketId} - Update a ticket&#xD;&#xA;- GET /departments - List departments&#xD;&#xA;- GET /contacts - List contacts&#xD;&#xA;- GET /contacts/{contactId} - Get contact details&#xD;&#xA;- POST /contacts - Create a contact&#xD;&#xA;- GET /contacts/{contactId}/tickets - List tickets by contact&#xD;&#xA;&#xD;&#xA;Additional query parameters:&#xD;&#xA;- include: Additional information related to tickets. Values allowed are: 'products', 'departments', 'team', 'isRead', and 'assignee'. Multiple values can be comma-separated.&#xD;&#xA;- from: Index number to start fetching from&#xD;&#xA;- limit: Number of items to fetch (range: 1-100)&#xD;&#xA;- sortBy: Sort by a specific attribute like 'createdTime' or 'modifiedTime'. Prefix with '-' for descending order.&#xD;&#xA;&#xD;&#xA;The orgId is already included in the headers for all API calls.&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/ZohoDeskAgent/ZohoDeskAgent.py#L59"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-221.53796372609435" y="-872.3078187360787"/>
+      </node>
+      <node id="agent_patchwork_10" label="ResolveIssue">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="agent_name" value="ResolveIssue"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="Use  ReadIssues, FixIssue, PR steps,"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/ResolveIssue/ResolveIssue.py#L13"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-143.88267879301029" y="-582.4927250561567"/>
+      </node>
+      <node id="prompt_patchwork_10_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a senior sof">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a senior software engineer tasked to analyze a issue. &#xD;&#xA;Your analysis will be used to guide the junior engineer to resolve this issue. &#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/ResolveIssue/ResolveIssue.py#L48"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-243.7294196633364" y="-866.3694188916025"/>
+      </node>
+      <node id="prompt_patchwork_10_2" label="HUMAN: user_prompt=&quot;&quot;&quot;\&#xD;&#xA;&lt;uploaded_files>&#xD;&#xA;{{pa">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="user_prompt=&quot;&quot;&quot;\&#xD;&#xA;&lt;uploaded_files>&#xD;&#xA;{{path}}&#xD;&#xA;&lt;/uploaded_files>&#xD;&#xA;I've uploaded a code repository in the current working directory.&#xD;&#xA;&#xD;&#xA;Consider the following issue:&#xD;&#xA;&#xD;&#xA;&lt;issue_description>&#xD;&#xA;{{issue}}&#xD;&#xA;&lt;/issue_description>&#xD;&#xA;&#xD;&#xA;Let's first explore and analyze the repository to understand where the issue is located.&#xD;&#xA;Please analyze the repository structure and try to locate the specific files and code sections that need to be modified.&#xD;&#xA;&#xD;&#xA;1. First explore the repo structure&#xD;&#xA;2. Identify the relevant files that likely need changes&#xD;&#xA;3. Once you've confirmed the error, identify the specific code sections that need to be modified&#xD;&#xA;&#xD;&#xA;Provide your findings in this format:&#xD;&#xA;&lt;analysis>&#xD;&#xA;    &lt;files>List the relevant files that need changes&lt;/files>&#xD;&#xA;    &lt;changes_needed>Description of the specific changes needed&lt;/changes_needed>&#xD;&#xA;&lt;/analysis>&#xD;&#xA;            &quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/ResolveIssue/ResolveIssue.py#L52"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-187.69665811346593" y="-880.2101820207698"/>
+      </node>
+      <node id="agent_patchwork_11" label="PRReview">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.285714285714285"/>
+          <attvalue for="agent_name" value="PRReview"/>
+          <attvalue for="agent_type" value="Reviewer"/>
+          <attvalue for="short_description" value="Analyze the following code diff against the provided rules"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/PRReview/PRReview.py#L14"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="14.285714285714285"/>
+        <viz:position x="-140.0672183135436" y="-583.4219522386059"/>
+      </node>
+      <node id="prompt_patchwork_11_1" label="HUMAN: user_prompt=&quot;&quot;&quot;\&#xD;&#xA;Analyze the following ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="user_prompt=&quot;&quot;&quot;\&#xD;&#xA;Analyze the following code diff against the provided rules:&#xD;&#xA;&#xD;&#xA;&lt;CODE_DIFF>&#xD;&#xA;{{diff}}&#xD;&#xA;&lt;/CODE_DIFF>&#xD;&#xA;&#xD;&#xA;&lt;RULES>&#xD;&#xA;- Do not ignore potential bugs in the code.&#xD;&#xA;- Do not overlook possible security vulnerabilities introduced by code modifications.&#xD;&#xA;- Do not deviate from the original coding standards established in the pull request.&#xD;&#xA;&lt;/RULES>&#xD;&#xA;&#xD;&#xA;For each rule, determine if there\'s a violation. Use the following chain of thought process:&#xD;&#xA;&#xD;&#xA;1. Understand the rule&#xD;&#xA;2. Examine the diff line by line&#xD;&#xA;3. Identify any potential violations&#xD;&#xA;4. Determine the specific line numbers of violations&#xD;&#xA;5. Summarize your findings&#xD;&#xA;&#xD;&#xA;Rule 1:&#xD;&#xA;1. Rule understanding: [Briefly explain the rule]&#xD;&#xA;2. Diff examination: [Describe how you\'re examining the diff]&#xD;&#xA;3. Potential violations: [List any potential violations you\'ve identified]&#xD;&#xA;4. Line numbers: [If violations exist, list the specific line numbers]&#xD;&#xA;5. Summary: [Summarize your findings for this rule]&#xD;&#xA;&#xD;&#xA;Rule 2:&#xD;&#xA;[Repeat the above structure for each rule]&#xD;&#xA;&#xD;&#xA;Now, carefully review your reasoning in the section above. Ensure that your conclusions are consistent with the analysis you\'ve done for each rule.&#xD;&#xA;&#xD;&#xA;Your review should have the following markdown format:&#xD;&#xA;&#xD;&#xA;&lt;REVIEW_FORMAT>&#xD;&#xA;## File Changed: `{{path}}`&#xD;&#xA;&#xD;&#xA;Details: [If rule violation include brief prescriptive explanation]&#xD;&#xA;&#xD;&#xA;Affected Code Snippet: &#xD;&#xA;[Original code enclosed in a code block from the file that is affected by this violation. If no violation, write &quot;N/A&quot;]&#xD;&#xA;&#xD;&#xA;Start Line: [Starting Line number of the affected code. If no violation, write &quot;N/A&quot;]&#xD;&#xA;&#xD;&#xA;End Line: [Ending Line number of the affected code. If no violation, write &quot;N/A&quot;]&#xD;&#xA;&#xD;&#xA;-------------&#xD;&#xA;&#xD;&#xA;Details: [If rule violation include brief prescriptive explanation]&#xD;&#xA;&#xD;&#xA;Affected Code Snippet: &#xD;&#xA;[Original code enclosed in a code block from the file that is affected by this violation. If no violation, write &quot;N/A&quot;]&#xD;&#xA;&#xD;&#xA;Start Line: [Starting Line number of the affected code. If no violation, write &quot;N/A&quot;]&#xD;&#xA;&#xD;&#xA;End Line: [Ending Line number of the affected code. If no violation, write &quot;N/A&quot;]&#xD;&#xA;&#xD;&#xA;-------------&#xD;&#xA;&#xD;&#xA;... (continue for all rules)&#xD;&#xA;&lt;/REVIEW_FORMAT>&#xD;&#xA;&#xD;&#xA;Ensure that you include all rules in your response, even if there\'s no violation. The output should directly reflect the reasoning in your thinking section.&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/PRReview/PRReview.py#L48"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-238.0538652813082" y="-867.9460566329159"/>
+      </node>
+      <node id="prompt_patchwork_11_2" label="HUMAN: user_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a software man">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="user_prompt=&quot;&quot;&quot;\&#xD;&#xA;You are a software manager compiling code reviews from all teams. You are given a list of code reviews. You have to remove code reviews that is either not actionable or useful. Do not change the accepted reviews, return the original review for the response. Do not remove the path from the review.&#xD;&#xA;&#xD;&#xA;&lt;code_reviews>&#xD;&#xA;{{review}}&#xD;&#xA;&lt;code_reviews>&#xD;&#xA;&#xD;&#xA;You should return an empty response if there are no code reviews that is actionable or useful.&#xD;&#xA;&quot;&quot;&quot;,"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/PRReview/PRReview.py#L121"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-181.93171692384317" y="-881.4197923674863"/>
+      </node>
+      <node id="agent_patchwork_12" label="GenerateUnitTests">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.142857142857142"/>
+          <attvalue for="agent_name" value="GenerateUnitTests"/>
+          <attvalue for="agent_type" value="Bug reproduction"/>
+          <attvalue for="short_description" value="writing unit tests across various programming languages"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/GenerateUnitTests/GenerateUnitTests.py#L13"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="12.142857142857142"/>
+        <viz:position x="-136.24575782062428" y="-584.3261875664001"/>
+      </node>
+      <node id="prompt_patchwork_12_1" label="SYSTEM: &quot;content&quot;: &quot;You are a senior software te">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="&quot;content&quot;: &quot;You are a senior software tester who is highly skilled at writing unit tests across various programming languages. Users will specify classes or functions to test, and you will generate appropriate unit tests using the most relevant framework for the detected language. Output the code directly with no additional text, formatting, or triple quotes. The response should appear as if directly pasted into an editor.&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/GenerateUnitTests/default_prompt.json#L7"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-204.3686367309364" y="-876.4892813496002"/>
+      </node>
+      <node id="agent_patchwork_13" label="AutoFix">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.142857142857142"/>
+          <attvalue for="agent_name" value="AutoFix"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="Users will give you vulnerable code and you will generate a fix based on the provided INSTRUCTION.  Use CallLLM, CommitChanges, CreatePR, ExtractCode, ExtractModelResponse, ModifyCode, PreparePR, PreparePrompt, ScanSemgrep, steps"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/AutoFix/AutoFix.py#L44"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="12.142857142857142"/>
+        <viz:position x="-132.418461012901" y="-585.2053923051076"/>
+      </node>
+      <node id="prompt_patchwork_13_1" label="SYSTEM: {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="{&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a senior software engineer who is best in the world at fixing vulnerabilities. Users will give you vulnerable code and you will generate a fix based on the provided INSTRUCTION.\n\nINSTRUCTION:\n\nOnly respond with the fixed code, do not add any comments or change the indentation.\n\nMake sure you respond with the full code and not only the parts that are changed.\n\nThe code should have no errors, it should compile and user should be able to use the fixed code as a direct replacement of the vulnerable code. The code should not introduce any new dependencies or use API calls that are not present in the code.\n\nBefore you generate a fix, do a vulnerability triage and analyse if the vulnerability can indeed to be exploited in the given code.\n\nIf the vulnerability cannot be exploited, respond with &lt;NOT VULNERABLE>.\n\nelse, If you cannot generate an exact fix for the vulnerability, respond with &lt;NO FIX POSSIBLE>.\n\nelse, If you can generate a fix for the vulnerability, do a brief change impact analysis to assess how these modifications might affect the overall system, considering both immediate and potential long-term compatibility issues.\n\nLow: Code diff will be applied to the code base and automatically merged without review.\n\nMedium: Code diff will be applied and a pull request will be sent to the developer to merge, but there are no indirect changes expected to be done in other parts of the system.\n\nHigh: Code diff will be offered as a suggestion to the developer to review and then apply to the code base. There are likely other changes that need to be done by the developer before the change can be implemented.\n\nPlease provide a response only in the following format:\n\nA. Commit message:\n&lt;brief summary of the diff>\n\nB. Change summary:\n&lt;description of the changes made in the diff>\n\nC. Compatibility Risk:\n&lt;Low, Medium, High> \n\nD. Fixed Code:\n&lt;original code with the vulnerability now fixed>\n\nFix vulnerability with the following details.\n\n{{messageText}}.&quot;},"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/AutoFix/default_prompt.json#L5"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-198.62769151935146" y="-877.8080884576613"/>
+      </node>
+      <node id="agent_patchwork_14" label="SonarFix">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.142857142857142"/>
+          <attvalue for="agent_name" value="SonarFix"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="Users will give you vulnerable code and you will generate a fix based on the provided INSTRUCTION.  Use CallLLM, CommitChanges, CreatePR, ExtractCode, ExtractModelResponse, ModifyCode, PreparePR, PreparePrompt, ScanSemgrep, steps"/>
+          <attvalue for="agent_in_repo" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/SonarFix/SonarFix.py#L44"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="12.142857142857142"/>
+        <viz:position x="-128.58549183903074" y="-586.0595287925233"/>
+      </node>
+      <node id="prompt_patchwork_14_1" label="SYSTEM: {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="{&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a senior software engineer who is best in the world at fixing vulnerabilities. Users will give you vulnerable code and you will generate a fix based on the provided INSTRUCTION.\n\nINSTRUCTION:\n\nOnly respond with the fixed code, do not add any comments or change the indentation.\n\nMake sure you respond with the full code and not only the parts that are changed.\n\nThe code should have no errors, it should compile and user should be able to use the fixed code as a direct replacement of the vulnerable code. The code should not introduce any new dependencies or use API calls that are not present in the code.\n\nBefore you generate a fix, do a vulnerability triage and analyse if the vulnerability can indeed to be exploited in the given code.\n\nIf the vulnerability cannot be exploited, respond with &lt;NOT VULNERABLE>.\n\nelse, If you cannot generate an exact fix for the vulnerability, respond with &lt;NO FIX POSSIBLE>.\n\nelse, If you can generate a fix for the vulnerability, do a brief change impact analysis to assess how these modifications might affect the overall system, considering both immediate and potential long-term compatibility issues.\n\nLow: Code diff will be applied to the code base and automatically merged without review.\n\nMedium: Code diff will be applied and a pull request will be sent to the developer to merge, but there are no indirect changes expected to be done in other parts of the system.\n\nHigh: Code diff will be offered as a suggestion to the developer to review and then apply to the code base. There are likely other changes that need to be done by the developer before the change can be implemented.\n\nPlease provide a response only in the following format:\n\nA. Commit message:\n&lt;brief summary of the diff>\n\nB. Change summary:\n&lt;description of the changes made in the diff>\n\nC. Compatibility Risk:\n&lt;Low, Medium, High> \n\nD. Fixed Code:\n&lt;original code with the vulnerability now fixed>\n\nFix vulnerability with the following details.\n\n{{messageText}}.&quot;},&#xD;&#xA;      {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;```\n{{affectedCode}}\n```&quot;}"/>
+          <attvalue for="prompt_url" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/SonarFix/default_prompt.json#L5"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="-192.8782377585461" y="-879.0892931887851"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="385" source="repo_patchwork" target="agent_patchwork_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="386" source="agent_patchwork_0" target="tool_82747703d4" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="387" source="repo_patchwork" target="agent_patchwork_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="388" source="agent_patchwork_1" target="tool_82747703d4" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="389" source="repo_patchwork" target="agent_patchwork_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="390" source="agent_patchwork_2" target="prompt_patchwork_2_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="391" source="agent_patchwork_2" target="tool_8523503fa6" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="392" source="agent_patchwork_2" target="tool_4bb593429b" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="393" source="agent_patchwork_2" target="tool_1910a9c090" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="394" source="repo_patchwork" target="agent_patchwork_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="395" source="agent_patchwork_3" target="prompt_patchwork_3_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="396" source="repo_patchwork" target="agent_patchwork_4" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="397" source="agent_patchwork_4" target="prompt_patchwork_4_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="398" source="agent_patchwork_4" target="tool_085efadba1" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="399" source="repo_patchwork" target="agent_patchwork_5" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="400" source="agent_patchwork_5" target="prompt_patchwork_5_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="401" source="agent_patchwork_5" target="prompt_patchwork_5_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="402" source="agent_patchwork_5" target="tool_d79cc27f66" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="403" source="agent_patchwork_5" target="tool_82747703d4" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="404" source="repo_patchwork" target="agent_patchwork_6" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="405" source="agent_patchwork_6" target="prompt_patchwork_6_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="406" source="agent_patchwork_6" target="tool_087dda27b4" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="407" source="agent_patchwork_6" target="tool_66d97e5e8e" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="408" source="repo_patchwork" target="agent_patchwork_7" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="409" source="agent_patchwork_7" target="prompt_patchwork_7_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="410" source="agent_patchwork_7" target="tool_66f40a5621" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="411" source="repo_patchwork" target="agent_patchwork_8" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="412" source="agent_patchwork_8" target="prompt_patchwork_8_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="413" source="agent_patchwork_8" target="tool_66f40a5621" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="414" source="repo_patchwork" target="agent_patchwork_9" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="415" source="agent_patchwork_9" target="prompt_patchwork_9_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="416" source="agent_patchwork_9" target="tool_66f40a5621" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="417" source="repo_patchwork" target="agent_patchwork_10" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="418" source="agent_patchwork_10" target="prompt_patchwork_10_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="419" source="agent_patchwork_10" target="prompt_patchwork_10_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="420" source="repo_patchwork" target="agent_patchwork_11" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="421" source="agent_patchwork_11" target="prompt_patchwork_11_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="422" source="agent_patchwork_11" target="prompt_patchwork_11_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="423" source="repo_patchwork" target="agent_patchwork_12" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="424" source="agent_patchwork_12" target="prompt_patchwork_12_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="425" source="repo_patchwork" target="agent_patchwork_13" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="426" source="agent_patchwork_13" target="prompt_patchwork_13_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="427" source="repo_patchwork" target="agent_patchwork_14" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="428" source="agent_patchwork_14" target="prompt_patchwork_14_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

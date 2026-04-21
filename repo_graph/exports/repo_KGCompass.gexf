@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_KGCompass" label="KGCompass">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084"/>
+          <attvalue for="commits" value="16"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="22"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2503.21710"/>
+          <attvalue for="framework" value="own scripts"/>
+          <attvalue for="dependency_graph" value="Disable"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="2"/>
+          <attvalue for="topology_description" value="Fig. 3. Overview of KGCOMPASS"/>
+          <attvalue for="topology_file" value="KGCompass_overview.png"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, HTML, JavaScript, Shell, CSS, Dockerfile"/>
+          <attvalue for="autonomy_rating" value="1"/>
+          <attvalue for="autonomy_description" value="1 – Orchestrated: execution decided by software workflow or human"/>
+          <attvalue for="repo_comments" value="- both agent are run in __main__"/>
+          <attvalue for="rawSize" value="40"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="40"/>
+        <viz:position x="-277.1638597533861" y="-114.80502970952676"/>
+      </node>
+      <node id="agent_KGCompass_0" label="CodeAnalyzer">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="CodeAnalyzer"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="analyze the code"/>
+          <attvalue for="agent_in_repo" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/fl.py#L44"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-564.261933656013" y="-203.9815438385963"/>
+      </node>
+      <node id="agent_KGCompass_1" label="CodeRepair">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="CodeRepair"/>
+          <attvalue for="agent_type" value="Localizator, Patcher"/>
+          <attvalue for="short_description" value="localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue."/>
+          <attvalue for="agent_in_repo" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/repair.py#L77"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="40"/>
+        <viz:position x="-543.2301725387733" y="-254.75670676842745"/>
+      </node>
+      <node id="prompt_KGCompass_1_1" label="SYSTEM: BASE_PROMPT_TEMPLATE = &quot;&quot;&quot;&#xD;&#xA;We are curre">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="BASE_PROMPT_TEMPLATE = &quot;&quot;&quot;&#xD;&#xA;We are currently solving the following issue within our repository. Here is the issue text:&#xD;&#xA;--- BEGIN ISSUE ---&#xD;&#xA;{problem_statement}&#xD;&#xA;--- END ISSUE ---&#xD;&#xA;&#xD;&#xA;Below are some code segments, each from a relevant file. One or more of these files may contain bugs.&#xD;&#xA;--- BEGIN FILE ---&#xD;&#xA;```&#xD;&#xA;{content}&#xD;&#xA;```&#xD;&#xA;--- END FILE ---&#xD;&#xA;&#xD;&#xA;Please first localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue.&#xD;&#xA;&#xD;&#xA;Every *SEARCH/REPLACE* edit must use this format:&#xD;&#xA;1. The file path&#xD;&#xA;2. The start of search block: &lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH&#xD;&#xA;3. A contiguous chunk of lines to search for in the existing source code&#xD;&#xA;4. The dividing line: =======&#xD;&#xA;5. The lines to replace into the source code&#xD;&#xA;6. The end of the replace block: >>>>>>> REPLACE&#xD;&#xA;&#xD;&#xA;Here is an example for python:&#xD;&#xA;&#xD;&#xA;```python&#xD;&#xA;### django/core/management/commands/migrate.py&#xD;&#xA;- start_line : 15&#xD;&#xA;- end_line : 17&#xD;&#xA;&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH&#xD;&#xA;    def my_method(self):&#xD;&#xA;        result = 1 + 1&#xD;&#xA;        return result&#xD;&#xA;=======&#xD;&#xA;    def my_method(self):&#xD;&#xA;        result = 1 + 2  # Fixed the calculation&#xD;&#xA;        return result&#xD;&#xA;>>>>>>> REPLACE&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;IMPORTANT NOTES:&#xD;&#xA;1. Line numbers start from 1 (not 0)&#xD;&#xA;2. The SEARCH block must match the exact content and indentation from the original file&#xD;&#xA;3. The REPLACE block must maintain proper indentation relative to the surrounding code&#xD;&#xA;4. Only include the specific lines that need to be changed&#xD;&#xA;5. If modifying a method, include its entire definition in both blocks if it helps clarity&#xD;&#xA;6. Only generate edits when actual changes are needed&#xD;&#xA;7. Verify that the replacement code is actually different from the original&#xD;&#xA;&#xD;&#xA;Please note that the *SEARCH/REPLACE* edit REQUIRES PROPER INDENTATION. If you would like to add a line like '        print(x)', you must fully write that out, with all those spaces before the code!&#xD;&#xA;Wrap the *SEARCH/REPLACE* edit in blocks ```python...```.&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/repair.py#L23"/>
+        </attvalues>
+        <viz:color r="184" g="144" b="64"/>
+        <viz:size value="10"/>
+        <viz:position x="-814.84525880816" y="-382.1350601526412"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="377" source="repo_KGCompass" target="agent_KGCompass_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="378" source="repo_KGCompass" target="agent_KGCompass_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="379" source="agent_KGCompass_1" target="prompt_KGCompass_1_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="184" g="144" b="64"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

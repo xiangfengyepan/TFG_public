@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_aide" label="aide">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/codestoryai/aide/blob/93c820fbc9d14b42047b658518677df66f1ef644"/>
+          <attvalue for="commits" value="138645"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="2190"/>
+          <attvalue for="analyzed" value="FALSE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="null"/>
+          <attvalue for="dependency_graph" value="codestoryai_aide_4775af.json"/>
+          <attvalue for="has_agents" value="FALSE"/>
+          <attvalue for="num_agents" value="0"/>
+          <attvalue for="topology_description" value="null"/>
+          <attvalue for="topology_file" value="null"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="TypeScript, CSS, JavaScript, Rust, HTML"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- This project is no longer maintained. See our announcement here. &#xA;- AST navigation"/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="196" g="125" b="62"/>
+        <viz:size value="10"/>
+        <viz:position x="277.1638597533861" y="114.80502970952686"/>
+      </node>
+    </nodes>
+    <edges/>
+  </graph>
+</gexf>

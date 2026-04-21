@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="double"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_Lingxi" label="Lingxi">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/nimasteryang/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9"/>
+          <attvalue for="commits" value="25"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="207"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2510.11838"/>
+          <attvalue for="framework" value="framework itself, langgraph, langchain"/>
+          <attvalue for="dependency_graph" value="Disable"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="5"/>
+          <attvalue for="topology_description" value="Fig. 3. Workflow of Lingxi. (supervisor node contraol all 5 agents)"/>
+          <attvalue for="topology_file" value="Lingxi_workflow.png"/>
+          <attvalue for="topology_type" value="Centralized"/>
+          <attvalue for="topology_url" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/supervisor_graph_demo.py#L292"/>
+          <attvalue for="programming_language" value="Python"/>
+          <attvalue for="autonomy_rating" value="3"/>
+          <attvalue for="autonomy_description" value="3 – Semi-autonomy: agents decide execution under communication/workflow restrictions"/>
+          <attvalue for="repo_comments" value="- Lingxi is an open‑source, multi‑agent framework designed to automate a broad range of software‑engineering tasks.&#xA;- The prototype currently consists of five main agents across the graphs and implemented in various LangGraph nodes&#xA;- Multi-Agent Manager, Supervisor, etc&#xA;- see README.md: https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/README.md?plain=1#L1"/>
+          <attvalue for="rawSize" value="40"/>
+        </attvalues>
+        <viz:color r="184" g="144" b="64"/>
+        <viz:size value="40"/>
+        <viz:position x="-212.13203435596415" y="212.13203435596438"/>
+      </node>
+      <node id="agent_Lingxi_0" label="reviewer_agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="17.5"/>
+          <attvalue for="agent_name" value="reviewer_agent"/>
+          <attvalue for="agent_type" value="Reviewer"/>
+          <attvalue for="short_description" value="a reviewer."/>
+          <attvalue for="agent_in_repo" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/hierarchy_graph_demo.py#L88"/>
+          <attvalue for="agent_comment" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+        <viz:size value="17.5"/>
+        <viz:position x="-404.38806688697855" y="443.2496941447479"/>
+      </node>
+      <node id="prompt_Lingxi_0_1" label="SYSTEM: ISSUE_RESOLVE_REVIEWER_SYSTEM_PROMPT = &quot;">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="ISSUE_RESOLVE_REVIEWER_SYSTEM_PROMPT = &quot;&quot;&quot;&#xA;You are a reviewer. You are provided the latest code changes generated by the problem_solver.&#xA;&#xA;You are tasked with reviewing the solution_mapper's solution and the problem_solver's patch to ensure the solution is correct and the patch are able to solve the issues.&#xA;&#xA;You can assume that the patch are already applied to the codebase. You should first generate the test cases yourself, and then run the test cases &#xA;&#xA;If the evaluation tests passed, the generated patch fixes the issue and you should response with the &quot;FIXED&quot;. Otherwise, you should analyze the reason and provide feedback to the supervisor and prompt the supervisor to rerun the problem_solver with the feedback.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/prompt/reviewer.py#L2"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+        <viz:size value="10"/>
+        <viz:position x="-606.5821003304678" y="664.8745412171219"/>
+      </node>
+      <node id="agent_Lingxi_1" label="problem_decoder_agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="17.5"/>
+          <attvalue for="agent_name" value="problem_decoder_agent"/>
+          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="short_description" value="a problem_decoder."/>
+          <attvalue for="agent_in_repo" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/supervisor_graph_demo.py#L181"/>
+          <attvalue for="agent_comment" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+        <viz:size value="17.5"/>
+        <viz:position x="-414.4348006036969" y="433.8707135179488"/>
+      </node>
+      <node id="prompt_Lingxi_1_1" label="SYSTEM: ISSUE_RESOLVE_PROBLEM_DECODER_SYSTEM_PRO">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="ISSUE_RESOLVE_PROBLEM_DECODER_SYSTEM_PROMPT = &quot;&quot;&quot;&#xA;You are a problem_decoder. You shold follow the guidance or feedback provided by the supervisor. And you are tasked with distill the issue description and generating a problem statement. You should do the follow three tasks:&#xA;1. Genreate the topic question.&#xA;2. Genreate the codebase representation.&#xA;3. Generate current behavour of the codebase.&#xA;4. Generate the expected behaviour of the codebase.&#xA;&#xA;**State your role of problem_decoder at the beginning of your response**&#xA;&#xA;# Task 1 Description&#xA;Given the issue, generate a topic question. The topic question should define a “topic” for the task, which takes the form of a question that can be posed against the codebase, and used to define the before/after success criteria of the issue. The topic is a way to distill the task down to its essence. The topic question should helps a reader better understand the task in the issue, and to focus on the most important aspects of the codebase that are relevant to the task.&#xA;&#xA;Procecure:&#xA;1. Start by understanding the issue content&#xA;2. Generate a summary statement of the issue&#xA;3. Turn the summary statement into a yes/no question&#xA;&#xA;Response requirements:&#xA;1. the topic question should be a does or do question that can be answered with a yes or no&#xA;2. the topic question should be concise and specific to the task in the issue&#xA;3. output the topic questions with the status like {'question': topic_question, 'status': 'yes' if the topic question is currently satisfied based on issue description and 'no' otherwise}&#xA;4. keep all technical terms in the question as is, do not simplify them&#xA;5. when generating topic question, be sure to include all necessary pre-conditions of the issue. E.g, if the issue happens under specific circumstance, be sure your statement and your question reflects that. &#xA;&#xA;# Task 2 Description &#xA;&#xA;Given the question, use the tools to navigate the codebase and locate the files that are relevant to the issue. Then, generate statements about the codebase relevant to the question. The representation of the codebase is a tree-like structure with file names printed on lines and the functions and classed defined within preceeding with --. &#xA;&#xA;Procedure:&#xA;1. generate one or more statements repeat that answers the question based on the current status&#xA;2. generate one or more statements about which files in the codebase are relevant to the question &#xA;3. generate one or more statements about which methods in the codebase are relevant to the question. It is normal that there is no methods in the codebase related to the question. In this case, indicate such. &#xA;4. Generate one or more statements how to the codebase so that we can answer the question. &#xA;&#xA;Response requirements:&#xA;1. For each statement, output your answer directly without stating assumptions&#xA;2. When referencing existing file names, include the full path. &#xA;3. Be sure that referenced file names come from the codebase representation. &#xA;&#xA;Example output of Task 2:&#xA;###&#xA;&#xA;- No, `is_dirty()` does not use `diff-files` and `diff-index` instead of `git diff`.&#xA;- The `is_dirty()` function in `git/repo/base.py` uses `git diff` to check for changes in the index and working tree.&#xA;- Lines 957-977 in `git/repo/base.py` show that `is_dirty()` uses `self.git.diff` to compare the index against HEAD and the working tree.&#xA;- The function does not use `diff-files` or `diff-index` commands.&#xA;- The current implementation of `is_dirty()` can be slow for large repositories with text conversion enabled for diffs.&#xA;###&#xA;&#xA;Given the issue, and a representation of the codebase, identify the files in the codebase that are relevant to the issue.&#xA;The representation of the codebase is a mapping of relative_file_path to the functions and classes in the file.&#xA;Your response requirements:&#xA;1. List each relevant file path followed by an explanation of why it's relevant to the issue&#xA;2. Ensure every file path in your output comes from the representation of the codebase&#xA;&#xA;# Task 3 Description&#xA;Given a question and a codebase representation, assume the topic question and the status generated from the Task 1 has been hypothetical implemented, generate statements about the codebase relevant to the question. &#xA;&#xA;Procedure:&#xA;1. Understand the main topic question and the assumption, understand the main subject of the intended change, be very careful, as the question may contain comparison clause. Any subject in the comparison clause is notthe main subject of the intended change. &#xA;2. generate one or more statements repeat that answers the question based on the assumption &#xA;3. generate one or more statements about which files in the codebase should contain the code change based on the assumption&#xA;4. Does the codebase has relevant method to the assumption? if not, propose a name of the method.  Output one or more statements about the name of this method and what the method does&#xA;5. Generate one or more statements about how to implement the hypothetical code&#xA;&#xA;Response requirements:&#xA;1. For each statement, output your answer directly without stating assumptions&#xA;2. Don't quote your output with ###, ### are used to show the boundary of example outputs&#xA;3. When referencing existing file names, use the full path. &#xA;4. Be sure that referenced file names come from the codebase representation. &#xA;5. Ensuring that the statements are relevant to the main subject of the intended change&#xA;&#xA;Example output of Task 3:&#xA;###&#xA;- Yes, the `Commit` class now has a method to get patch text similar to `git diff`.&#xA;- Added a `patch` method to the `Commit` class in `git/objects/commit.py` to get patch text.&#xA;- The `patch` method uses the `diff` method from the `Diffable` class to generate the patch text.&#xA;###&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/prompt/problem_decoder.py#L1"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+        <viz:size value="10"/>
+        <viz:position x="-621.6522009055453" y="650.8060702769232"/>
+      </node>
+      <node id="agent_Lingxi_2" label="solution_mapper_agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="17.5"/>
+          <attvalue for="agent_name" value="solution_mapper_agent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="a solution mapper."/>
+          <attvalue for="agent_in_repo" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/supervisor_graph_demo.py#L202"/>
+          <attvalue for="agent_comment" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+        <viz:size value="17.5"/>
+        <viz:position x="-424.2640687119283" y="424.26406871192876"/>
+      </node>
+      <node id="prompt_Lingxi_2_1" label="SYSTEM: ISSUE_RESOLVE_SOLUTION_MAPPER_SYSTEM_PRO">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="ISSUE_RESOLVE_SOLUTION_MAPPER_SYSTEM_PROMPT = &quot;&quot;&quot;&#xA;You are a solution mapper. You should do the follow two tasks:&#xA;1. According to the result from problem decoder, your task is to browse the relevant files and functions related with the problem. To do this, you should first understand the files and their semantics, and then understand the proposed solution.&#xA;2. And then, from the current status and the expected status, reasoning and generate the detailed code change plan for each relevant files/functions.&#xA;&#xA;Tools:&#xA;You have access to the tools of: view_directory and view_file_content, which have the ability for you to locate files and read the content of a file.&#xA;&#xA;Response requirements:&#xA;1. **State your role of solution_mapper at the beginning of your response**&#xA;2. Response with keys being the filepath and value being the proposed change plans to the file. List changes to a specific file in bullet points.&#xA;3. Be sure that you consider edge cases to ensure correct functionality.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/prompt/solution_mapper.py#L3"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+        <viz:size value="10"/>
+        <viz:position x="-636.3961030678925" y="636.3961030678931"/>
+      </node>
+      <node id="agent_Lingxi_3" label="problem_solver_agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="17.5"/>
+          <attvalue for="agent_name" value="problem_solver_agent"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="edit the file in the codebase"/>
+          <attvalue for="agent_in_repo" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/supervisor_graph_demo.py#L224"/>
+          <attvalue for="agent_comment" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+        <viz:size value="17.5"/>
+        <viz:position x="-433.8707135179483" y="414.43480060369734"/>
+      </node>
+      <node id="prompt_Lingxi_3_1" label="SYSTEM: ISSUE_RESOLVE_PROBLEM_SOLVER_SYSTEM_PROM">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="ISSUE_RESOLVE_PROBLEM_SOLVER_SYSTEM_PROMPT = &quot;&quot;&quot;&#xD;&#xA;You are a programmer. Please edit the file in the codebase according to the following code change plan wrapped in the &lt;code_change_plan> tags.&#xD;&#xA;&#xD;&#xA;You have access to the following two tools:&#xD;&#xA;&#xD;&#xA;- view_directory&#xD;&#xA;- str_replace_editor&#xD;&#xA;&#xD;&#xA;After tool calling, you should perform an observation on the tool calling result and reason about the next step before you proceed the next move. Wrap your observation and next step reasoning in the &lt;observation> tags.&#xD;&#xA;For example:&#xD;&#xA;&lt;observation>&#xD;&#xA;I've examined the content of &quot;user_authentication.py&quot; and found the issue. Lines 45-52 contain the password validation function that's causing the bug. The function isn't properly handling special characters in passwords. I'll now implement the changes specified in the code change plan to fix this file.&#xD;&#xA;&lt;/observation>&#xD;&#xA;&#xD;&#xA;Guidelines for implementation:&#xD;&#xA;1. Make only the changes specified in the plan&#xD;&#xA;2. Maintain consistent code style with the existing codebase&#xD;&#xA;3. Ensure the changes don't introduce new bugs&#xD;&#xA;4. Ensure your code edits are free from syntax errors and logical errors&#xD;&#xA;&#xD;&#xA;Procedure:&#xD;&#xA;1. Understand the proposed code change plan.&#xD;&#xA;2. View the code in the file that needs modification.&#xD;&#xA;3. Use the str_replace_editor tool to edit the file.&#xD;&#xA;4. Verify your changes match the requirements in the code change plan.&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/prompt/problem_solver.py#L2"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+        <viz:size value="10"/>
+        <viz:position x="-650.8060702769225" y="621.652200905546"/>
+      </node>
+      <node id="agent_Lingxi_4" label="analysis_agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="17.5"/>
+          <attvalue for="agent_name" value="analysis_agent"/>
+          <attvalue for="agent_type" value="null"/>
+          <attvalue for="short_description" value="null"/>
+          <attvalue for="agent_in_repo" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/tool_set/dev_knowledge.py#L207"/>
+          <attvalue for="agent_comment" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+        <viz:size value="17.5"/>
+        <viz:position x="-443.2496941447475" y="404.38806688697906"/>
+      </node>
+      <node id="prompt_Lingxi_4_1" label="SYSTEM: DEV_KNOWLEDGE_ANALYSIS_SYSTEM_PROMPT = &quot;">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="DEV_KNOWLEDGE_ANALYSIS_SYSTEM_PROMPT = &quot;&quot;&quot;&#xD;&#xA;You are a helpful assistant. You are given a description of a issue and it's asscoiated patch. You need to analyze the issue and the patch to provide a detailed analysis of the issue.&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/lingxi-agent/Lingxi/blob/fe0b1d36323234c3c90eaa05a82ffc53c77064f9/src/agent/prompt/dev_knowledge_prompts.py#L1"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+        <viz:size value="10"/>
+        <viz:position x="-664.8745412171212" y="606.5821003304685"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="332" source="repo_Lingxi" target="agent_Lingxi_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+      </edge>
+      <edge id="333" source="agent_Lingxi_0" target="prompt_Lingxi_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+      </edge>
+      <edge id="334" source="repo_Lingxi" target="agent_Lingxi_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+      </edge>
+      <edge id="335" source="agent_Lingxi_1" target="prompt_Lingxi_1_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+      </edge>
+      <edge id="336" source="repo_Lingxi" target="agent_Lingxi_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+      </edge>
+      <edge id="337" source="agent_Lingxi_2" target="prompt_Lingxi_2_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+      </edge>
+      <edge id="338" source="repo_Lingxi" target="agent_Lingxi_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+      </edge>
+      <edge id="339" source="agent_Lingxi_3" target="prompt_Lingxi_3_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+      </edge>
+      <edge id="340" source="repo_Lingxi" target="agent_Lingxi_4" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="134" b="206"/>
+      </edge>
+      <edge id="341" source="agent_Lingxi_4" target="prompt_Lingxi_4_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="95" b="179"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

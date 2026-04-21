@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_CodeFuse_CGM" label="CodeFuse-CGM">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/codefuse-ai/CodeFuse-CGM/blob/2c12754adeb0e4d97d31ea19c2181523fa742d55"/>
+          <attvalue for="commits" value="29"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="518"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2505.16901"/>
+          <attvalue for="framework" value="framework itself"/>
+          <attvalue for="dependency_graph" value="Disable"/>
+          <attvalue for="has_agents" value="FALSE"/>
+          <attvalue for="num_agents" value="0"/>
+          <attvalue for="topology_description" value="Figure 3: Architecture of CGM and its Graph RAG extension: Given an issue, (a) Rewriter extracts&#xA;code entities and keywords from the issue (Extractor), and modifies the original issue into more&#xA;detailed queries (Inferer). Based on this, (b) Retriever locates relevant nodes from the corresponding&#xA;code graph; then expands these nodes to a connected subgraph by including neighboring and&#xA;upstream nodes. (c) Reranker ranks retrieved results in two stages: File Name Rank and File&#xA;Skeleton Rank, selecting the most relevant files for modification. Finally, (d) Reader (CGM) takes the&#xA;retrieved graph and selected files as input. Each node's code content is encoded by an Encoder &amp;,&#xA;producing a node token via the Adapter A. Node tokens are then concatenated with text tokens in&#xA;the prompt before entering the LLM decoder D, where the adjacency matrix replaces its original&#xA;attention mask."/>
+          <attvalue for="topology_file" value="codefuse-cgm_architecture_.png"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, Shell"/>
+          <attvalue for="autonomy_rating" value="5"/>
+          <attvalue for="autonomy_description" value="5 – Full autonomy: agents decide execution without workflow or human intervention"/>
+          <attvalue for="repo_comments" value="- Agentless graph RAG: see paper why better &quot;Agentless models offer a more controlled approach to simulating real-world SE processes by following well-defined, fixed steps rather than relying on LLM agents to make autonomous decisions or&#xA;use complex tools.&quot;"/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="82" g="174" b="117"/>
+        <viz:size value="10"/>
+        <viz:position x="39.15785766601558" y="297.4334584121431"/>
+      </node>
+    </nodes>
+    <edges/>
+  </graph>
+</gexf>

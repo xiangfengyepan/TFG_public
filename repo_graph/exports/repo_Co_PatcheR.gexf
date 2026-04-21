@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_Co_PatcheR" label="Co-PatcheR">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75"/>
+          <attvalue for="commits" value="2"/>
+          <attvalue for="releases" value="1"/>
+          <attvalue for="stars" value="8"/>
+          <attvalue for="analyzed" value="FALSE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2505.18955"/>
+          <attvalue for="framework" value="own scripts"/>
+          <attvalue for="dependency_graph" value="ucsb-mlsec_Co-PatcheR_c4c101.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="0"/>
+          <attvalue for="topology_description" value="Figure 1: The overall training recipes and inference pipeline of Co-PatcheR. We design one model"/>
+          <attvalue for="topology_file" value="Co-PatcherR_overall_training_inference.png"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- BFS: https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/repair/bfs.py#L1&#xA;- rerank (rank patches): https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/repair/rerank.py#L1&#xA;- compres_file.py: https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/util/compress_file.py#L1"/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="63" g="173" b="175"/>
+        <viz:size value="10"/>
+        <viz:position x="-238.00600208737072" y="-182.628428702616"/>
+      </node>
+    </nodes>
+    <edges/>
+  </graph>
+</gexf>
