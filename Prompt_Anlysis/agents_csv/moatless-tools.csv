@@ -1,0 +1,2 @@
+"#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Comments"
+"1","ActionAgent","Base agent","base agent component","https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/agent.py#L42","","","","- AgentConfigManager: Manages agent configurations. https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/manager.py#L14"

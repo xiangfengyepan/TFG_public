@@ -1,0 +1,3 @@
+"#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Prompt 2 Type","Prompt 2","URL Prompt 2","Comment"
+"1","Editor","Patcher","","https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/editor.py#L31","","","","","","",""
+"2","Environment","Enviorment setup","","https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/environment.py#L28","","","","","","",""
