@@ -1,9 +1,7 @@
+import argparse
 import os
 import re
 import csv
-
-INPUT_FILE_FOLDER = "agents_csv"
-OUTPUT_FILE = "prompt_analysis.csv"
 
 
 def extract_features(text):
@@ -107,9 +105,17 @@ def extract_features(text):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Extract prompt-engineering features from agent CSVs.")
+    parser.add_argument("--input-folder", default="agents_csv", help="Folder containing per-repo agent CSVs")
+    parser.add_argument("--output-file", default="prompt_analysis.csv", help="Path for the output CSV")
+    args = parser.parse_args()
+
+    input_folder = args.input_folder
+    output_file = args.output_file
+
     rx_prompt_col = re.compile(r"^Prompt \d$")
 
-    with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as out_file:
+    with open(output_file, "w", newline="", encoding="utf-8") as out_file:
         writer = csv.writer(out_file)
         writer.writerow([
             "Repo",
@@ -125,12 +131,12 @@ def main():
             "Comments",
         ])
 
-        for filename in sorted(os.listdir(INPUT_FILE_FOLDER)):
+        for filename in sorted(os.listdir(input_folder)):
             if not filename.endswith(".csv"):
                 continue
 
             repo_name = filename
-            file_path = os.path.join(INPUT_FILE_FOLDER, filename)
+            file_path = os.path.join(input_folder, filename)
 
             with open(file_path, newline="", encoding="utf-8") as r_file:
                 reader = csv.DictReader(r_file)
@@ -164,7 +170,7 @@ def main():
                             "",
                         ])
 
-    print("Done! Output written to", OUTPUT_FILE)
+    print("Done! Output written to", output_file)
 
 
 if __name__ == "__main__":
