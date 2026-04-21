@@ -1,0 +1,22 @@
+{
+  "filters": [
+    {
+      "type": "script",
+      "itemType": "nodes",
+      "script": [
+        "<<Function",
+        "function nodeFilter(id, attributes, graph) {\n  const REPO_NODE = \"repo_suna\";\n\n  // BFS from REPO_NODE; keep only nodes reachable via directed edges.\n  // Cache the reachable set on the function object so BFS runs only once per filter application.\n  if (!nodeFilter._reachable) {\n    const reachable = new Set();\n    const queue = [];\n    if (graph.hasNode(REPO_NODE)) {\n      reachable.add(REPO_NODE);\n      queue.push(REPO_NODE);\n    }\n    while (queue.length > 0) {\n      const cur = queue.shift();\n      graph.outNeighbors(cur).forEach(function (nb) {\n        if (!reachable.has(nb)) {\n          reachable.add(nb);\n          queue.push(nb);\n        }\n      });\n    }\n    nodeFilter._reachable = reachable;\n  }\n  return nodeFilter._reachable.has(id);\n}",
+        "Function>>"
+      ]
+    },
+    {
+      "type": "script",
+      "itemType": "edges",
+      "script": [
+        "<<Function",
+        "function edgeFilter(id, attributes, graph) {\n  // Edges whose endpoints are hidden by the node filter are automatically removed\n  // by Gephi Lite; keep all edges here.\n  return true;\n}",
+        "Function>>"
+      ]
+    }
+  ]
+}
