@@ -1,0 +1,39 @@
+"#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Prompt 2 Type","Prompt 2","URL Prompt 2","URL Tool 1","Comments"
+"1","A2AAgent","Enviorment setup","""""""An A2A agent implementation in AgentScope, which supports
+
+    - Communication with remote agents using the A2A protocol
+    - Bidirectional message conversion between AgentScope and A2A formats
+    - Task lifecycle management with streaming and polling
+    - Artifact handling and status tracking
+
+    .. note:: Due to the limitation of A2A protocol. The A2AAgent class
+
+    - Only support chatbot-scenario (a user and an assistant) interactions.
+     To support multi-agent interactions requires the server side to handle
+     the `name` field in the A2A messages properly.
+    - Does not support structured output in `reply()` method due to the lack
+     of structured output support in A2A protocol.
+    - Stores observed messages locally and merges them with input messages
+     when `reply()` is called. Observed messages are cleared after processing.
+    """"""","https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_a2a_agent.py#L29","","","","","","","",""
+"2","AgentBase","Base agent","    """"""Base class for asynchronous agents.""""""","https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_agent_base.py#L30","","","","","","","",""
+"3","ReActAgentBase","Base agent","""The ReAct agent base class.
+
+    To support ReAct algorithm, this class extends the AgentBase class by
+    adding two abstract interfaces: reasoning and acting, while supporting
+    hook functions at four positions: pre-reasoning, post-reasoning,
+    pre-acting, and post-acting by the `_ReActAgentMeta` metaclass.
+    ""","https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_react_agent_base.py#L12","","","","","","","",""
+"4","ReActAgent","Helper/Proxy","""A ReAct agent implementation in AgentScope, which supports
+
+    - Realtime steering
+    - API-based (parallel) tool calling
+    - Hooks around reasoning, acting, reply, observe and print functions
+    - Structured output generation
+    ""","https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_react_agent.py#L98","","","","","","","",""
+"5","RealtimeAgent","Helper/Proxy","""The realtime agent class. Different from the `AgentBase` class,
+    this class is designed for real-time interaction scenarios, such as
+    realtime chat, voice assistants, etc.","https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_realtime_agent.py#L28","","","","","","","",""
+"6","UserAgent","Helper/Proxy","""The class for user interaction, allowing developers to handle the user
+    input from different sources, such as web UI, cli, and other interfaces.
+    ""","https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_user_agent.py#L12","","","","","","","",""

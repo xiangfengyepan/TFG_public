@@ -1,0 +1,14 @@
+"#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Prompt 2 Type","Prompt 2","URL Prompt 2","URL Tool 1","Comments"
+"1","AgentData","Enviorment setup","    Complete agent data including configuration.
+    
+    This is the single source of truth for agent representation.","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_loader.py#L14","","","","","","","",""
+"2","AgentLoader","Enviorment setup","    Unified agent loading service.
+    
+    Handles all agent data loading with consistent behavior:
+    - Single agent: loads full config
+    - List operations: loads metadata only (fast)
+    - Batch loading: efficient version fetching","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_loader.py#L160","","","","","","","",""
+"3","AgentService","Planner/Orchestrator, Enviorment setup","Takes Filter and Loader","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_service.py#L30","","","","","","","",""
+"4","AgentFilters","Enviorment setup","Is just a data structure like many other define in repo","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_service.py#L8","","","","","","","",""
+"5","KortixAgent","Localizator, Patcher, Reviewer","Already build agent, Super worker","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/agent.py#L94","","","","","","","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/tools.py#L63",""
+"6","Agent","Base agent","Used by kortixAgent","https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/agent.py#L14","","","","","","","",""

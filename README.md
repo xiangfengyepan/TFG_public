@@ -15,7 +15,6 @@ This repository contains the public documents, reports, and non-sensitive delive
 * **Supervisor:** Matías Sebastián Martínez Martínez
 * **Co-Supervisor:** Vincenzo De Martino
 * **GEP Tutor:** Belles Ros Francesc Xavier
-* **Date:** February 2026
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.

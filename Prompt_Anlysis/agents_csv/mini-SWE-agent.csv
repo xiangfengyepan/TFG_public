@@ -1,0 +1,7 @@
+"#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Prompt 2 Type","Prompt 2","URL Prompt 2","Prompt 3 Type","Prompt 3","URL Prompt 3","URL Tool 1","Comments"
+"1","DefaultAgent","Base agent","Minimal default agent implementation.","https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/default.py#L33","","","","","","","","","","",""
+"2","InteractiveAgent","Base agent","Extends `default.py` with some minimal human-in-the-loop functionality (confirm actions, etc.).","https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/interactive.py#L32","HUMAN","        prompt = (
+            f""[bold yellow]Execute {len(commands)} action(s)?[/] [green][bold]Enter[/] to confirm[/], ""
+            ""[red]type [bold]comment[/] to reject[/], or [blue][bold]/h[/] to show available commands[/]\n""
+            ""[bold yellow]>[/bold yellow] ""
+        )","https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/interactive.py#L142","","","","","","","","- prompt user: https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/utils/prompt_user.py#L1"
