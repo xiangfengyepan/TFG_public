@@ -1,0 +1,36 @@
+{
+  "task_description": "Fix bugs that may cause crashes or failing tests.",
+  "repo_tree": {
+    "name": ".",
+    "type": "directory",
+    "children": [
+      {
+        "name": "app",
+        "type": "directory",
+        "children": [
+          {
+            "name": "main.py",
+            "type": "file"
+          }
+        ]
+      },
+      {
+        "name": "dummy_test_file.txt",
+        "type": "file"
+      }
+    ]
+  },
+  "repo_scan_meta": {
+    "max_depth": 5,
+    "max_file_bytes": 1000000,
+    "included_files_count": 2,
+    "included_dirs_count": 2
+  },
+  "repo_snippets": [
+    {
+      "file_path": "app/main.py",
+      "content": "def calculate_average(numbers):\n    total = 0\n\n    for i in range(len(numbers) + 1):\n        total += numbers[i]\n\n    return total / len(numbers)\n\n\ndef find_max(numbers):\n    max_val = None\n\n    for n in numbers:\n        if n > max_val:\n            max_val = n\n\n    return max_val\n\n\ndef normalize(numbers):\n    max_val = find_max(numbers)\n\n    normalized = []\n    for n in numbers:\n        normalized.append(n / max_val)\n\n    return normalized\n\n\ndef get_element(numbers, index):\n    return numbers[index + 1]\n\n\ndef main():\n    data = []\n\n    avg = calculate_average(data)\n    print(\"Average:\", avg)\n\n    maximum = find_max(data)\n    print(\"Max:\", maximum)\n\n    norm = normalize(data) \n    print(\"Normalized:\", norm)\n\n    value = get_element(data, 0) \n    print(\"Element:\", value)\n\n\nif __name__ == \"__main__\":\n    main()"
+    }
+  ],
+  "repo_snippets_count": 1
+}

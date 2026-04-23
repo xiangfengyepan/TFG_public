@@ -1,0 +1,12 @@
+langchain==1.2.12
+langgraph==1.1.2
+ollama==0.6.1
+pynguin==0.45.0
+python-dotenv==1.2.2
+pydantic==2.12.5
+langchain-community==0.4.1
+langchain-experimental==0.4.1
+duckduckgo-search==8.1.1
+stackapi==0.3.1
+PyQt6==6.10.2
+langchain_ollama==1.0.1
