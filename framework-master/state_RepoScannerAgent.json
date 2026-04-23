@@ -1,0 +1,33 @@
+{
+  "task_description": "Fix bugs that may cause crashes or failing tests.",
+  "repo_tree": {
+    "name": ".",
+    "type": "directory",
+    "children": [
+      {
+        "name": "app",
+        "type": "directory",
+        "children": [
+          {
+            "name": "main.py",
+            "type": "file"
+          }
+        ]
+      },
+      {
+        "name": "dummy_test_file.txt",
+        "type": "file"
+      },
+      {
+        "name": "repo_tree.json",
+        "type": "file"
+      }
+    ]
+  },
+  "repo_scan_meta": {
+    "max_depth": 5,
+    "max_file_bytes": 1000000,
+    "included_files_count": 3,
+    "included_dirs_count": 2
+  }
+}

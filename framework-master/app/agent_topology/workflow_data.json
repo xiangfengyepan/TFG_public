@@ -1,0 +1,71 @@
+{
+  "nodes": [
+    {
+      "id": "repo_scanner_agent",
+      "x": 0,
+      "y": 100,
+      "name": "Repo_scanner_agent",
+      "role": "Agent Node",
+      "details": "Handles the repo_scanner_agent logic."
+    },
+    {
+      "id": "context_collector_agent",
+      "x": 200,
+      "y": 100,
+      "name": "Context_collector_agent",
+      "role": "Agent Node",
+      "details": "Handles the context_collector_agent logic."
+    },
+    {
+      "id": "bug_detector_agent",
+      "x": 400,
+      "y": 100,
+      "name": "Bug_detector_agent",
+      "role": "Agent Node",
+      "details": "Handles the bug_detector_agent logic."
+    },
+    {
+      "id": "issue_prioritizer_agent",
+      "x": 600,
+      "y": 100,
+      "name": "Issue_prioritizer_agent",
+      "role": "Agent Node",
+      "details": "Handles the issue_prioritizer_agent logic."
+    },
+    {
+      "id": "patch_generator_agent",
+      "x": 800,
+      "y": 100,
+      "name": "Patch_generator_agent",
+      "role": "Agent Node",
+      "details": "Handles the patch_generator_agent logic."
+    },
+    {
+      "id": "validator_agent",
+      "x": 1000,
+      "y": 100,
+      "name": "Validator_agent",
+      "role": "Agent Node",
+      "details": "Handles the validator_agent logic."
+    }
+  ],
+  "edges": [
+    {
+      "source": "bug_detector_agent",
+      "target": "patch_generator_agent"
+    },
+    {
+      "source": "context_collector_agent",
+      "target": "bug_detector_agent"
+    },
+    {
+      "source": "repo_scanner_agent",
+      "target": "context_collector_agent"
+    },
+
+    {
+      "source": "bug_detector_agent",
+      "target": "context_collector_agent"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+    "temperature": 0.8,
+    "top_k": 40,
+    "top_p": 0.9,
+    "min_p": 0.0,
+    "repeat_penalty": 1.1,
+    "repeat_last_n": 64,
+    "seed": 0,
+    "stop": null,
+    "num_predict": -1
+}
