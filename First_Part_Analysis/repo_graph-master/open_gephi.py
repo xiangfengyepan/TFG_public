@@ -10,6 +10,10 @@ Options:
   --session PATH     Path to session JSON     (default: config/session_<layout>.json)
   --layout NAME      Layout name             (default: radial)
   --url URL          Gephi Lite URL          (default: https://lite.gephi.org/v1.0.2/#/)
+  --local            Use local dev server at http://localhost:5173/gephi-lite/ (overrides --url)
+  --local-port PORT  Port for local dev server (default: 5173)
+  --start-server     Auto-start the local Gephi Lite dev server (requires --local)
+  --gephi-dir PATH   Path to cloned gephi-lite repo (default: ./gephi-lite)
   --filter NAME      Filter folder name      (e.g. 'repo' → config/filters_repo.json)
   --export           Click Workspace → Export graph file after setup
   --export-path PATH Save exported file to PATH (implies --export; sets browser download dir)
@@ -20,8 +24,10 @@ Requires: pip install selenium
 
 import argparse
 import json
+import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 
 try:
@@ -34,7 +40,46 @@ except ImportError:
     sys.exit(1)
 
 GEPHI_URL = "https://lite.gephi.org/v1.0.2/#/"
+LOCAL_URL_TEMPLATE = "http://localhost:{port}/gephi-lite/"
 DEFAULT_LAYOUT = "radial"
+DEFAULT_LOCAL_PORT = 5173
+
+
+# ── Local dev server ──────────────────────────────────────────────────────────
+
+
+def _server_ready(url: str, timeout: int = 60) -> bool:
+    """Poll url until it returns HTTP 200 (or any response), up to timeout seconds."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            urllib.request.urlopen(url, timeout=2)
+            return True
+        except Exception:
+            time.sleep(1)
+    return False
+
+
+def start_local_server(gephi_dir: Path, port: int) -> subprocess.Popen:
+    """Start `npm run start` in gephi_dir; return the Popen handle."""
+    if not gephi_dir.exists():
+        print(f"Error: gephi-lite directory not found: {gephi_dir}")
+        sys.exit(1)
+    print(f"  Starting local Gephi Lite dev server (port {port})...")
+    proc = subprocess.Popen(
+        ["npm", "run", "start"],
+        cwd=str(gephi_dir),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        shell=True,
+    )
+    url = LOCAL_URL_TEMPLATE.format(port=port)
+    if not _server_ready(url, timeout=120):
+        proc.terminate()
+        print(f"Error: dev server did not become ready at {url} within 120 s.")
+        sys.exit(1)
+    print(f"  Dev server ready at {url}")
+    return proc
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -502,6 +547,31 @@ def main():
     )
     parser.add_argument("--url", default=GEPHI_URL, help="Gephi Lite URL")
     parser.add_argument(
+        "--local",
+        action="store_true",
+        default=False,
+        help="Use local dev server at http://localhost:<port>/gephi-lite/ (overrides --url)",
+    )
+    parser.add_argument(
+        "--local-port",
+        type=int,
+        default=DEFAULT_LOCAL_PORT,
+        metavar="PORT",
+        help=f"Port for local dev server (default: {DEFAULT_LOCAL_PORT})",
+    )
+    parser.add_argument(
+        "--start-server",
+        action="store_true",
+        default=False,
+        help="Auto-start the local Gephi Lite dev server (requires --local)",
+    )
+    parser.add_argument(
+        "--gephi-dir",
+        default=None,
+        metavar="PATH",
+        help="Path to cloned gephi-lite repo (default: <script-dir>/gephi-lite)",
+    )
+    parser.add_argument(
         "--filter",
         default=None,
         help="Filter name (subfolder in filters/), e.g. 'repo' → config/filters_repo.json",
@@ -525,6 +595,20 @@ def main():
         help="Exit automatically after all steps instead of waiting for browser close",
     )
     args = parser.parse_args()
+
+    # Resolve Gephi Lite URL
+    gephi_url = args.url
+    if args.local:
+        gephi_url = LOCAL_URL_TEMPLATE.format(port=args.local_port)
+
+    # Optionally auto-start the local dev server
+    dev_server_proc = None
+    if args.start_server:
+        if not args.local:
+            print("Warning: --start-server has no effect without --local; ignoring.")
+        else:
+            gephi_dir = Path(args.gephi_dir) if args.gephi_dir else here / "gephi-lite"
+            dev_server_proc = start_local_server(gephi_dir, args.local_port)
 
     gexf_path = Path(args.gexf).resolve()
     if not gexf_path.exists():
@@ -558,11 +642,11 @@ def main():
     do_export = args.export or export_path is not None
     download_dir = str(export_path.parent) if export_path else None
 
-    print(f"Opening Gephi Lite (layout={args.layout})...")
+    print(f"Opening Gephi Lite (layout={args.layout}, url={gephi_url})...")
     driver = open_browser(download_dir=download_dir)
 
     try:
-        driver.get(args.url)
+        driver.get(gephi_url)
         wait = WebDriverWait(driver, 3)
         wait.until(
             lambda d: d.execute_script("return document.readyState") == "complete"
@@ -621,6 +705,9 @@ def main():
             driver.quit()
         except Exception:
             pass
+        if dev_server_proc is not None:
+            dev_server_proc.terminate()
+            print("  Dev server stopped.")
 
 
 if __name__ == "__main__":
