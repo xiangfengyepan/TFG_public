@@ -62,4 +62,4 @@ if (-not $SkipGenerate) {
 
 # ── Open Gephi Lite ───────────────────────────────────────────────────────────
 Write-Host "`nLaunching Gephi Lite (layout=$Layout)..."
-& $pythonCmd "$ScriptDir\open_gephi.py" --layout $Layout
+& $pythonCmd "$ScriptDir\open_gephi.py" --layout $Layout --local --start-server

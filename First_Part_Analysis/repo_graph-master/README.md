@@ -1,13 +1,19 @@
 # SWE-bench Graph Visualizer
 
-Generates a GEXF graph from the SWE-bench repository analysis CSVs and opens it in **Gephi Lite** with layout, appearance, filters, and quality settings applied automatically.
+Generates a GEXF graph from the SWE-bench repository analysis CSVs and opens it in **Gephi Lite** (running locally) with layout, appearance, filters, and quality settings applied automatically.
 
 ## Prerequisites
 
 - **Windows** (tested on Windows 11)
 - **Python 3** on PATH (`python`, `python3`, or `py`)
+- **Node.js 18+** on PATH — required to run the local Gephi Lite dev server
 - **Browser**: Edge, Chrome, or Firefox installed — tested with **Edge only**
-- **Internet access** to reach `https://lite.gephi.org`
+- **gephi-lite** cloned into `repo_graph/gephi-lite/` with dependencies installed:
+
+```powershell
+cd gephi-lite
+npm install
+```
 
 `pip install selenium` is handled automatically by `run.ps1`.
 
@@ -33,14 +39,15 @@ The script will:
 1. Check Python and install `selenium` if missing
 2. Generate `swe_bench_graph.gexf` from the analysis CSVs
 3. Generate `config/session_<layout>.json` from the JS layout files in `layouts/`
-4. Open a browser, load Gephi Lite, and automatically:
+4. Start the local Gephi Lite dev server (`http://localhost:5173/gephi-lite/`)
+5. Open a browser, load Gephi Lite, and automatically:
    - Upload the GEXF file
    - Set node color → `node_type`, node size → `Degree (dynamic)`
    - Set edge color → `Target nodes`
    - Apply the custom layout script
    - Enable *Connected-closeness* in Layout quality
 
-The browser stays open. Close it or press `Ctrl+C` in the terminal to exit.
+The browser stays open. Close it or press `Ctrl+C` in the terminal to exit. The dev server is stopped automatically when the script exits.
 
 ### Available layouts
 
@@ -48,6 +55,19 @@ The browser stays open. Close it or press `Ctrl+C` in the terminal to exit.
 |---|---|
 | `radial` | Repos at centre, agents/prompts/tools in concentric rings |
 | `hierarchical` | Left-to-right columns: repo → agent → prompt/tool |
+
+### Pre-starting the dev server
+
+If you plan to run `open_gephi.py` multiple times (e.g. batch export), start the dev server once manually to avoid the startup wait on every run:
+
+```powershell
+# Terminal 1 — keep this running
+cd gephi-lite
+npm run start
+
+# Terminal 2 — use --local without --start-server
+python open_gephi.py --local --filter repo --export
+```
 
 ---
 
@@ -89,7 +109,7 @@ This writes `config/filters_repo.json` (and one file per folder found in `filter
 Pass `--filter <folder>` to load the corresponding filter JSON:
 
 ```powershell
-python open_gephi.py --filter repo
+python open_gephi.py --local --filter repo
 ```
 
 Gephi Lite reads `1.0_filters` from `sessionStorage` on page load and applies the script filter automatically.
@@ -102,14 +122,18 @@ After all setup steps are complete the browser can export the filtered graph:
 
 ```powershell
 # Export to browser's default download folder
-python open_gephi.py --filter repo --export
+python open_gephi.py --local --filter repo --export
 
 # Export to a specific path and exit automatically
-python open_gephi.py --filter repo --export-path .\exports\repo_OpenHands.gexf --no-interaction
+python open_gephi.py --local --filter repo --export-path .\exports\repo_OpenHands.gexf --no-interaction
 ```
 
 | Option | Description |
 |---|---|
+| `--local` | Use the local dev server at `http://localhost:5173/gephi-lite/` |
+| `--local-port PORT` | Override the dev server port (default: `5173`) |
+| `--start-server` | Auto-start `npm run start` in `gephi-lite/` before opening the browser |
+| `--gephi-dir PATH` | Path to the cloned gephi-lite repo (default: `./gephi-lite`) |
 | `--export` | Click Workspace → Export graph file after setup |
 | `--export-path PATH` | Save to PATH (implies `--export`; configures browser download dir) |
 | `--no-interaction` | Exit automatically after all steps instead of waiting for browser close |
@@ -119,6 +143,8 @@ python open_gephi.py --filter repo --export-path .\exports\repo_OpenHands.gexf -
 ## Batch export — generate.ps1
 
 `generate.ps1` iterates over every repository node and produces one filtered GEXF per repo using `open_gephi.py`.
+
+> **Note:** Start the local dev server manually before running `generate.ps1` (see [Pre-starting the dev server](#pre-starting-the-dev-server)), then pass `--local` via the `-OpenGephiArgs` parameter if you have customised the script. The default invocation in `generate.ps1` uses the remote URL; edit line 122 to add `--local` if needed.
 
 ```powershell
 # All repos found in config/dataset.json → exports\ folder
@@ -152,7 +178,16 @@ For each repo the script:
 
 If the automation does not work (wrong Gephi Lite version, browser driver issues, etc.) you can reproduce the same result by hand.
 
-### 1 — Generate the files
+### 1 — Start the local dev server
+
+```powershell
+cd gephi-lite
+npm run start
+```
+
+Wait until the terminal shows `Local: http://localhost:5173/gephi-lite/`.
+
+### 2 — Generate the files
 
 ```powershell
 python generate_gexf.py
@@ -166,11 +201,11 @@ This produces:
 - `config/session_hierarchical.json`
 - `config/filters_repo.json` *(if generate_filters.py was run)*
 
-### 2 — Open Gephi Lite
+### 3 — Open Gephi Lite
 
-Go to **https://lite.gephi.org** in your browser.
+Go to **http://localhost:5173/gephi-lite/** in your browser.
 
-### 3 — Load the layout script
+### 4 — Load the layout script
 
 In the left sidebar: **Layout → Custom layout**, then click **Open code editor**.
 
@@ -183,11 +218,11 @@ Replace the placeholder function with the contents of the layout file you want:
 
 Click **Save and run** inside the editor to apply the layout.
 
-### 4 — Upload the graph
+### 5 — Upload the graph
 
 Click **Open a local file** in the welcome dialog (or **Workspace → Open**), select `swe_bench_graph.gexf`, and click **Open**.
 
-### 5 — Apply a filter (optional)
+### 6 — Apply a filter (optional)
 
 Paste the following in the browser console to load the repo filter, then reload the page:
 
@@ -204,7 +239,7 @@ sessionStorage.setItem('1.0_filters', JSON.stringify({
 
 Reload the page — the filter will be active when the graph finishes loading.
 
-### 6 — Set node appearance
+### 7 — Set node appearance
 
 In the left sidebar: **Appearance → Nodes**
 
@@ -213,7 +248,7 @@ In the left sidebar: **Appearance → Nodes**
 | Set color from… | `node_type` |
 | Set size from… | `Degree (dynamic)` |
 
-### 7 — Set edge appearance
+### 8 — Set edge appearance
 
 In the left sidebar: **Appearance → Edges**
 
@@ -221,16 +256,16 @@ In the left sidebar: **Appearance → Edges**
 |---|---|
 | Set color from… | `Target nodes` |
 
-### 8 — Apply the custom layout
+### 9 — Apply the custom layout
 
 In the left sidebar: **Layout → Custom layout → Apply**
 
-### 9 — Enable Layout quality
+### 10 — Enable Layout quality
 
 In the left sidebar: **Layout → Layout quality**
 
 Check **Enable Connected-closeness**.
 
-### 10 — Export the graph (optional)
+### 11 — Export the graph (optional)
 
 **Workspace → Export graph file** to download the current (filtered) graph as a GEXF file.
