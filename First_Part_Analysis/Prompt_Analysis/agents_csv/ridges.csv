@@ -1,3 +1,2 @@
 "#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Prompt 2 Type","Prompt 2","URL Prompt 2","Prompt 3 Type","Prompt 3","URL Prompt 3","URL Tool 1","Comments"
 "1","Agent","Base agent","","https://github.com/ridgesai/ridges/blob/5d5936410a295b599e42ccb22a10e2b86d441f0b/models/agent.py#L19","","","","","","","","","","",""
-"2","","","","","","","","","","","","","","",""
