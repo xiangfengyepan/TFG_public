@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_aegis" label="aegis">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669"/>
+          <attvalue for="commits" value="11"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="9"/>
+          <attvalue for="analyzed" value="FALSE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="langgraph, langchain"/>
+          <attvalue for="dependency_graph" value="evandiewald_aegis_273adb.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="2"/>
+          <attvalue for="topology_description" value="null"/>
+          <attvalue for="topology_file" value="null"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- It is significantly inspired by Moatless Tools&#xA;- Getting Started&#xA;Coming soon.&#xA;- Flake8Linter (analyze code sintex without runnning the code)&#xA;- all prompts in use in agent.py https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/agent.py#L1&#xA;- tools defined in also in agent.py&#xA;- prompt template: https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/prompt_templates.py#L3"/>
+          <attvalue for="rawSize" value="40"/>
+        </attvalues>
+        <viz:color r="181" g="150" b="64"/>
+        <viz:size value="40"/>
+        <viz:position x="-259.8076211353317" y="-149.99999999999983"/>
+      </node>
+      <node id="agent_aegis_0" label="Editor">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="Editor"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="null"/>
+          <attvalue for="agent_in_repo" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/editor.py#L31"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="119" g="122" b="204"/>
+        <viz:size value="10"/>
+        <viz:position x="-532.8096603916846" y="-275.88741506871565"/>
+      </node>
+      <node id="agent_aegis_1" label="Environment">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="Environment"/>
+          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="short_description" value="null"/>
+          <attvalue for="agent_in_repo" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/environment.py#L28"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="119" g="122" b="204"/>
+        <viz:size value="10"/>
+        <viz:position x="-505.3303402297723" y="-323.4829937465997"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="380" source="repo_aegis" target="agent_aegis_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="119" g="122" b="204"/>
+      </edge>
+      <edge id="381" source="repo_aegis" target="agent_aegis_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="119" g="122" b="204"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

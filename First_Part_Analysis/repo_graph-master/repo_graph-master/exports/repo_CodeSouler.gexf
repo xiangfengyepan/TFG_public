@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_CodeSouler" label="CodeSouler">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/OpenCSGs/CodeSouler/blob/a2fddcf294da9b79970627a70412a1e56e5c7a0b"/>
+          <attvalue for="commits" value="7"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="3"/>
+          <attvalue for="analyzed" value="FALSE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="null"/>
+          <attvalue for="dependency_graph" value="Disable"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="0"/>
+          <attvalue for="topology_description" value="null"/>
+          <attvalue for="topology_file" value="null"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="null"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- Only README.md in repo&#xA;- StarShip CodeSouler is a IDE plugin powered by the latest advancements in large model technology, developed by OpenCSG."/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="-212.1320343559643" y="-212.13203435596424"/>
+      </node>
+    </nodes>
+    <edges/>
+  </graph>
+</gexf>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+      <attribute id="tool_url" title="tool_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_augment_swebench_agent" label="augment-swebench-agent">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e"/>
+          <attvalue for="commits" value="13"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="852"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="own scripts"/>
+          <attvalue for="dependency_graph" value="augmentcode_augment-swebench-agent_19bcc3.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="1"/>
+          <attvalue for="topology_description" value="null"/>
+          <attvalue for="topology_file" value="null"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, Shell"/>
+          <attvalue for="autonomy_rating" value="5"/>
+          <attvalue for="autonomy_description" value="5 – Full autonomy: agents decide execution without workflow or human intervention"/>
+          <attvalue for="repo_comments" value="- Majority Vote Ensembler&#xA;The Majority Vote Ensembler is a tool that helps select the best solution from multiple candidates using an LLM. https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/majority_vote_ensembler.py#L201&#xA;- CLI: https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/cli.py#L29"/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="80" g="175" b="155"/>
+        <viz:size value="10"/>
+        <viz:position x="212.13203435596427" y="212.13203435596424"/>
+      </node>
+      <node id="agent_augment_swebench_agent_0" label="general_agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="general_agent"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="description = &quot;&quot;&quot;\&#xD;&#xA;A general agent that can accomplish tasks and answer questions.&#xD;&#xA;&#xD;&#xA;If you are faced with a task that involves more than a few steps, or if the task is complex, or if the instructions are very long,&#xD;&#xA;try breaking down the task into smaller steps and call this tool multiple times.&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="agent_in_repo" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/agent.py#L20"/>
+          <attvalue for="agent_comment" value="- inherid from LLTool  https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/utils/common.py#L359"/>
+        </attvalues>
+        <viz:color r="201" g="84" b="121"/>
+        <viz:size value="40"/>
+        <viz:position x="424.26406871192853" y="424.2640687119285"/>
+      </node>
+      <node id="prompt_augment_swebench_agent_0_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = f&quot;&quot;&quot;&#xD;&#xA;You are an AI assistant helping a software engineer implement pull requests,&#xD;&#xA;and you have access to tools to interact with the engineer's codebase.&#xD;&#xA;&#xD;&#xA;Working directory: {{workspace_root}}&#xD;&#xA;Operating system: {platform.system()}&#xD;&#xA;&#xD;&#xA;Guidelines:&#xD;&#xA;- You are working in a codebase with other engineers and many different components. Be careful that changes you make in one component don't break other components.&#xD;&#xA;- When designing changes, implement them as a senior software engineer would. This means following best practices such as separating concerns and avoiding leaky interfaces.&#xD;&#xA;- When possible, choose the simpler solution.&#xD;&#xA;- Use your bash tool to set up any necessary environment variables, such as those needed to run tests.&#xD;&#xA;- You should run relevant tests to verify that your changes work.&#xD;&#xA;&#xD;&#xA;Make sure to call the complete tool when you are done with the task, or when you have an answer to the question.&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/prompts/system_prompt.py#L3"/>
+        </attvalues>
+        <viz:color r="123" g="166" b="71"/>
+        <viz:size value="10"/>
+        <viz:position x="636.3961030678928" y="636.3961030678927"/>
+      </node>
+      <node id="tool_1bb6bc9c24" label="sequential_thinking_tool.py#L39">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/sequential_thinking_tool.py#L39"/>
+        </attvalues>
+        <viz:color r="144" g="112" b="197"/>
+        <viz:size value="10"/>
+        <viz:position x="1213.5254915624212" y="881.6778784387097"/>
+      </node>
+      <node id="tool_46cdea436e" label="complete_tool.py#L11">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/complete_tool.py#L11"/>
+        </attvalues>
+        <viz:color r="144" g="112" b="197"/>
+        <viz:size value="10"/>
+        <viz:position x="1140.6089484000463" y="974.1720724952755"/>
+      </node>
+      <node id="tool_b32bd4dc5f" label="str_replace_tool.py#L136">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/str_replace_tool.py#L136"/>
+        </attvalues>
+        <viz:color r="144" g="112" b="197"/>
+        <viz:size value="10"/>
+        <viz:position x="1060.6601717798214" y="1060.6601717798212"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="198" source="repo_augment_swebench_agent" target="agent_augment_swebench_agent_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="84" b="121"/>
+      </edge>
+      <edge id="199" source="agent_augment_swebench_agent_0" target="prompt_augment_swebench_agent_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="123" g="166" b="71"/>
+      </edge>
+      <edge id="200" source="agent_augment_swebench_agent_0" target="tool_1bb6bc9c24" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="144" g="112" b="197"/>
+      </edge>
+      <edge id="201" source="agent_augment_swebench_agent_0" target="tool_46cdea436e" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="144" g="112" b="197"/>
+      </edge>
+      <edge id="202" source="agent_augment_swebench_agent_0" target="tool_b32bd4dc5f" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="144" g="112" b="197"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

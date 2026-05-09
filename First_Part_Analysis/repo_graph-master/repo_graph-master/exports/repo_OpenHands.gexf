@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="double"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+      <attribute id="tool_url" title="tool_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_OpenHands" label="OpenHands">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/All-Hands-AI/OpenHands/blob/bef9b80b9dc6061d27a748ef2115120a6a2feb87"/>
+          <attvalue for="commits" value="12397"/>
+          <attvalue for="releases" value="97"/>
+          <attvalue for="stars" value="67256"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="[2511.03690] The OpenHands Software Agent SDK: A Composable and Extensible Foundation for Production Agents"/>
+          <attvalue for="framework" value="framework itself"/>
+          <attvalue for="dependency_graph" value="OpenHands_OpenHands_070fb0.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="8"/>
+          <attvalue for="topology_description" value="Figure 1 Architecture Evolution from OpenHands V0 to V1"/>
+          <attvalue for="topology_file" value="Figure_1_Architecture_Evolution_from_OpenHands_V0_to_V1.png"/>
+          <attvalue for="topology_type" value="Centralized"/>
+          <attvalue for="topology_url" value="https://github.com/All-Hands-AI/OpenHands/blob/bef9b80b9dc6061d27a748ef2115120a6a2feb87/openhands/controller/agent_controller.py#L732&#xA;Also see paper"/>
+          <attvalue for="programming_language" value="Python, JavaScript, TypeScript, Makefile"/>
+          <attvalue for="autonomy_rating" value="5"/>
+          <attvalue for="autonomy_description" value="5 – Full autonomy: agents decide execution without workflow or human intervention"/>
+          <attvalue for="repo_comments" value="- microagent: Microagents are specialized prompts that enhance OpenHands with domain-specific knowledge and task-specific workflows.&#xA;- # IMPORTANT: LEGACY V0 CODE - Deprecated since version 1.0.0, scheduled for removal April 1, 2026&#xD;&#xA;# This file is part of the legacy (V0) implementation of OpenHands and will be removed soon as we complete the migration to V1.&#xD;&#xA;# OpenHands V1 uses the Software Agent SDK for the agentic core and runs a new application server. Please refer to:&#xD;&#xA;#   - V1 agentic core (SDK): https://github.com/OpenHands/software-agent-sdk&#xD;&#xA;#   - V1 application server (in this repo): openhands/app_server/&#xD;&#xA;# Unless you are working on deprecation, please avoid extending this legacy file and consult the V1 codepaths above.&#xD;&#xA;# Tag: Legacy-V0"/>
+          <attvalue for="rawSize" value="33.333333333333336"/>
+        </attvalues>
+        <viz:color r="162" g="98" b="191"/>
+        <viz:size value="33.333333333333336"/>
+        <viz:position x="1.8369701987210297e-14" y="-300"/>
+      </node>
+      <node id="agent_OpenHands_0" label="CodeActAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="CodeActAgent"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="The Code Act Agent is a minimalist agent. The agent works by passing the model a list of action-observation pairs and prompting the model to take the next step."/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/codeact_agent.py#L57"/>
+          <attvalue for="agent_comment" value="Use mock agent for test: https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/tests/unit/server/session/test_agent_session.py#L52&#xA;Has microagent wrapper: https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/microagent/microagent.py#L17"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="40"/>
+        <viz:position x="-27.479320161912447" y="-599.3704088153161"/>
+      </node>
+      <node id="prompt_OpenHands_0_1" label="SYSTEM: You are OpenHands agent, a helpful AI as">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="You are OpenHands agent, a helpful AI assistant that can interact with a computer to solve tasks.&#xD;&#xA;&#xD;&#xA;&lt;ROLE>&#xD;&#xA;Your primary role is to assist users by executing commands, modifying code, and solving technical problems effectively. You should be thorough, methodical, and prioritize quality over speed.&#xD;&#xA;* If the user asks a question, like &quot;why is X happening&quot;, don't try to fix the problem. Just give an answer to the question.&#xD;&#xA;&lt;/ROLE>&#xD;&#xA;&#xD;&#xA;&lt;EFFICIENCY>&#xD;&#xA;* Each action you take is somewhat expensive. Wherever possible, combine multiple actions into a single action, e.g. combine multiple bash commands into one, using sed and grep to edit/view multiple files at once.&#xD;&#xA;* When exploring the codebase, use efficient tools like find, grep, and git commands with appropriate filters to minimize unnecessary operations.&#xD;&#xA;&lt;/EFFICIENCY>&#xD;&#xA;&#xD;&#xA;&lt;FILE_SYSTEM_GUIDELINES>&#xD;&#xA;* When a user provides a file path, do NOT assume it's relative to the current working directory. First explore the file system to locate the file before working on it.&#xD;&#xA;* If asked to edit a file, edit the file directly, rather than creating a new file with a different filename.&#xD;&#xA;* For global search-and-replace operations, consider using `sed` instead of opening file editors multiple times.&#xD;&#xA;* NEVER create multiple versions of the same file with different suffixes (e.g., file_test.py, file_fix.py, file_simple.py). Instead:&#xD;&#xA;  - Always modify the original file directly when making changes&#xD;&#xA;  - If you need to create a temporary file for testing, delete it once you've confirmed your solution works&#xD;&#xA;  - If you decide a file you created is no longer useful, delete it instead of creating a new version&#xD;&#xA;* Do NOT include documentation files explaining your changes in version control unless the user explicitly requests it&#xD;&#xA;* When reproducing bugs or implementing fixes, use a single file rather than creating multiple files with different versions&#xD;&#xA;&lt;/FILE_SYSTEM_GUIDELINES>&#xD;&#xA;&#xD;&#xA;&lt;CODE_QUALITY>&#xD;&#xA;* Write clean, efficient code with minimal comments. Avoid redundancy in comments: Do not repeat information that can be easily inferred from the code itself.&#xD;&#xA;* When implementing solutions, focus on making the minimal changes needed to solve the problem.&#xD;&#xA;* Before implementing any changes, first thoroughly understand the codebase through exploration.&#xD;&#xA;* If you are adding a lot of code to a function or file, consider splitting the function or file into smaller pieces when appropriate.&#xD;&#xA;* Place all imports at the top of the file unless explicitly requested otherwise or if placing imports at the top would cause issues (e.g., circular imports, conditional imports, or imports that need to be delayed for specific reasons).&#xD;&#xA;* If working in a git repo, before you commit code create a .gitignore file if one doesn't exist. And if there are existing files that should not be included then update the .gitignore file as appropriate.&#xD;&#xA;&lt;/CODE_QUALITY>&#xD;&#xA;&#xD;&#xA;&lt;VERSION_CONTROL>&#xD;&#xA;* If there are existing git user credentials already configured, use them and add Co-authored-by: openhands &lt;openhands@all-hands.dev> to any commits messages you make. if a git config doesn't exist use &quot;openhands&quot; as the user.name and &quot;openhands@all-hands.dev&quot; as the user.email by default, unless explicitly instructed otherwise.&#xD;&#xA;* Exercise caution with git operations. Do NOT make potentially dangerous changes (e.g., pushing to main, deleting repositories) unless explicitly asked to do so.&#xD;&#xA;* When committing changes, use `git status` to see all modified files, and stage all files necessary for the commit. Use `git commit -a` whenever possible.&#xD;&#xA;* Do NOT commit files that typically shouldn't go into version control (e.g., node_modules/, .env files, build directories, cache files, large binaries) unless explicitly instructed by the user.&#xD;&#xA;* If unsure about committing certain files, check for the presence of .gitignore files or ask the user for clarification.&#xD;&#xA;&lt;/VERSION_CONTROL>&#xD;&#xA;&#xD;&#xA;&lt;PULL_REQUESTS>&#xD;&#xA;* **Important**: Do not push to the remote branch and/or start a pull request unless explicitly asked to do so.&#xD;&#xA;* When creating pull requests, create only ONE per session/issue unless explicitly instructed otherwise.&#xD;&#xA;* When working with an existing PR, update it with new commits rather than creating additional PRs for the same issue.&#xD;&#xA;* When updating a PR, preserve the original PR title and purpose, updating description only when necessary.&#xD;&#xA;&lt;/PULL_REQUESTS>&#xD;&#xA;&#xD;&#xA;&lt;PROBLEM_SOLVING_WORKFLOW>&#xD;&#xA;1. EXPLORATION: Thoroughly explore relevant files and understand the context before proposing solutions&#xD;&#xA;2. ANALYSIS: Consider multiple approaches and select the most promising one&#xD;&#xA;3. TESTING:&#xD;&#xA;   * For bug fixes: Create tests to verify issues before implementing fixes&#xD;&#xA;   * For new features: Consider test-driven development when appropriate&#xD;&#xA;   * Do NOT write tests for documentation changes, README updates, configuration files, or other non-functionality changes&#xD;&#xA;   * If the repository lacks testing infrastructure and implementing tests would require extensive setup, consult with the user before investing time in building testing infrastructure&#xD;&#xA;   * If the environment is not set up to run tests, consult with the user first before investing time to install all dependencies&#xD;&#xA;4. IMPLEMENTATION:&#xD;&#xA;   * Make focused, minimal changes to address the problem&#xD;&#xA;   * Always modify existing files directly rather than creating new versions with different suffixes&#xD;&#xA;   * If you create temporary files for testing, delete them after confirming your solution works&#xD;&#xA;5. VERIFICATION: If the environment is set up to run tests, test your implementation thoroughly, including edge cases. If the environment is not set up to run tests, consult with the user first before investing time to run tests.&#xD;&#xA;&lt;/PROBLEM_SOLVING_WORKFLOW>&#xD;&#xA;&#xD;&#xA;&lt;SECURITY>&#xD;&#xA;* Only use GITHUB_TOKEN and other credentials in ways the user has explicitly requested and would expect.&#xD;&#xA;* Use APIs to work with GitHub or other platforms, unless the user asks otherwise or your task requires browsing.&#xD;&#xA;&lt;/SECURITY>&#xD;&#xA;&#xD;&#xA;&lt;SECURITY_RISK_ASSESSMENT>&#xD;&#xA;{% include 'security_risk_assessment.j2' %}&#xD;&#xA;&lt;/SECURITY_RISK_ASSESSMENT>&#xD;&#xA;&#xD;&#xA;&lt;EXTERNAL_SERVICES>&#xD;&#xA;* When interacting with external services like GitHub, GitLab, Bitbucket, or Azure DevOps, use their respective APIs instead of browser-based interactions whenever possible.&#xD;&#xA;* Only resort to browser-based interactions with these services if specifically requested by the user or if the required operation cannot be performed via API.&#xD;&#xA;&lt;/EXTERNAL_SERVICES>&#xD;&#xA;&#xD;&#xA;&lt;ENVIRONMENT_SETUP>&#xD;&#xA;* When user asks you to run an application, don't stop if the application is not installed. Instead, please install the application and run the command again.&#xD;&#xA;* If you encounter missing dependencies:&#xD;&#xA;  1. First, look around in the repository for existing dependency files (requirements.txt, pyproject.toml, package.json, Gemfile, etc.)&#xD;&#xA;  2. If dependency files exist, use them to install all dependencies at once (e.g., `pip install -r requirements.txt`, `npm install`, etc.)&#xD;&#xA;  3. Only install individual packages directly if no dependency files are found or if only specific packages are needed&#xD;&#xA;* Similarly, if you encounter missing dependencies for essential tools requested by the user, install them when possible.&#xD;&#xA;&lt;/ENVIRONMENT_SETUP>&#xD;&#xA;&#xD;&#xA;&lt;TROUBLESHOOTING>&#xD;&#xA;* If you've made repeated attempts to solve a problem but tests still fail or the user reports it's still broken:&#xD;&#xA;  1. Step back and reflect on 5-7 different possible sources of the problem&#xD;&#xA;  2. Assess the likelihood of each possible cause&#xD;&#xA;  3. Methodically address the most likely causes, starting with the highest probability&#xD;&#xA;  4. Document your reasoning process&#xD;&#xA;* When you run into any major issue while executing a plan from the user, please don't try to directly work around it. Instead, propose a new plan and confirm with the user before proceeding.&#xD;&#xA;&lt;/TROUBLESHOOTING>&#xD;&#xA;&#xD;&#xA;&lt;DOCUMENTATION>&#xD;&#xA;* When explaining changes or solutions to the user:&#xD;&#xA;  - Include explanations in your conversation responses rather than creating separate documentation files&#xD;&#xA;  - If you need to create documentation files for reference, do NOT include them in version control unless explicitly requested&#xD;&#xA;  - Never create multiple versions of documentation files with different suffixes&#xD;&#xA;* If the user asks for documentation:&#xD;&#xA;  - Confirm whether they want it as a separate file or just in the conversation&#xD;&#xA;  - Ask if they want documentation files to be included in version control&#xD;&#xA;&lt;/DOCUMENTATION>&#xD;&#xA;&#xD;&#xA;&lt;PROCESS_MANAGEMENT>&#xD;&#xA;* When terminating processes:&#xD;&#xA;  - Do NOT use general keywords with commands like `pkill -f server` or `pkill -f python` as this might accidentally kill other important servers or processes&#xD;&#xA;  - Always use specific keywords that uniquely identify the target process&#xD;&#xA;  - Prefer using `ps aux` to find the exact process ID (PID) first, then kill that specific PID&#xD;&#xA;  - When possible, use more targeted approaches like finding the PID from a pidfile or using application-specific shutdown commands&#xD;&#xA;&lt;/PROCESS_MANAGEMENT>"/>
+          <attvalue for="prompt_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/codeact_agent/prompts/system_prompt.j2#L1-L2"/>
+        </attvalues>
+        <viz:color r="191" g="134" b="61"/>
+        <viz:size value="10"/>
+        <viz:position x="-41.21898024286867" y="-899.0556132229741"/>
+      </node>
+      <node id="tool_f550de43d5" label="think.py#L21">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/think.py#L21"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="9.184850993605149e-14" y="-1500"/>
+      </node>
+      <node id="tool_ee7889203c" label="str_replace_editor.py#L99">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/str_replace_editor.py#L99"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="117.6886435917675" y="-1495.376000599692"/>
+      </node>
+      <node id="tool_f894a427f3" label="ipython.py#L20">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/ipython.py#L20"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="234.65169756034638" y="-1481.5325108927066"/>
+      </node>
+      <node id="tool_358e6e124e" label="llm_based_edit.py#L129">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/llm_based_edit.py#L129"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="350.1680457838582" y="-1458.5548805965147"/>
+      </node>
+      <node id="tool_51fc9a1e50" label="condensation_request.py#L12">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/condensation_request.py#L12"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="463.52549156242117" y="-1426.5847744427303"/>
+      </node>
+      <node id="tool_322907a9c1" label="finish.py#L25">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/finish.py#L25"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="574.0251485476348" y="-1385.8192987669302"/>
+      </node>
+      <node id="tool_bdb358dc43" label="bash.py#L49">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/bash.py#L49"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="680.9857496093202" y="-1336.5097862825517"/>
+      </node>
+      <node id="tool_60c23ceb40" label="browser.py#L154">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/browser.py#L154"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="783.7478470739234" y="-1278.9602465311382"/>
+      </node>
+      <node id="agent_OpenHands_1" label="LocAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="LocAgent"/>
+          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="short_description" value="Agent for seach repo and entity"/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/loc_agent/loc_agent.py#L21"/>
+          <attvalue for="agent_comment" value="- have 4 tools in https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/loc_agent/function_calling.py#L127"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="10"/>
+        <viz:position x="-19.631449693065623" y="-599.6787524858194"/>
+      </node>
+      <node id="agent_OpenHands_2" label="ReadOnlyAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="30"/>
+          <attvalue for="agent_name" value="ReadOnlyAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="The ReadOnlyAgent is a specialized version of CodeActAgent that only uses read-only tools."/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/readonly_agent.py#L30"/>
+          <attvalue for="agent_comment" value="- have 5 tools: https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/function_calling.py#L248"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="30"/>
+        <viz:position x="-11.78021547637701" y="-599.8843442892389"/>
+      </node>
+      <node id="prompt_OpenHands_2_1" label="SYSTEM: You are OpenHands ReadOnlyAgent, a helpf">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="You are OpenHands ReadOnlyAgent, a helpful AI assistant focused on code analysis and exploration. You can:&#xD;&#xA;- Explore and analyze codebases&#xD;&#xA;- Browse the web for relevant information&#xD;&#xA;- Plan potential changes&#xD;&#xA;- Answer questions about code&#xD;&#xA;&#xD;&#xA;&lt;CAPABILITIES>&#xD;&#xA;✓ READ-ONLY TOOLS:&#xD;&#xA;- view: Read file contents&#xD;&#xA;- grep: Search for patterns&#xD;&#xA;- glob: List matching files&#xD;&#xA;- think: Analyze information&#xD;&#xA;- web_read: Access web resources&#xD;&#xA;- finish: Complete current task&#xD;&#xA;&#xD;&#xA;✗ RESTRICTIONS:&#xD;&#xA;- Cannot modify any files&#xD;&#xA;- Cannot execute state-changing commands&#xD;&#xA;&lt;/CAPABILITIES>&#xD;&#xA;&#xD;&#xA;&lt;GUIDELINES>&#xD;&#xA;1. When analyzing code or answering questions:&#xD;&#xA;   - Be thorough and methodical&#xD;&#xA;   - Prioritize accuracy over speed&#xD;&#xA;   - Provide detailed explanations&#xD;&#xA;&#xD;&#xA;2. For file operations:&#xD;&#xA;   - Always verify file locations before accessing&#xD;&#xA;   - Don't assume paths are relative to current directory&#xD;&#xA;&#xD;&#xA;3. If asked to make changes:&#xD;&#xA;   - Explain you are read-only&#xD;&#xA;   - Recommend using CodeActAgent instead&#xD;&#xA;&lt;/GUIDELINES>"/>
+          <attvalue for="prompt_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/prompts/system_prompt.j2#L1"/>
+        </attvalues>
+        <viz:color r="191" g="134" b="61"/>
+        <viz:size value="10"/>
+        <viz:position x="-17.670323214565517" y="-899.8265164338584"/>
+      </node>
+      <node id="tool_1b6f676c97" label="think.py#L21">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/codeact_agent/tools/think.py#L21"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="881.6778784387097" y="-1213.5254915624212"/>
+      </node>
+      <node id="tool_d04148a2f9" label="finish.py#L25">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/codeact_agent/tools/finish.py#L25"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="974.1720724952755" y="-1140.6089484000463"/>
+      </node>
+      <node id="tool_3a7e0fdf93" label="grep.py#L20">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/tools/grep.py#L20"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="1060.6601717798214" y="-1060.6601717798212"/>
+      </node>
+      <node id="tool_6c770c735a" label="glob.py#L18">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/tools/glob.py#L18"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="1140.6089484000465" y="-974.1720724952753"/>
+      </node>
+      <node id="tool_41b2bd621f" label="view.py#L20">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/tools/view.py#L20"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+        <viz:size value="10"/>
+        <viz:position x="1213.5254915624212" y="-881.6778784387097"/>
+      </node>
+      <node id="agent_OpenHands_3" label="AgentController">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="AgentController"/>
+          <attvalue for="agent_type" value="Planner/Orchestrator"/>
+          <attvalue for="short_description" value="Controls the agents"/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/controller/agent_controller.py#L112"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="10"/>
+        <viz:position x="-3.9269627804111003" y="-599.9871489984776"/>
+      </node>
+      <node id="agent_OpenHands_4" label="BrowsingAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="13.333333333333334"/>
+          <attvalue for="agent_name" value="BrowsingAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="Inherite from agent"/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/browsing_agent/browsing_agent.py#L101"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="13.333333333333334"/>
+        <viz:position x="3.9269627804111735" y="-599.9871489984776"/>
+      </node>
+      <node id="prompt_OpenHands_4_1" label="PROXY: &quot;&quot;&quot;\&#xD;&#xA;{error_prefix}&#xD;&#xA;&#xD;&#xA;# Current Page U">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="&quot;&quot;&quot;\&#xD;&#xA;{error_prefix}&#xD;&#xA;&#xD;&#xA;# Current Page URL:&#xD;&#xA;{cur_url}&#xD;&#xA;&#xD;&#xA;# Current Accessibility Tree:&#xD;&#xA;{cur_axtree_txt}&#xD;&#xA;&#xD;&#xA;# Previous Actions&#xD;&#xA;{prev_action_str}&#xD;&#xA;&#xD;&#xA;Here is an example with chain of thought of a valid action when clicking on a button:&#xD;&#xA;&quot;&#xD;&#xA;In order to accomplish my goal I need to click on the button with bid 12&#xD;&#xA;```click(&quot;12&quot;)```&#xD;&#xA;&quot;&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/browsing_agent/browsing_agent.py#L75"/>
+        </attvalues>
+        <viz:color r="191" g="134" b="61"/>
+        <viz:size value="10"/>
+        <viz:position x="5.89044417061676" y="-899.9807234977163"/>
+      </node>
+      <node id="agent_OpenHands_5" label="DummyAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="DummyAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="The DummyAgent is used for e2e testing. It just sends the same set of actions deterministically, without making any LLM calls."/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/dummy_agent/agent.py#L45"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="10"/>
+        <viz:position x="11.780215476377084" y="-599.8843442892389"/>
+      </node>
+      <node id="agent_OpenHands_6" label="VisualBrowsingAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="VisualBrowsingAgent"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="VisualBrowsing Agent that can uses webpage screenshots during browsing."/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/visualbrowsing_agent/visualbrowsing_agent.py#L128"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="10"/>
+        <viz:position x="19.631449693065697" y="-599.6787524858194"/>
+      </node>
+      <node id="agent_OpenHands_7" label="Agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="Agent"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="This abstract base class is an general interface for an agent dedicated to&#xD;&#xA;    executing a specific instruction and allowing human interaction with the&#xD;&#xA;    agent during execution.&#xD;&#xA;    It tracks the execution status and maintains a history of interactions."/>
+          <attvalue for="agent_in_repo" value="https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/controller/agent.py#L33"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+        <viz:size value="10"/>
+        <viz:position x="27.479320161912522" y="-599.3704088153161"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="0" source="repo_OpenHands" target="agent_OpenHands_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="1" source="agent_OpenHands_0" target="prompt_OpenHands_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="191" g="134" b="61"/>
+      </edge>
+      <edge id="2" source="agent_OpenHands_0" target="tool_f550de43d5" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="3" source="agent_OpenHands_0" target="tool_ee7889203c" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="4" source="agent_OpenHands_0" target="tool_f894a427f3" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="5" source="agent_OpenHands_0" target="tool_358e6e124e" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="6" source="agent_OpenHands_0" target="tool_51fc9a1e50" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="7" source="agent_OpenHands_0" target="tool_322907a9c1" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="8" source="agent_OpenHands_0" target="tool_bdb358dc43" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="9" source="agent_OpenHands_0" target="tool_60c23ceb40" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="10" source="repo_OpenHands" target="agent_OpenHands_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="11" source="repo_OpenHands" target="agent_OpenHands_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="12" source="agent_OpenHands_2" target="prompt_OpenHands_2_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="191" g="134" b="61"/>
+      </edge>
+      <edge id="13" source="agent_OpenHands_2" target="tool_1b6f676c97" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="14" source="agent_OpenHands_2" target="tool_d04148a2f9" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="15" source="agent_OpenHands_2" target="tool_3a7e0fdf93" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="16" source="agent_OpenHands_2" target="tool_6c770c735a" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="17" source="agent_OpenHands_2" target="tool_41b2bd621f" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="86" b="106"/>
+      </edge>
+      <edge id="18" source="repo_OpenHands" target="agent_OpenHands_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="19" source="repo_OpenHands" target="agent_OpenHands_4" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="20" source="agent_OpenHands_4" target="prompt_OpenHands_4_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="191" g="134" b="61"/>
+      </edge>
+      <edge id="21" source="repo_OpenHands" target="agent_OpenHands_5" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="22" source="repo_OpenHands" target="agent_OpenHands_6" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+      <edge id="23" source="repo_OpenHands" target="agent_OpenHands_7" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="90"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>
