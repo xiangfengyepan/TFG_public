@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_swe_rl" label="swe-rl">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/facebookresearch/swe-rl/blob/5aa10d67f1db07ecd3a20483d63fe2d5029ac9c9"/>
+          <attvalue for="commits" value="14"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="672"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2502.18449"/>
+          <attvalue for="framework" value="own scripts"/>
+          <attvalue for="dependency_graph" value="facebookresearch_swe-rl_435470.json"/>
+          <attvalue for="has_agents" value="FALSE"/>
+          <attvalue for="num_agents" value="0"/>
+          <attvalue for="topology_description" value="Figure 7: The Agentless Mini scaffold. The design emphasizes easy decomposition, parallelization,&#xA;and scalability."/>
+          <attvalue for="topology_file" value="swe-rl_topology.png"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- Agentless Mini builds on top of Agentless with the following key improvements and functionality changes:&#xD;&#xA;&#xD;&#xA;Fast async inference with openai-python.&#xD;&#xA;Code refactoring for better scalability, parallelization, and accessibility.&#xD;&#xA;Only performing file-level localization, and entire file content will be used for repair.&#xD;&#xA;Support of using multiple reproduction tests for reranking."/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="196" g="125" b="62"/>
+        <viz:size value="10"/>
+        <viz:position x="182.62842870261622" y="238.00600208737052"/>
+      </node>
+    </nodes>
+    <edges/>
+  </graph>
+</gexf>

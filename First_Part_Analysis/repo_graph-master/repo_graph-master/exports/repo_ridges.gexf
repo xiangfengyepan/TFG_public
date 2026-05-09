@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_ridges" label="ridges">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/ridgesai/ridges/blob/5d5936410a295b599e42ccb22a10e2b86d441f0b"/>
+          <attvalue for="commits" value="2226"/>
+          <attvalue for="releases" value="NA"/>
+          <attvalue for="stars" value="3451"/>
+          <attvalue for="analyzed" value="FALSE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="own scripts"/>
+          <attvalue for="dependency_graph" value="ridgesai_ridges_9f9ef9.json"/>
+          <attvalue for="has_agents" value="FALSE"/>
+          <attvalue for="num_agents" value="null"/>
+          <attvalue for="topology_description" value="null"/>
+          <attvalue for="topology_file" value="null"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, JavaScript"/>
+          <attvalue for="autonomy_rating" value="0"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- No README.md in repo"/>
+          <attvalue for="rawSize" value="10"/>
+        </attvalues>
+        <viz:color r="94" g="171" b="104"/>
+        <viz:size value="10"/>
+        <viz:position x="297.4334584121431" y="-39.157857666015495"/>
+      </node>
+      <node id="agent_ridges_0" label="Agent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="agent_name" value="Agent"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="null"/>
+          <attvalue for="agent_in_repo" value="https://github.com/ridgesai/ridges/blob/5d5936410a295b599e42ccb22a10e2b86d441f0b/models/agent.py#L19"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="196" g="91" b="158"/>
+        <viz:size value="10"/>
+        <viz:position x="594.8669168242862" y="-78.31571533203099"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="175" source="repo_ridges" target="agent_ridges_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="196" g="91" b="158"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="double"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+      <attribute id="tool_url" title="tool_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_Lingma_SWE_GPT" label="Lingma-SWE-GPT">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936"/>
+          <attvalue for="commits" value="19"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="253"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2411.00622"/>
+          <attvalue for="framework" value="metagpt, langchain"/>
+          <attvalue for="dependency_graph" value="LingmaTongyi_Lingma-SWE-GPT_bc8ce0.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="4"/>
+          <attvalue for="topology_description" value="Fig. 1. Overview of an iterative development-process training framework for automated software improvement."/>
+          <attvalue for="topology_file" value="Lingma_topology.png"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, JavaScript, HTML, Makefile, CSS"/>
+          <attvalue for="autonomy_rating" value="null"/>
+          <attvalue for="autonomy_description" value="0 - No Classification"/>
+          <attvalue for="repo_comments" value="- agent_common.py&#xA;- MCTS for code search: https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L682&#xA;- Inference: agent_locate_file_class_func &amp; (Manager: (agent_proxy &amp; agent_write_patch))&#xA;- has BM25 Seach Info Algorithm"/>
+          <attvalue for="rawSize" value="21.25"/>
+        </attvalues>
+        <viz:color r="200" g="112" b="64"/>
+        <viz:size value="21.25"/>
+        <viz:position x="-77.64571353075613" y="289.77774788672053"/>
+      </node>
+      <node id="agent_Lingma_SWE_GPT_0" label="agent_proxy">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="13.75"/>
+          <attvalue for="agent_name" value="agent_proxy"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="A proxy agent. Process raw response into json format."/>
+          <attvalue for="agent_in_repo" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_proxy.py#L1"/>
+          <attvalue for="agent_comment" value="- no tools: https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_proxy.py#L120"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+        <viz:size value="13.75"/>
+        <viz:position x="-128.58549183903023" y="586.0595287925235"/>
+      </node>
+      <node id="prompt_Lingma_SWE_GPT_0_1" label="PROXY_PROMPT = &quot;&quot;&quot;&#xA;You are a helpful ass">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="null"/>
+          <attvalue for="prompt_text" value="PROXY_PROMPT = &quot;&quot;&quot;&#xA;You are a helpful assistant that retreive API calls and bug locations from a text into json format.&#xA;The text will consist of two parts:&#xA;1. do we need more context?&#xA;2. where are bug locations?&#xA;Extract API calls from question 1 (leave empty if not exist) and bug locations from question 2 (leave empty if not exist).&#xA;&#xA;The API calls include:&#xA;search_method_in_class(method_name: str, class_name: str)&#xA;search_method_in_file(method_name: str, file_path: str)&#xA;search_method(method_name: str)&#xA;search_class_in_file(self, class_name, file_name: str)&#xA;search_class(class_name: str)&#xA;search_code_in_file(code_str: str, file_path: str)&#xA;search_code(code_str: str)&#xA;&#xA;Provide your answer in JSON structure like this, you should ignore the argument placeholders in api calls.&#xA;For example, search_code(code_str=&quot;str&quot;) should be search_code(&quot;str&quot;)&#xA;search_method_in_file(&quot;method_name&quot;, &quot;path.to.file&quot;) should be search_method_in_file(&quot;method_name&quot;, &quot;path/to/file&quot;)&#xA;&#xA;{&#xA;    &quot;API_calls&quot;: [&quot;api_call_1(args)&quot;, &quot;api_call_2(args)&quot;, ...],&#xA;    &quot;bug_locations&quot;:[{&quot;file&quot;: &quot;path/to/file&quot;, &quot;class&quot;: &quot;class_name&quot;, &quot;method&quot;: &quot;method_name&quot;}, {&quot;file&quot;: &quot;path/to/file&quot;, &quot;class&quot;: &quot;class_name&quot;, &quot;method&quot;: &quot;method_name&quot;} ... ]&#xA;}&#xA;&#xA;NOTE: a bug location should at least has a &quot;class&quot; or &quot;method&quot;.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_proxy.py#L17"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+        <viz:size value="10"/>
+        <viz:position x="-192.8782377585453" y="879.0892931887853"/>
+      </node>
+      <node id="agent_Lingma_SWE_GPT_1" label="agent_write_patch">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="17.5"/>
+          <attvalue for="agent_name" value="agent_write_patch"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="An agent, which is only responsible for the write_patch tool call."/>
+          <attvalue for="agent_in_repo" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_write_patch.py#L1"/>
+          <attvalue for="agent_comment" value="- no tools: https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_write_patch.py#L124"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+        <viz:size value="17.5"/>
+        <viz:position x="-146.4229050491437" y="581.8593755169452"/>
+      </node>
+      <node id="prompt_Lingma_SWE_GPT_1_1" label="SYSTEM_PROMPT = &quot;&quot;&quot;You are a software de">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="null"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = &quot;&quot;&quot;You are a software developer maintaining a large project.&#xA;You are working on an issue submitted to your project.&#xA;You ultimate goal is to write a patch that resolves this issue.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_write_patch.py#L25"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+        <viz:size value="10"/>
+        <viz:position x="-191.5355006362986" y="879.3828244831726"/>
+      </node>
+      <node id="prompt_Lingma_SWE_GPT_1_2" label="HUMAN: USER_PROMPT_INIT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="USER_PROMPT_INIT = &quot;&quot;&quot;Write a patch for the issue, based on the retrieved context. You can import necessary libraries.&#xA;Return the patch in the format below. Within &lt;file>&lt;/file>, replace &quot;...&quot; with actual file path. Within &lt;original>&lt;/original>, replace &quot;...&quot; with the original code snippet from the program. If the original code snippet is too long, you can modify it in multiple sections. Be careful not to modify too long original code at one time to avoid errors. In addition, the original code snippet must not be abbreviated (such as ...), otherwise it cannot be matched to the original location. Within &lt;patched>&lt;/patched>, replace &quot;...&quot; with the fixed version of the original code. When adding orignal code and updated code, pay attention to indentation, as the code is in Python.&#xA;You can write multiple modifications if needed. &#xA;&#xA;# modification 1&#xA;```python&#xA;&lt;file>...&lt;/file>&#xA;&lt;original>...&lt;/original>&#xA;&lt;patched>...&lt;/patched>&#xA;```&#xA;&#xA;# modification 2&#xA;```python&#xA;&lt;file>...&lt;/file>&#xA;&lt;original>...&lt;/original>&#xA;&lt;patched>...&lt;/patched>&#xA;```&#xA;&#xA;# modification 3&#xA;...&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_write_patch.py#L31"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+        <viz:size value="10"/>
+        <viz:position x="-247.50733726439518" y="865.2977048393743"/>
+      </node>
+      <node id="agent_Lingma_SWE_GPT_2" label="ProjectApiManager">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="ProjectApiManager"/>
+          <attvalue for="agent_type" value="Planner/Orchestrator, Patcher, Helper/Proxy"/>
+          <attvalue for="short_description" value="Manager that import agent_proxy and agent_write_patch. Define the (tools) search tools (search api) + write path tool"/>
+          <attvalue for="agent_in_repo" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L28"/>
+          <attvalue for="agent_comment" value="-tools add in https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/inference.py#L649"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+        <viz:size value="40"/>
+        <viz:position x="-164.12373228999698" y="577.1164531523958"/>
+      </node>
+      <node id="tool_52f1bb7edb" label="manage.py#L779">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L779"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1458.5548805965152" y="-350.1680457838573"/>
+      </node>
+      <node id="tool_82c3c50b15" label="manage.py#L795">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L795"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1426.5847744427306" y="-463.52549156242094"/>
+      </node>
+      <node id="tool_67677cd0d7" label="manage.py#L812">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L812"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1385.81929876693" y="-574.0251485476351"/>
+      </node>
+      <node id="tool_8dc4a76b5a" label="manage.py#L829">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L829"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1336.5097862825519" y="-680.98574960932"/>
+      </node>
+      <node id="tool_7c458f1735" label="manage.py#L846">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L846"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1278.9602465311382" y="-783.7478470739237"/>
+      </node>
+      <node id="tool_69d22f8323" label="manage.py#L860">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L860"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1213.5254915624214" y="-881.6778784387095"/>
+      </node>
+      <node id="tool_90f5c0861b" label="manage.py#L874">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L874"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1140.608948400046" y="-974.1720724952759"/>
+      </node>
+      <node id="tool_efe527807f" label="manage.py#L890">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L890"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+        <viz:size value="10"/>
+        <viz:position x="-1060.6601717798214" y="-1060.6601717798212"/>
+      </node>
+      <node id="agent_Lingma_SWE_GPT_3" label="agent_locate_file_class_func">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="21.25"/>
+          <attvalue for="agent_name" value="agent_locate_file_class_func"/>
+          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="short_description" value="Agent that is responsability is to use the description or logs in the issue to locate the code files that need to be modified."/>
+          <attvalue for="agent_in_repo" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_locate_file_class_func.py#L1"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+        <viz:size value="21.25"/>
+        <viz:position x="-181.67146190554456" y="571.8351859837783"/>
+      </node>
+      <node id="prompt_Lingma_SWE_GPT_3_1" label="CONTEXT_TEMPLATE = &quot;&quot;&quot;&#xA;You are a program">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="null"/>
+          <attvalue for="prompt_text" value="CONTEXT_TEMPLATE = &quot;&quot;&quot;&#xA;You are a programming assistant who helps users solve issue regarding their workspace code. &#xA;Your responsibility is to use the description or logs in the issue to locate the code files that need to be modified.&#xA;The user will provide you with potentially relevant information from the workspace.&#xA;DO NOT ask the user for additional information or clarification.&#xA;DO NOT try to answer the user's question directly.&#xA;&#xA;# Additional Rules&#xA;&#xA;Think step by step:&#xA;1. Read the user's question to understand what they are asking about their workspace.&#xA;2. If there is traceback information in the console logs, then the file where the error reporting function is located is most likely the file to be modified.&#xA;3. Please note that the absolute path to the file can be different from the workspace, as long as the file name is the same.&#xA;4. OUTPUT AT MOST 5 FILES that need to be modified in their workspace and sort them by modification priority.&#xA;&#xA;# Examples&#xA;I am working in a workspace that has the following structure:&#xA;```&#xA;- /src/base64.py&#xA;- /src/base64_test.py&#xA;- /src/model.py&#xA;- /setup.py&#xA;```&#xA;User: Where's the code for base64 encoding?&#xA;&#xA;Response:&#xA;{{&quot;files_to_modify&quot;: [&quot;/src/base64.py&quot;, &quot;/src/base64_test.py&quot;]}}&#xA;&#xA;# Now the workspace is:&#xA;{workspace_metainfo}&#xA;&#xA;User's question (issue)&#xA;{question}&#xA;&#xA;Response (according to the examples json_format):&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_locate_file_class_func.py#L7"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+        <viz:size value="10"/>
+        <viz:position x="-244.8632854449783" y="866.04963566824"/>
+      </node>
+      <node id="prompt_Lingma_SWE_GPT_3_2" label="PROXY: LOCATION_PROMPT_TEMPLATE ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="LOCATION_PROMPT_TEMPLATE = &quot;&quot;&quot;&#xA;Please look through the following GitHub Problem Description and the Skeleton of Relevant Files.&#xA;Identify all locations that need inspection or editing to fix the problem, including directly related areas as well as any potentially related functions, classes, and global code snippets.&#xA;For each location you provide, either give the name of the class, the name of a function, or the global code snippets from a region in the original text.&#xA;&#xA;## GitHub Problem Description ##&#xA;{problem_statement}&#xA;&#xA;## Skeleton of Relevant Files ##&#xA;{file_contents}&#xA;&#xA;##&#xA;&#xA;Please provide the complete set of locations as either a class name, a function name, or a global code snippet from a region in the original text.&#xA;Note that if you include a class, you do not need to list its specific methods. Please note that the global code snippet usually does not exceed three lines.&#xA;You can include either the entire class or don't include the class name and instead include specific methods in the class.&#xA;OUTPUT AT MOST 10 LOCATIONS that need to be modified in their workspace and sort them by modification priority.&#xA;&#xA;Please respond according to the JSON format in Response Example.&#xA;## Response Example:&#xA;{{&#xA;    &quot;reason&quot;: &quot;To resloved this issue, xxx. (Here please analyze possible fault locations step by step and output your chain-of-thought)&quot;,&#xA;    &quot;bug_locations&quot;: [&#xA;        {{&quot;file&quot;: &quot;file path&quot;, &quot;class&quot;: &quot;class name&quot;, &quot;method&quot;: &quot;function name&quot;}},&#xA;        {{&quot;file&quot;: &quot;file path&quot;, &quot;class&quot;: &quot;class name&quot;}},&#xA;        {{&quot;file&quot;: &quot;file path&quot;, &quot;code_snippets&quot;: &quot;code snippet from the original text&quot;}}&#xA;    ]&#xA;}}&#xA;&#xA;Return just in JSON format.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_locate_file_class_func.py#L53"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+        <viz:size value="10"/>
+        <viz:position x="-272.50719285831684" y="857.7527789756674"/>
+      </node>
+      <node id="prompt_Lingma_SWE_GPT_3_3" label="PROXY: SUMMARY_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="SUMMARY_PROMPT = &quot;&quot;&quot;You are a senior software developer maintaining a large project.&#xA;You are working on an issue submitted to your project.&#xA;The issue contains a description marked between &lt;issue> and &lt;/issue>.&#xA;We've collected some code snippets from the code repository that may be relevant.&#xA;To help diagnose and fix issues in software repositories, let's systematically analyze the collected context step by step. &#xA;&lt;issue>&#xA;{issue_content}&#xA;&lt;/issue>&#xA;&lt;collected content>&#xA;{collected_content}&#xA;&lt;/collected content>&#xA;Analyze results:&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_locate_file_class_func.py#L85"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+        <viz:size value="10"/>
+        <viz:position x="-299.87084733163755" y="848.5737887306004"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="302" source="repo_Lingma_SWE_GPT" target="agent_Lingma_SWE_GPT_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+      </edge>
+      <edge id="303" source="agent_Lingma_SWE_GPT_0" target="prompt_Lingma_SWE_GPT_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+      </edge>
+      <edge id="304" source="repo_Lingma_SWE_GPT" target="agent_Lingma_SWE_GPT_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+      </edge>
+      <edge id="305" source="agent_Lingma_SWE_GPT_1" target="prompt_Lingma_SWE_GPT_1_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+      </edge>
+      <edge id="306" source="agent_Lingma_SWE_GPT_1" target="prompt_Lingma_SWE_GPT_1_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+      </edge>
+      <edge id="307" source="repo_Lingma_SWE_GPT" target="agent_Lingma_SWE_GPT_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+      </edge>
+      <edge id="308" source="agent_Lingma_SWE_GPT_2" target="tool_52f1bb7edb" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="309" source="agent_Lingma_SWE_GPT_2" target="tool_82c3c50b15" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="310" source="agent_Lingma_SWE_GPT_2" target="tool_67677cd0d7" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="311" source="agent_Lingma_SWE_GPT_2" target="tool_8dc4a76b5a" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="312" source="agent_Lingma_SWE_GPT_2" target="tool_7c458f1735" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="313" source="agent_Lingma_SWE_GPT_2" target="tool_69d22f8323" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="314" source="agent_Lingma_SWE_GPT_2" target="tool_90f5c0861b" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="315" source="agent_Lingma_SWE_GPT_2" target="tool_efe527807f" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="87" b="134"/>
+      </edge>
+      <edge id="316" source="repo_Lingma_SWE_GPT" target="agent_Lingma_SWE_GPT_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="115" b="200"/>
+      </edge>
+      <edge id="317" source="agent_Lingma_SWE_GPT_3" target="prompt_Lingma_SWE_GPT_3_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+      </edge>
+      <edge id="318" source="agent_Lingma_SWE_GPT_3" target="prompt_Lingma_SWE_GPT_3_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+      </edge>
+      <edge id="319" source="agent_Lingma_SWE_GPT_3" target="prompt_Lingma_SWE_GPT_3_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="138" g="161" b="66"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

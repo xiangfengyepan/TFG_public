@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="double"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_ExpeRepair" label="ExpeRepair">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922"/>
+          <attvalue for="commits" value="3"/>
+          <attvalue for="releases" value="0"/>
+          <attvalue for="stars" value="106"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="not found"/>
+          <attvalue for="framework" value="framework itself"/>
+          <attvalue for="dependency_graph" value="Disable"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="4"/>
+          <attvalue for="topology_description" value="The ExpeRepair framework utilizes a dual-memory, multi-agent topology to automate repository-level program repair through continuous learning. At its core, an execution layer consisting of a collaborative Test Agent and Patch Agent interacts with the codebase to iteratively generate tests, localize faults, and validate fixes. During the Initial Phase, these agents resolve seed issues, allowing the system to extract concrete, step-by-step repair demonstrations into an Episodic Memory and synthesize high-level, generalized strategies into a Semantic Memory. In the Inference Phase, when confronting a new issue, a Dynamic Prompt Composition module retrieves these stored experiences, feeding context-aware, experience-driven instructions back to the agents to efficiently guide them toward generating a final, validated patch."/>
+          <attvalue for="topology_file" value="ExpeRepair_topology_generated.png"/>
+          <attvalue for="topology_type" value="Centralized"/>
+          <attvalue for="topology_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/api/review_manage_ase.py#L17"/>
+          <attvalue for="programming_language" value="Python, Shell"/>
+          <attvalue for="autonomy_rating" value="1"/>
+          <attvalue for="autonomy_description" value="1 – Orchestrated: execution decided by software workflow or human"/>
+          <attvalue for="repo_comments" value="- Review manager -> (patch agentand reproducer agent)&#xA;- Search manager -> (search agent)&#xA;- ## 🙏 Acknowledgement &#xA;&#xA;* [SWE-bench](https://www.swebench.com/)&#xA;* [auto-code-rover](https://github.com/AutoCodeRoverSG/auto-code-rover)&#xA;* [Agentless](https://github.com/OpenAutoCoder/Agentless/)"/>
+          <attvalue for="rawSize" value="32.5"/>
+        </attvalues>
+        <viz:color r="155" g="107" b="190"/>
+        <viz:size value="32.5"/>
+        <viz:position x="-289.7777478867204" y="77.64571353075644"/>
+      </node>
+      <node id="agent_ExpeRepair_0" label="TestAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="32.5"/>
+          <attvalue for="agent_name" value="TestAgent"/>
+          <attvalue for="agent_type" value="Bug reproduction"/>
+          <attvalue for="short_description" value="responsible for writing a test script for an issue reported in your GitHub project"/>
+          <attvalue for="agent_in_repo" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reproducer.py#L179"/>
+          <attvalue for="agent_comment" value="- some of the prompts are put toggeter in the same column since there are refinements"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+        <viz:size value="32.5"/>
+        <viz:position x="-571.8351859837782" y="181.67146190554502"/>
+      </node>
+      <node id="prompt_ExpeRepair_0_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = (&#xA;    'You are an experienced software engineer responsible for writing a test script for an issue reported in your GitHub project {repo_name}.\n'&#xA;    'Do NOT implement any fixes, you are ONLY interested in writing a test script.'&#xA;)&#xA;&quot;SYSTEM_PROMPT_W_RULE = (&#xD;&#xA;    'You are an experienced software engineer responsible for writing a test script for an issue reported in your GitHub project {repo_name}. '&#xD;&#xA;    'Do NOT implement any fixes, you are ONLY interested in writing a test script.\n\n'&#xD;&#xA;    'Here are some experiences drawn from other issues in your project that may provide valuable insights for writing tests for this issue:\n'&#xD;&#xA;    '{summarized_rules}'&#xD;&#xA;)&#xD;&#xA;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reproducer.py#L23"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-848.5737887306002" y="299.87084733163823"/>
+      </node>
+      <node id="prompt_ExpeRepair_0_2" label="PROXY: REPRODUCE_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="REPRODUCE_PROMPT = '''&#xD;&#xA;Requirements:&#xD;&#xA;1. Review the existing project test file to understand the conventions, standards, and formats used for test inputs.&#xD;&#xA;2. The script should be **minimal and self-contained**, including only the essential **test inputs** necessary to trigger or expose the issue, along with all required imports, dummy data, and setup to ensure the test inputs are runnable.&#xD;&#xA;3. Each input must be executed individually inside a try-except block to safely catch exceptions and prevent one failure from interrupting the rest of the test inputs. &#xD;&#xA;4. Print output of each test input following the strict format:&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;### Test 1:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 2:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 3:&#xD;&#xA;...&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;Explain your reasoning first, and then provide the script wrapped with ```python(...)```'''&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;REPRODUCE_PROMPT_W_EXP = '''&#xD;&#xA;Requirements:&#xD;&#xA;1. Review the existing project test file to understand the conventions, standards, and formats used for test inputs.&#xD;&#xA;2. The script should be **minimal and self-contained**, including only the essential **test inputs** necessary to trigger or expose the issue, along with all required imports, dummy data, and setup to ensure the test inputs are runnable.&#xD;&#xA;3. Each input must be executed individually inside a try-except block to safely catch exceptions and prevent one failure from interrupting the rest of the test inputs. &#xD;&#xA;4. Print output of each test input following the strict format:&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;### Test 1:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 2:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 3:&#xD;&#xA;...&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;Below is an example test script for another issue:&#xD;&#xA;```python&#xD;&#xA;{retrieved_example}&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;Explain your reasoning first, and then provide the script wrapped with ```python(...)```'''"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reproducer.py#L36"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-857.7527789756672" y="272.5071928583175"/>
+      </node>
+      <node id="prompt_ExpeRepair_0_3" label="PROXY: TEST_INPUTS_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="TEST_INPUTS_PROMPT = '''Here is the reproduction script, along with its execution results when run on the original buggy program:&#xD;&#xA;### Reproduction Script:&#xD;&#xA;```python&#xD;&#xA;{test_content}&#xD;&#xA;```&#xD;&#xA;### Execution Result:&#xD;&#xA;{execution_result}&#xD;&#xA;&#xD;&#xA;The reproduction script is intended to reproduce or expose the reported issue. However, it may not be sufficient to verify whether a patch fully resolves the issue without introducing unintended side effects. Your team has developed a set of candidate patches that all pass the reproduction script, but it remains unclear which one is the most reliable.  &#xD;&#xA;&#xD;&#xA;Your task is to write a standalone Python script `test.py` that performs **differential testing** by adding multiple diverse **test inputs** beyond the reproduction case.&#xD;&#xA;&#xD;&#xA;Requirements:&#xD;&#xA;1. The script must be self-contained. It should follow the same setup (imports, dependencies, object initializations, etc.) as the reproduction script, and include any additional setup necessary to ensure that the new test inputs are runnable.&#xD;&#xA;2. Develop Test Inputs:&#xD;&#xA;   - Review the existing project test file to understand the conventions, standards, and formats used for test inputs.&#xD;&#xA;   - Include up to 8 additional test inputs related to the issue, covering a variety of scenarios such as edge cases and issue-specific regression risks, to ensure comprehensive coverage.&#xD;&#xA;   - You are encouraged to select relevant test inputs from existing test files to prevent regressions.&#xD;&#xA;3. Each input must be executed individually inside a try-except block to safely catch exceptions and prevent one failure from interrupting the rest of the test inputs. &#xD;&#xA;4. Print output of each test input following the strict format:&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;### Test 1:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 2:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 3:&#xD;&#xA;...&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;Explain your reasoning first, and then provide the script wrapped with ```python(...)```'''&#xD;&#xA;&#xD;&#xA;TEST_INPUTS_PROMPT_WO_REPRODUCTION = '''Your task is to write a standalone Python script `test.py` that performs **differential testing** by including multiple diverse **test inputs**.&#xD;&#xA;&#xD;&#xA;Requirements:&#xD;&#xA;1. Develop Test Inputs:&#xD;&#xA;   - Review the existing project test file to understand the conventions, standards, and formats used for test inputs.&#xD;&#xA;   - Include up to 8 test inputs related to the issue, covering a variety of scenarios such as edge cases and issue-specific regression risks, to ensure comprehensive coverage.&#xD;&#xA;   - You are encouraged to select relevant test inputs from existing test files to prevent regressions.&#xD;&#xA;2. The script should be **self-contained**, including all required imports, dummy data, and setup to ensure the test inputs are runnable.&#xD;&#xA;3. Each input must be executed individually inside a try-except block to safely catch exceptions and prevent one failure from interrupting the rest of the test inputs. &#xD;&#xA;4. Print output of each test input following the strict format:&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;### Test 1:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 2:&#xD;&#xA;Input:&#xD;&#xA;&lt;printed input>&#xD;&#xA;Output:&#xD;&#xA;&lt;printed output>&#xD;&#xA;&#xD;&#xA;### Test 3:&#xD;&#xA;...&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;Explain your reasoning first, and then provide the script wrapped with ```python(...)```'''"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reproducer.py#L94"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-866.0496356682396" y="244.86328544497903"/>
+      </node>
+      <node id="agent_ExpeRepair_1" label="Review">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="32.5"/>
+          <attvalue for="agent_name" value="Review"/>
+          <attvalue for="agent_type" value="Reviewer"/>
+          <attvalue for="short_description" value="assess whether the patch fully resolves the issue."/>
+          <attvalue for="agent_in_repo" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reviewer.py#L110"/>
+          <attvalue for="agent_comment" value="- some of the prompts are put toggeter in the same column since there are refinements"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+        <viz:size value="32.5"/>
+        <viz:position x="-577.1164531523956" y="164.1237322899976"/>
+      </node>
+      <node id="prompt_ExpeRepair_1_1" label="SYSTEM: SYSTEM_PROMPT_W_REPO ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT_W_REPO = (&#xA;    &quot;You are an experienced software engineer responsible for maintaining the GitHub project {repo_name}.\n&quot;&#xA;    &quot;An issue has been submitted.\n&quot;&#xA;    &quot;Engineer A has written a test script designed to reproduce the issue. &quot;&#xA;    &quot;Engineer B has written a patch to resolve the issue.\n&quot;&#xA;    &quot;Your task is to assess whether the patch fully resolves the issue.\n&quot;&#xA;    &quot;NOTE: both the test and the patch may be wrong.&quot;&#xA;)&#xA;&#xA;&#xA;&#xA;SYSTEM_SELECT_PROMPT_W_REPO = (&#xA;    &quot;You are an experienced software engineer responsible for maintaining the GitHub project {repo_name}.\n&quot;&#xA;    &quot;An issue has been submitted.\n&quot;&#xA;    &quot;Engineer A has provided a reproduction test script intended to reproduce and demonstrate the issue.\n&quot;&#xA;    &quot;Engineer B has proposed several candidate patches to resolve the issue.\n&quot;&#xA;    &quot;Your task is to evaluate the candidate patches and select the best one.&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reviewer.py#L12"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-857.3356159722889" y="273.8168029639815"/>
+      </node>
+      <node id="prompt_ExpeRepair_1_2" label="HUMAN: REVIEW_PROMPT_INITIAL ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="REVIEW_PROMPT_INITIAL = '''Since both the reproduction test and candidate patches may be wrong, you must comprehensively analyze both - do not judge patches solely based on test execution results.&#xD;&#xA;Your task is to:&#xD;&#xA;1. Evaluate the Reproduction Test:&#xD;&#xA;   - For each test case, determine whether its input is valid for verifying the patch. Some test inputs might be invalid, i.e., meaning that even if the patch is correct and the issue is resolved, these tests would still produce incorrect or error outputs.&#xD;&#xA;   - If a test is invalid, exclude it from consideration and do not use its result to judge the patch.&#xD;&#xA;   - If valid, determine the expected correct behavior based on the issue description.&#xD;&#xA;2. Evaluate Candidate Patches:&#xD;&#xA;   - For each valid test input, compare the output produced by each patch against the expected correct behavior.&#xD;&#xA;   - Double check: refer to the pre-patch output to confirm the issue's presence and whether it has been resolved. &#xD;&#xA;3. Score and Rank Patches:&#xD;&#xA;   - Assess each candidate patch comprehensively based on the criteria below.&#xD;&#xA;   - Prioritize patches by overall quality and identify those that fully resolve the core issue.&#xD;&#xA;&#xD;&#xA;### Evaluation Criteria:&#xD;&#xA;Bug Fixing Score (0-2):&#xD;&#xA;   0: Incorrect: changes do not fix the issue.&#xD;&#xA;   1: Partially correct: changes address some cases but are incomplete.&#xD;&#xA;   2: Fully correct: changes completely fix the issue.&#xD;&#xA;&#xD;&#xA;### Analysis Format:&#xD;&#xA;&lt;test_analysis>&#xD;&#xA;  &lt;test_case_number>[Number]&lt;/test_case_number>&#xD;&#xA;  &lt;input_valid_analysis>&#xD;&#xA;    [Analysis of whether this test input is valid for issue verification]&#xD;&#xA;    &lt;decision>[valid|invalid]&lt;/decision>&#xD;&#xA;  &lt;/input_valid_analysis>&#xD;&#xA;&lt;/test_analysis>&#xD;&#xA;&#xD;&#xA;&lt;patch_analysis>&#xD;&#xA;  &lt;patch_number>[Number]&lt;/patch_number>&#xD;&#xA;  &lt;bug_fixing_analysis>&#xD;&#xA;    [Analysis of whether this patch resolves the core issue]&#xD;&#xA;    &lt;score>[0-2]&lt;/score>&#xD;&#xA;  &lt;/bug_fixing_analysis>&#xD;&#xA;&lt;/patch_analysis>&#xD;&#xA;&#xD;&#xA;### Patch Quality Considerations:&#xD;&#xA;1. Effectiveness in resolving the core issue&#xD;&#xA;2. Handling of edge cases&#xD;&#xA;3. Implementation quality&#xD;&#xA;4. Potential regression risks&#xD;&#xA;&#xD;&#xA;### Final Output Format:&#xD;&#xA;&lt;rank_patch>[Ranked list of patch numbers from best to worst]&lt;/rank_patch>&#xD;&#xA;&lt;correct_patch>[List of patch numbers that are fully resolves the issue]&lt;/correct_patch>&#xD;&#xA;&#xD;&#xA;Note:&#xD;&#xA;- In the `&lt;rank_patch>` filed, list patch numbers ordered by overall quality, e.g., [3, 1, 0, 2].&#xD;&#xA;- In the `&lt;correct_patch>` filed, include patch numbers with a **bug fixing score of 2**. If none qualify, use [].&#xD;&#xA;- Ensure that your reasoning fully justifies each score and that the final rankings are logically consistent with your evaluations.&#xD;&#xA;'''"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reviewer.py#L33"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-865.6746797285933" y="246.1855984349964"/>
+      </node>
+      <node id="prompt_ExpeRepair_1_3" label="HUMAN: REFINE_THINK_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="REFINE_THINK_PROMPT = &quot;&quot;&quot;The candidate patch appears to be insufficient in fully resolving the issue, as the execution results indicate that the issue persists even after applying the patch.&#xD;&#xA;Your task is to carefully analyze the patch and provide detailed, actionable suggestions for improving the patch's correctness and reliability in resolving the issue.&#xD;&#xA;&#xD;&#xA;### Steps:&#xD;&#xA;1. Review the issue description to understand the core problem and determine the expected correct behavior for each test case after the issue is resolved.&#xD;&#xA;2. Examine the candidate patch to understand its intended fix strategy and how it attempts to address the issue.&#xD;&#xA;3. Compare the execution results before and after applying the patch. Identify which errors, test failures, or unexpected behaviors persist and why the patch failed to resolve them.&#xD;&#xA;4. For the tests that the patch failed, propose targeted and actionable suggestions:&#xD;&#xA;   - You may suggest improvements to the existing patch or propose alternative fixes at different locations if necessary.&#xD;&#xA;   - Suggestions must aim to make a **meaningful, functional improvement** to the candidate patch.&#xD;&#xA;   - Avoid superficial changes such as documentation edits, unrelated code refactoring, or restating existing patches.&#xD;&#xA;   - When possible, ensure suggestions align with the project's existing coding style and structure.&#xD;&#xA;&#xD;&#xA;Wrap your analysis process in &lt;patch_analysis> tags, and provide the suggestions in &lt;patch_advice> tags.&#xD;&#xA;### Output Format:&#xD;&#xA;&lt;patch_analysis>...&lt;/patch_analysis>&#xD;&#xA;&lt;patch_advice>...&lt;/patch_advice>&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reviewer.py#L86"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-873.1234628594647" y="218.3012107256784"/>
+      </node>
+      <node id="agent_ExpeRepair_2" label="agent_search">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="32.5"/>
+          <attvalue for="agent_name" value="agent_search"/>
+          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="short_description" value="you are responsible for analyzing a submitted issue and identifying the exact location in the repository where the issue occurs.&quot;"/>
+          <attvalue for="agent_in_repo" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_search.py#L179"/>
+          <attvalue for="agent_comment" value="- some of the prompts are put toggeter in the same column since there are refinements"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+        <viz:size value="32.5"/>
+        <viz:position x="-581.8593755169451" y="146.42290504914433"/>
+      </node>
+      <node id="prompt_ExpeRepair_2_1" label="SYSTEM: GENERAL_SYSTEM_PROMPT_W_REPO ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="GENERAL_SYSTEM_PROMPT_W_REPO = (&quot;As a software developer maintaining the GitHub repository {repo_name}, &quot;&#xD;&#xA;                                &quot;you are responsible for analyzing a submitted issue and identifying the exact location in the repository where the issue occurs.&quot;)"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_search.py#L8"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-865.2977048393741" y="247.50733726439609"/>
+      </node>
+      <node id="prompt_ExpeRepair_2_2" label="HUMAN: SELECT_FILE_PROMPT_INITIAL ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="SELECT_FILE_PROMPT_INITIAL = &quot;&quot;&quot;Please review the issue description and thoroughly analyze the issue to uncover all possible causes.&#xD;&#xA;Then, review the file structure and identify TEN files that are most likely to require edits to resolve the issue.&#xD;&#xA;&#xD;&#xA;IMPORTANT:&#xD;&#xA;1. Select files ONLY FROM THE PROVIDED LIST and specify their FULL PATHS, starting from the root directory. Do not include any test files.&#xD;&#xA;2. If multiple files share the same name but are in different directories, and the issue description does not specify a particular one, include all relevant ones.&#xD;&#xA;3. Separate each file path with a new line. Wrap the list in triple backticks (```).&#xD;&#xA;&#xD;&#xA;Explain your reasoning, then provide your answer in the following format:&#xD;&#xA;```&#xD;&#xA;full_path1/file1.py&#xD;&#xA;full_path2/file2.py&#xD;&#xA;...&#xD;&#xA;```&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT_FILE_PROMPT_REFINE = &quot;&quot;&quot;Please review the issue description and thoroughly analyze the issue to uncover all possible causes.&#xD;&#xA;Then, review the skeletons of potentially relevant files and identify up to FOUR files that are most likely to require edits to resolve the issue.&#xD;&#xA;&#xD;&#xA;IMPORTANT:&#xD;&#xA;1. Select files ONLY FROM THE PROVIDED FILE LIST and specify their FULL PATHS.&#xD;&#xA;2. The returned files should be separated by new lines ordered by most to least important. Wrap the file list in triple backticks (```).&#xD;&#xA;&#xD;&#xA;Explain your reasoning, then provide your answer in the following format:&#xD;&#xA;```&#xD;&#xA;full_path1/file1.py&#xD;&#xA;full_path2/file2.py&#xD;&#xA;```&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_search.py#L12"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-872.7890632754176" y="219.63435757371647"/>
+      </node>
+      <node id="prompt_ExpeRepair_2_3" label="HUMAN: SELECT_EDIT_PROMPT_INITIAL ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="SELECT_EDIT_PROMPT_INITIAL = &quot;&quot;&quot;Your task is to:&#xD;&#xA;1. Carefully review the issue description and thoroughly analyze the issue to uncover all possible causes.&#xD;&#xA;2. Review the provided code file and identify at least three locations within the file that require inspection or modification to resolve the issue.&#xD;&#xA;&#xD;&#xA;Guidelines for Specifying Locations:&#xD;&#xA;1. The locations can be specified as class names, function or method names, or exact line numbers.&#xD;&#xA;2. Line ranges may span across multiple classes or methods if necessary. Ensure all line numbers are accurate and within the valid range of the provided code.&#xD;&#xA;&#xD;&#xA;IMPORTANT:&#xD;&#xA;1. Analyze how the provided code file relates to the issue and identify at least three related locations that require modification (e.g., edits, additions) or require inspection (e.g., provide important context).&#xD;&#xA;2. If a new method or class needs to be added to resolve the issue, specify a broader line range that includes surrounding code to provide context and ensure proper placement.&#xD;&#xA;3. Check if any dependencies, helper methods, or global variables should be modified to ensure logical and structural coherence.&#xD;&#xA;4. Check the functionally similar or similarly named methods/classes that might have the same bug or require consistency updates.&#xD;&#xA;&#xD;&#xA;Provide the response using the following strict format:&#xD;&#xA;&lt;analysis>Explain your reasoning step by step&lt;/analysis>&#xD;&#xA;&#xD;&#xA;&lt;location>&#xD;&#xA;  &lt;class>ClassName1&lt;/class>&#xD;&#xA;  &lt;method>&lt;/method>&#xD;&#xA;  &lt;start_line>124&lt;/start_line>&#xD;&#xA;  &lt;end_line>189&lt;/end_line>&#xD;&#xA;&lt;/location>&#xD;&#xA;&#xD;&#xA;&lt;location>&#xD;&#xA;  &lt;class>&lt;/class>&#xD;&#xA;  &lt;method>function_name1&lt;/method>&#xD;&#xA;  &lt;start_line>&lt;/start_line>&#xD;&#xA;  &lt;end_line>&lt;/end_line>&#xD;&#xA;&lt;/location>&#xD;&#xA;&#xD;&#xA;&lt;location>&#xD;&#xA;  &lt;class>&lt;/class>&#xD;&#xA;  &lt;method>&lt;/method>&#xD;&#xA;  &lt;start_line>751&lt;/start_line>&#xD;&#xA;  &lt;end_line>1126&lt;/end_line>&#xD;&#xA;&lt;/location>&#xD;&#xA;&#xD;&#xA;...&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT_EDIT_PROMPT_REFINE = &quot;&quot;&quot;Please review the issue description and thoroughly analyze the issue to uncover all possible causes.&#xD;&#xA;Then, review the provided code snippets, identify all related locations that require inspection or modification to resolve the issue.&#xD;&#xA;&#xD;&#xA;Guidelines for Specifying Locations:&#xD;&#xA;1. The locations can be specified as class names, function or method names, or exact line numbers.&#xD;&#xA;2. Line ranges may span across multiple classes or methods if necessary. Ensure all line numbers are accurate and within the valid range of the provided code.&#xD;&#xA;&#xD;&#xA;IMPORTANT:&#xD;&#xA;1. Do not recommend any edits or propose fixes. Your task is solely to identify all related locations — including those requiring direct edits, additions, or providing important contextual information — without overlooking any.&#xD;&#xA;2. If a new method or class needs to be added to resolve the issue, specify a broader line range that includes surrounding code to provide context and ensure proper placement.&#xD;&#xA;3. Check if any dependencies, helper methods, or global variables should be modified to ensure logical and structural coherence.&#xD;&#xA;4. Check the functionally similar or similarly named methods/classes that might have the same bug or require consistency updates.&#xD;&#xA;&#xD;&#xA;Provide the response using the following strict format:&#xD;&#xA;&lt;analysis>Explain your reasoning step by step&lt;/analysis>&#xD;&#xA;&#xD;&#xA;&lt;file>&#xD;&#xA;  &lt;path>FilePath1&lt;/path>&#xD;&#xA;  &lt;location>&#xD;&#xA;    &lt;class>ClassName1&lt;/class>&#xD;&#xA;    &lt;method>&lt;/method>&#xD;&#xA;    &lt;start_line>124&lt;/start_line>&#xD;&#xA;    &lt;end_line>189&lt;/end_line>&#xD;&#xA;  &lt;/location>&#xD;&#xA;  &lt;location>&#xD;&#xA;    &lt;class>&lt;/class>&#xD;&#xA;    &lt;method>&lt;/method>&#xD;&#xA;    &lt;start_line>301&lt;/start_line>&#xD;&#xA;    &lt;end_line>402&lt;/end_line>&#xD;&#xA;  &lt;/location>&#xD;&#xA;&lt;/file>&#xD;&#xA;&#xD;&#xA;&lt;file>&#xD;&#xA;  &lt;path>FilePath2&lt;/path>&#xD;&#xA;  &lt;location>&#xD;&#xA;    &lt;class>&lt;/class>&#xD;&#xA;    &lt;method>method_name&lt;/method>&#xD;&#xA;    &lt;start_line>15&lt;/start_line>&#xD;&#xA;    &lt;end_line>37&lt;/end_line>&#xD;&#xA;  &lt;/location>&#xD;&#xA;  &lt;location>&#xD;&#xA;    &lt;class>&lt;/class>&#xD;&#xA;    &lt;method>&lt;/method>&#xD;&#xA;    &lt;start_line>753&lt;/start_line>&#xD;&#xA;    &lt;end_line>1126&lt;/end_line>&#xD;&#xA;  &lt;/location>&#xD;&#xA;&lt;/file>&#xD;&#xA;&#xD;&#xA;...&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_search.py#L42"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-879.3828244831725" y="191.53550063629953"/>
+      </node>
+      <node id="agent_ExpeRepair_3" label="PatchAgent">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="PatchAgent"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="write a patch that resolves this issue."/>
+          <attvalue for="agent_in_repo" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L208"/>
+          <attvalue for="agent_comment" value="- some of the prompts are put toggeter in the same column since there are refinements"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+        <viz:size value="40"/>
+        <viz:position x="-586.0595287925233" y="128.58549183903096"/>
+      </node>
+      <node id="prompt_ExpeRepair_3_1" label="SYSTEM: SYSTEM_PROMPT_W_REPO ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT_W_REPO = &quot;&quot;&quot;You are a software developer maintaining the GitHub project {repo_name}.&#xD;&#xA;You are working on an issue submitted to your project.&#xD;&#xA;The issue contains a description marked between &lt;issue> and &lt;/issue>.&#xD;&#xA;Another developer has already collected code context related to the issue for you.&#xD;&#xA;Your task is to write a patch that resolves this issue.&#xD;&#xA;Do not make changes to test files or write tests; you are only interested in crafting a patch.&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L27"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-872.4526281494425" y="220.96699218464883"/>
+      </node>
+      <node id="prompt_ExpeRepair_3_2" label="PROXY: WRITE_PATCH_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="WRITE_PATCH_PROMPT = &quot;&quot;&quot;&#xD;&#xA;### Phase 1: FIX ANALYSIS&#xD;&#xA;1. Review the issue description and state clearly what the problem is.&#xD;&#xA;2. Review the test script and its execution results, and state clearly how the test reproduces the issue.&#xD;&#xA;3. Analyze the provided code context and specify where the problem occurs in the code.&#xD;&#xA;4. State clearly the best practices to take into account in the fix.&#xD;&#xA;5. State clearly how to fix the problem.&#xD;&#xA;&#xD;&#xA;### Phase 2: FIX IMPLEMENTATION&#xD;&#xA;1. Focus on making minimal, precise, and relevant changes to resolve the issue.&#xD;&#xA;2. Include any necessary imports introduced by the patch.&#xD;&#xA;3. Write the patch using the strict format specified below:&#xD;&#xA;- Each modification must be enclosed in:&#xD;&#xA;  - `&lt;file>...&lt;/file>`: replace `...` with actual file path.&#xD;&#xA;  - `&lt;original>...&lt;/original>`: replace `...` with the original code snippet from the provided code locations.&#xD;&#xA;  - `&lt;patched>...&lt;/patched>`: replace `...` with the fixed version of the original code.&#xD;&#xA;- The `&lt;original>` block must contain an exact, continuous block of code from the provided code locations, as the system relies on this for locating modifications.&#xD;&#xA;- When adding original code and patched code, pay attention to indentation, as the code is in Python.&#xD;&#xA;- DO NOT include line numbers in the patch.&#xD;&#xA;- You can write up to three modifications if needed.&#xD;&#xA;&#xD;&#xA;EXAMPLE PATCH FORMAT:&#xD;&#xA;# modification 1&#xD;&#xA;```&#xD;&#xA;&lt;file>...&lt;/file>&#xD;&#xA;&lt;original>...&lt;/original>&#xD;&#xA;&lt;patched>...&lt;/patched>&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;# modification 2&#xD;&#xA;```&#xD;&#xA;&lt;file>...&lt;/file>&#xD;&#xA;&lt;original>...&lt;/original>&#xD;&#xA;&lt;patched>...&lt;/patched>&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;# modification 3&#xD;&#xA;```&#xD;&#xA;...&#xD;&#xA;```&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;WRITE_PATCH_PROMPT_WO_TEST = &quot;&quot;&quot;&#xD;&#xA;### Phase 1: FIX ANALYSIS&#xD;&#xA;1. Review the issue description and state clearly what the problem is.&#xD;&#xA;2. Analyze the provided code context and specify where the problem occurs in the code.&#xD;&#xA;3. State clearly the best practices to take into account in the fix.&#xD;&#xA;4. State clearly how to fix the problem.&#xD;&#xA;&#xD;&#xA;### Phase 2: FIX IMPLEMENTATION&#xD;&#xA;1. Focus on making minimal, precise, and relevant changes to resolve the issue.&#xD;&#xA;2. Include any necessary imports introduced by the patch.&#xD;&#xA;3. Write the patch using the strict format specified below:&#xD;&#xA;- Each modification must be enclosed in:&#xD;&#xA;  - `&lt;file>...&lt;/file>`: replace `...` with actual file path.&#xD;&#xA;  - `&lt;original>...&lt;/original>`: replace `...` with the original code snippet from the provided code locations.&#xD;&#xA;  - `&lt;patched>...&lt;/patched>`: replace `...` with the fixed version of the original code.&#xD;&#xA;- The `&lt;original>` block must contain an exact, continuous block of code from the provided code locations, as the system relies on this for locating modifications.&#xD;&#xA;- When adding original code and patched code, pay attention to indentation, as the code is in Python.&#xD;&#xA;- DO NOT include line numbers in the patch.&#xD;&#xA;- You can write up to three modifications if needed.&#xD;&#xA;&#xD;&#xA;EXAMPLE PATCH FORMAT:&#xD;&#xA;# modification 1&#xD;&#xA;```&#xD;&#xA;&lt;file>...&lt;/file>&#xD;&#xA;&lt;original>...&lt;/original>&#xD;&#xA;&lt;patched>...&lt;/patched>&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;# modification 2&#xD;&#xA;```&#xD;&#xA;&lt;file>...&lt;/file>&#xD;&#xA;&lt;original>...&lt;/original>&#xD;&#xA;&lt;patched>...&lt;/patched>&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;# modification 3&#xD;&#xA;```&#xD;&#xA;...&#xD;&#xA;```&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L35"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-876.9772064731354" y="202.2646269780646"/>
+      </node>
+      <node id="prompt_ExpeRepair_3_3" label="HUMAN: EXPAND_THINK_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="EXPAND_THINK_PROMPT = &quot;&quot;&quot;However, the reproduction test is designed solely to reproduce the reported issue. Passing this test does not necessarily indicate that the issue has been fully resolved or that the patch is free from unintended side effects.&#xD;&#xA;Your task is to carefully analyze the given candidate patch and provide detailed, actionable suggestions to improve its **comprehensiveness** in fully resolving the issue.&#xD;&#xA;&#xD;&#xA;### Steps:&#xD;&#xA;1. Review the issue description to thoroughly understand the core problem.&#xD;&#xA;2. Identify any potential flaws or limitations in the candidate patch, including but not limited to:&#xD;&#xA;   - Missed edge cases or scenarios the patch does not cover.&#xD;&#xA;   - Missing complementary implementations (e.g., defining `__radd__` when adding `__add__`, or pairing `max()` with `min()` if appropriate).&#xD;&#xA;   - Risks of regressions or unintended side effects in related functionalities.&#xD;&#xA;   - Non-adherence to best practices (e.g., poor error handling, Inconsistent adherence to coding conventions).&#xD;&#xA;3. Based on your analysis, propose clear and actionable improvement suggestions.&#xD;&#xA;   - You can suggest either improvements to the existing patch or a new implementation in a different location if necessary.&#xD;&#xA;   - Suggestions must aim to make a **meaningful, functional improvement** to the candidate patch.&#xD;&#xA;   - Avoid superficial changes such as documentation edits, unrelated code refactoring, or restating existing patches.&#xD;&#xA;&#xD;&#xA;Wrap your analysis process in &lt;analysis> tags, and provide the suggestions in &lt;advice> tags.&#xD;&#xA;### Output Format:&#xD;&#xA;&lt;analysis>...&lt;/analysis>&#xD;&#xA;&lt;advice>...&lt;/advice>&#xD;&#xA;&quot;&quot;&quot;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;COMPRESS_THINK_PROMPT = &quot;&quot;&quot;However, the reproduction test is designed solely to reproduce the reported issue. Passing this test does not necessarily indicate that the issue has been fully resolved or that the patch is free from unintended side effects.&#xD;&#xA;Your task is to carefully analyze the given candidate patch and provide detailed, actionable suggestions to improve its **effectiveness and simplicity** in resolving the issue.&#xD;&#xA;&#xD;&#xA;### Steps:&#xD;&#xA;1. Review the issue description to thoroughly understand the core problem.&#xD;&#xA;2. Identify any potential flaws or limitations in the candidate patch, including but not limited to:&#xD;&#xA;   - Overly complex solutions, where certain modifications are unnecessary and can be removed without affecting correctness.&#xD;&#xA;   - Indirect, convoluted implementations that could be replaced with cleaner, more direct alternatives.&#xD;&#xA;   - Risks of regressions or unintended side effects in related functionalities.&#xD;&#xA;   - Non-adherence to best practices (e.g., lack of simplicity, Inconsistent adherence to coding conventions).&#xD;&#xA;3. Based on your analysis, propose clear and actionable improvement suggestions.&#xD;&#xA;   - You can suggest either improvements to the existing patch or a new implementation in a different location if necessary.&#xD;&#xA;   - Suggestions must aim to make a **meaningful, functional improvement** to the candidate patch.&#xD;&#xA;   - Avoid superficial changes such as documentation edits, unrelated code refactoring, or restating existing patches.&#xD;&#xA;&#xD;&#xA;Wrap your analysis process in &lt;analysis> tags, and provide the suggestions in &lt;advice> tags.&#xD;&#xA;### Output Format:&#xD;&#xA;&lt;analysis>...&lt;/analysis>&#xD;&#xA;&lt;advice>...&lt;/advice>&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L119"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-881.1009193025088" y="183.4698067919456"/>
+      </node>
+      <node id="prompt_ExpeRepair_3_4" label="HUMAN: EXPAND_WRITE_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="EXPAND_WRITE_PROMPT = &quot;&quot;&quot;However, the reproduction test is designed solely to reproduce the reported issue. Passing this test does not necessarily indicate that the issue has been fully resolved or that the patch is free from unintended side effects.&#xD;&#xA;Below are the analysis and improvement suggestions for the candidate patch provided by your colleague:&#xD;&#xA;{patch_suggestions}&#xD;&#xA;&#xD;&#xA;Your task is to propose a refined patch based on the provided analysis and improvement suggestions.&#xD;&#xA;Steps:&#xD;&#xA;1. Carefully review the provided analysis and suggestions to identify specific areas for improvement in the candidate patch.&#xD;&#xA;2. Propose a refined patch that addresses the identified limitations. Clearly explain how each suggestion leads to the specific modifications you propose.&#xD;&#xA;&#xD;&#xA;Output Format:&#xD;&#xA;Explain your reasoning step by step, then write your patch using the following strict format:&#xD;&#xA;- Each modification must be enclosed in:&#xD;&#xA;  - `&lt;file>...&lt;/file>`: replace `...` with actual file path.&#xD;&#xA;  - `&lt;original>...&lt;/original>`: replace `...` with the original code snippet from the provided code locations.&#xD;&#xA;  - `&lt;patched>...&lt;/patched>`: replace `...` with the fixed version of the original code.&#xD;&#xA;- The `&lt;original>` block must contain an exact, continuous block of code from the provided code locations, as the system relies on this for locating modifications.&#xD;&#xA;- When adding original code and patched code, pay attention to indentation, as the code is in Python.&#xD;&#xA;- DO NOT include line numbers in the patch.&#xD;&#xA;- You can write UP TO THREE modifications if needed.&#xD;&#xA;- Include any necessary imports required by your patch.&#xD;&#xA;&#xD;&#xA;EXAMPLE PATCH FORMAT:&#xD;&#xA;# modification 1&#xD;&#xA;```&#xD;&#xA;&lt;file>...&lt;/file>&#xD;&#xA;&lt;original>...&lt;/original>&#xD;&#xA;&lt;patched>...&lt;/patched>&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;# modification 2&#xD;&#xA;```&#xD;&#xA;&lt;file>...&lt;/file>&#xD;&#xA;&lt;original>...&lt;/original>&#xD;&#xA;&lt;patched>...&lt;/patched>&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;# modification 3&#xD;&#xA;```&#xD;&#xA;...&#xD;&#xA;```&#xD;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L163"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+        <viz:size value="10"/>
+        <viz:position x="-884.8218816921279" y="164.59112272173758"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="342" source="repo_ExpeRepair" target="agent_ExpeRepair_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+      </edge>
+      <edge id="343" source="agent_ExpeRepair_0" target="prompt_ExpeRepair_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="344" source="agent_ExpeRepair_0" target="prompt_ExpeRepair_0_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="345" source="agent_ExpeRepair_0" target="prompt_ExpeRepair_0_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="346" source="repo_ExpeRepair" target="agent_ExpeRepair_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+      </edge>
+      <edge id="347" source="agent_ExpeRepair_1" target="prompt_ExpeRepair_1_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="348" source="agent_ExpeRepair_1" target="prompt_ExpeRepair_1_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="349" source="agent_ExpeRepair_1" target="prompt_ExpeRepair_1_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="350" source="repo_ExpeRepair" target="agent_ExpeRepair_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+      </edge>
+      <edge id="351" source="agent_ExpeRepair_2" target="prompt_ExpeRepair_2_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="352" source="agent_ExpeRepair_2" target="prompt_ExpeRepair_2_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="353" source="agent_ExpeRepair_2" target="prompt_ExpeRepair_2_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="354" source="repo_ExpeRepair" target="agent_ExpeRepair_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="109" g="169" b="78"/>
+      </edge>
+      <edge id="355" source="agent_ExpeRepair_3" target="prompt_ExpeRepair_3_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="356" source="agent_ExpeRepair_3" target="prompt_ExpeRepair_3_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="357" source="agent_ExpeRepair_3" target="prompt_ExpeRepair_3_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+      <edge id="358" source="agent_ExpeRepair_3" target="prompt_ExpeRepair_3_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="203" g="84" b="96"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>
