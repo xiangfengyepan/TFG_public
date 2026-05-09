@@ -1,4 +1,4 @@
-Repo,Locator,Patcher,Helper/Proxy,Planner/Orchestrator,Base agent,Bug reproduction,Enviorment setup,Reviewer
+Repo,Locator,Patcher,Helper/Proxy,Planner/Orchestrator,Base agent,Bug reproduction,Environment setup,Reviewer
 Description,"Locate the issue /
 Automatically classifies GitHub issues into categories (bug, question, feature, documentation).",Write patch / selecting the best patch among multiple options / apply patch,"- Ask questions about code without making any changes.
 - User support: Interactive help and documentation of framework
