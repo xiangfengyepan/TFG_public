@@ -13,9 +13,9 @@
 - look in README.md, requirements.txt, or .py files for mentions of frameworks
 - e.g. langchain, langgraph, use their own scripts, the project is a framework itself -Moatless, Openhand-
 - use regex to find matches in .py files: ``` (?:import|from)\s+.*(?:langchain).* ```
-where u can change langchain for any of these framework: ```metagpt|langgraph|spade|aiomas|pyMAS|mesa|pettingzoo|magent|langchain|llama-index|simpy```
+where u can change langchain for any of these framework: ```metagpt|langgraph|spade|aiomas|pyMAS|mesa|pettingzoo|magent|langchain|llama-index|simpy|pydantic-ai```
 
-```(?:import|from)\s+.*(?:metagpt|langgraph|spade|aiomas|pyMAS|mesa|pettingzoo|magent|langchain|llama.index|simpy).*```
+```(?:import|from)\s+.*(?:metagpt|langgraph|spade|aiomas|pyMAS|mesa|pettingzoo|magent|langchain|llama.index|simpy|pydantic_ai).*```
 
 - update the settings.json "search.exclude": variable.
 - search for dependency files e.g. requirements.txt
@@ -33,6 +33,7 @@ where u can change langchain for any of these framework: ```metagpt|langgraph|sp
 - langchain
 - llama-index
 - simpy
+- pydantic-ai
 
 ---
 
