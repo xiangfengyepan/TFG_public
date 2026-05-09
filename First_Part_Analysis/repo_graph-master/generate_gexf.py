@@ -33,7 +33,7 @@ from pathlib import Path
 BASE           = Path(r"C:\Users\XF\Desktop\TFG\First_Part_Analysis")
 REPO_CSV       = BASE / "Open-Source-Proyects-SWE-Bench - Repositories.csv"
 AGENTS_DIR     = BASE / "Prompt_Anlysis" / "agents_csv"
-OUTPUT         = BASE / "swe_bench_graph.gexf"
+OUTPUT         = Path(__file__).parent / "swe_bench_graph.gexf"
 DATASET_OUTPUT = Path(__file__).parent / "config" / "dataset.json"
 
 # ---------------------------------------------------------------------------
@@ -245,7 +245,7 @@ def emit_prompts_tools(row, parent_id, id_prefix,
             continue
         prompt_id = f"prompt_{id_prefix}_{n}"
         label_body = ptext if ptext != "null" else purl
-        label = (f"{ptype}: {label_body[:40]}"
+        label = (f"{ptype}: {label_body.split("=")[0][:40]}"
                  if ptype != "null" else label_body[:40])
         add_node(nodes_el, prompt_id, label, {
             "node_type":   "prompt",

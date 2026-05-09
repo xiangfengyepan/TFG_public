@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- has BM25 Seach Info Algorithm&#xA;- Pipeline: code edit &amp; code retrive https://github.com/InternLM/SWE-Fixer/blob/78716936725d73a26653f4f008984380e3cd8a57/pipeline/pipeline.py#L407&#xA;- some promtps used in pipeline: https://github.com/InternLM/SWE-Fixer/blob/78716936725d73a26653f4f008984380e3cd8a57/pipeline/prompt.py#L1"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="170" g="96" b="190"/>
+        <viz:color r="155" g="107" b="190"/>
         <viz:size value="10"/>
         <viz:position x="-259.80762113533154" y="150.0000000000001"/>
       </node>

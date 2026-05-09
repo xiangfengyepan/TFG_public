@@ -270,7 +270,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_0_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;You are an expert on ">
+      <node id="prompt_aider_0_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -278,7 +278,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_aider_0_2" label="SYSTEM: system_reminder = &quot;&quot;&quot;&quot;&quot;&quot;">
+      <node id="prompt_aider_0_2" label="SYSTEM: system_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -286,7 +286,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L34" />
         </attvalues>
       </node>
-      <node id="prompt_aider_0_3" label="PROXY: files_content_prefix = &quot;&quot;&quot;&#10;&#10;These are so">
+      <node id="prompt_aider_0_3" label="PROXY: files_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -294,7 +294,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L36" />
         </attvalues>
       </node>
-      <node id="prompt_aider_0_4" label="PROXY: files_no_full_files = &quot;&quot;&quot;&#10;&#10;I am not shar">
+      <node id="prompt_aider_0_4" label="PROXY: files_no_full_files ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -302,7 +302,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L39" />
         </attvalues>
       </node>
-      <node id="prompt_aider_0_5" label="PROXY: repo_content_prefix = &quot;&quot;&quot;&#10;&#10;Here are summ">
+      <node id="prompt_aider_0_5" label="PROXY: repo_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -320,7 +320,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_1_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert code">
+      <node id="prompt_aider_1_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -328,7 +328,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_aider_1_2" label="PROXY: files_content_prefix = &quot;&quot;&quot;&#10;&#10;I have *adde">
+      <node id="prompt_aider_1_2" label="PROXY: files_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -336,7 +336,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L16" />
         </attvalues>
       </node>
-      <node id="prompt_aider_1_3" label="PROXY: files_content_assistant_reply = &quot;&quot;&quot;&#10;&#10;Ok,">
+      <node id="prompt_aider_1_3" label="PROXY: files_content_assistant_reply ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -344,7 +344,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L21" />
         </attvalues>
       </node>
-      <node id="prompt_aider_1_4" label="PROXY: files_no_full_files = &quot;&quot;&quot;&#10;&#10;I am not shar">
+      <node id="prompt_aider_1_4" label="PROXY: files_no_full_files ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -352,7 +352,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L25" />
         </attvalues>
       </node>
-      <node id="prompt_aider_1_5" label="PROXY: repo_content_prefix = &quot;&quot;&quot;&#10;&#10;I am working ">
+      <node id="prompt_aider_1_5" label="PROXY: repo_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -360,7 +360,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L30" />
         </attvalues>
       </node>
-      <node id="prompt_aider_1_6" label="SYSTEM: system_reminder = &quot;&quot;&quot;&#10;&#10;{final_reminders}">
+      <node id="prompt_aider_1_6" label="SYSTEM: system_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -378,7 +378,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_1" label="PROXY: files_content_gpt_edits = &quot;&quot;&quot;&#10;&#10;I committ">
+      <node id="prompt_aider_2_1" label="PROXY: files_content_gpt_edits ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -386,7 +386,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L4" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_2" label="PROXY: files_content_gpt_edits_no_repo = &quot;&quot;&quot;&#10;&#10;I">
+      <node id="prompt_aider_2_2" label="PROXY: files_content_gpt_edits_no_repo ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -394,7 +394,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L6" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_3" label="PROXY: files_content_gpt_no_edits = &quot;&quot;&quot;&#10;&#10;I didn">
+      <node id="prompt_aider_2_3" label="PROXY: files_content_gpt_no_edits ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -402,7 +402,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L8" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_4" label="PROXY: files_content_local_edits = &quot;&quot;&quot;&#10;&#10;I edite">
+      <node id="prompt_aider_2_4" label="PROXY: files_content_local_edits ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -410,7 +410,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L10" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_5" label="SYSTEM: lazy_prompt = &quot;&quot;&quot;&#10;&#10;You are diligent and ">
+      <node id="prompt_aider_2_5" label="SYSTEM: lazy_prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -418,7 +418,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L12" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_6" label="SYSTEM: overeager_prompt = &quot;&quot;&quot;&#10;&#10;Pay careful atte">
+      <node id="prompt_aider_2_6" label="SYSTEM: overeager_prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -426,7 +426,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L17" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_7" label="PROXY: files_content_prefix = &quot;&quot;&quot;&#10;&#10;I have *adde">
+      <node id="prompt_aider_2_7" label="PROXY: files_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -434,7 +434,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L24" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_8" label="PROXY: files_content_assistant_reply = &quot;&quot;&quot;&#10;&#10;Ok,">
+      <node id="prompt_aider_2_8" label="PROXY: files_content_assistant_reply ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -442,7 +442,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L30" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_9" label="PROXY: files_no_full_files = &quot;&quot;&quot;&#10;&#10;I am not shar">
+      <node id="prompt_aider_2_9" label="PROXY: files_no_full_files ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -450,7 +450,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L32" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_10" label="HUMAN: files_no_full_files_with_repo_map = &quot;&quot;&quot;&#10;">
+      <node id="prompt_aider_2_10" label="HUMAN: files_no_full_files_with_repo_map ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -466,7 +466,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L40" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_12" label="PROXY: repo_content_prefix = &quot;&quot;&quot;&#10;&#10;Here are summ">
+      <node id="prompt_aider_2_12" label="PROXY: repo_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -474,7 +474,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L45" />
         </attvalues>
       </node>
-      <node id="prompt_aider_2_13" label="PROXY: read_only_files_prefix = &quot;&quot;&quot;&#10;&#10;Here are s">
+      <node id="prompt_aider_2_13" label="PROXY: read_only_files_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -492,7 +492,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert soft">
+      <node id="prompt_aider_3_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -500,7 +500,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L8" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_2" label="PROXY: example_messages = [&#10;&#10; dict(&#10;&#10; role=&quot;use">
+      <node id="prompt_aider_3_2" label="PROXY: example_messages ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -508,7 +508,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L31" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_3" label="SYSTEM: system\_reminder = &quot;&quot;&quot;&#10;&#10;\# *SEARCH/REPLA">
+      <node id="prompt_aider_3_3" label="SYSTEM: system\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -516,7 +516,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L120" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_4" label="SYSTEM: rename\_with\_shell = &quot;&quot;&quot;&#10;&#10;To rename fil">
+      <node id="prompt_aider_3_4" label="SYSTEM: rename\_with\_shell ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -524,7 +524,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L161" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_5" label="SYSTEM: go\_ahead\_tip = &quot;&quot;&quot;&#10;&#10;If the user just s">
+      <node id="prompt_aider_3_5" label="SYSTEM: go\_ahead\_tip ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -532,7 +532,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L165" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_6" label="SYSTEM: shell_cmd_prompt = &quot;&quot;&quot;&#10;&#10;4. *Concisely* s">
+      <node id="prompt_aider_3_6" label="SYSTEM: shell_cmd_prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -540,7 +540,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L1" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_7" label="SYSTEM: no\_shell\_cmd\_prompt = &quot;&quot;&quot;&#10;&#10;Keep in mi">
+      <node id="prompt_aider_3_7" label="SYSTEM: no\_shell\_cmd\_prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -548,7 +548,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L22" />
         </attvalues>
       </node>
-      <node id="prompt_aider_3_8" label="SYSTEM: shell\_cmd\_reminder = &quot;&quot;&quot;&#10;&#10;Examples of ">
+      <node id="prompt_aider_3_8" label="SYSTEM: shell\_cmd\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -566,7 +566,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_4_1" label="PROXY: example_messages = [&#10;&#10; dict(&#10;&#10; role=&quot;use">
+      <node id="prompt_aider_4_1" label="PROXY: example_messages ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -574,7 +574,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_fenced_prompts.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_aider_4_2" label="SYSTEM: system\_reminder = &quot;&quot;&quot;&#10;&#10;\# *SEARCH/REPLA">
+      <node id="prompt_aider_4_2" label="SYSTEM: system\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -592,7 +592,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_5_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert soft">
+      <node id="prompt_aider_5_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -600,7 +600,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_aider_5_2" label="PROXY: example_messages = [&#10;&#10; dict(&#10;&#10; role=&quot;use">
+      <node id="prompt_aider_5_2" label="PROXY: example_messages ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -608,7 +608,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L17" />
         </attvalues>
       </node>
-      <node id="prompt_aider_5_3" label="SYSTEM: system_reminder = &quot;&quot;&quot;To suggest changes ">
+      <node id="prompt_aider_5_3" label="SYSTEM: system_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -616,7 +616,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L42" />
         </attvalues>
       </node>
-      <node id="prompt_aider_5_4" label="SYSTEM: redacted_edit_message = &quot;No changes are ">
+      <node id="prompt_aider_5_4" label="SYSTEM: redacted_edit_message ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -634,7 +634,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_6_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert soft">
+      <node id="prompt_aider_6_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -642,7 +642,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/patch_prompts.py#L11" />
         </attvalues>
       </node>
-      <node id="prompt_aider_6_2" label="PROXY: example\_messages = [&#10;&#10; \# --- Example 1">
+      <node id="prompt_aider_6_2" label="PROXY: example\_messages ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -650,7 +650,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/patch_prompts.py#L38" />
         </attvalues>
       </node>
-      <node id="prompt_aider_6_3" label="SYSTEM: system\_reminder = &quot;&quot;&quot;\# V4A Diff Format">
+      <node id="prompt_aider_6_3" label="SYSTEM: system\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -668,7 +668,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_7_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert soft">
+      <node id="prompt_aider_7_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -676,7 +676,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_prompts.py#L8" />
         </attvalues>
       </node>
-      <node id="prompt_aider_7_2" label="PROXY: example\_messages = [&#10;&#10; dict(&#10;&#10; role=&quot;us">
+      <node id="prompt_aider_7_2" label="PROXY: example\_messages ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -684,7 +684,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_prompts.py#L19" />
         </attvalues>
       </node>
-      <node id="prompt_aider_7_3" label="SYSTEM: system\_reminder = &quot;&quot;&quot;\# File editing ru">
+      <node id="prompt_aider_7_3" label="SYSTEM: system\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -692,7 +692,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_prompts.py#L74" />
         </attvalues>
       </node>
-      <node id="prompt_aider_7_4" label="SYSTEM: shell_cmd_prompt = &quot;&quot;&quot;&#10;&#10;4. *Concisely* s">
+      <node id="prompt_aider_7_4" label="SYSTEM: shell_cmd_prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -700,7 +700,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L1" />
         </attvalues>
       </node>
-      <node id="prompt_aider_7_5" label="SYSTEM: no\_shell\_cmd\_prompt = &quot;&quot;&quot;&#10;&#10;Keep in mi">
+      <node id="prompt_aider_7_5" label="SYSTEM: no\_shell\_cmd\_prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -708,7 +708,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L22" />
         </attvalues>
       </node>
-      <node id="prompt_aider_7_6" label="SYSTEM: shell\_cmd\_reminder = &quot;&quot;&quot;&#10;&#10;Examples of ">
+      <node id="prompt_aider_7_6" label="SYSTEM: shell\_cmd\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -726,7 +726,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_8_1" label="SYSTEM: system_reminder = &quot;&quot;&quot;# File editing rule">
+      <node id="prompt_aider_8_1" label="SYSTEM: system_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -744,7 +744,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_9_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert arch">
+      <node id="prompt_aider_9_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -752,7 +752,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_aider_9_2" label="SYSTEM: files_content_prefix = &quot;&quot;&quot;&#10;&#10;I have *adde">
+      <node id="prompt_aider_9_2" label="SYSTEM: files_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -760,7 +760,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L21" />
         </attvalues>
       </node>
-      <node id="prompt_aider_9_3" label="PROXY: files_content_assistant_reply = (&#10;&#10; &quot;Ok,">
+      <node id="prompt_aider_9_3" label="PROXY: files_content_assistant_reply ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -768,7 +768,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L26" />
         </attvalues>
       </node>
-      <node id="prompt_aider_9_4" label="SYSTEM: files_no_full_files = &quot;I am not sharing ">
+      <node id="prompt_aider_9_4" label="SYSTEM: files_no_full_files ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -776,7 +776,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L30" />
         </attvalues>
       </node>
-      <node id="prompt_aider_9_5" label="SYSTEM: repo_content_prefix = &quot;&quot;&quot;&#10;&#10;I am working ">
+      <node id="prompt_aider_9_5" label="SYSTEM: repo_content_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -794,7 +794,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_10_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert soft">
+      <node id="prompt_aider_10_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -812,7 +812,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_11_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert soft">
+      <node id="prompt_aider_11_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -848,7 +848,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_1" label="SYSTEM: main_system = &quot;&quot;&quot;&#10;&#10;Act as an expert code">
+      <node id="prompt_aider_13_1" label="SYSTEM: main_system ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -856,7 +856,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_2" label="SYSTEM: files\_content\_prefix = &quot;&quot;&quot;&#10;&#10;These file">
+      <node id="prompt_aider_13_2" label="SYSTEM: files\_content\_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -864,7 +864,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L47" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_3" label="PROXY: files\_content\_assistant\_reply = (&#10;&#10; &quot;">
+      <node id="prompt_aider_13_3" label="PROXY: files\_content\_assistant\_reply ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -872,7 +872,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L52" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_4" label="SYSTEM: files\_no\_full\_files = &quot;I am not shari">
+      <node id="prompt_aider_13_4" label="SYSTEM: files\_no\_full\_files ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -880,7 +880,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L56" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_5" label="SYSTEM: repo\_content\_prefix = &quot;&quot;&quot;&#10;&#10;I am workin">
+      <node id="prompt_aider_13_5" label="SYSTEM: repo\_content\_prefix ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -888,7 +888,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L61" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_6" label="SYSTEM: system\_reminder = &quot;&quot;&quot;&#10;&#10;NEVER RETURN COD">
+      <node id="prompt_aider_13_6" label="SYSTEM: system\_reminder ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -896,7 +896,7 @@
           <attvalue for="26" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L66" />
         </attvalues>
       </node>
-      <node id="prompt_aider_13_7" label="SYSTEM: try\_again = &quot;&quot;&quot;I have updated the set o">
+      <node id="prompt_aider_13_7" label="SYSTEM: try\_again ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -913,7 +913,7 @@
           <attvalue for="4" value="26455" />
           <attvalue for="5" value="TRUE" />
           <attvalue for="6" value="not found" />
-          <attvalue for="7" value="langchain, langgraph, framework itself" />
+          <attvalue for="7" value="langchain, langgraph, framework itself, crewai, autogen" />
           <attvalue for="8" value="ComposioHQ_composio_a9e7f9.json" />
           <attvalue for="9" value="TRUE" />
           <attvalue for="10" value="14" />
@@ -937,7 +937,7 @@
           <attvalue for="23" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46" />
         </attvalues>
       </node>
-      <node id="prompt_composio_0_1" label="SYSTEM: instructions=&quot;You are a helpful assistan">
+      <node id="prompt_composio_0_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -955,7 +955,7 @@
           <attvalue for="23" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46" />
         </attvalues>
       </node>
-      <node id="prompt_composio_1_1" label="SYSTEM: instructions=&quot;&quot;&quot;You are PR-Reviewer, an ">
+      <node id="prompt_composio_1_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -973,7 +973,7 @@
           <attvalue for="23" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46" />
         </attvalues>
       </node>
-      <node id="prompt_composio_2_1" label="SYSTEM: instructions=(&#13;&#10;            &quot;You summari">
+      <node id="prompt_composio_2_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -991,7 +991,7 @@
           <attvalue for="23" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46" />
         </attvalues>
       </node>
-      <node id="prompt_composio_3_1" label="SYSTEM: instructions=(&#13;&#10;            &quot;You are a S">
+      <node id="prompt_composio_3_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1009,7 +1009,7 @@
           <attvalue for="23" value="Noe tools" />
         </attvalues>
       </node>
-      <node id="prompt_composio_4_1" label="SYSTEM: backstory=&quot;You are a helpful assistant t">
+      <node id="prompt_composio_4_1" label="SYSTEM: backstory">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1027,7 +1027,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_composio_5_1" label="SYSTEM: instructions=&quot;You are a helpful assistan">
+      <node id="prompt_composio_5_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1051,7 +1051,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_composio_6_1" label="SYSTEM: instructions=(&#13;&#10;            &quot;You are a h">
+      <node id="prompt_composio_6_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1075,7 +1075,7 @@
           <attvalue for="23" value="- tools = session.tools(modifiers=[log_before_execute, log_after_execute])" />
         </attvalues>
       </node>
-      <node id="prompt_composio_7_1" label="SYSTEM: instructions=(&#13;&#10;            &quot;You are a h">
+      <node id="prompt_composio_7_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1093,7 +1093,7 @@
           <attvalue for="23" value="- tools = composio.tools.get(user_id=&quot;default&quot;, toolkits=[&quot;GITHUB&quot;])" />
         </attvalues>
       </node>
-      <node id="prompt_composio_8_1" label="SYSTEM: backstory=(&#13;&#10;        &quot;You are AI agent t">
+      <node id="prompt_composio_8_1" label="SYSTEM: backstory">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1111,7 +1111,7 @@
           <attvalue for="23" value="- tools = composio.tools.get(user_id=user_id, toolkits=[&quot;GITHUB&quot;])" />
         </attvalues>
       </node>
-      <node id="prompt_composio_9_1" label="SYSTEM: instruction=&quot;You are a github utility ag">
+      <node id="prompt_composio_9_1" label="SYSTEM: instruction">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1129,7 +1129,7 @@
           <attvalue for="23" value="- tools = composio.tools.get(&#13;&#10;    user_id=&quot;default&quot;,&#13;&#10;    tools=[&quot;GITHUB_STAR_A_REPOSITORY_FOR_THE_AUTHENTICATED_USER&quot;],&#13;&#10;)" />
         </attvalues>
       </node>
-      <node id="prompt_composio_10_1" label="SYSTEM: instructions=&quot;You are a helpful assistan">
+      <node id="prompt_composio_10_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1195,7 +1195,7 @@
           <attvalue for="23" value="tools = composio.tools.get(user_id=&quot;default&quot;, toolkits=[&quot;GITHUB&quot;])" />
         </attvalues>
       </node>
-      <node id="prompt_composio_13_1" label="SYSTEM: system_prompt=&quot;intelligent composio agen">
+      <node id="prompt_composio_13_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1203,7 +1203,7 @@
           <attvalue for="26" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/langchain/langchain_demo.py#L25" />
         </attvalues>
       </node>
-      <node id="prompt_composio_13_2" label="HUMAN: task = &quot;Star a repo composiohq/composio ">
+      <node id="prompt_composio_13_2" label="HUMAN: task ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -1333,7 +1333,7 @@
           <attvalue for="23" value="All there as the same Promt an tools since shellAgent inherit and Retry use it" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_0_1" label="SYSTEM: system_template: str = &quot;&quot;&quot;&lt;setting&gt;You a">
+      <node id="prompt_SWE_agent_0_1" label="SYSTEM: system_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1341,7 +1341,7 @@
           <attvalue for="26" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_0_2" label="PROXY: instance_template: str = dedent(&quot;&quot;&quot;&#10;    ">
+      <node id="prompt_SWE_agent_0_2" label="PROXY: instance_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1349,7 +1349,7 @@
           <attvalue for="26" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_0_3" label="HUMAN: comparison_template: str = dedent(&quot;&quot;&quot;&#10;  ">
+      <node id="prompt_SWE_agent_0_3" label="HUMAN: comparison_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -1373,7 +1373,7 @@
           <attvalue for="23" value="All there as the same Promt an tools since shellAgent inherit and Retry use it" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_1_1" label="SYSTEM: system_template: str = &quot;&quot;&quot;&lt;setting&gt;You a">
+      <node id="prompt_SWE_agent_1_1" label="SYSTEM: system_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1381,7 +1381,7 @@
           <attvalue for="26" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_1_2" label="PROXY: instance_template: str = dedent(&quot;&quot;&quot;&#10;    ">
+      <node id="prompt_SWE_agent_1_2" label="PROXY: instance_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1389,7 +1389,7 @@
           <attvalue for="26" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_1_3" label="HUMAN: comparison_template: str = dedent(&quot;&quot;&quot;&#10;  ">
+      <node id="prompt_SWE_agent_1_3" label="HUMAN: comparison_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -1407,7 +1407,7 @@
           <attvalue for="23" value="All there as the same Promt an tools since shellAgent inherit and Retry use it" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_2_1" label="SYSTEM: system_template: str = &quot;&quot;&quot;&lt;setting&gt;You a">
+      <node id="prompt_SWE_agent_2_1" label="SYSTEM: system_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1415,7 +1415,7 @@
           <attvalue for="26" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_2_2" label="PROXY: instance_template: str = dedent(&quot;&quot;&quot;&#10;    ">
+      <node id="prompt_SWE_agent_2_2" label="PROXY: instance_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1423,7 +1423,7 @@
           <attvalue for="26" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106" />
         </attvalues>
       </node>
-      <node id="prompt_SWE_agent_2_3" label="HUMAN: comparison_template: str = dedent(&quot;&quot;&quot;&#10;  ">
+      <node id="prompt_SWE_agent_2_3" label="HUMAN: comparison_template: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -1547,7 +1547,7 @@
           <attvalue for="23" value="Tools registry: https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/__init__.py#L27" />
         </attvalues>
       </node>
-      <node id="prompt_trae_agent_0_1" label="SYSTEM: TRAE_AGENT_SYSTEM_PROMPT = &quot;&quot;&quot;You are an">
+      <node id="prompt_trae_agent_0_1" label="SYSTEM: TRAE_AGENT_SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1789,7 +1789,7 @@
           <attvalue for="23" value="No class" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_0_1" label="PROXY: PROXY_PROMPT = &quot;&quot;&quot;&#10;You are a helpful ass">
+      <node id="prompt_auto_code_rover_0_1" label="PROXY: PROXY_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1807,7 +1807,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_1_1" label="SYSTEM: SYSTEM_PROMPT = (&#10;    &quot;You are an experi">
+      <node id="prompt_auto_code_rover_1_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1815,7 +1815,7 @@
           <attvalue for="26" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_reproducer.py#L18" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_1_2" label="PROXY: INITIAL_REQUEST = (&#10;    &quot;Please try to w">
+      <node id="prompt_auto_code_rover_1_2" label="PROXY: INITIAL_REQUEST ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1833,7 +1833,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_2_1" label="SYSTEM: SYSTEM_PROMPT = (&#10;    &quot;You are an experi">
+      <node id="prompt_auto_code_rover_2_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1851,7 +1851,7 @@
           <attvalue for="23" value="No class" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_3_1" label="SYSTEM: SYSTEM_PROMPT = &quot;&quot;&quot;You are a software de">
+      <node id="prompt_auto_code_rover_3_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1859,7 +1859,7 @@
           <attvalue for="26" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L16" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_3_2" label="PROXY: SELECT_PROMPT = (&#10;    &quot;Based on the file">
+      <node id="prompt_auto_code_rover_3_2" label="PROXY: SELECT_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1875,7 +1875,7 @@
           <attvalue for="26" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L41" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_3_4" label="PROXY: ANALYZE_AND_SELECT_PROMPT = (&#10;    &quot;Based">
+      <node id="prompt_auto_code_rover_3_4" label="PROXY: ANALYZE_AND_SELECT_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -1899,7 +1899,7 @@
           <attvalue for="23" value="No class" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_4_1" label="SYSTEM: SYSTEM_PROMPT = (&#10;    &quot;You are a pull re">
+      <node id="prompt_auto_code_rover_4_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1917,7 +1917,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_5_1" label="SYSTEM: SYSTEM_PROMPT = &quot;&quot;&quot;You are a software de">
+      <node id="prompt_auto_code_rover_5_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -1925,7 +1925,7 @@
           <attvalue for="26" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_write_patch.py#L29" />
         </attvalues>
       </node>
-      <node id="prompt_auto_code_rover_5_2" label="PROXY: USER_PROMPT_INIT = &quot;&quot;&quot;Write a patch for ">
+      <node id="prompt_auto_code_rover_5_2" label="PROXY: USER_PROMPT_INIT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -2005,7 +2005,7 @@
           <attvalue for="23" value="- prompt user: https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/utils/prompt_user.py#L1" />
         </attvalues>
       </node>
-      <node id="prompt_mini_SWE_agent_1_1" label="HUMAN: prompt = (&#13;&#10;            f&quot;[bold yellow]E">
+      <node id="prompt_mini_SWE_agent_1_1" label="HUMAN: prompt ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2115,7 +2115,7 @@
           <attvalue for="23" value="- inherid from LLTool  https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/utils/common.py#L359" />
         </attvalues>
       </node>
-      <node id="prompt_augment_swebench_agent_0_1" label="SYSTEM: SYSTEM_PROMPT = f&quot;&quot;&quot;&#13;&#10;You are an AI assi">
+      <node id="prompt_augment_swebench_agent_0_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2197,7 +2197,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node0_1" label="SYSTEM: BugFixVerifyNode_SYS_PROMPT = \&#10;You are ">
+      <node id="prompt_Prometheus_node0_1" label="SYSTEM: BugFixVerifyNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2205,7 +2205,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_fix_verify_node.py#L15" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node0_2" label="HUMAN: BugFixVerifyNode_HUMAN_PROMPT = \&#10;Reprod">
+      <node id="prompt_Prometheus_node0_2" label="HUMAN: BugFixVerifyNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2255,7 +2255,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node2_1" label="SYSTEM: BugReproducingExecuteNode_SYS_PROMPT = \">
+      <node id="prompt_Prometheus_node2_1" label="SYSTEM: BugReproducingExecuteNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2263,7 +2263,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_execute_node.py#L19" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node2_2" label="HUMAN: BugReproducingExecuteNode_HUMAN_PROMPT =">
+      <node id="prompt_Prometheus_node2_2" label="HUMAN: BugReproducingExecuteNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2287,7 +2287,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node3_1" label="SYSTEM: BugReproducingFileNode_SYS_PROMPT = \&#10;Yo">
+      <node id="prompt_Prometheus_node3_1" label="SYSTEM: BugReproducingFileNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2295,7 +2295,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_file_node.py#L16" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node3_2" label="HUMAN: BugReproducingFileNode_HUMAN_PROMPT = \&#10;">
+      <node id="prompt_Prometheus_node3_2" label="HUMAN: BugReproducingFileNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2351,7 +2351,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node5_1" label="SYSTEM: BugReproducingWriteNode_SYS_PROMPT = \&#10;Y">
+      <node id="prompt_Prometheus_node5_1" label="SYSTEM: BugReproducingWriteNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2375,7 +2375,7 @@
           <attvalue for="23" value="No class" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node6_1" label="SYSTEM: context_extraction_node_SYS_PROMPT = \&#10;Y">
+      <node id="prompt_Prometheus_node6_1" label="SYSTEM: context_extraction_node_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2393,7 +2393,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node7_1" label="SYSTEM: ContextProviderNode_SYS_PROMPT = \&#10;You a">
+      <node id="prompt_Prometheus_node7_1" label="SYSTEM: ContextProviderNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2503,7 +2503,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node9_1" label="SYSTEM: EditNode_SYS_PROMPT = \&#10;You are a specia">
+      <node id="prompt_Prometheus_node9_1" label="SYSTEM: EditNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2551,7 +2551,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node10_1" label="SYSTEM: FinalPatchSelectionNode_SYS_PROMPT = \&#10;Y">
+      <node id="prompt_Prometheus_node10_1" label="SYSTEM: FinalPatchSelectionNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2559,7 +2559,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/final_patch_selection_node.py#L20" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node10_2" label="HUMAN: FinalPatchSelectionNode_HUMAN_PROMPT = \">
+      <node id="prompt_Prometheus_node10_2" label="HUMAN: FinalPatchSelectionNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2577,7 +2577,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node11_1" label="SYSTEM: GeneralBuildNode_SYS_PROMPT = \&#10;You are ">
+      <node id="prompt_Prometheus_node11_1" label="SYSTEM: GeneralBuildNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2601,7 +2601,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node12_1" label="SYSTEM: GeneralBuildStructuredNode_SYS_PROMPT = ">
+      <node id="prompt_Prometheus_node12_1" label="SYSTEM: GeneralBuildStructuredNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2619,7 +2619,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node13_1" label="SYSTEM: GeneralTestNode_SYS_PROMPT = \&#10;You are a">
+      <node id="prompt_Prometheus_node13_1" label="SYSTEM: GeneralTestNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2643,7 +2643,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node14_1" label="SYSTEM: GeneralTestStructuredNode_SYS_PROMPT = \">
+      <node id="prompt_Prometheus_node14_1" label="SYSTEM: GeneralTestStructuredNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2661,7 +2661,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node15_1" label="SYSTEM: IssueBugAnalyzerNode_SYS_PROMPT = \&#10;You ">
+      <node id="prompt_Prometheus_node15_1" label="SYSTEM: IssueBugAnalyzerNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2685,7 +2685,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node16_1" label="SYSTEM: IssueBugResponderNode_SYS_PROMPT = \&#10;You">
+      <node id="prompt_Prometheus_node16_1" label="SYSTEM: IssueBugResponderNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2693,7 +2693,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/issue_bug_responder_node.py#L12" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node16_2" label="HUMAN: IssueBugResponderNode_HUMAN_PROMPT = \&#10;{">
+      <node id="prompt_Prometheus_node16_2" label="HUMAN: IssueBugResponderNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2711,7 +2711,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node17_1" label="SYSTEM: IssueClassifierNode_SYS_PROMPT = \&#10;You a">
+      <node id="prompt_Prometheus_node17_1" label="SYSTEM: IssueClassifierNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2779,7 +2779,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node20_1" label="SYSTEM: IssueFeatureAnalyzerNode_SYS_PROMPT = \&#10;">
+      <node id="prompt_Prometheus_node20_1" label="SYSTEM: IssueFeatureAnalyzerNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2803,7 +2803,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node21_1" label="SYSTEM: IssueFeatureResponderNode_SYS_PROMPT = \">
+      <node id="prompt_Prometheus_node21_1" label="SYSTEM: IssueFeatureResponderNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2811,7 +2811,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/issue_feature_responder_node.py#L12" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node21_2" label="HUMAN: IssueFeatureResponderNode_HUMAN_PROMPT =">
+      <node id="prompt_Prometheus_node21_2" label="HUMAN: IssueFeatureResponderNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -2829,7 +2829,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node22_1" label="SYSTEM: IssueQuestionAnalyzerNode_SYS_PROMPT = Y">
+      <node id="prompt_Prometheus_node22_1" label="SYSTEM: IssueQuestionAnalyzerNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2879,7 +2879,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node24_1" label="SYSTEM: RunRegressionTestsNode_SYS_PROMPT = \&#10;Yo">
+      <node id="prompt_Prometheus_node24_1" label="SYSTEM: RunRegressionTestsNode_SYS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -2887,7 +2887,7 @@
           <attvalue for="26" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/run_regression_tests_node.py#L15" />
         </attvalues>
       </node>
-      <node id="prompt_Prometheus_node24_2" label="HUMAN: RunRegressionTestsNode_HUMAN_PROMPT = \&#10;">
+      <node id="prompt_Prometheus_node24_2" label="HUMAN: RunRegressionTestsNode_HUMAN_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3131,7 +3131,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_joycode_agent_0_1" label="SYSTEM: SYSTEM_PROMPT = f&quot;&quot;&quot;&#13;&#10;You serve as an in">
+      <node id="prompt_joycode_agent_0_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3210,7 +3210,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_debug_gym_2_1" label="SYSTEM: system_prompt: str = &quot;&quot;&quot;You are a helpfu">
+      <node id="prompt_debug_gym_2_1" label="SYSTEM: system_prompt: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3218,7 +3218,7 @@
           <attvalue for="26" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/simple_agent.py#L59" />
         </attvalues>
       </node>
-      <node id="prompt_debug_gym_2_2" label="HUMAN: instance_prompt: str = &quot;&quot;&quot;&#13;&#10;I have uploa">
+      <node id="prompt_debug_gym_2_2" label="HUMAN: instance_prompt: str ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3301,7 +3301,7 @@
           <attvalue for="26" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_write_patch.py#L25" />
         </attvalues>
       </node>
-      <node id="prompt_Lingma_SWE_GPT_1_2" label="HUMAN: USER_PROMPT_INIT = &quot;&quot;&quot;Write a patch for ">
+      <node id="prompt_Lingma_SWE_GPT_1_2" label="HUMAN: USER_PROMPT_INIT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3385,7 +3385,7 @@
           <attvalue for="26" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_locate_file_class_func.py#L7" />
         </attvalues>
       </node>
-      <node id="prompt_Lingma_SWE_GPT_3_2" label="PROXY: LOCATION_PROMPT_TEMPLATE = &quot;&quot;&quot;&#10;Please lo">
+      <node id="prompt_Lingma_SWE_GPT_3_2" label="PROXY: LOCATION_PROMPT_TEMPLATE ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -3393,7 +3393,7 @@
           <attvalue for="26" value="https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/agent_locate_file_class_func.py#L53" />
         </attvalues>
       </node>
-      <node id="prompt_Lingma_SWE_GPT_3_3" label="PROXY: SUMMARY_PROMPT = &quot;&quot;&quot;You are a senior sof">
+      <node id="prompt_Lingma_SWE_GPT_3_3" label="PROXY: SUMMARY_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -3433,7 +3433,7 @@
           <attvalue for="4" value="234" />
           <attvalue for="5" value="TRUE" />
           <attvalue for="6" value="https://arxiv.org/abs/2409.16299" />
-          <attvalue for="7" value="langchain" />
+          <attvalue for="7" value="langchain, autogen" />
           <attvalue for="8" value="FSoft-AI4Code_HyperAgent_9829ce.json" />
           <attvalue for="9" value="TRUE" />
           <attvalue for="10" value="7" />
@@ -3467,7 +3467,7 @@
           <attvalue for="23" value="- use jupyter_executor" />
         </attvalues>
       </node>
-      <node id="prompt_HyperAgent_1_1" label="SYSTEM: system_nav = &quot;&quot;&quot;You are an expert in fin">
+      <node id="prompt_HyperAgent_1_1" label="SYSTEM: system_nav ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3485,7 +3485,7 @@
           <attvalue for="23" value="- use jupyter_executor" />
         </attvalues>
       </node>
-      <node id="prompt_HyperAgent_2_1" label="SYSTEM: system_edit = &quot;&quot;&quot;You are an expert in ed">
+      <node id="prompt_HyperAgent_2_1" label="SYSTEM: system_edit ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3503,7 +3503,7 @@
           <attvalue for="23" value="- UserProxyAgent class not in repo" />
         </attvalues>
       </node>
-      <node id="prompt_HyperAgent_3_1" label="SYSTEM: system_message=&quot;A human admin. Interact ">
+      <node id="prompt_HyperAgent_3_1" label="SYSTEM: system_message">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3521,7 +3521,7 @@
           <attvalue for="23" value="- use docker_executor" />
         </attvalues>
       </node>
-      <node id="prompt_HyperAgent_4_1" label="SYSTEM: system_exec = &quot;&quot;&quot;You are a supporting ag">
+      <node id="prompt_HyperAgent_4_1" label="SYSTEM: system_exec ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3539,7 +3539,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_HyperAgent_5_1" label="SYSTEM: system_plan = &quot;&quot;&quot;You are a great develop">
+      <node id="prompt_HyperAgent_5_1" label="SYSTEM: system_plan ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3613,7 +3613,7 @@
           <attvalue for="23" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents" />
         </attvalues>
       </node>
-      <node id="prompt_Lingxi_0_1" label="SYSTEM: ISSUE_RESOLVE_REVIEWER_SYSTEM_PROMPT = &quot;">
+      <node id="prompt_Lingxi_0_1" label="SYSTEM: ISSUE_RESOLVE_REVIEWER_SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3685,7 +3685,7 @@
           <attvalue for="23" value="- use create_react_agent from langgraph.prebuilt is decapres, now use create_agent from langchain.agents" />
         </attvalues>
       </node>
-      <node id="prompt_Lingxi_4_1" label="SYSTEM: DEV_KNOWLEDGE_ANALYSIS_SYSTEM_PROMPT = &quot;">
+      <node id="prompt_Lingxi_4_1" label="SYSTEM: DEV_KNOWLEDGE_ANALYSIS_SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3795,7 +3795,7 @@
           <attvalue for="23" value="- some of the prompts are put toggeter in the same column since there are refinements" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_0_1" label="SYSTEM: SYSTEM_PROMPT = (&#10;    'You are an experi">
+      <node id="prompt_ExpeRepair_0_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3803,7 +3803,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reproducer.py#L23" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_0_2" label="PROXY: REPRODUCE_PROMPT = '''&#13;&#10;Requirements:&#13;&#10;1">
+      <node id="prompt_ExpeRepair_0_2" label="PROXY: REPRODUCE_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -3811,7 +3811,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reproducer.py#L36" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_0_3" label="PROXY: TEST_INPUTS_PROMPT = '''Here is the repr">
+      <node id="prompt_ExpeRepair_0_3" label="PROXY: TEST_INPUTS_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -3829,7 +3829,7 @@
           <attvalue for="23" value="- some of the prompts are put toggeter in the same column since there are refinements" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_1_1" label="SYSTEM: SYSTEM_PROMPT_W_REPO = (&#10;    &quot;You are an">
+      <node id="prompt_ExpeRepair_1_1" label="SYSTEM: SYSTEM_PROMPT_W_REPO ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3837,7 +3837,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reviewer.py#L12" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_1_2" label="HUMAN: REVIEW_PROMPT_INITIAL = '''Since both th">
+      <node id="prompt_ExpeRepair_1_2" label="HUMAN: REVIEW_PROMPT_INITIAL ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3845,7 +3845,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_reviewer.py#L33" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_1_3" label="HUMAN: REFINE_THINK_PROMPT = &quot;&quot;&quot;The candidate p">
+      <node id="prompt_ExpeRepair_1_3" label="HUMAN: REFINE_THINK_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3863,7 +3863,7 @@
           <attvalue for="23" value="- some of the prompts are put toggeter in the same column since there are refinements" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_2_1" label="SYSTEM: GENERAL_SYSTEM_PROMPT_W_REPO = (&quot;As a so">
+      <node id="prompt_ExpeRepair_2_1" label="SYSTEM: GENERAL_SYSTEM_PROMPT_W_REPO ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3871,7 +3871,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_search.py#L8" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_2_2" label="HUMAN: SELECT_FILE_PROMPT_INITIAL = &quot;&quot;&quot;Please r">
+      <node id="prompt_ExpeRepair_2_2" label="HUMAN: SELECT_FILE_PROMPT_INITIAL ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3879,7 +3879,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_search.py#L12" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_2_3" label="HUMAN: SELECT_EDIT_PROMPT_INITIAL = &quot;&quot;&quot;Your tas">
+      <node id="prompt_ExpeRepair_2_3" label="HUMAN: SELECT_EDIT_PROMPT_INITIAL ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3897,7 +3897,7 @@
           <attvalue for="23" value="- some of the prompts are put toggeter in the same column since there are refinements" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_3_1" label="SYSTEM: SYSTEM_PROMPT_W_REPO = &quot;&quot;&quot;You are a soft">
+      <node id="prompt_ExpeRepair_3_1" label="SYSTEM: SYSTEM_PROMPT_W_REPO ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -3905,7 +3905,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L27" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_3_2" label="PROXY: WRITE_PATCH_PROMPT = &quot;&quot;&quot;&#13;&#10;### Phase 1: F">
+      <node id="prompt_ExpeRepair_3_2" label="PROXY: WRITE_PATCH_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -3913,7 +3913,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L35" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_3_3" label="HUMAN: EXPAND_THINK_PROMPT = &quot;&quot;&quot;However, the re">
+      <node id="prompt_ExpeRepair_3_3" label="HUMAN: EXPAND_THINK_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3921,7 +3921,7 @@
           <attvalue for="26" value="https://github.com/ExpeRepair/ExpeRepair/blob/5594f2c02c23d2bf204e5db76949425e6d170922/ExpeRepair-v1.0/agents/agent_write_patch.py#L119" />
         </attvalues>
       </node>
-      <node id="prompt_ExpeRepair_3_4" label="HUMAN: EXPAND_WRITE_PROMPT = &quot;&quot;&quot;However, the re">
+      <node id="prompt_ExpeRepair_3_4" label="HUMAN: EXPAND_WRITE_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -3985,7 +3985,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_programmer_0_1" label="SYSTEM: SYSTEM_MESSAGE = &quot;&quot;&quot;Assistant is a progr">
+      <node id="prompt_programmer_0_1" label="SYSTEM: SYSTEM_MESSAGE ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4003,7 +4003,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_programmer_1_1" label="SYSTEM: SYSTEM_MESSAGE = &quot;&quot;&quot;Assistant is a progr">
+      <node id="prompt_programmer_1_1" label="SYSTEM: SYSTEM_MESSAGE ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4021,7 +4021,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_programmer_2_1" label="SYSTEM: SYSTEM_MESSAGE = &quot;&quot;&quot;Assistant is a progr">
+      <node id="prompt_programmer_2_1" label="SYSTEM: SYSTEM_MESSAGE ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4095,7 +4095,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_OrcaLoca_1_1" label="SYSTEM: CODE_SCORER_SYSTEM_PROMPT = (&#13;&#10;    &quot;You ">
+      <node id="prompt_OrcaLoca_1_1" label="SYSTEM: CODE_SCORER_SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4103,7 +4103,7 @@
           <attvalue for="26" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/code_scorer.py#L13" />
         </attvalues>
       </node>
-      <node id="prompt_OrcaLoca_1_2" label="HUMAN: CODE_SCORER_ORDER_PROMPT = (&#13;&#10;    &quot;Pleas">
+      <node id="prompt_OrcaLoca_1_2" label="HUMAN: CODE_SCORER_ORDER_PROMPT ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -4121,7 +4121,7 @@
           <attvalue for="23" value="- use from llama_index.core.tools" />
         </attvalues>
       </node>
-      <node id="prompt_OrcaLoca_2_1" label="SYSTEM: EDIT_SYSTEM_HEADER = r&quot;&quot;&quot;&#13;&#10;You are a pro">
+      <node id="prompt_OrcaLoca_2_1" label="SYSTEM: EDIT_SYSTEM_HEADER ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4129,7 +4129,7 @@
           <attvalue for="26" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/prompts.py#L88" />
         </attvalues>
       </node>
-      <node id="prompt_OrcaLoca_2_2" label="PROXY: EDIT_REQUIREMENTS = r&quot;&quot;&quot;&#13;&#10;The revised co">
+      <node id="prompt_OrcaLoca_2_2" label="PROXY: EDIT_REQUIREMENTS ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="PROXY" />
@@ -4147,7 +4147,7 @@
           <attvalue for="23" value="- use from llama_index.core.tools" />
         </attvalues>
       </node>
-      <node id="prompt_OrcaLoca_3_1" label="SYSTEM: SEARCH_SYSTEM_HEADER = r&quot;&quot;&quot;&#13;&#10;You are a p">
+      <node id="prompt_OrcaLoca_3_1" label="SYSTEM: SEARCH_SYSTEM_HEADER ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4165,7 +4165,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_OrcaLoca_4_1" label="SYSTEM: TRACE_ANALYSIS_PROMPTS = {&#13;&#10;    &quot;header&quot;">
+      <node id="prompt_OrcaLoca_4_1" label="SYSTEM: TRACE_ANALYSIS_PROMPTS ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4226,7 +4226,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_KGCompass_1_1" label="SYSTEM: BASE_PROMPT_TEMPLATE = &quot;&quot;&quot;&#13;&#10;We are curre">
+      <node id="prompt_KGCompass_1_1" label="SYSTEM: BASE_PROMPT_TEMPLATE ">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4479,7 +4479,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_2_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#13;&#10;You are a assistant ">
+      <node id="prompt_patchwork_2_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4515,7 +4515,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_3_1" label="HUMAN: user_prompt=f&quot;&quot;&quot;&#13;&#10;You are a helpful assi">
+      <node id="prompt_patchwork_3_1" label="HUMAN: user_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -4533,7 +4533,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_4_1" label="SYSTEM: system_prompt=f&quot;&quot;&quot;\&#10;You are a {db_dialec">
+      <node id="prompt_patchwork_4_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4557,7 +4557,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_5_1" label="SYSTEM: analysis_prompt_template=f&quot;&quot;&quot;\&#13;&#10;&lt;uploade">
+      <node id="prompt_patchwork_5_1" label="SYSTEM: analysis_prompt_template">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4565,7 +4565,7 @@
           <attvalue for="26" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/steps/FixIssue/FixIssue.py#L28" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_5_2" label="SYSTEM: implementation_prompt_template=f&quot;&quot;&quot;\&#13;&#10;&lt;u">
+      <node id="prompt_patchwork_5_2" label="SYSTEM: implementation_prompt_template">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4589,7 +4589,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_6_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#10;You are a senior soft">
+      <node id="prompt_patchwork_6_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4619,7 +4619,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_7_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#13;&#10;You are an senior so">
+      <node id="prompt_patchwork_7_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4643,7 +4643,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_8_1" label="SYSTEM: system_prompt=f&quot;&quot;&quot;\&#13;&#10;You are a senior so">
+      <node id="prompt_patchwork_8_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4661,7 +4661,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_9_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#13;&#10;You are a senior sof">
+      <node id="prompt_patchwork_9_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4679,7 +4679,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_10_1" label="SYSTEM: system_prompt=&quot;&quot;&quot;\&#13;&#10;You are a senior sof">
+      <node id="prompt_patchwork_10_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="SYSTEM" />
@@ -4687,7 +4687,7 @@
           <attvalue for="26" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/ResolveIssue/ResolveIssue.py#L48" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_10_2" label="HUMAN: user_prompt=&quot;&quot;&quot;\&#13;&#10;&lt;uploaded_files&gt;&#13;&#10;{{pa">
+      <node id="prompt_patchwork_10_2" label="HUMAN: user_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -4705,7 +4705,7 @@
           <attvalue for="23" value="null" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_11_1" label="HUMAN: user_prompt=&quot;&quot;&quot;\&#13;&#10;Analyze the following ">
+      <node id="prompt_patchwork_11_1" label="HUMAN: user_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />
@@ -4713,7 +4713,7 @@
           <attvalue for="26" value="https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/patchflows/PRReview/PRReview.py#L48" />
         </attvalues>
       </node>
-      <node id="prompt_patchwork_11_2" label="HUMAN: user_prompt=&quot;&quot;&quot;\&#13;&#10;You are a software man">
+      <node id="prompt_patchwork_11_2" label="HUMAN: user_prompt">
         <attvalues>
           <attvalue for="0" value="prompt" />
           <attvalue for="24" value="HUMAN" />

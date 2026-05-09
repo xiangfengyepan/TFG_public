@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- navie is a Python package containing code for editing code with Navie AI.&#xA;- has a editor: https://github.com/getappmap/navie-editor/blob/c8629e9fbd5a150f8c0bf2b02725ae4b09ce461d/navie/editor.py#L15&#xA;- simple solver: https://github.com/getappmap/navie-editor/blob/c8629e9fbd5a150f8c0bf2b02725ae4b09ce461d/navie/simple_solver.py#L8"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="195" g="93" b="161"/>
         <viz:size value="10"/>
         <viz:position x="-114.8050297095271" y="-277.16385975338596"/>
       </node>

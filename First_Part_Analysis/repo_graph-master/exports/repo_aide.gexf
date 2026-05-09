@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- This project is no longer maintained. See our announcement here. &#xA;- AST navigation"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="196" g="125" b="62"/>
+        <viz:color r="202" g="93" b="65"/>
         <viz:size value="10"/>
         <viz:position x="277.1638597533861" y="114.80502970952686"/>
       </node>

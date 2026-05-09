@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- three phase process: localization, repair, and patch validation."/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="200" g="112" b="64"/>
+        <viz:color r="80" g="174" b="155"/>
         <viz:size value="10"/>
         <viz:position x="259.8076211353316" y="149.99999999999994"/>
       </node>

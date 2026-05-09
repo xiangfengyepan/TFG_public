@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- not in python"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="63" g="173" b="175"/>
+        <viz:color r="195" g="93" b="161"/>
         <viz:size value="10"/>
         <viz:position x="-277.16385975338596" y="114.80502970952709"/>
       </node>

@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- BFS: https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/repair/bfs.py#L1&#xA;- rerank (rank patches): https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/repair/rerank.py#L1&#xA;- compres_file.py: https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/util/compress_file.py#L1"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="63" g="173" b="175"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="10"/>
         <viz:position x="-238.00600208737072" y="-182.628428702616"/>
       </node>

@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- **SWE-GPT**:  is an open-source large language model specifically designed for software improvement. &#xA;- Model use in Lingma-SWE-GPT&#xA;- This workflow extends the publicly available AutoCodeRover framework.&#xA;- bm25.py: https://github.com/LingmaTongyi/AnonymousSWEGPT/blob/abc74507f8eb37656da41deaf80faa903a2bf6b4/app/search/bm25_base.py#L1&#xA;-&#xA;- MCTS: https://github.com/LingmaTongyi/AnonymousSWEGPT/blob/abc74507f8eb37656da41deaf80faa903a2bf6b4/app/MCTS/mtcs_repo_graph.py#L1&#xA;- see some api implementation (agents no really agent (incomplete)): https://github.com/LingmaTongyi/AnonymousSWEGPT/tree/abc74507f8eb37656da41deaf80faa903a2bf6b4/app/api"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="195" g="93" b="161"/>
+        <viz:color r="79" g="178" b="145"/>
         <viz:size value="10"/>
         <viz:position x="-182.62842870261628" y="-238.0060020873705"/>
       </node>

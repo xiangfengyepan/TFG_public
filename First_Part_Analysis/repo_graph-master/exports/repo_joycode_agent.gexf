@@ -60,7 +60,7 @@
           <attvalue for="repo_comments" value="- from rich.console import Console&#xA;from rich.panel import Panel"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="131" g="119" b="201"/>
+        <viz:color r="162" g="98" b="190"/>
         <viz:size value="10"/>
         <viz:position x="1.8369701987210297e-14" y="300"/>
       </node>
@@ -74,11 +74,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/patch_agent.py#L355"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="109" g="169" b="91"/>
         <viz:size value="40"/>
         <viz:position x="3.6739403974420595e-14" y="600"/>
       </node>
-      <node id="prompt_joycode_agent_0_1" label="SYSTEM: SYSTEM_PROMPT = f&quot;&quot;&quot;&#xD;&#xA;You serve as an in">
+      <node id="prompt_joycode_agent_0_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -86,7 +86,7 @@
           <attvalue for="prompt_text" value="SYSTEM_PROMPT = f&quot;&quot;&quot;&#xD;&#xA;You serve as an intelligent coding assistant, collaborating with software developers to execute pull request implementations,&#xD;&#xA;equipped with comprehensive tools for codebase interaction and manipulation.&#xD;&#xA;&#xD;&#xA;Current workspace: {{workspace_root}}&#xD;&#xA;System environment: {platform.system()}&#xD;&#xA;&#xD;&#xA;Core Principles:&#xD;&#xA;- Operate within a collaborative development environment containing multiple engineers and interconnected modules. Exercise caution to ensure modifications in one area do not compromise functionality elsewhere.&#xD;&#xA;- Approach code modifications with the expertise of a seasoned software architect. Adhere to engineering excellence principles including proper abstraction layers and interface encapsulation.&#xD;&#xA;- Favor straightforward, elegant solutions over complex alternatives when feasible.&#xD;&#xA;- Leverage your bash capabilities to configure essential environment settings, particularly those required for test execution.&#xD;&#xA;- Execute comprehensive testing procedures to validate the correctness of your implementations.&#xD;&#xA;&#xD;&#xA;Remember to invoke the completion tool upon task fulfillment or when providing a definitive response to inquiries.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/prompts/system_prompt.py#L3"/>
         </attvalues>
-        <viz:color r="82" g="174" b="117"/>
+        <viz:color r="191" g="134" b="61"/>
         <viz:size value="10"/>
         <viz:position x="5.510910596163089e-14" y="900"/>
       </node>
@@ -96,7 +96,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/sequential_thinking_tool.py#L52"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="201" g="86" b="106"/>
         <viz:size value="10"/>
         <viz:position x="-1495.376000599692" y="117.68864359176693"/>
       </node>
@@ -106,7 +106,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/complete_tool.py#L11"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="201" g="86" b="106"/>
         <viz:size value="10"/>
         <viz:position x="-1500" y="1.8369701987210297e-13"/>
       </node>
@@ -116,7 +116,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/str_replace_tool.py#L250"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="201" g="86" b="106"/>
         <viz:size value="10"/>
         <viz:position x="-1495.3760005996921" y="-117.68864359176656"/>
       </node>
@@ -126,31 +126,31 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="109" g="169" b="91"/>
       </edge>
       <edge id="291" source="agent_joycode_agent_0" target="prompt_joycode_agent_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="82" g="174" b="117"/>
+        <viz:color r="191" g="134" b="61"/>
       </edge>
       <edge id="292" source="agent_joycode_agent_0" target="tool_8536d02e46" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="201" g="86" b="106"/>
       </edge>
       <edge id="293" source="agent_joycode_agent_0" target="tool_7a4ef3a61e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="201" g="86" b="106"/>
       </edge>
       <edge id="294" source="agent_joycode_agent_0" target="tool_b6d544d759" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="201" g="86" b="106"/>
       </edge>
     </edges>
   </graph>
