@@ -706,7 +706,7 @@ Output a copy of each file that needs changes.
 
 """"""","https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_whole_prompts.py#L7","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
 "13","EditorDiffFencedCoder(EditBlockFencedCoder)","Patcher","A coder that uses search/replace blocks, focused purely on editing files.","https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_diff_fenced_coder.py#L5","","NONE","https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_diff_fenced_prompts.py#L6","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
-"14","ContextCoder(Coder)","Localizator","Identify which files need to be edited for a given request.","https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_coder.py#L5","SYSTEM","main_system = """"""
+"14","ContextCoder(Coder)","Locator","Identify which files need to be edited for a given request.","https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_coder.py#L5","SYSTEM","main_system = """"""
 
 Act as an expert code analyst.
 

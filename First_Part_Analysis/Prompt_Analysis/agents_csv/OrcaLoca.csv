@@ -50,7 +50,7 @@ The revised code snippets should respect the requirements below:
 1. The revised code snippets should fix the issue mentioned in the problem statement.
 2. The code containing any error messages should be deterministic.
 """"""","https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/prompts.py#L112","- use from llama_index.core.tools"
-"4","SearchWorker","Localizator","    """"""Search Agent worker.""""""","https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/search_agent.py#L110","SYSTEM","SEARCH_SYSTEM_HEADER = r""""""
+"4","SearchWorker","Locator","    """"""Search Agent worker.""""""","https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/search_agent.py#L110","SYSTEM","SEARCH_SYSTEM_HEADER = r""""""
 You are a professional software engineer that use API calls to report bug code snippets from a text into JSON format.
 You need to extract where are the bug locations by analyzing the text.
 The given text contains the problem statement and the code snippets.

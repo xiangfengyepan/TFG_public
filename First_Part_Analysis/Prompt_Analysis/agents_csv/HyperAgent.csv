@@ -1,6 +1,6 @@
 "#","Name","Agent Type","Short Description","Agent in the repo","Prompt 1 Type","Prompt 1","URL Prompt 1","Comments"
 "1","HyperAgent","Base agent","agent manager that import all agents","https://github.com/FSoft-AI4Code/HyperAgent/blob/c3092f2601ab3bf7f890fac2cd5b1290d3f59256/src/hyperagent/pilot.py#L95","","","","- tools: docker and jupyter executor https://github.com/FSoft-AI4Code/HyperAgent/blob/c3092f2601ab3bf7f890fac2cd5b1290d3f59256/src/hyperagent/build.py#L167"
-"2","navigator","Localizator","expert in finding all relevant information insider a code repository","https://github.com/FSoft-AI4Code/HyperAgent/blob/c3092f2601ab3bf7f890fac2cd5b1290d3f59256/src/hyperagent/agents/plan_seeking.py#L12","SYSTEM","
+"2","navigator","Locator","expert in finding all relevant information insider a code repository","https://github.com/FSoft-AI4Code/HyperAgent/blob/c3092f2601ab3bf7f890fac2cd5b1290d3f59256/src/hyperagent/agents/plan_seeking.py#L12","SYSTEM","
 system_nav = """"""You are an expert in finding all relevant information insider a code repository to answer the query from a planner agent. No need to propose a solution
 You have the full access to the codebase of the project you're working on to resolve a query from a planner. 
 Your tools help you navigate the codebase and find relevant information. Use them wisely to explore the repository and find the information you need to resolve the query. 
