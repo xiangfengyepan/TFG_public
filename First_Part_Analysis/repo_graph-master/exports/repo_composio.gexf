@@ -46,7 +46,7 @@
           <attvalue for="stars" value="26455"/>
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="not found"/>
-          <attvalue for="framework" value="langchain, langgraph, framework itself"/>
+          <attvalue for="framework" value="langchain, langgraph, framework itself, crewai, autogen"/>
           <attvalue for="dependency_graph" value="ComposioHQ_composio_a9e7f9.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="14"/>
@@ -60,7 +60,7 @@
           <attvalue for="repo_comments" value="- agents modul not in repository (all agent from that agent): https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/docs/examples/pr-review-agent/agent.py#L4&#xA;- composio md: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/ts/docs/api/composio.md?plain=1#L1&#xA;- tools md : https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/ts/docs/api/tools.md?plain=1#L1&#xA;- ClaudeAgentOptions: https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/gmail-labeler/main.py#L49https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/gmail-labeler/main.py#L49&#xA;- its a  SDK"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="102" g="134" b="206"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="40"/>
         <viz:position x="77.64571353075623" y="-289.7777478867205"/>
       </node>
@@ -74,11 +74,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/fast-api/main.py#L26"/>
           <attvalue for="agent_comment" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="128.58549183903042" y="-586.0595287925235"/>
       </node>
-      <node id="prompt_composio_0_1" label="SYSTEM: instructions=&quot;You are a helpful assistan">
+      <node id="prompt_composio_0_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -86,7 +86,7 @@
           <attvalue for="prompt_text" value="instructions=&quot;You are a helpful assistant. Use tools to help the user.&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/fast-api/main.py#L28"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="192.87823775854562" y="-879.0892931887853"/>
       </node>
@@ -100,11 +100,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/docs/examples/pr-review-agent/agent.py#L18"/>
           <attvalue for="agent_comment" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="132.71307193640422" y="-585.1386506950321"/>
       </node>
-      <node id="prompt_composio_1_1" label="SYSTEM: instructions=&quot;&quot;&quot;You are PR-Reviewer, an ">
+      <node id="prompt_composio_1_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -112,7 +112,7 @@
           <attvalue for="prompt_text" value="instructions=&quot;&quot;&quot;You are PR-Reviewer, an AI code reviewer for GitHub pull requests.&#xA;&#xA;**Step 1: Gather context**&#xA;- Fetch the PR details (title, description, author).&#xA;- List all changed files and read the diff.&#xA;- Check if the repo has a CLAUDE.md or AGENTS.md at the root.&#xA;  If found, read it and treat its rules as your review checklist.&#xA;&#xA;**Step 2: Analyze the diff**&#xA;Focus only on new code added in the PR. For each changed file, look for:&#xA;- Bugs and logic errors&#xA;- Security issues (exposed secrets, injection, XSS)&#xA;- Performance problems (unnecessary loops, N+1 queries)&#xA;- Violations of CLAUDE.md / AGENTS.md rules (if the file exists)&#xA;- Whether tests were added or updated&#xA;&#xA;Do NOT flag:&#xA;- Style preferences or minor wording changes&#xA;- Issues in unchanged code that existed before the PR&#xA;- Missing docstrings, type hints, or comments&#xA;- Things that would be caught by a linter or CI&#xA;&#xA;For each file, ask: &quot;Would this change break something or mislead someone?&quot;&#xA;If no, move on.&#xA;&#xA;**Step 3: Post your review as a PR comment**&#xA;Use this format:&#xA;&#xA;## PR Review&#xA;&#xA;**Summary**: [2-3 sentences on what this PR does]&#xA;&#xA;**Review effort [1-5]**: [1 = trivial, 5 = complex and risky]&#xA;&#xA;### Key issues&#xA;| # | File | Lines | Category | Description |&#xA;|---|------|-------|----------|-------------|&#xA;| 1 | `file.py` | 12-15 | Possible bug | [description] |&#xA;&#xA;Categories: `possible bug`, `security`, `performance`, `best practice`&#xA;&#xA;If no issues found, write &quot;No issues found&quot; instead of the table.&#xA;&#xA;### Security concerns&#xA;[Any security issues, or &quot;None&quot;]&#xA;&#xA;### CLAUDE.md / AGENTS.md compliance&#xA;[Rule violations, or &quot;No project rules file found&quot; / &quot;All rules followed&quot;]&#xA;&#xA;### Tests&#xA;[Were relevant tests added? Yes/No with brief explanation]&#xA;&#xA;Be specific and actionable. Don't invent issues to seem thorough.&#xA;If the PR looks good, say so.&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/docs/examples/pr-review-agent/agent.py#L20"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="199.06960790460633" y="-877.7079760425481"/>
       </node>
@@ -126,11 +126,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/slack-summariser/main.py#L36"/>
           <attvalue for="agent_comment" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="136.83405879899104" y="-584.1887026916853"/>
       </node>
-      <node id="prompt_composio_2_1" label="SYSTEM: instructions=(&#xD;&#xA;            &quot;You summari">
+      <node id="prompt_composio_2_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -138,7 +138,7 @@
           <attvalue for="prompt_text" value="instructions=(&#xD;&#xA;            &quot;You summarize Slack channel messages. &quot;&#xD;&#xA;            &quot;Fetch recent messages from the given channel and provide a concise summary &quot;&#xD;&#xA;            &quot;of the key topics, decisions, and action items.&quot;&#xD;&#xA;        )"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/slack-summariser/main.py#L38"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="205.25108819848654" y="-876.2830540375279"/>
       </node>
@@ -152,11 +152,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/supabase-sql-agent/main.py#L36"/>
           <attvalue for="agent_comment" value="- tools from class Composio: https://github.com/ComposioHQ/composio/blob/7831d2c58309f57e31da280c989539baeb48c449/python/composio/sdk.py#L46"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="140.94824769463025" y="-583.2097319762532"/>
       </node>
-      <node id="prompt_composio_3_1" label="SYSTEM: instructions=(&#xD;&#xA;            &quot;You are a S">
+      <node id="prompt_composio_3_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -164,7 +164,7 @@
           <attvalue for="prompt_text" value="instructions=(&#xD;&#xA;            &quot;You are a Supabase SQL assistant. You help users query their Supabase &quot;&#xD;&#xA;            &quot;databases using natural language. First list the user's projects to find &quot;&#xD;&#xA;            &quot;the right database, then translate their questions into SQL queries and &quot;&#xD;&#xA;            &quot;run them. Always explain the results clearly.&quot;&#xD;&#xA;        )"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/docs/examples/supabase-sql-agent/main.py#L38-L43"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="211.42237154194538" y="-874.8145979643799"/>
       </node>
@@ -178,11 +178,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/crewai_agent.py#L11"/>
           <attvalue for="agent_comment" value="Noe tools"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="145.0554342288872" y="-582.2017871843653"/>
       </node>
-      <node id="prompt_composio_4_1" label="SYSTEM: backstory=&quot;You are a helpful assistant t">
+      <node id="prompt_composio_4_1" label="SYSTEM: backstory">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -190,7 +190,7 @@
           <attvalue for="prompt_text" value="backstory=&quot;You are a helpful assistant that can use the tools provided to you.&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/crewai_agent.py#L14"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="217.58315134333083" y="-873.302680776548"/>
       </node>
@@ -204,11 +204,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/openai_agents.py#L22"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="14.615384615384615"/>
         <viz:position x="149.15541435520674" y="-581.1649183910937"/>
       </node>
-      <node id="prompt_composio_5_1" label="SYSTEM: instructions=&quot;You are a helpful assistan">
+      <node id="prompt_composio_5_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -216,7 +216,7 @@
           <attvalue for="prompt_text" value="instructions=&quot;You are a helpful assistant that can use the tools provided to you.&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/openai_agents.py#L24"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="223.73312153281015" y="-871.7473775866405"/>
       </node>
@@ -226,7 +226,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/openai_agents.py#L12"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
         <viz:size value="10"/>
         <viz:position x="1278.9602465311382" y="-783.7478470739233"/>
       </node>
@@ -240,11 +240,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/tool_router_mcp.py#L50"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="14.615384615384615"/>
         <viz:position x="153.2479843850509" y="-580.0991771084658"/>
       </node>
-      <node id="prompt_composio_6_1" label="SYSTEM: instructions=(&#xD;&#xA;            &quot;You are a h">
+      <node id="prompt_composio_6_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -252,7 +252,7 @@
           <attvalue for="prompt_text" value="instructions=(&#xD;&#xA;            &quot;You are a helpful assistant that can use GitHub and Gmail tools &quot;&#xD;&#xA;            &quot;through the MCP (Model Context Protocol) server. &quot;&#xD;&#xA;            &quot;Help users with their GitHub and email tasks.&quot;&#xD;&#xA;        )"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/tool_router_mcp.py#L52"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="229.87197657757633" y="-870.1487656626987"/>
       </node>
@@ -262,7 +262,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/tool_router_mcp.py#L35"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
         <viz:size value="10"/>
         <viz:position x="1336.5097862825519" y="-680.9857496093201"/>
       </node>
@@ -276,11 +276,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/tools.py#L61"/>
           <attvalue for="agent_comment" value="- tools = session.tools(modifiers=[log_before_execute, log_after_execute])"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="157.33294099801785" y="-579.0046162829052"/>
       </node>
-      <node id="prompt_composio_7_1" label="SYSTEM: instructions=(&#xD;&#xA;            &quot;You are a h">
+      <node id="prompt_composio_7_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -288,7 +288,7 @@
           <attvalue for="prompt_text" value="instructions=(&#xD;&#xA;            &quot;You are a helpful assistant that helps users manage their &quot;&#xD;&#xA;            &quot;Gmail accounts. You can check emails, &quot;&#xD;&#xA;            &quot;send messages, and perform various actions on the Gmail platform.&quot;&#xD;&#xA;        )"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/tools.py#L63-L67"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="235.99941149702676" y="-868.5069244243577"/>
       </node>
@@ -302,11 +302,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/crewai/crewai_demo.py#L19"/>
           <attvalue for="agent_comment" value="- tools = composio.tools.get(user_id=&quot;default&quot;, toolkits=[&quot;GITHUB&quot;])"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="161.41008125194364" y="-577.8812902926006"/>
       </node>
-      <node id="prompt_composio_8_1" label="SYSTEM: backstory=(&#xD;&#xA;        &quot;You are AI agent t">
+      <node id="prompt_composio_8_1" label="SYSTEM: backstory">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -314,7 +314,7 @@
           <attvalue for="prompt_text" value="backstory=(&#xD;&#xA;        &quot;You are AI agent that is responsible for taking actions on Github &quot;&#xD;&#xA;        &quot;on users behalf. You need to take action on Github using Github APIs&quot;&#xD;&#xA;    )"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/crewai/crewai_demo.py#L22"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="242.11512187791547" y="-866.8219354389009"/>
       </node>
@@ -328,11 +328,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/google_adk/google_adk_demo.py#L20"/>
           <attvalue for="agent_comment" value="- tools = composio.tools.get(user_id=user_id, toolkits=[&quot;GITHUB&quot;])"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="165.47920259298348" y="-576.7292549448053"/>
       </node>
-      <node id="prompt_composio_9_1" label="SYSTEM: instruction=&quot;You are a github utility ag">
+      <node id="prompt_composio_9_1" label="SYSTEM: instruction">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -340,7 +340,7 @@
           <attvalue for="prompt_text" value="instruction=&quot;You are a github utility agent with ability to interact with github APIs&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/google_adk/google_adk_demo.py#L23"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="248.21880388947523" y="-865.0938824172081"/>
       </node>
@@ -354,11 +354,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/openai_agents/openai_agents_demo.py#L18"/>
           <attvalue for="agent_comment" value="- tools = composio.tools.get(&#xD;&#xA;    user_id=&quot;default&quot;,&#xD;&#xA;    tools=[&quot;GITHUB_STAR_A_REPOSITORY_FOR_THE_AUTHENTICATED_USER&quot;],&#xD;&#xA;)"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="12.307692307692307"/>
         <viz:position x="169.54010286567535" y="-575.548567473064"/>
       </node>
-      <node id="prompt_composio_10_1" label="SYSTEM: instructions=&quot;You are a helpful assistan">
+      <node id="prompt_composio_10_1" label="SYSTEM: instructions">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -366,7 +366,7 @@
           <attvalue for="prompt_text" value="instructions=&quot;You are a helpful assistant that helps users with GitHub tasks.&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/openai_agents/openai_agents_demo.py#L20"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="254.31015429851303" y="-863.3228512095961"/>
       </node>
@@ -380,7 +380,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/mcp.py#L29"/>
           <attvalue for="agent_comment" value="from langchain.agents import create_agent"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="14.615384615384615"/>
         <viz:position x="173.59258032298277" y="-574.3392865343696"/>
       </node>
@@ -392,7 +392,7 @@
           <attvalue for="prompt_text" value="Show me 20 most used slack channels"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/mcp.py#L34"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="260.3888704844742" y="-861.5089298015545"/>
       </node>
@@ -402,7 +402,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/mcp.py#L17"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
         <viz:size value="10"/>
         <viz:position x="1385.8192987669302" y="-574.0251485476347"/>
       </node>
@@ -416,7 +416,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/langchain_agent.py#L29"/>
           <attvalue for="agent_comment" value="from langchain.agents import create_agent"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="14.615384615384615"/>
         <viz:position x="177.63643363631832" y="-573.1014722062489"/>
       </node>
@@ -428,7 +428,7 @@
           <attvalue for="prompt_text" value="Fetch my last email and summarize?"/>
           <attvalue for="prompt_url" value="null"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="266.4546504544775" y="-859.6522083093733"/>
       </node>
@@ -438,7 +438,7 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/langchain_agent.py#L17"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
         <viz:size value="10"/>
         <viz:position x="1426.5847744427303" y="-463.5254915624211"/>
       </node>
@@ -452,11 +452,11 @@
           <attvalue for="agent_in_repo" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/langchain/langchain_demo.py#L24"/>
           <attvalue for="agent_comment" value="tools = composio.tools.get(user_id=&quot;default&quot;, toolkits=[&quot;GITHUB&quot;])"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="14.615384615384615"/>
         <viz:position x="181.67146190554476" y="-571.8351859837782"/>
       </node>
-      <node id="prompt_composio_13_1" label="SYSTEM: system_prompt=&quot;intelligent composio agen">
+      <node id="prompt_composio_13_1" label="SYSTEM: system_prompt">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -464,11 +464,11 @@
           <attvalue for="prompt_text" value="system_prompt=&quot;intelligent composio agent&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/langchain/langchain_demo.py#L25"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="244.86328544497857" y="-866.0496356682398"/>
       </node>
-      <node id="prompt_composio_13_2" label="HUMAN: task = &quot;Star a repo composiohq/composio ">
+      <node id="prompt_composio_13_2" label="HUMAN: task ">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
@@ -476,7 +476,7 @@
           <attvalue for="prompt_text" value="task = &quot;Star a repo composiohq/composio on GitHub&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/providers/langchain/langchain_demo.py#L21"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
         <viz:position x="299.87084733163783" y="-848.5737887306003"/>
       </node>
@@ -486,199 +486,199 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="102" source="agent_composio_0" target="prompt_composio_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="103" source="repo_composio" target="agent_composio_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="104" source="agent_composio_1" target="prompt_composio_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="105" source="repo_composio" target="agent_composio_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="106" source="agent_composio_2" target="prompt_composio_2_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="107" source="repo_composio" target="agent_composio_3" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="108" source="agent_composio_3" target="prompt_composio_3_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="109" source="repo_composio" target="agent_composio_4" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="110" source="agent_composio_4" target="prompt_composio_4_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="111" source="repo_composio" target="agent_composio_5" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="112" source="agent_composio_5" target="prompt_composio_5_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="113" source="agent_composio_5" target="tool_b4e0f113dd" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
       </edge>
       <edge id="114" source="repo_composio" target="agent_composio_6" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="115" source="agent_composio_6" target="prompt_composio_6_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="116" source="agent_composio_6" target="tool_0daa2526cf" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
       </edge>
       <edge id="117" source="repo_composio" target="agent_composio_7" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="118" source="agent_composio_7" target="prompt_composio_7_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="119" source="repo_composio" target="agent_composio_8" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="120" source="agent_composio_8" target="prompt_composio_8_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="121" source="repo_composio" target="agent_composio_9" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="122" source="agent_composio_9" target="prompt_composio_9_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="123" source="repo_composio" target="agent_composio_10" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="124" source="agent_composio_10" target="prompt_composio_10_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="125" source="repo_composio" target="agent_composio_11" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="126" source="agent_composio_11" target="prompt_composio_11_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="127" source="agent_composio_11" target="tool_caf158d4a3" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
       </edge>
       <edge id="128" source="repo_composio" target="agent_composio_12" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="129" source="agent_composio_12" target="prompt_composio_12_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="130" source="agent_composio_12" target="tool_fc18eae079" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="198" g="91" b="147"/>
       </edge>
       <edge id="131" source="repo_composio" target="agent_composio_13" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="128" g="119" b="203"/>
       </edge>
       <edge id="132" source="agent_composio_13" target="prompt_composio_13_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
       <edge id="133" source="agent_composio_13" target="prompt_composio_13_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="95" b="179"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
     </edges>
   </graph>

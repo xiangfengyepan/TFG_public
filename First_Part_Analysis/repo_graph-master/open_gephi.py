@@ -174,13 +174,13 @@ def load_storage(driver, session_items: dict = None, local_items: dict = None):
 # ── Download helper ───────────────────────────────────────────────────────────
 
 
-def _wait_for_download(download_dir: Path, before: set, timeout: int = 30) -> "Path | None":
-    """Poll download_dir until a new .gexf file appears that was not in *before*."""
+def _wait_for_download(download_dir: Path, before: set, timeout: int = 30, suffix: str = ".gexf") -> "Path | None":
+    """Poll download_dir until a new file with *suffix* appears that was not in *before*."""
     deadline = time.time() + timeout
     while time.time() < deadline:
         candidates = {
             f for f in download_dir.iterdir()
-            if f.suffix == ".gexf"
+            if f.suffix == suffix
             and not f.name.endswith(".crdownload")
             and not f.name.endswith(".part")
         }
@@ -521,6 +521,86 @@ def export_graph(driver, wait: WebDriverWait, export_path: Path = None):
         print("  Graph exported (check your browser downloads folder).")
 
 
+def export_png(
+    driver,
+    wait: WebDriverWait,
+    export_path: Path = None,
+    width: int = 2480,
+    height: int = 3508,
+):
+    """Workspace → Export image → set dimensions/filename and save as PNG."""
+
+    download_dir = export_path.parent if export_path else None
+    before: set = set()
+    if download_dir and download_dir.exists():
+        before = {f for f in download_dir.iterdir() if f.suffix == ".png"}
+
+    # Open Workspace dropdown
+    ws_btns = driver.find_elements(
+        By.XPATH,
+        "//button[contains(@class,'dropdown-toggle') and normalize-space(.)='Workspace']",
+    )
+    ws_btn = next((b for b in ws_btns if b.is_displayed()), None)
+    if ws_btn is None:
+        print("  [warn] Cannot find Workspace button for PNG export.")
+        return
+    ws_btn.click()
+    time.sleep(0.4)
+
+    export_img_btn = wait.until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                "//button[contains(@class,'gl-menu-item') and normalize-space(.)='Export image']",
+            )
+        )
+    )
+    export_img_btn.click()
+    time.sleep(0.5)
+
+    # Filename
+    if export_path:
+        filename_input = wait.until(EC.presence_of_element_located((By.ID, "filename")))
+        filename_input.clear()
+        filename_input.send_keys(export_path.name)
+
+    # Width and height — the modal's height <input> has id="width" (HTML bug), so
+    # select all number inputs within the modal form and address them by position.
+    modal = wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "form.modal-content"))
+    )
+    number_inputs = modal.find_elements(By.CSS_SELECTOR, 'input[type="number"]')
+
+    def _set_number(inp, value: int):
+        inp.click()
+        inp.clear()
+        inp.send_keys(str(value))
+
+    if len(number_inputs) >= 1:
+        _set_number(number_inputs[0], width)
+    if len(number_inputs) >= 2:
+        _set_number(number_inputs[1], height)
+
+    # Click Save
+    save_btn = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[@type='submit' and @title='Save']")
+        )
+    )
+    save_btn.click()
+    time.sleep(1)
+
+    if download_dir:
+        downloaded = _wait_for_download(download_dir, before, suffix=".png")
+        if downloaded:
+            downloaded.replace(export_path)
+            print(f"  PNG exported: {export_path}")
+        else:
+            print(f"  [warn] PNG export timed out, check {download_dir}")
+    else:
+        print("  PNG exported (check your browser downloads folder).")
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 
@@ -589,6 +669,38 @@ def main():
         help="Save exported GEXF to PATH (implies --export; sets browser download dir)",
     )
     parser.add_argument(
+        "--export-png",
+        action="store_true",
+        default=False,
+        help="Export a PNG snapshot via Workspace → Export image after setup",
+    )
+    parser.add_argument(
+        "--export-png-path",
+        default=None,
+        metavar="PATH",
+        help="Save exported PNG to PATH (implies --export-png; sets browser download dir)",
+    )
+    parser.add_argument(
+        "--png-width",
+        type=int,
+        default=2480,
+        metavar="PX",
+        help="PNG export width in pixels (default: 2480)",
+    )
+    parser.add_argument(
+        "--png-height",
+        type=int,
+        default=3508,
+        metavar="PX",
+        help="PNG export height in pixels (default: 3508)",
+    )
+    parser.add_argument(
+        "--png-layout",
+        default=None,
+        help="Layout to apply before PNG export (default: same as --layout). "
+             "If different from --layout, re-applies the layout in the same browser session.",
+    )
+    parser.add_argument(
         "--no-interaction",
         action="store_true",
         default=False,
@@ -640,7 +752,17 @@ def main():
 
     export_path = Path(args.export_path).resolve() if args.export_path else None
     do_export = args.export or export_path is not None
-    download_dir = str(export_path.parent) if export_path else None
+
+    export_png_path = Path(args.export_png_path).resolve() if args.export_png_path else None
+    do_export_png = args.export_png or export_png_path is not None
+
+    # Browser download dir: prefer the PNG path's parent (first export needing a rename),
+    # fall back to the GEXF path's parent.
+    download_dir = None
+    if export_png_path:
+        download_dir = str(export_png_path.parent)
+    elif export_path:
+        download_dir = str(export_path.parent)
 
     print(f"Opening Gephi Lite (layout={args.layout}, url={gephi_url})...")
     driver = open_browser(download_dir=download_dir)
@@ -664,9 +786,16 @@ def main():
 
         upload_gexf(driver, wait, gexf_path)
 
-        # Inject filters after GEXF load so the key is not wiped by the graph-load reset.
+        # Inject filters after GEXF load so the key is not wiped by the graph-load reset,
+        # then reload immediately so Gephi Lite activates the filter before we apply the layout.
+        # This ensures the layout runs on the already-filtered (smaller) graph.
         if filters_data:
             load_storage(driver, session_items={"1.0_filters": filters_data})
+            driver.refresh()
+            wait.until(
+                lambda d: d.execute_script("return document.readyState") == "complete"
+            )
+            time.sleep(2)
 
         set_appearance(driver, wait)
 
@@ -675,15 +804,23 @@ def main():
 
         set_layout_quality(driver, wait)
 
-        # Reload so Gephi Lite reinitialises with 1.0_filters (and preserved graph state).
-        driver.refresh()
-        wait.until(
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
-        time.sleep(2)
-
         if do_export:
             export_graph(driver, wait, export_path)
+
+        if do_export_png:
+            # Re-apply layout if --png-layout differs from --layout
+            png_layout_name = args.png_layout or args.layout
+            if png_layout_name != args.layout:
+                png_session_path = here / "config" / f"session_{png_layout_name}.json"
+                if not png_session_path.exists():
+                    print(f"  [warn] {png_session_path.name} not found, keeping current layout.")
+                else:
+                    png_session = load_json(png_session_path, {})
+                    if png_session:
+                        print(f"  Switching to layout '{png_layout_name}' for PNG export...")
+                        set_custom_layout(driver, wait, png_session)
+                        time.sleep(1)
+            export_png(driver, wait, export_png_path, args.png_width, args.png_height)
 
         print(f"  GEXF   : {gexf_path.name}")
         print(f"  Session: {session_path.name}")

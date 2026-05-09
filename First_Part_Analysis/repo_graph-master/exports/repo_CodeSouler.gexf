@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- Only README.md in repo&#xA;- StarShip CodeSouler is a IDE plugin powered by the latest advancements in large model technology, developed by OpenCSG."/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="102" g="134" b="206"/>
+        <viz:color r="201" g="86" b="106"/>
         <viz:size value="10"/>
         <viz:position x="-212.1320343559643" y="-212.13203435596424"/>
       </node>

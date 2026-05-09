@@ -48,7 +48,7 @@
           <attvalue for="repo_comments" value="- We introduce RepoGraph, an effective plug-in repo-level module that offers the desired context and substantially boosts the LLMs' AI software engineering capability.&#xA;- SWE-agent and agentless incorport RepoGraph"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="192" g="93" b="165"/>
+        <viz:color r="80" g="174" b="155"/>
         <viz:size value="10"/>
         <viz:position x="-114.80502970952678" y="277.1638597533861"/>
       </node>

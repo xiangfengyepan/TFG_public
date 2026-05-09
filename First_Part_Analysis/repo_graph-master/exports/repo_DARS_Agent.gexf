@@ -59,7 +59,7 @@
           <attvalue for="repo_comments" value="- agent config (prompts) in a .yaml"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="181" g="149" b="64"/>
+        <viz:color r="186" g="139" b="64"/>
         <viz:size value="40"/>
         <viz:position x="-150.00000000000014" y="-259.8076211353315"/>
       </node>
@@ -73,7 +73,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/darsagent/DARS-Agent/blob/eab35168a90b7dc5b5a05a29d7d41993cdb74bdf/dars-agent/sweagent/agent/agents.py#L19"/>
           <attvalue for="agent_comment" value="- use agent hook to debug diferent steps of the agent run"/>
         </attvalues>
-        <viz:color r="113" g="126" b="204"/>
+        <viz:color r="155" g="107" b="190"/>
         <viz:size value="10"/>
         <viz:position x="-323.4829937466005" y="-505.3303402297717"/>
       </node>
@@ -87,7 +87,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/darsagent/DARS-Agent/blob/eab35168a90b7dc5b5a05a29d7d41993cdb74bdf/dars-agent/sweagent/agent/dars_agent.py#L344"/>
           <attvalue for="agent_comment" value="- use agent hook to debug diferent steps of the agent run"/>
         </attvalues>
-        <viz:color r="113" g="126" b="204"/>
+        <viz:color r="155" g="107" b="190"/>
         <viz:size value="40"/>
         <viz:position x="-275.88741506871605" y="-532.8096603916844"/>
       </node>
@@ -99,7 +99,7 @@
           <attvalue for="prompt_text" value="DARS_prompts:&#xA;  edit_expansion_prompt_template: |-&#xA;    You will be given information about a previous action and its trajectory. Your goal is to suggest a refined or alternative action that better resolves the issue at hand.&#xA;    Here is the information about the previous modification:&#xA;&#xA;    Previous action:&#xA;    &lt;previous_action>&#xA;    {action}&#xA;    &lt;/previous_action>&#xA;&#xA;    Trajectory after the action:&#xA;    &lt;previous_trajectory>&#xA;    {prev_traj}&#xA;    &lt;/previous_trajectory>&#xA;&#xA;    Instructions:&#xA;    1. Analyze the previous action and its trajectory.&#xA;    2. Suggest a replacement action that improves upon the previous one.&#xA;    3. Focus on refining the current edit, modifying different sections, or making small insertions as needed.&#xA;    4. Keep your suggestion concise and directly related to the file modification.&#xA;&#xA;    Before providing your final suggestion, wrap your analysis process in &lt;analysis> tags. In this analysis:&#xA;    1. Summarize the previous action and its trajectory&#xA;    2. Identify the key issues or shortcomings in the previous action&#xA;    3. List potential improvements or alternative approaches&#xA;    4. Consider how these changes might affect the trajectory&#xA;&#xA;    You need to format your output using three fields; analysis, discussion and command.&#xA;  insert_expansion_prompt_template: |-&#xA;    You will be given information about a previous action and its trajectory. Your goal is to suggest a single, concise improvement that replaces the previous action.&#xA;    Here's the information about the previous modification:&#xA;&#xA;    Previous action:&#xA;    &lt;action>&#xA;    {action}&#xA;    &lt;/action>&#xA;&#xA;    Trajectory after the action:&#xA;    &lt;prev_traj>&#xA;    {prev_traj}&#xA;    &lt;/prev_traj>&#xA;&#xA;    Your task is to analyze this information and suggest one improvement. This improvement should replace the previous action, not be a next step. Focus on one of these approaches:&#xA;    1. A different insertion with varied content&#xA;    2. An insertion in a new location&#xA;    3. Editing existing content for a more effective resolution&#xA;&#xA;    Before providing your final suggestion, wrap your analysis process in &lt;analysis> tags. In this analysis:&#xA;    1. Summarize the previous action and its trajectory&#xA;    2. Identify the key issues or shortcomings in the previous action&#xA;    3. List potential improvements or alternative approaches&#xA;    4. Consider how these changes might affect the trajectory&#xA;&#xA;    You need to format your output using three fields; analysis, discussion and command.&#xA;  append_expansion_prompt_template: |-&#xA;    Your goal is to suggest alternative content for appending to a file, based on a previous action and its outcome.&#xA;    Here's the information about the previous operation:&#xA;&#xA;    &lt;previous_action>&#xA;    {action}&#xA;    &lt;/previous_action>&#xA;&#xA;    &lt;previous_trajectory>&#xA;    {prev_traj}&#xA;    &lt;/previous_trajectory>&#xA;&#xA;    Your task is to suggest a replacement for the previous append action, not to provide the next action in the sequence. The reproduction script you've written may lack completeness on its own. Would you like to review it and write a more comprehensive version of the script, incorporating the context of the previous trajectory?&#xA;    1. Analyze the previous action:&#xA;      - What specific content was appended?&#xA;      - What was the likely purpose of this content?&#xA;&#xA;    2. Brainstorm at least three alternative content ideas:&#xA;      - Describe each alternative and how it differs from the original.&#xA;      - Number each alternative for easy reference.&#xA;&#xA;    3. Evaluate each alternative:&#xA;      - How does it potentially improve exploration?&#xA;      - What new insights might it provide?&#xA;&#xA;    4. Select the best alternative:&#xA;      - Which option do you think is most promising?&#xA;      - Justify your choice in 1-2 sentences.&#xA;&#xA;    Before providing your final suggestion, wrap your analysis process in &lt;analysis> tags. In this analysis:&#xA;    1. Summarize the previous action and its trajectory&#xA;    2. Identify the key issues or shortcomings in the previous action&#xA;    3. List potential improvements or alternative approaches&#xA;    4. Consider how these changes might affect the trajectory&#xA;&#xA;    You need to format your output using three fields; analysis, discussion and command.&#xA;  submit_expansion_prompt_template: |-&#xA;    You are about to submit the changes. Have you double-checked that your changes don't affect other test cases or have any unintended consequences or completely fix the issue? Please review once more before submitting.&#xA;  create_expansion_prompt_template: |-&#xA;    Before trying to reproduce the bug, let's first try to localize the issue, we can test the issue after the fix.&#xA;  critic_expansion_prompt_template: |-&#xA;    You are an AI system tasked with selecting the best alternative action to replace a previously executed action in a process or workflow. Your goal is to evaluate the given alternatives and choose the most effective replacement.&#xA;    Here is the previously executed action:&#xA;    &lt;previous_action>&#xA;&#xA;    {previous_action}&#xA;    &lt;/previous_action>&#xA;&#xA;    Here is the list of alternative actions to consider:&#xA;    &lt;alternative_actions>&#xA;    {actions}&#xA;    &lt;/alternative_actions>&#xA;&#xA;    Instructions:&#xA;    1. Evaluate each action in the list of alternative actions based on the following criteria:&#xA;      a. It must be different from the previous action.&#xA;      b. It should replace the previous action, not be implemented after it.&#xA;      c. It should be more effective than the previous action.&#xA;&#xA;    2. Analyze each action inside &lt;action_analysis> tags, following this structure:&#xA;      - List each action with a number.&#xA;      - For each action, explicitly state whether it meets each of the three criteria.&#xA;      - Provide a brief explanation for why the action does or doesn't meet each criterion.&#xA;      - If the action meets all criteria, give it a numerical effectiveness score (1-10).&#xA;&#xA;    3. After evaluating all actions, select the best one that meets all the criteria and is the most effective replacement for the previous action.&#xA;&#xA;    4. Provide the index of the best action using &lt;best_action_index> tags starting from 0.&#xA;&#xA;    Example output format:&#xA;    &lt;action_analysis>&#xA;    [All actions analysis one by one]&#xA;    &lt;/action_analysis>&#xA;&#xA;    &lt;best_action_index>[Your selected best action index]&lt;/best_action_index>&#xA;  summarization_prompt_template: |-&#xA;    You are an expert technical analyst tasked with reviewing and summarizing the next steps taken to resolve a specific issue. &#xA;    Your task involves analyzing the steps, identifying key issues, and suggesting improvements for better problem-solving. &#xA;&#xA;    Issue Description:&#xA;    &lt;issue_description>&#xA;    {issue}&#xA;    &lt;/issue_description>&#xA;&#xA;    Next Steps Taken:&#xA;    &lt;next_steps_taken>&#xA;    {next_steps}&#xA;    &lt;/next_steps_taken>&#xA;&#xA;    Analyze the provided next steps to identify any potential issues, inefficiencies, or redundancies. Summarize what was attempted, assess the effectiveness of these steps, and suggest ways to improve the process. &#xA;&#xA;    Let's first answer few questions regarding next steps in short (if applicable):&#xA;&#xA;    1. Were the steps effective in reproducing the issue?&#xA;    2. Was the issue localized correctly? Specify key files or components involved.&#xA;    3. Were the required changes correctly identified and implemented?&#xA;    4. Was the resolution verified properly to ensure the bug was fixed?&#xA;    5. What errors occurred during bug fixing or reproduction?&#xA;    6. Was the reproduction script accurate and complete? If not, what was missing?&#xA;    7. What were the key learnings from these steps that could improve future processes?&#xA;&#xA;    Based on your analysis, suggest concrete improvements for the next steps. Ensure suggestions are actionable within the constraints of having access only to the repository (no internet or external documentation). Include specific file names or details where necessary.&#xA;&#xA;    Focus on clarity, conciseness, and actionable insights to improve the problem-solving process."/>
           <attvalue for="prompt_url" value="https://github.com/darsagent/DARS-Agent/blob/eab35168a90b7dc5b5a05a29d7d41993cdb74bdf/dars-agent/config/default_dars.yaml#L196"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="78"/>
         <viz:size value="10"/>
         <viz:position x="-413.83112260307405" y="-799.2144905875265"/>
       </node>
@@ -109,19 +109,19 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="113" g="126" b="204"/>
+        <viz:color r="155" g="107" b="190"/>
       </edge>
       <edge id="383" source="repo_DARS_Agent" target="agent_DARS_Agent_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="113" g="126" b="204"/>
+        <viz:color r="155" g="107" b="190"/>
       </edge>
       <edge id="384" source="agent_DARS_Agent_1" target="prompt_DARS_Agent_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="78"/>
       </edge>
     </edges>
   </graph>

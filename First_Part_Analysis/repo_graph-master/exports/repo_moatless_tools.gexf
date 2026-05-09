@@ -56,7 +56,7 @@
           <attvalue for="repo_comments" value="- MoatlessComponent: Base class for dynamically loadable components. https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/component.py#L21"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="191" g="92" b="166"/>
+        <viz:color r="170" g="96" b="190"/>
         <viz:size value="10"/>
         <viz:position x="77.64571353075628" y="289.7777478867205"/>
       </node>
@@ -70,7 +70,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/agent.py#L42"/>
           <attvalue for="agent_comment" value="- AgentConfigManager: Manages agent configurations. https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/manager.py#L14"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="106" g="169" b="95"/>
         <viz:size value="10"/>
         <viz:position x="155.29142706151256" y="579.555495773441"/>
       </node>
@@ -80,7 +80,7 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="106" g="169" b="95"/>
       </edge>
     </edges>
   </graph>

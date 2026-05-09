@@ -56,7 +56,7 @@
           <attvalue for="repo_comments" value="- No README.md in repo"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="10"/>
         <viz:position x="297.4334584121431" y="-39.157857666015495"/>
       </node>
@@ -70,7 +70,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/ridgesai/ridges/blob/5d5936410a295b599e42ccb22a10e2b86d441f0b/models/agent.py#L19"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="181" g="94" b="178"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="10"/>
         <viz:position x="594.8669168242862" y="-78.31571533203099"/>
       </node>
@@ -80,7 +80,7 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="94" b="178"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
     </edges>
   </graph>
