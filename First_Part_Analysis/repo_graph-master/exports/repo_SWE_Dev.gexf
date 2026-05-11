@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- issue -> pipeline: get_description -> generate testcase -> eval testcase"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="190" g="134" b="61"/>
+        <viz:color r="191" g="134" b="61"/>
         <viz:size value="10"/>
-        <viz:position x="-297.43345841214307" y="39.15785766601573"/>
+        <viz:position x="0" y="15750"/>
       </node>
     </nodes>
     <edges/>

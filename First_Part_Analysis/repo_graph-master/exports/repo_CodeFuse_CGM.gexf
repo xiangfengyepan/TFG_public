@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- Agentless graph RAG: see paper why better &quot;Agentless models offer a more controlled approach to simulating real-world SE processes by following well-defined, fixed steps rather than relying on LLM agents to make autonomous decisions or&#xA;use complex tools.&quot;"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="201" g="88" b="75"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="10"/>
-        <viz:position x="39.15785766601558" y="297.4334584121431"/>
+        <viz:position x="0" y="10350"/>
       </node>
     </nodes>
     <edges/>

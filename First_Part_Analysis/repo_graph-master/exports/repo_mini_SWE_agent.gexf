@@ -59,9 +59,9 @@
           <attvalue for="repo_comments" value="- # Agent implementations&#xD;&#xA;&#xD;&#xA;* `default.py` - Minimal default agent implementation.&#xD;&#xA;* `interactive.py` - Extends `default.py` with some minimal human-in-the-loop functionality (confirm actions, etc.)."/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="40"/>
-        <viz:position x="289.7777478867205" y="77.64571353075621"/>
+        <viz:position x="0" y="6300"/>
       </node>
       <node id="agent_mini_SWE_agent_0" label="DefaultAgent">
         <attvalues>
@@ -73,9 +73,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/default.py#L33"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="586.0595287925235" y="128.58549183903042"/>
+        <viz:position x="500" y="6225"/>
       </node>
       <node id="agent_mini_SWE_agent_1" label="InteractiveAgent">
         <attvalues>
@@ -87,9 +87,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/interactive.py#L32"/>
           <attvalue for="agent_comment" value="- prompt user: https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/utils/prompt_user.py#L1"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="40"/>
-        <viz:position x="571.8351859837783" y="181.6714619055447"/>
+        <viz:position x="500" y="6375"/>
       </node>
       <node id="prompt_mini_SWE_agent_1_1" label="HUMAN: prompt ">
         <attvalues>
@@ -99,9 +99,9 @@
           <attvalue for="prompt_text" value="prompt = (&#xD;&#xA;            f&quot;[bold yellow]Execute {len(commands)} action(s)?[/] [green][bold]Enter[/] to confirm[/], &quot;&#xD;&#xA;            &quot;[red]type [bold]comment[/] to reject[/], or [blue][bold]/h[/] to show available commands[/]\n&quot;&#xD;&#xA;            &quot;[bold yellow]>[/bold yellow] &quot;&#xD;&#xA;        )"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/interactive.py#L142"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
-        <viz:position x="857.7527789756674" y="272.50719285831707"/>
+        <viz:position x="1000" y="6375"/>
       </node>
     </nodes>
     <edges>
@@ -109,19 +109,19 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="196" source="repo_mini_SWE_agent" target="agent_mini_SWE_agent_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="197" source="agent_mini_SWE_agent_1" target="prompt_mini_SWE_agent_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="94" g="172" b="105"/>
       </edge>
     </edges>
   </graph>

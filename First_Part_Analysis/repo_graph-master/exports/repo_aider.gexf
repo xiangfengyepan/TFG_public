@@ -1,0 +1,1484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="double"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_aider" label="aider">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/Aider-AI/aider/blob/b9050e1d5faf8096eae7a46a9ecc05a86231384b"/>
+          <attvalue for="commits" value="13003"/>
+          <attvalue for="releases" value="93"/>
+          <attvalue for="stars" value="40160"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2509.25873"/>
+          <attvalue for="framework" value="llama-index"/>
+          <attvalue for="dependency_graph" value="Aider-AI_aider_8ff9bc.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="14"/>
+          <attvalue for="topology_description" value="Figure 1: The upper left sub-diagram shows the workflow agent for Aider’s polyglotAider-AI (a) benchmark. The upper right sub-diagram shows the workflow for Agentless Xia et al. (2024) testing of SWE-Bench. The lower sub-diagram represents our Lita autonomous agent framework, with key modules including LLM, Memory, Tools, Reasoning and Environment."/>
+          <attvalue for="topology_file" value="aider_topology.png"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, CSS, Shell, JavaScript, HTML"/>
+          <attvalue for="autonomy_rating" value="1"/>
+          <attvalue for="autonomy_description" value="1 – Orchestrated: execution decided by software workflow or human"/>
+          <attvalue for="repo_comments" value="- Coder https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_coder.py#L88&#xA;- CoderPromt: https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L1&#xA;- class InputOutput https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/io.py#L230 for advance CLI interactive"/>
+          <attvalue for="rawSize" value="40"/>
+        </attvalues>
+        <viz:color r="202" g="87" b="89"/>
+        <viz:size value="40"/>
+        <viz:position x="0" y="450"/>
+      </node>
+      <node id="agent_aider_0" label="HelpCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="21.538461538461537"/>
+          <attvalue for="agent_name" value="HelpCoder(Coder)"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="Interactive help and documentation about aider."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_coder.py#L6"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="21.538461538461537"/>
+        <viz:position x="500" y="-525"/>
+      </node>
+      <node id="prompt_aider_0_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;You are an expert on the AI coding tool called Aider.&#xA;&#xA;Answer the user's questions about how to use aider.&#xA;&#xA;&#xA;The user is currently chatting with you using aider, to write and edit code.&#xA;&#xA;&#xA;Use the provided aider documentation *if it is relevant to the user's question*.&#xA;&#xA;&#xA;Include a bulleted list of urls to the aider docs that might be relevant for the user to read.&#xA;&#xA;Include *bare* urls. *Do not* make [markdown links](http://...).&#xA;&#xA;For example:&#xA;&#xA;- https://aider.chat/docs/usage.html&#xA;&#xA;- https://aider.chat/docs/faq.html&#xA;&#xA;&#xA;If you don't know the answer, say so and suggest some relevant aider doc urls.&#xA;&#xA;&#xA;If asks for something that isn't possible with aider, be clear about that.&#xA;&#xA;Don't suggest a solution that isn't supported.&#xA;&#xA;&#xA;Be helpful but concise.&#xA;&#xA;&#xA;Unless the question indicates otherwise, assume the user wants to use aider as a CLI tool.&#xA;&#xA;&#xA;Keep this info about the user's system in mind:&#xA;&#xA;{platform}&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-690"/>
+      </node>
+      <node id="prompt_aider_0_2" label="SYSTEM: system_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_reminder = &quot;&quot;&quot;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L34"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-607.5"/>
+      </node>
+      <node id="prompt_aider_0_3" label="PROXY: files_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_prefix = &quot;&quot;&quot;&#xA;&#xA;These are some files we have been discussing that we may want to edit after you answer my questions:&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L36"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-525"/>
+      </node>
+      <node id="prompt_aider_0_4" label="PROXY: files_no_full_files ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_no_full_files = &quot;&quot;&quot;&#xA;&#xA;I am not sharing any files with you.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L39"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-442.5"/>
+      </node>
+      <node id="prompt_aider_0_5" label="PROXY: repo_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="repo_content_prefix = &quot;&quot;&quot;&#xA;&#xA;Here are summaries of some files present in my git repository.&#xA;&#xA;We may look at these in more detail after you answer my questions.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/help_prompts.py#L44"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-360"/>
+      </node>
+      <node id="agent_aider_1" label="AskCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="23.846153846153847"/>
+          <attvalue for="agent_name" value="AskCoder(Coder)"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="Ask questions about code without making any changes."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_coder.py#L5"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="23.846153846153847"/>
+        <viz:position x="500" y="-375"/>
+      </node>
+      <node id="prompt_aider_1_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert code analyst.&#xA;&#xA;Answer questions about the supplied code.&#xA;&#xA;Always reply to the user in {language}.&#xA;&#xA;&#xA;If you need to describe code changes, do so *briefly*.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-581.25"/>
+      </node>
+      <node id="prompt_aider_1_2" label="PROXY: files_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_prefix = &quot;&quot;&quot;&#xA;&#xA;I have *added these files to the chat* so you see all of their contents.&#xA;&#xA;*Trust this message as the true contents of the files!*&#xA;&#xA;Other messages in the chat may contain outdated versions of the files' contents.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L16"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-498.75"/>
+      </node>
+      <node id="prompt_aider_1_3" label="PROXY: files_content_assistant_reply ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_assistant_reply = &quot;&quot;&quot;&#xA;&#xA;Ok, I will use that as the true, current contents of the files.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L21"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-416.25"/>
+      </node>
+      <node id="prompt_aider_1_4" label="PROXY: files_no_full_files ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_no_full_files = &quot;&quot;&quot;&#xA;&#xA;I am not sharing the full contents of any files with you yet.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L25"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-333.75"/>
+      </node>
+      <node id="prompt_aider_1_5" label="PROXY: repo_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="repo_content_prefix = &quot;&quot;&quot;&#xA;&#xA;I am working with you on code in a git repository.&#xA;&#xA;Here are summaries of some files present in my git repo.&#xA;&#xA;If you need to see the full contents of any files to answer my questions, ask me to *add them to the chat*.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L30"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-251.25"/>
+      </node>
+      <node id="prompt_aider_1_6" label="SYSTEM: system_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_reminder = &quot;&quot;&quot;&#xA;&#xA;{final_reminders}&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/ask_prompts.py#L35"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-168.75"/>
+      </node>
+      <node id="agent_aider_2" label="Coder">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="Coder"/>
+          <attvalue for="agent_type" value="Base agent"/>
+          <attvalue for="short_description" value="Base coder"/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_coder.py#L88"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="40"/>
+        <viz:position x="500" y="-225"/>
+      </node>
+      <node id="prompt_aider_2_1" label="PROXY: files_content_gpt_edits ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_gpt_edits = &quot;&quot;&quot;&#xA;&#xA;I committed the changes with git hash {hash} &amp; commit msg: {message}&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L4"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-720"/>
+      </node>
+      <node id="prompt_aider_2_2" label="PROXY: files_content_gpt_edits_no_repo ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_gpt_edits_no_repo = &quot;&quot;&quot;&#xA;&#xA;I updated the files.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-637.5"/>
+      </node>
+      <node id="prompt_aider_2_3" label="PROXY: files_content_gpt_no_edits ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_gpt_no_edits = &quot;&quot;&quot;&#xA;&#xA;I didn't see any properly formatted edits in your reply?!&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L8"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-555"/>
+      </node>
+      <node id="prompt_aider_2_4" label="PROXY: files_content_local_edits ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_local_edits = &quot;&quot;&quot;&#xA;&#xA;I edited the files myself.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L10"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-472.5"/>
+      </node>
+      <node id="prompt_aider_2_5" label="SYSTEM: lazy_prompt ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="lazy_prompt = &quot;&quot;&quot;&#xA;&#xA;You are diligent and tireless!&#xA;&#xA;You NEVER leave comments describing code without implementing it!&#xA;&#xA;You always COMPLETELY IMPLEMENT the needed code!&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L12"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-390"/>
+      </node>
+      <node id="prompt_aider_2_6" label="SYSTEM: overeager_prompt ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="overeager_prompt = &quot;&quot;&quot;&#xA;&#xA;Pay careful attention to the scope of the user's request.&#xA;&#xA;Do what they ask, but no more.&#xA;&#xA;Do not improve, comment, fix or modify unrelated parts of the code in any way!&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L17"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-307.5"/>
+      </node>
+      <node id="prompt_aider_2_7" label="PROXY: files_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_prefix = &quot;&quot;&quot;&#xA;&#xA;I have *added these files to the chat* so you can go ahead and edit them.&#xA;&#xA;&#xA;*Trust this message as the true contents of these files!*&#xA;&#xA;Any other messages in the chat may contain outdated versions of the files' contents.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L24"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-225"/>
+      </node>
+      <node id="prompt_aider_2_8" label="PROXY: files_content_assistant_reply ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_assistant_reply = &quot;&quot;&quot;&#xA;&#xA;Ok, any changes I propose will be to those files.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L30"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-142.5"/>
+      </node>
+      <node id="prompt_aider_2_9" label="PROXY: files_no_full_files ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_no_full_files = &quot;&quot;&quot;&#xA;&#xA;I am not sharing any files that you can edit yet.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L32"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-60"/>
+      </node>
+      <node id="prompt_aider_2_10" label="HUMAN: files_no_full_files_with_repo_map ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="HUMAN"/>
+          <attvalue for="prompt_text" value="files_no_full_files_with_repo_map = &quot;&quot;&quot;&#xA;&#xA;Don't try and edit any existing code without asking me to add the files to the chat!&#xA;&#xA;Tell me which files in my repo are the most likely to **need changes** to solve the requests I make, and then stop so I can add them to the chat.&#xA;&#xA;Only include the files that are most likely to actually need to be edited.&#xA;&#xA;Don't include files that might contain relevant context, just files that will need to be changed.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L34"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="22.5"/>
+      </node>
+      <node id="prompt_aider_2_11" label="PROXY: files_no_full_files_with_repo_map_reply ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_no_full_files_with_repo_map_reply = &quot;&quot;&quot;&#xA;&#xA;Ok, based on your requests I will suggest which files need to be edited and then stop and wait for your approval.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L40"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="105"/>
+      </node>
+      <node id="prompt_aider_2_12" label="PROXY: repo_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="repo_content_prefix = &quot;&quot;&quot;&#xA;&#xA;Here are summaries of some files present in my git repository.&#xA;&#xA;Do not propose changes to these files, treat them as *read-only*.&#xA;&#xA;If you need to edit any of these files, ask me to *add them to the chat* first.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L45"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="187.5"/>
+      </node>
+      <node id="prompt_aider_2_13" label="PROXY: read_only_files_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="read_only_files_prefix = &quot;&quot;&quot;&#xA;&#xA;Here are some READ ONLY files, provided for your reference.&#xA;&#xA;Do not edit these files!&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/base_prompts.py#L50"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="270"/>
+      </node>
+      <node id="agent_aider_3" label="EditBlockCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="28.46153846153846"/>
+          <attvalue for="agent_name" value="EditBlockCoder(Coder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses search/replace blocks for code modifications."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_coder.py#L15"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="28.46153846153846"/>
+        <viz:position x="500" y="-75"/>
+      </node>
+      <node id="prompt_aider_3_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert software developer.&#xA;&#xA;Always use best practices when coding.&#xA;&#xA;Respect and use existing conventions, libraries, etc that are already present in the code base.&#xA;&#xA;{final_reminders}&#xA;&#xA;Take requests for changes to the supplied code.&#xA;&#xA;If the request is ambiguous, ask questions.&#xA;&#xA;&#xA;Once you understand the request you MUST:&#xA;&#xA;&#xA;1. Decide if you need to propose *SEARCH/REPLACE* edits to any files that haven't been added to the chat. You can create new files without asking!&#xA;&#xA;&#xA;But if you need to propose edits to existing files not already added to the chat, you *MUST* tell the user their full path names and ask them to *add the files to the chat*.&#xA;&#xA;End your reply and wait for their approval.&#xA;&#xA;You can keep asking if you then decide you need to edit more files.&#xA;&#xA;&#xA;2. Think step-by-step and explain the needed changes in a few short sentences.&#xA;&#xA;&#xA;3. Describe each change with a *SEARCH/REPLACE block* per the examples below.&#xA;&#xA;&#xA;All changes to files must use this *SEARCH/REPLACE block* format.&#xA;&#xA;ONLY EVER RETURN CODE IN A *SEARCH/REPLACE BLOCK*!&#xA;&#xA;{shell_cmd_prompt}&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L8"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-363.75"/>
+      </node>
+      <node id="prompt_aider_3_2" label="PROXY: example_messages ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="example_messages = [&#xA;&#xA; dict(&#xA;&#xA; role=&quot;user&quot;,&#xA;&#xA; content=&quot;Change get_factorial() to use math.factorial&quot;,&#xA;&#xA; ),&#xA;&#xA; dict(&#xA;&#xA; role=&quot;assistant&quot;,&#xA;&#xA; content=&quot;&quot;&quot;To make this change we need to modify \mathweb/flask/app.py` to:&lt;br>&lt;br>1. Import the math package.&lt;br>2. Remove the existing factorial() function.&lt;br>3. Update get_factorial() to call math.factorial instead.&lt;br>&lt;br>Here are the SEARCH/REPLACE blocks:&lt;br>&lt;br>mathweb/flask/app.py&lt;br>{fence[0]}python&lt;br>import math&lt;br>from flask import Flask&lt;br>{fence[1]}&lt;br>&lt;br>mathweb/flask/app.py&lt;br>{fence[0]}python&lt;br>{fence[1]}&lt;br>&lt;br>mathweb/flask/app.py&lt;br>{fence[0]}python&lt;br> return str(math.factorial(n))&lt;br>{fence[1]}&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br> dict(&lt;br> role=&quot;user&quot;,&lt;br> content=&quot;Refactor hello() into its own file.&quot;,&lt;br> ),&lt;br> dict(&lt;br> role=&quot;assistant&quot;,&lt;br> content=&quot;&quot;&quot;To make this change we need to modify `main.py` and make a new file `hello.py`:&lt;br>&lt;br>1. Make a new hello.py file with hello() in it.&lt;br>2. Remove hello() from main.py and replace it with an import.&lt;br>&lt;br>Here are the SEARCH/REPLACE blocks:&lt;br>&lt;br>hello.py&lt;br>{fence[0]}python&lt;br>def hello():&lt;br> &quot;print a greeting&quot;&lt;br>&lt;br> print(&quot;hello&quot;)&lt;br>{fence[1]}&lt;br>&lt;br>main.py&lt;br>{fence[0]}python&lt;br>from hello import hello&lt;br>{fence[1]}&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br>]`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L31"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-281.25"/>
+      </node>
+      <node id="prompt_aider_3_3" label="SYSTEM: system\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system\_reminder = &quot;&quot;&quot;&#xA;&#xA;\# *SEARCH/REPLACE block* Rules:&#xA;&#xA;&#xA;Every *SEARCH/REPLACE block* must use this format:&#xA;&#xA;1. The *FULL* file path alone on a line, verbatim. No bold asterisks, no quotes around it, no escaping of characters, etc.&#xA;&#xA;2. The opening fence and code language, eg: {fence[0]}python&#xA;&#xA;3. The start of search block: \&lt;\&lt;\&lt;\&lt;\&lt;\&lt;\&lt; SEARCH&#xA;&#xA;4. A contiguous chunk of lines to search for in the existing source code&#xA;&#xA;5. The dividing line: =======&#xA;&#xA;6. The lines to replace into the source code&#xA;&#xA;7. The end of the replace block: \>\>\>\>\>\>\> REPLACE&#xA;&#xA;8. The closing fence: {fence[1]}&#xA;&#xA;&#xA;Use the *FULL* file path, as shown to you by the user.&#xA;&#xA;{quad\_backtick\_reminder}&#xA;&#xA;Every *SEARCH* section must *EXACTLY MATCH* the existing file content, character for character, including all comments, docstrings, etc.&#xA;&#xA;If the file contains code or other data wrapped/escaped in json/xml/quotes or other containers, you need to propose edits to the literal contents of the file, including the container markup.&#xA;&#xA;&#xA;*SEARCH/REPLACE* blocks will *only* replace the first match occurrence.&#xA;&#xA;Including multiple unique *SEARCH/REPLACE* blocks if needed.&#xA;&#xA;Include enough lines in each SEARCH section to uniquely match each set of lines that need to change.&#xA;&#xA;&#xA;Keep *SEARCH/REPLACE* blocks concise.&#xA;&#xA;Break large *SEARCH/REPLACE* blocks into a series of smaller blocks that each change a small portion of the file.&#xA;&#xA;Include just the changing lines, and a few surrounding lines if needed for uniqueness.&#xA;&#xA;Do not include long runs of unchanging lines in *SEARCH/REPLACE* blocks.&#xA;&#xA;&#xA;Only create *SEARCH/REPLACE* blocks for files that the user has added to the chat\!&#xA;&#xA;&#xA;To move code within a file, use 2 *SEARCH/REPLACE* blocks: 1 to delete it from its current location, 1 to insert it in the new location.&#xA;&#xA;&#xA;Pay attention to which filenames the user wants you to edit, especially if they are asking you to create a new file.&#xA;&#xA;&#xA;If you want to put code in a new file, use a *SEARCH/REPLACE block* with:&#xA;&#xA;- A new file path, including dir name if needed&#xA;&#xA;- An empty \SEARCH` section&lt;br>- The new file's contents in the `REPLACE` section&lt;br>&lt;br>{rename_with_shell}{go_ahead_tip}{final_reminders}ONLY EVER RETURN CODE IN A SEARCH/REPLACE BLOCK!&lt;br>{shell_cmd_reminder}&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L120"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-198.75"/>
+      </node>
+      <node id="prompt_aider_3_4" label="SYSTEM: rename\_with\_shell ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="rename\_with\_shell = &quot;&quot;&quot;&#xA;&#xA;To rename files which have been added to the chat, use shell commands at the end of your response.&#xA;&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L161"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-116.25"/>
+      </node>
+      <node id="prompt_aider_3_5" label="SYSTEM: go\_ahead\_tip ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="go\_ahead\_tip = &quot;&quot;&quot;&#xA;&#xA;If the user just says something like &quot;ok&quot; or &quot;go ahead&quot; or &quot;do that&quot; they probably want you to make SEARCH/REPLACE blocks for the code changes you just proposed.&#xA;&#xA;The user will say when they've applied your edits. If they haven't explicitly confirmed the edits have been applied, they probably want proper SEARCH/REPLACE blocks.&#xA;&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_prompts.py#L165"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="-33.75"/>
+      </node>
+      <node id="prompt_aider_3_6" label="SYSTEM: shell_cmd_prompt ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="shell_cmd_prompt = &quot;&quot;&quot;&#xA;&#xA;4. *Concisely* suggest any shell commands the user might want to run in \``bash blocks.&lt;br>&lt;br>Just suggest shell commands this way, not example code.&lt;br>Only suggest complete shell commands that are ready to execute, without placeholders.&lt;br>Only suggest at most a few shell commands at a time, not more than 1-3, one per line.&lt;br>Do not suggest multi-line shell commands.&lt;br>All shell commands will run from the root directory of the user's project.&lt;br>&lt;br>Use the appropriate shell based on the user's system info:&lt;br>{platform}&lt;br>Examples of when to suggest shell commands:&lt;br>&lt;br>- If you changed a self-contained html file, suggest an OS-appropriate command to open a browser to view it to see the updated content.&lt;br>- If you changed a CLI program, suggest the command to run it to see the new behavior.&lt;br>- If you added a test, suggest how to run it with the testing tool used by the project.&lt;br>- Suggest OS-appropriate commands to delete or rename files/directories, or other file system operations.&lt;br>- If your code changes add new dependencies, suggest the command to install them.&lt;br>- Etc.&lt;br>&quot;&quot;&quot; # noqa`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L1"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="48.75"/>
+      </node>
+      <node id="prompt_aider_3_7" label="SYSTEM: no\_shell\_cmd\_prompt ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="no\_shell\_cmd\_prompt = &quot;&quot;&quot;&#xA;&#xA;Keep in mind these details about the user's platform and environment:&#xA;&#xA;{platform}&#xA;&#xA;&quot;&quot;&quot; \# noqa"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L22"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="131.25"/>
+      </node>
+      <node id="prompt_aider_3_8" label="SYSTEM: shell\_cmd\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="shell\_cmd\_reminder = &quot;&quot;&quot;&#xA;&#xA;Examples of when to suggest shell commands:&#xA;&#xA;&#xA;- If you changed a self-contained html file, suggest an OS-appropriate command to open a browser to view it to see the updated content.&#xA;&#xA;- If you changed a CLI program, suggest the command to run it to see the new behavior.&#xA;&#xA;- If you added a test, suggest how to run it with the testing tool used by the project.&#xA;&#xA;- Suggest OS-appropriate commands to delete or rename files/directories, or other file system operations.&#xA;&#xA;- If your code changes add new dependencies, suggest the command to install them.&#xA;&#xA;- Etc.&#xA;&#xA;&#xA;&quot;&quot;&quot; \# noqa\"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L27"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="213.75"/>
+      </node>
+      <node id="agent_aider_4" label="EditBlockFencedCoder(EditBlockCoder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="14.615384615384615"/>
+          <attvalue for="agent_name" value="EditBlockFencedCoder(EditBlockCoder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses fenced search/replace blocks for code modifications."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_fenced_coder.py#L6"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="14.615384615384615"/>
+        <viz:position x="500" y="75"/>
+      </node>
+      <node id="prompt_aider_4_1" label="PROXY: example_messages ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="example_messages = [&#xA;&#xA; dict(&#xA;&#xA; role=&quot;user&quot;,&#xA;&#xA; content=&quot;Change get_factorial() to use math.factorial&quot;,&#xA;&#xA; ),&#xA;&#xA; dict(&#xA;&#xA; role=&quot;assistant&quot;,&#xA;&#xA; content=&quot;&quot;&quot;To make this change we need to modify \mathweb/flask/app.py` to:&lt;br>&lt;br>1. Import the math package.&lt;br>2. Remove the existing factorial() function.&lt;br>3. Update get_factorial() to call math.factorial instead.&lt;br>&lt;br>Here are the SEARCH/REPLACE blocks:&lt;br>&lt;br>{fence[0]}python&lt;br>mathweb/flask/app.py&lt;br>import math&lt;br>from flask import Flask&lt;br>{fence[1]}&lt;br>&lt;br>{fence[0]}python&lt;br>mathweb/flask/app.py&lt;br>{fence[1]}&lt;br>&lt;br>{fence[0]}python&lt;br>mathweb/flask/app.py&lt;br> return str(math.factorial(n))&lt;br>{fence[1]}&lt;br>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br> dict(&lt;br> role=&quot;user&quot;,&lt;br> content=&quot;Refactor hello() into its own file.&quot;,&lt;br> ),&lt;br> dict(&lt;br> role=&quot;assistant&quot;,&lt;br> content=&quot;&quot;&quot;To make this change we need to modify `main.py` and make a new file `hello.py`:&lt;br>&lt;br>1. Make a new hello.py file with hello() in it.&lt;br>2. Remove hello() from main.py and replace it with an import.&lt;br>&lt;br>Here are the SEARCH/REPLACE blocks:&lt;br>&lt;br>{fence[0]}python&lt;br>hello.py&lt;br>&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH&lt;br>=======&lt;br>def hello():&lt;br> &quot;print a greeting&quot;&lt;br>&lt;br> print(&quot;hello&quot;)&lt;br>>>>>>>> REPLACE&lt;br>{fence[1]}&lt;br>&lt;br>{fence[0]}python&lt;br>main.py&lt;br>&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH&lt;br>def hello():&lt;br> &quot;print a greeting&quot;&lt;br>&lt;br> print(&quot;hello&quot;)&lt;br>=======&lt;br>from hello import hello&lt;br>>>>>>>> REPLACE&lt;br>{fence[1]}&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br>]`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_fenced_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="33.75"/>
+      </node>
+      <node id="prompt_aider_4_2" label="SYSTEM: system\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system\_reminder = &quot;&quot;&quot;&#xA;&#xA;\# *SEARCH/REPLACE block* Rules:&#xA;&#xA;&#xA;Every *SEARCH/REPLACE block* must use this format:&#xA;&#xA;1. The opening fence and code language, eg: {fence[0]}python&#xA;&#xA;2. The *FULL* file path alone on a line, verbatim. No bold asterisks, no quotes around it, no escaping of characters, etc.&#xA;&#xA;3. The start of search block: \&lt;\&lt;\&lt;\&lt;\&lt;\&lt;\&lt; SEARCH&#xA;&#xA;4. A contiguous chunk of lines to search for in the existing source code&#xA;&#xA;5. The dividing line: =======&#xA;&#xA;6. The lines to replace into the source code&#xA;&#xA;7. The end of the replace block: \>\>\>\>\>\>\> REPLACE&#xA;&#xA;8. The closing fence: {fence[1]}&#xA;&#xA;&#xA;Use the *FULL* file path, as shown to you by the user.&#xA;&#xA;{quad\_backtick\_reminder}&#xA;&#xA;Every *SEARCH* section must *EXACTLY MATCH* the existing file content, character for character, including all comments, docstrings, etc.&#xA;&#xA;If the file contains code or other data wrapped/escaped in json/xml/quotes or other containers, you need to propose edits to the literal contents of the file, including the container markup.&#xA;&#xA;&#xA;*SEARCH/REPLACE* blocks will *only* replace the first match occurrence.&#xA;&#xA;Including multiple unique *SEARCH/REPLACE* blocks if needed.&#xA;&#xA;Include enough lines in each SEARCH section to uniquely match each set of lines that need to change.&#xA;&#xA;&#xA;Keep *SEARCH/REPLACE* blocks concise.&#xA;&#xA;Break large *SEARCH/REPLACE* blocks into a series of smaller blocks that each change a small portion of the file.&#xA;&#xA;Include just the changing lines, and a few surrounding lines if needed for uniqueness.&#xA;&#xA;Do not include long runs of unchanging lines in *SEARCH/REPLACE* blocks.&#xA;&#xA;&#xA;Only create *SEARCH/REPLACE* blocks for files that the user has added to the chat\!&#xA;&#xA;&#xA;To move code within a file, use 2 *SEARCH/REPLACE* blocks: 1 to delete it from its current location, 1 to insert it in the new location.&#xA;&#xA;&#xA;Pay attention to which filenames the user wants you to edit, especially if they are asking you to create a new file.&#xA;&#xA;&#xA;If you want to put code in a new file, use a *SEARCH/REPLACE block* with:&#xA;&#xA;- A new file path, including dir name if needed&#xA;&#xA;- An empty \SEARCH` section&lt;br>- The new file's contents in the `REPLACE` section&lt;br>&lt;br>To rename files which have been added to the chat, use shell commands at the end of your response.&lt;br>&lt;br>If the user just says something like &quot;ok&quot; or &quot;go ahead&quot; or &quot;do that&quot; they probably want you to make SEARCH/REPLACE blocks for the code changes you just proposed.&lt;br>The user will say when they've applied your edits. If they haven't explicitly confirmed the edits have been applied, they probably want proper SEARCH/REPLACE blocks.&lt;br>&lt;br>{final_reminders}&lt;br>ONLY EVER RETURN CODE IN A SEARCH/REPLACE BLOCK!&lt;br>{shell_cmd_reminder}&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editblock_fenced_prompts.py#L97"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="116.25"/>
+      </node>
+      <node id="agent_aider_5" label="WholeFileCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="19.23076923076923"/>
+          <attvalue for="agent_name" value="WholeFileCoder(Coder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that operates on entire files for code modifications."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_coder.py#L10"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="19.23076923076923"/>
+        <viz:position x="500" y="225"/>
+      </node>
+      <node id="prompt_aider_5_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert software developer.&#xA;&#xA;Take requests for changes to the supplied code.&#xA;&#xA;If the request is ambiguous, ask questions.&#xA;&#xA;{final_reminders}&#xA;&#xA;Once you understand the request you MUST:&#xA;&#xA;1. Determine if any code changes are needed.&#xA;&#xA;2. Explain any needed changes.&#xA;&#xA;3. If changes are needed, output a copy of each file that needs changes.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="101.25"/>
+      </node>
+      <node id="prompt_aider_5_2" label="PROXY: example_messages ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="example_messages = [&#xA;&#xA; dict(&#xA;&#xA; role=&quot;user&quot;,&#xA;&#xA; content=&quot;Change the greeting to be more casual&quot;,&#xA;&#xA; ),&#xA;&#xA; dict(&#xA;&#xA; role=&quot;assistant&quot;,&#xA;&#xA; content=&quot;&quot;&quot;Ok, I will:&#xA;&#xA;&#xA;1. Switch the greeting text from &quot;Hello&quot; to &quot;Hey&quot;.&#xA;&#xA;&#xA;show_greeting.py&#xA;&#xA;{fence[0]}&#xA;&#xA;import sys&#xA;&#xA;&#xA;def greeting(name):&#xA;&#xA; print(f&quot;Hey {{name}}&quot;)&#xA;&#xA;&#xA;if __name__ == '__main__':&#xA;&#xA; greeting(sys.argv[1])&#xA;&#xA;{fence[1]}&#xA;&#xA;&quot;&quot;&quot;,&#xA;&#xA; ),&#xA;&#xA;]"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L17"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="183.75"/>
+      </node>
+      <node id="prompt_aider_5_3" label="SYSTEM: system_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_reminder = &quot;&quot;&quot;To suggest changes to a file you MUST return the entire content of the updated file.&#xA;&#xA;You MUST use this *file listing* format:&#xA;&#xA;&#xA;path/to/filename.js&#xA;&#xA;{fence[0]}&#xA;&#xA;// entire file content ...&#xA;&#xA;// ... goes in between&#xA;&#xA;{fence[1]}&#xA;&#xA;&#xA;Every *file listing* MUST use this format:&#xA;&#xA;- First line: the filename with any originally provided path; no extra markup, punctuation, comments, etc. **JUST** the filename with path.&#xA;&#xA;- Second line: opening {fence[0]}&#xA;&#xA;- ... entire content of the file ...&#xA;&#xA;- Final line: closing {fence[1]}&#xA;&#xA;&#xA;To suggest changes to a file you MUST return a *file listing* that contains the entire content of the file.&#xA;&#xA;*NEVER* skip, omit or elide content from a *file listing* using &quot;...&quot; or by adding comments like &quot;... rest of code...&quot;!&#xA;&#xA;Create a new file you MUST return a *file listing* which includes an appropriate filename, including any appropriate path.&#xA;&#xA;&#xA;{final_reminders}&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L42"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="266.25"/>
+      </node>
+      <node id="prompt_aider_5_4" label="SYSTEM: redacted_edit_message ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="redacted_edit_message = &quot;No changes are needed.&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/wholefile_prompts.py#L64"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="348.75"/>
+      </node>
+      <node id="agent_aider_6" label="PatchCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="16.923076923076923"/>
+          <attvalue for="agent_name" value="PatchCoder(Coder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses a custom patch format for code modifications,&#xA;    inspired by the format described in tmp.gpt41edits.txt.&#xA;    Applies patches using logic adapted from the reference apply_patch.py script."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/patch_coder.py#L210"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="16.923076923076923"/>
+        <viz:position x="500" y="375"/>
+      </node>
+      <node id="prompt_aider_6_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert software developer.&#xA;&#xA;Always use best practices when coding.&#xA;&#xA;Respect and use existing conventions, libraries, etc that are already present in the code base.&#xA;&#xA;{final_reminders}&#xA;&#xA;Take requests for changes to the supplied code.&#xA;&#xA;If the request is ambiguous, ask questions.&#xA;&#xA;&#xA;Once you understand the request you MUST:&#xA;&#xA;&#xA;1. Decide if you need to propose edits to any files that haven't been added to the chat. You can create new files without asking!&#xA;&#xA;&#xA; • If you need to propose edits to existing files not already added to the chat, you *MUST* tell the user their full path names and ask them to *add the files to the chat*.&#xA;&#xA; • End your reply and wait for their approval.&#xA;&#xA; • You can keep asking if you then decide you need to edit more files.&#xA;&#xA;&#xA;2. Think step‑by‑step and explain the needed changes in a few short sentences.&#xA;&#xA;&#xA;3. Describe the changes using the V4A diff format, enclosed within \*** Begin Patch` and `*** End Patch` markers.&lt;br>&lt;br>IMPORTANT: Each file MUST appear only once in the patch.&lt;br>Consolidate all edits for a given file into a single `*** [ACTION] File:` block.&lt;br>{shell_cmd_prompt}&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/patch_prompts.py#L11"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="292.5"/>
+      </node>
+      <node id="prompt_aider_6_2" label="PROXY: example\_messages ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="example\_messages = [&#xA;&#xA; \# --- Example 1 ---------------------------------------------------- \#&#xA;&#xA; dict(&#xA;&#xA; role=&quot;user&quot;,&#xA;&#xA; content=&quot;Change get\_factorial() to use math.factorial&quot;,&#xA;&#xA; ),&#xA;&#xA; dict(&#xA;&#xA; role=&quot;assistant&quot;,&#xA;&#xA; content=&quot;&quot;&quot;To make this change we need to modify \mathweb/flask/app.py`:&#xA;&#xA;&#xA;1. Import the \math` module.&lt;br>2. Replace the custom recursive `factorial()` helper with `math.factorial`.&lt;br>3. Update `get_factorial()` to call `math.factorial`.&lt;br>&lt;br>Here is the patch:&lt;br>&lt;br>*** Begin Patch&lt;br>*** Update File: mathweb/flask/app.py&lt;br>@@&lt;br>-from flask import Flask&lt;br>-&lt;br>-from flask import Flask&lt;br>+from flask import Flask&lt;br>+import math&lt;br>@@&lt;br>-def factorial(n):&lt;br>- &quot;compute factorial&quot;&lt;br>-&lt;br>- if n == 0:&lt;br>- return 1&lt;br>- else:&lt;br>- return n * factorial(n-1)&lt;br>+def factorial(n):&lt;br>+ &quot;compute factorial&quot;&lt;br>+&lt;br>+ return math.factorial(n)&lt;br>@@ def get_factorial(self, n):&lt;br>- return str(factorial(n))&lt;br>+ return str(math.factorial(n))&lt;br>*** End Patch&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br> # --- Example 2 ---------------------------------------------------- #&lt;br> dict(&lt;br> role=&quot;user&quot;,&lt;br> content=&quot;Refactor hello() into its own file.&quot;,&lt;br> ),&lt;br> dict(&lt;br> role=&quot;assistant&quot;,&lt;br> content=&quot;&quot;&quot;To make this change we need to modify `main.py` and create a new file `hello.py`:&#xA;&#xA;&#xA;1. Create \hello.py` with the `hello()` function.&lt;br>2. Remove `hello()` from `main.py` and import it instead.&lt;br>&lt;br>Here is the patch:&lt;br>&lt;br>*** Begin Patch&lt;br>*** Add File: hello.py&lt;br>+# A simple function&lt;br>+def hello():&lt;br>+ &quot;print a greeting&quot;&lt;br>+&lt;br>+ print(&quot;hello&quot;)&lt;br>*** Update File: main.py&lt;br>@@&lt;br>-def hello():&lt;br>- &quot;print a greeting&quot;&lt;br>-&lt;br>- print(&quot;hello&quot;)&lt;br>+from hello import hello&lt;br>*** End Patch&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br>]`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/patch_prompts.py#L38"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="375"/>
+      </node>
+      <node id="prompt_aider_6_3" label="SYSTEM: system\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system\_reminder = &quot;&quot;&quot;\# V4A Diff Format Rules:&#xA;&#xA;&#xA;Your entire response containing the patch MUST start with \*** Begin Patch` on a line by itself.&lt;br>Your entire response containing the patch MUST end with `*** End Patch` on a line by itself.&lt;br>&lt;br>Use the FULL file path, as shown to you by the user.&lt;br>{quad_backtick_reminder}&lt;br>&lt;br>For each file you need to modify, start with a marker line:&lt;br>&lt;br> *** [ACTION] File: [path/to/file]&lt;br>&lt;br>Where `[ACTION]` is one of `Add`, `Update`, or `Delete`.&lt;br>&lt;br>⇨ Each file MUST appear only once in the patch. &lt;br> Consolidate all changes for that file into the same block. &lt;br> If you are moving code within a file, include both the deletions and the&lt;br> insertions as separate hunks inside this single `*** Update File:` block&lt;br> (do not open a second block for the same file).&lt;br>&lt;br>For `Update` actions, describe each snippet of code that needs to be changed using the following format:&lt;br>1. Context lines: Include 3 lines of context before the change. These lines MUST start with a single space ` `.&lt;br>2. Lines to remove: Precede each line to be removed with a minus sign `-`.&lt;br>3. Lines to add: Precede each line to be added with a plus sign `+`.&lt;br>4. Context lines: Include 3 lines of context after the change. These lines MUST start with a single space ` `.&lt;br>&lt;br>Context lines MUST exactly match the existing file content, character for character, including indentation.&lt;br>If a change is near the beginning or end of the file, include fewer than 3 context lines as appropriate.&lt;br>If 3 lines of context is insufficient to uniquely identify the snippet, use `@@ [CLASS_OR_FUNCTION_NAME]` markers on their own lines before the context lines to specify the scope. You can use multiple `@@` markers if needed.&lt;br>Do not include line numbers.&lt;br>&lt;br>Only create patches for files that the user has added to the chat!&lt;br>&lt;br>When moving code within a single file, keep everything inside one&lt;br>`*** Update File:` block. Provide one hunk that deletes the code from its&lt;br>original location and another hunk that inserts it at the new location.&lt;br>&lt;br>For `Add` actions, use the `*** Add File: [path/to/new/file]` marker, followed by the lines of the new file, each preceded by a plus sign `+`.&lt;br>&lt;br>For `Delete` actions, use the `*** Delete File: [path/to/file]` marker. No other lines are needed for the deletion.&lt;br>&lt;br>{rename_with_shell}{go_ahead_tip}{final_reminders}ONLY EVER RETURN CODE IN THE SPECIFIED V4A DIFF FORMAT!&lt;br>{shell_cmd_reminder}&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/patch_prompts.py#L116"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="457.5"/>
+      </node>
+      <node id="agent_aider_7" label="UnifiedDiffCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="23.846153846153847"/>
+          <attvalue for="agent_name" value="UnifiedDiffCoder(Coder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses unified diff format for code modifications."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_coder.py#L46"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="23.846153846153847"/>
+        <viz:position x="500" y="525"/>
+      </node>
+      <node id="prompt_aider_7_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert software developer.&#xA;&#xA;{final_reminders}&#xA;&#xA;Always use best practices when coding.&#xA;&#xA;Respect and use existing conventions, libraries, etc that are already present in the code base.&#xA;&#xA;&#xA;Take requests for changes to the supplied code.&#xA;&#xA;If the request is ambiguous, ask questions.&#xA;&#xA;&#xA;For each file that needs to be changed, write out the changes similar to a unified diff like \diff -U0` would produce.&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_prompts.py#L8"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="318.75"/>
+      </node>
+      <node id="prompt_aider_7_2" label="PROXY: example\_messages ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="example\_messages = [&#xA;&#xA; dict(&#xA;&#xA; role=&quot;user&quot;,&#xA;&#xA; content=&quot;Replace is\_prime with a call to sympy.&quot;,&#xA;&#xA; ),&#xA;&#xA; dict(&#xA;&#xA; role=&quot;assistant&quot;,&#xA;&#xA; content=&quot;&quot;&quot;Ok, I will:&#xA;&#xA;&#xA;1. Add an imports of sympy.&#xA;&#xA;2. Remove the is\_prime() function.&#xA;&#xA;3. Replace the existing call to is\_prime() with a call to sympy.isprime().&#xA;&#xA;&#xA;Here are the diffs for those changes:&#xA;&#xA;&#xA;\``diff&lt;br>--- mathweb/flask/app.py&lt;br>+++ mathweb/flask/app.py&lt;br>@@ ... @@&lt;br>-class MathWeb:&lt;br>+import sympy&lt;br>+&lt;br>+class MathWeb:&lt;br>@@ ... @@&lt;br>-def is_prime(x):&lt;br>- if x &lt; 2:&lt;br>- return False&lt;br>- for i in range(2, int(math.sqrt(x)) + 1):&lt;br>- if x % i == 0:&lt;br>- return False&lt;br>- return True&lt;br>@@ ... @@&lt;br>-@app.route('/prime/int:n')&lt;br>-def nth_prime(n):&lt;br>- count = 0&lt;br>- num = 1&lt;br>- while count &lt; n:&lt;br>- num += 1&lt;br>- if is_prime(num):&lt;br>- count += 1&lt;br>- return str(num)&lt;br>+@app.route('/prime/int:n')&lt;br>+def nth_prime(n):&lt;br>+ count = 0&lt;br>+ num = 1&lt;br>+ while count &lt; n:&lt;br>+ num += 1&lt;br>+ if sympy.isprime(num):&lt;br>+ count += 1&lt;br>+ return str(num)&lt;br>```&lt;br>&quot;&quot;&quot;,&lt;br> ),&lt;br>]`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_prompts.py#L19"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="401.25"/>
+      </node>
+      <node id="prompt_aider_7_3" label="SYSTEM: system\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system\_reminder = &quot;&quot;&quot;\# File editing rules:&#xA;&#xA;&#xA;Return edits similar to unified diffs that \diff -U0` would produce.&lt;br>&lt;br>Make sure you include the first 2 lines with the file paths.&lt;br>Don't include timestamps with the file paths.&lt;br>&lt;br>Start each hunk of changes with a `@@ ... @@` line.&lt;br>Don't include line numbers like `diff -U0` does.&lt;br>The user's patch tool doesn't need them.&lt;br>&lt;br>The user's patch tool needs CORRECT patches that apply cleanly against the current contents of the file!&lt;br>Think carefully and make sure you include and mark all lines that need to be removed or changed as `-` lines.&lt;br>Make sure you mark all new or modified lines with `+`.&lt;br>Don't leave out any lines or the diff patch won't apply correctly.&lt;br>&lt;br>Indentation matters in the diffs!&lt;br>&lt;br>Start a new hunk for each section of the file that needs changes.&lt;br>&lt;br>Only output hunks that specify changes with `+` or `-` lines.&lt;br>Skip any hunks that are entirely unchanging ` ` lines.&lt;br>&lt;br>Output hunks in whatever order makes the most sense.&lt;br>Hunks don't need to be in any particular order.&lt;br>&lt;br>When editing a function, method, loop, etc use a hunk to replace the entire code block.&lt;br>Delete the entire existing version with `-` lines and then add a new, updated version with `+` lines.&lt;br>This will help you generate correct code and correct diffs.&lt;br>&lt;br>To move code within a file, use 2 hunks: 1 to delete it from its current location, 1 to insert it in the new location.&lt;br>&lt;br>To make a new file, show a diff from `--- /dev/null` to `+++ path/to/new/file.ext`.&lt;br>&lt;br>{final_reminders}&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_prompts.py#L74"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="483.75"/>
+      </node>
+      <node id="prompt_aider_7_4" label="SYSTEM: shell_cmd_prompt ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="shell_cmd_prompt = &quot;&quot;&quot;&#xA;&#xA;4. *Concisely* suggest any shell commands the user might want to run in \``bash blocks.&lt;br>&lt;br>Just suggest shell commands this way, not example code.&lt;br>Only suggest complete shell commands that are ready to execute, without placeholders.&lt;br>Only suggest at most a few shell commands at a time, not more than 1-3, one per line.&lt;br>Do not suggest multi-line shell commands.&lt;br>All shell commands will run from the root directory of the user's project.&lt;br>&lt;br>Use the appropriate shell based on the user's system info:&lt;br>{platform}&lt;br>Examples of when to suggest shell commands:&lt;br>&lt;br>- If you changed a self-contained html file, suggest an OS-appropriate command to open a browser to view it to see the updated content.&lt;br>- If you changed a CLI program, suggest the command to run it to see the new behavior.&lt;br>- If you added a test, suggest how to run it with the testing tool used by the project.&lt;br>- Suggest OS-appropriate commands to delete or rename files/directories, or other file system operations.&lt;br>- If your code changes add new dependencies, suggest the command to install them.&lt;br>- Etc.&lt;br>&quot;&quot;&quot; # noqa`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L1"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="566.25"/>
+      </node>
+      <node id="prompt_aider_7_5" label="SYSTEM: no\_shell\_cmd\_prompt ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="no\_shell\_cmd\_prompt = &quot;&quot;&quot;&#xA;&#xA;Keep in mind these details about the user's platform and environment:&#xA;&#xA;{platform}&#xA;&#xA;&quot;&quot;&quot; \# noqa"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L22"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="648.75"/>
+      </node>
+      <node id="prompt_aider_7_6" label="SYSTEM: shell\_cmd\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="shell\_cmd\_reminder = &quot;&quot;&quot;&#xA;&#xA;Examples of when to suggest shell commands:&#xA;&#xA;&#xA;- If you changed a self-contained html file, suggest an OS-appropriate command to open a browser to view it to see the updated content.&#xA;&#xA;- If you changed a CLI program, suggest the command to run it to see the new behavior.&#xA;&#xA;- If you added a test, suggest how to run it with the testing tool used by the project.&#xA;&#xA;- Suggest OS-appropriate commands to delete or rename files/directories, or other file system operations.&#xA;&#xA;- If your code changes add new dependencies, suggest the command to install them.&#xA;&#xA;- Etc.&#xA;&#xA;&#xA;&quot;&quot;&quot; \# noqa\"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/shell.py#L27"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="731.25"/>
+      </node>
+      <node id="agent_aider_8" label="UnifiedDiffSimpleCoder(UnifiedDiffCoder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.307692307692307"/>
+          <attvalue for="agent_name" value="UnifiedDiffSimpleCoder(UnifiedDiffCoder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses unified diff format for code modifications.&#xA;    This variant uses a simpler prompt that doesn't mention specific&#xA;    diff rules like using `@@ ... @@` lines or avoiding line numbers."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_simple.py#L5"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="12.307692307692307"/>
+        <viz:position x="500" y="675"/>
+      </node>
+      <node id="prompt_aider_8_1" label="SYSTEM: system_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system_reminder = &quot;&quot;&quot;# File editing rules:&#xA;&#xA;&#xA;Return edits similar to unified diffs that \diff -U0` would produce.&lt;br>&lt;br>The user's patch tool needs CORRECT patches that apply cleanly against the current contents of the file!&lt;br>Think carefully and make sure you include and mark all lines that need to be removed or changed as `-` lines.&lt;br>Make sure you mark all new or modified lines with `+`.&lt;br>Don't leave out any lines or the diff patch won't apply correctly.&lt;br>&lt;br>To make a new file, show a diff from `--- /dev/null` to `+++ path/to/new/file.ext`.&lt;br>&lt;br>{final_reminders}&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/udiff_simple_prompts.py#L13"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="675"/>
+      </node>
+      <node id="agent_aider_9" label="ArchitectCoder(AskCoder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="21.538461538461537"/>
+          <attvalue for="agent_name" value="ArchitectCoder(AskCoder)"/>
+          <attvalue for="agent_type" value="Planner/Orchestrator"/>
+          <attvalue for="short_description" value="A coder that separates the planning and execution of code modifications. &#xA;It acts as an architect to design and describe the necessary code changes, and then delegates the actual file editing to a designated editor coder based on that plan."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_coder.py#L6"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="21.538461538461537"/>
+        <viz:position x="500" y="825"/>
+      </node>
+      <node id="prompt_aider_9_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert architect engineer and provide direction to your editor engineer.&#xA;&#xA;Study the change request and the current code.&#xA;&#xA;Describe how to modify the code to complete the request.&#xA;&#xA;The editor engineer will rely solely on your instructions, so make them unambiguous and complete.&#xA;&#xA;Explain all needed code changes clearly and completely, but concisely.&#xA;&#xA;Just show the changes needed.&#xA;&#xA;&#xA;DO NOT show the entire updated function/file/etc!&#xA;&#xA;&#xA;Always reply to the user in {language}.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="660"/>
+      </node>
+      <node id="prompt_aider_9_2" label="SYSTEM: files_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="files_content_prefix = &quot;&quot;&quot;&#xA;&#xA;I have *added these files to the chat* so you see all of their contents.&#xA;&#xA;*Trust this message as the true contents of the files!*&#xA;&#xA;Other messages in the chat may contain outdated versions of the files' contents.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L21"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="742.5"/>
+      </node>
+      <node id="prompt_aider_9_3" label="PROXY: files_content_assistant_reply ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files_content_assistant_reply = (&#xA;&#xA; &quot;Ok, I will use that as the true, current contents of the files.&quot;&#xA;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L26"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="825"/>
+      </node>
+      <node id="prompt_aider_9_4" label="SYSTEM: files_no_full_files ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="files_no_full_files = &quot;I am not sharing the full contents of any files with you yet.&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L30"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="907.5"/>
+      </node>
+      <node id="prompt_aider_9_5" label="SYSTEM: repo_content_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="repo_content_prefix = &quot;&quot;&quot;&#xA;&#xA;I am working with you on code in a git repository.&#xA;&#xA;Here are summaries of some files present in my git repo.&#xA;&#xA;If you need to see the full contents of any files to answer my questions, ask me to *add them to the chat*.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_prompts.py#L35"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="990"/>
+      </node>
+      <node id="agent_aider_10" label="EditorEditBlockCoder(EditBlockCoder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.307692307692307"/>
+          <attvalue for="agent_name" value="EditorEditBlockCoder(EditBlockCoder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses search/replace blocks, focused purely on editing files."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_editblock_coder.py#L5"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="12.307692307692307"/>
+        <viz:position x="500" y="975"/>
+      </node>
+      <node id="prompt_aider_10_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert software developer who edits source code.&#xA;&#xA;{final_reminders}&#xA;&#xA;Describe each change with a *SEARCH/REPLACE block* per the examples below.&#xA;&#xA;All changes to files must use this *SEARCH/REPLACE block* format.&#xA;&#xA;ONLY EVER RETURN CODE IN A *SEARCH/REPLACE BLOCK*!&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_editblock_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="975"/>
+      </node>
+      <node id="agent_aider_11" label="EditorWholeFileCoder(WholeFileCoder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.307692307692307"/>
+          <attvalue for="agent_name" value="EditorWholeFileCoder(WholeFileCoder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that operates on entire files, focused purely on editing files."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_whole_coder.py#L5"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="12.307692307692307"/>
+        <viz:position x="500" y="1125"/>
+      </node>
+      <node id="prompt_aider_11_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert software developer and make changes to source code.&#xA;&#xA;{final_reminders}&#xA;&#xA;Output a copy of each file that needs changes.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_whole_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1125"/>
+      </node>
+      <node id="agent_aider_12" label="EditorDiffFencedCoder(EditBlockFencedCoder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="12.307692307692307"/>
+          <attvalue for="agent_name" value="EditorDiffFencedCoder(EditBlockFencedCoder)"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="A coder that uses search/replace blocks, focused purely on editing files."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_diff_fenced_coder.py#L5"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="12.307692307692307"/>
+        <viz:position x="500" y="1275"/>
+      </node>
+      <node id="prompt_aider_12_1" label="NONE">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="null"/>
+          <attvalue for="prompt_text" value="NONE"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/editor_diff_fenced_prompts.py#L6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1275"/>
+      </node>
+      <node id="agent_aider_13" label="ContextCoder(Coder)">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="26.153846153846153"/>
+          <attvalue for="agent_name" value="ContextCoder(Coder)"/>
+          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="short_description" value="Identify which files need to be edited for a given request."/>
+          <attvalue for="agent_in_repo" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_coder.py#L5"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+        <viz:size value="26.153846153846153"/>
+        <viz:position x="500" y="1425"/>
+      </node>
+      <node id="prompt_aider_13_1" label="SYSTEM: main_system ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="main_system = &quot;&quot;&quot;&#xA;&#xA;Act as an expert code analyst.&#xA;&#xA;Understand the user's question or request, solely to determine ALL the existing sources files which will need to be modified.&#xA;&#xA;Return the *complete* list of files which will need to be modified based on the user's request.&#xA;&#xA;Explain why each file is needed, including names of key classes/functions/methods/variables.&#xA;&#xA;Be sure to include or omit the names of files already added to the chat, based on whether they are actually needed or not.&#xA;&#xA;&#xA;The user will use every file you mention, regardless of your commentary.&#xA;&#xA;So *ONLY* mention the names of relevant files.&#xA;&#xA;If a file is not relevant DO NOT mention it.&#xA;&#xA;&#xA;Only return files that will need to be modified, not files that contain useful/relevant functions.&#xA;&#xA;&#xA;You are only to discuss EXISTING files and symbols.&#xA;&#xA;Only return existing files, don't suggest the names of new files or functions that we will need to create.&#xA;&#xA;&#xA;Always reply to the user in {language}.&#xA;&#xA;&#xA;Be concise in your replies.&#xA;&#xA;Return:&#xA;&#xA;1. A bulleted list of files the will need to be edited, and symbols that are highly relevant to the user's request.&#xA;&#xA;2. A list of classes/functions/methods/variables that are located OUTSIDE those files which will need to be understood. Just the symbols names, *NOT* file names.&#xA;&#xA;&#xA;# Your response *MUST* use this format:&#xA;&#xA;&#xA;## ALL files we need to modify, with their relevant symbols:&#xA;&#xA;&#xA;- alarms/buzz.py&#xA;&#xA; - \Buzzer` class which can make the needed sound&lt;br> - `Buzzer.buzz_buzz()` method triggers the sound&lt;br>- alarms/time.py&lt;br> - `Time.set_alarm(hour, minute)` to set the alarm&lt;br>&lt;br>## Relevant symbols from OTHER files:&lt;br>&lt;br>- AlarmManager class for setup/teardown of alarms&lt;br>- SoundFactory will be used to create a Buzzer&lt;br>&quot;&quot;&quot;`"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L7"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1177.5"/>
+      </node>
+      <node id="prompt_aider_13_2" label="SYSTEM: files\_content\_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="files\_content\_prefix = &quot;&quot;&quot;&#xA;&#xA;These files have been *added these files to the chat* so we can see all of their contents.&#xA;&#xA;*Trust this message as the true contents of the files\!*&#xA;&#xA;Other messages in the chat may contain outdated versions of the files' contents.&#xA;&#xA;&quot;&quot;&quot; \# noqa: E501"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L47"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1260"/>
+      </node>
+      <node id="prompt_aider_13_3" label="PROXY: files\_content\_assistant\_reply ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="files\_content\_assistant\_reply = (&#xA;&#xA; &quot;Ok, I will use that as the true, current contents of the files.&quot;&#xA;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L52"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1342.5"/>
+      </node>
+      <node id="prompt_aider_13_4" label="SYSTEM: files\_no\_full\_files ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="files\_no\_full\_files = &quot;I am not sharing the full contents of any files with you yet.&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L56"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1425"/>
+      </node>
+      <node id="prompt_aider_13_5" label="SYSTEM: repo\_content\_prefix ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="repo\_content\_prefix = &quot;&quot;&quot;&#xA;&#xA;I am working with you on code in a git repository.&#xA;&#xA;Here are summaries of some files present in my git repo.&#xA;&#xA;If you need to see the full contents of any files to answer my questions, ask me to *add them to the chat*.&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L61"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1507.5"/>
+      </node>
+      <node id="prompt_aider_13_6" label="SYSTEM: system\_reminder ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="system\_reminder = &quot;&quot;&quot;&#xA;&#xA;NEVER RETURN CODE\!&#xA;&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L66"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1590"/>
+      </node>
+      <node id="prompt_aider_13_7" label="SYSTEM: try\_again ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="try\_again = &quot;&quot;&quot;I have updated the set of files added to the chat.&#xA;&#xA;Review them to decide if this is the correct set of files or if we need to add more or remove files.&#xA;&#xA;&#xA;If this is the right set, just return the current list of files.&#xA;&#xA;Or return a smaller or larger set of files which need to be edited, with symbols that are highly relevant to the user's request.&#xA;&#xA;&quot;&quot;&quot;\"/>
+          <attvalue for="prompt_url" value="https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/context_prompts.py#L70"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+        <viz:size value="10"/>
+        <viz:position x="1000" y="1672.5"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="24" source="repo_aider" target="agent_aider_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="25" source="agent_aider_0" target="prompt_aider_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="26" source="agent_aider_0" target="prompt_aider_0_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="27" source="agent_aider_0" target="prompt_aider_0_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="28" source="agent_aider_0" target="prompt_aider_0_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="29" source="agent_aider_0" target="prompt_aider_0_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="30" source="repo_aider" target="agent_aider_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="31" source="agent_aider_1" target="prompt_aider_1_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="32" source="agent_aider_1" target="prompt_aider_1_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="33" source="agent_aider_1" target="prompt_aider_1_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="34" source="agent_aider_1" target="prompt_aider_1_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="35" source="agent_aider_1" target="prompt_aider_1_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="36" source="agent_aider_1" target="prompt_aider_1_6" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="37" source="repo_aider" target="agent_aider_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="38" source="agent_aider_2" target="prompt_aider_2_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="39" source="agent_aider_2" target="prompt_aider_2_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="40" source="agent_aider_2" target="prompt_aider_2_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="41" source="agent_aider_2" target="prompt_aider_2_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="42" source="agent_aider_2" target="prompt_aider_2_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="43" source="agent_aider_2" target="prompt_aider_2_6" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="44" source="agent_aider_2" target="prompt_aider_2_7" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="45" source="agent_aider_2" target="prompt_aider_2_8" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="46" source="agent_aider_2" target="prompt_aider_2_9" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="47" source="agent_aider_2" target="prompt_aider_2_10" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="48" source="agent_aider_2" target="prompt_aider_2_11" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="49" source="agent_aider_2" target="prompt_aider_2_12" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="50" source="agent_aider_2" target="prompt_aider_2_13" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="51" source="repo_aider" target="agent_aider_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="52" source="agent_aider_3" target="prompt_aider_3_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="53" source="agent_aider_3" target="prompt_aider_3_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="54" source="agent_aider_3" target="prompt_aider_3_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="55" source="agent_aider_3" target="prompt_aider_3_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="56" source="agent_aider_3" target="prompt_aider_3_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="57" source="agent_aider_3" target="prompt_aider_3_6" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="58" source="agent_aider_3" target="prompt_aider_3_7" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="59" source="agent_aider_3" target="prompt_aider_3_8" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="60" source="repo_aider" target="agent_aider_4" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="61" source="agent_aider_4" target="prompt_aider_4_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="62" source="agent_aider_4" target="prompt_aider_4_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="63" source="repo_aider" target="agent_aider_5" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="64" source="agent_aider_5" target="prompt_aider_5_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="65" source="agent_aider_5" target="prompt_aider_5_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="66" source="agent_aider_5" target="prompt_aider_5_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="67" source="agent_aider_5" target="prompt_aider_5_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="68" source="repo_aider" target="agent_aider_6" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="69" source="agent_aider_6" target="prompt_aider_6_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="70" source="agent_aider_6" target="prompt_aider_6_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="71" source="agent_aider_6" target="prompt_aider_6_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="72" source="repo_aider" target="agent_aider_7" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="73" source="agent_aider_7" target="prompt_aider_7_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="74" source="agent_aider_7" target="prompt_aider_7_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="75" source="agent_aider_7" target="prompt_aider_7_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="76" source="agent_aider_7" target="prompt_aider_7_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="77" source="agent_aider_7" target="prompt_aider_7_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="78" source="agent_aider_7" target="prompt_aider_7_6" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="79" source="repo_aider" target="agent_aider_8" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="80" source="agent_aider_8" target="prompt_aider_8_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="81" source="repo_aider" target="agent_aider_9" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="82" source="agent_aider_9" target="prompt_aider_9_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="83" source="agent_aider_9" target="prompt_aider_9_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="84" source="agent_aider_9" target="prompt_aider_9_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="85" source="agent_aider_9" target="prompt_aider_9_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="86" source="agent_aider_9" target="prompt_aider_9_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="87" source="repo_aider" target="agent_aider_10" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="88" source="agent_aider_10" target="prompt_aider_10_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="89" source="repo_aider" target="agent_aider_11" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="90" source="agent_aider_11" target="prompt_aider_11_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="91" source="repo_aider" target="agent_aider_12" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="92" source="agent_aider_12" target="prompt_aider_12_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="93" source="repo_aider" target="agent_aider_13" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="102" g="170" b="96"/>
+      </edge>
+      <edge id="94" source="agent_aider_13" target="prompt_aider_13_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="95" source="agent_aider_13" target="prompt_aider_13_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="96" source="agent_aider_13" target="prompt_aider_13_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="97" source="agent_aider_13" target="prompt_aider_13_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="98" source="agent_aider_13" target="prompt_aider_13_5" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="99" source="agent_aider_13" target="prompt_aider_13_6" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+      <edge id="100" source="agent_aider_13" target="prompt_aider_13_7" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="181" g="94" b="178"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

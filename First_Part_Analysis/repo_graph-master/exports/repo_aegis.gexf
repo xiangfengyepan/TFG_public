@@ -56,9 +56,9 @@
           <attvalue for="repo_comments" value="- It is significantly inspired by Moatless Tools&#xA;- Getting Started&#xA;Coming soon.&#xA;- Flake8Linter (analyze code sintex without runnning the code)&#xA;- all prompts in use in agent.py https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/agent.py#L1&#xA;- tools defined in also in agent.py&#xA;- prompt template: https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/prompt_templates.py#L3"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="181" g="150" b="64"/>
+        <viz:color r="79" g="174" b="155"/>
         <viz:size value="40"/>
-        <viz:position x="-259.8076211353317" y="-149.99999999999983"/>
+        <viz:position x="0" y="18000"/>
       </node>
       <node id="agent_aegis_0" label="Editor">
         <attvalues>
@@ -70,9 +70,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/editor.py#L31"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="203" g="84" b="96"/>
         <viz:size value="10"/>
-        <viz:position x="-532.8096603916846" y="-275.88741506871565"/>
+        <viz:position x="500" y="17925"/>
       </node>
       <node id="agent_aegis_1" label="Environment">
         <attvalues>
@@ -84,9 +84,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/environment.py#L28"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="203" g="84" b="96"/>
         <viz:size value="10"/>
-        <viz:position x="-505.3303402297723" y="-323.4829937465997"/>
+        <viz:position x="500" y="18075"/>
       </node>
     </nodes>
     <edges>
@@ -94,13 +94,13 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="203" g="84" b="96"/>
       </edge>
       <edge id="381" source="repo_aegis" target="agent_aegis_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="203" g="84" b="96"/>
       </edge>
     </edges>
   </graph>
