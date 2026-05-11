@@ -1,0 +1,74 @@
+<div class="shell">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <button class="brand-trigger" (click)="toggleMenu()" [class.open]="menuOpen" type="button">
+        <span class="logo">⬡</span>
+        <span class="brand-name">EvoMas</span>
+        <span class="brand-chevron">▾</span>
+      </button>
+      @if (menuOpen) {
+        <div class="brand-menu">
+          <button class="brand-menu-item" (click)="openSaveDialog()" type="button">
+            <span>Export config…</span>
+          </button>
+          <button class="brand-menu-item" (click)="openFilePicker()" type="button">
+            <span>Load config…</span>
+          </button>
+        </div>
+      }
+    </div>
+    <div class="nav-links">
+      <a routerLink="/topology"   routerLinkActive="active" class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
+        Topology
+      </a>
+      <a routerLink="/inference"  routerLinkActive="active" class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Inference
+      </a>
+      <a routerLink="/evaluation" routerLinkActive="active" class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Evaluation
+      </a>
+      <a routerLink="/results"    routerLinkActive="active" class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Results
+      </a>
+    </div>
+    <div class="navbar-status"
+         [title]="(apiOnline ? 'API online — ' : 'API offline — ') + apiHost">
+      <span class="api-dot"
+            [class.online]="apiOnline === true"
+            [class.offline]="apiOnline === false"
+            [class.unknown]="apiOnline === null"></span>
+      <span class="api-label">API</span>
+    </div>
+  </nav>
+
+  <input #fileInput type="file" accept=".json,application/json" (change)="onFileChosen($event)" hidden />
+
+  @if (saveDialogOpen) {
+    <div class="modal-backdrop" (click)="cancelSave()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-title">Save configuration</div>
+        <div class="modal-body">
+          <label class="modal-label">File name</label>
+          <input type="text" class="modal-input" [(ngModel)]="saveName"
+                 placeholder="my-config" (keyup.enter)="confirmSave()" autofocus />
+          <div class="modal-hint">Will be downloaded as &lt;name&gt;.json</div>
+          @if (saveError) {
+            <div class="modal-error">{{ saveError }}</div>
+          }
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn" (click)="cancelSave()" type="button">Cancel</button>
+          <button class="modal-btn primary" (click)="confirmSave()" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <main class="page-content">
+    <router-outlet />
+  </main>
+</div>

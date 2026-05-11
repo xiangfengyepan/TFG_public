@@ -1,0 +1,298 @@
+<div class="infer-layout">
+
+  <!-- ─── Left: instance selector ─────────────────────────── -->
+  <evo-box class="left-box" title="Instances" [hasActions]="true">
+    <ng-container box-actions>
+      @if (instancesTotal) {
+        <span class="count-chip">{{ instancesTotal }}</span>
+      }
+      <evo-button size="sm" [disabled]="refreshing"
+                  (clicked)="refreshInstances()"
+                  title="Re-pull every SWE-bench subset (Lite + Full + Verified) and split from HuggingFace. Slow — Full alone is thousands of instances.">
+        @if (refreshing) { ↻… } @else { ↻ }
+      </evo-button>
+    </ng-container>
+
+    <div class="instance-search">
+      <input type="text" placeholder="Filter…" [(ngModel)]="instanceSearch"
+             (input)="filterInstances()" style="width:100%" />
+    </div>
+
+    <div class="select-actions">
+      <button class="link-btn" type="button" (click)="selectAllVisible()">Select visible</button>
+      <span class="dot-sep">·</span>
+      <button class="link-btn" type="button" (click)="clearSelection()">Clear</button>
+      @if (selectionCount > 0) {
+        <span class="sel-count">{{ selectionCount }} selected</span>
+      }
+    </div>
+
+    @if (refreshError) {
+      <div class="err-banner">{{ refreshError }}</div>
+    }
+
+    <div class="instance-list">
+      @for (subset of subsets; track subset) {
+        <div class="subset-group">
+          <button class="group-header subset-header" type="button" (click)="toggleSubset(subset)">
+            <span class="caret">{{ isSubsetOpen(subset) ? '▾' : '▸' }}</span>
+            <span class="group-name">{{ subsetLabel(subset) }}</span>
+            <span class="group-count">{{ countIn(subset) }}</span>
+            <span class="grow"></span>
+            <button class="leaf-select" type="button"
+                    [class.checked]="isSubsetAllSelected(subset)"
+                    [title]="(isSubsetAllSelected(subset) ? 'Deselect ' : 'Select ') + 'every ' + subsetLabel(subset) + ' instance'"
+                    (click)="$event.stopPropagation(); toggleSubsetSelection(subset)">
+              {{ isSubsetAllSelected(subset) ? '☑' : '☐' }}
+            </button>
+            <button class="leaf-refresh" type="button"
+                    [disabled]="refreshing"
+                    [title]="'Pull every ' + subsetLabel(subset) + ' split from HuggingFace'"
+                    (click)="$event.stopPropagation(); refreshSubset(subset)">↻</button>
+          </button>
+
+          @if (isSubsetOpen(subset)) {
+            @for (split of splitsFor(subset); track split) {
+              @let leaf = instancesIn(subset, split);
+              <div class="split-group">
+                <button class="group-header split-header" type="button" (click)="toggleSplit(subset, split)">
+                  <span class="caret">{{ isSplitOpen(subset, split) ? '▾' : '▸' }}</span>
+                  <span class="group-name">{{ split }}</span>
+                  <span class="group-count">{{ leaf.length }}</span>
+                  <span class="grow"></span>
+                  <button class="leaf-select" type="button"
+                          [disabled]="leaf.length === 0"
+                          [class.checked]="isSplitAllSelected(subset, split)"
+                          [title]="(isSplitAllSelected(subset, split) ? 'Deselect ' : 'Select ') + 'every ' + subsetLabel(subset) + '/' + split + ' instance'"
+                          (click)="$event.stopPropagation(); toggleSplitSelection(subset, split)">
+                    {{ isSplitAllSelected(subset, split) ? '☑' : '☐' }}
+                  </button>
+                  <button class="leaf-refresh" type="button"
+                          [disabled]="refreshing"
+                          [title]="'Pull SWE-bench ' + subsetLabel(subset) + ' / ' + split + ' from HuggingFace'"
+                          (click)="$event.stopPropagation(); refreshLeaf(subset, split)">↻</button>
+                </button>
+
+                @if (isSplitOpen(subset, split)) {
+                  @if (leaf.length === 0) {
+                    <div class="empty-hint sm">— empty (use ↻ to pull) —</div>
+                  } @else {
+                    @for (inst of leaf; track inst.instance_id) {
+                      <label class="instance-item" [class.selected]="isSelected(inst.instance_id)">
+                        <input type="checkbox"
+                               [checked]="isSelected(inst.instance_id)"
+                               (change)="toggleInstance(inst.instance_id)" />
+                        <div class="inst-meta">
+                          <div class="inst-id">{{ inst.instance_id }}</div>
+                          <div class="inst-repo">{{ inst.repo }}</div>
+                        </div>
+                      </label>
+                    }
+                  }
+                }
+              </div>
+            }
+          }
+        </div>
+      }
+      @if (instances.length === 0 && !loadingInstances) {
+        <div class="empty-hint">No instances loaded</div>
+      }
+    </div>
+
+  </evo-box>
+
+  <!-- ─── Main area ────────────────────────────────────────── -->
+  <div class="main-col">
+    <!-- Controls bar -->
+    <div class="controls-bar">
+      <evo-select label="Config" [options]="configs" [(ngModel)]="config" [disabled]="running" />
+
+      <div class="selected-inst">
+        <span class="ctrl-label">Instances</span>
+        @if (selectionCount === 0) {
+          <span class="inst-chip">none</span>
+        } @else if (selectionCount === 1) {
+          <span class="inst-chip">{{ state.selectedList[0] }}</span>
+        } @else {
+          <span class="inst-chip">{{ selectionCount }} selected</span>
+        }
+      </div>
+
+      <div class="ctrl-sep"></div>
+
+      <label class="toggle-row">
+        <evo-switch [(ngModel)]="showThinking" />
+        Show thinking
+      </label>
+
+      <evo-button variant="success" [disabled]="selectionCount === 0 || running" (clicked)="run()">
+        ▶ Run @if (selectionCount > 1) { ({{ selectionCount }}) } @else if (selectionCount === 1) { (1) }
+      </evo-button>
+      @if (running) {
+        <evo-button variant="danger" (clicked)="cancel()" title="Cancel the active run">
+          ■ Cancel
+        </evo-button>
+      } @else if (runInstances.length > 0) {
+        <evo-button variant="ghost" (clicked)="clearRun()" title="Clear the previous run">
+          ✕ Clear
+        </evo-button>
+      }
+    </div>
+
+    <!-- Per-instance chips for the active run (only when there's something to show). -->
+    @if (runInstances.length > 0) {
+      <div class="batch-progress">
+        @for (inst of runInstances; track inst.instance_id) {
+          <button type="button"
+                  class="bp-item"
+                  [class]="'bp-' + inst.status"
+                  [class.active]="currentInstance?.instance_id === inst.instance_id"
+                  [title]="inst.instance_id + ' — ' + inst.status"
+                  (click)="selectInstanceInRun(inst.instance_id)">
+            <span class="bp-dot"></span>
+            <span class="bp-id">{{ inst.instance_id }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Stream area -->
+    <div class="stream-area" #scrollEl (scroll)="onLogScroll()">
+
+      <!-- Status line tracks the focused instance, not the whole run. When the
+           user clicks a chip whose instance is already done, the spinner +
+           "Running…" prefix go away even if other instances of the same run
+           are still in flight. -->
+      @if (statusMsg && currentInstance?.status === 'running') {
+        <div class="status-line is-running">
+          <span class="spinner"></span>
+          {{ statusMsg }}
+        </div>
+      }
+
+      <!-- Per-instance status placeholder. Shows when the chip the user has
+           clicked into has no logs yet (queued, cancelled, or errored
+           without any events). Switching chips inside the active run
+           always renders something so the panel never looks "stuck on
+           the wrong instance". -->
+      @if (currentInstance && cards.length === 0 && !finalPatch && currentInstance.status !== 'running') {
+        <div class="instance-placeholder" [class]="'placeholder-' + currentInstance.status">
+          @switch (currentInstance.status) {
+            @case ('queued') {
+              <span class="ph-icon">⏳</span>
+              <span class="ph-text">
+                Waiting for execution… <code>{{ currentInstance.instance_id }}</code> is queued behind
+                {{ runInstances.length === 1 ? 'this run' : 'earlier instances in this run' }}.
+              </span>
+            }
+            @case ('cancelled') {
+              <span class="ph-icon">■</span>
+              <span class="ph-text">
+                Cancelled before <code>{{ currentInstance.instance_id }}</code> started running.
+              </span>
+            }
+            @case ('error') {
+              <span class="ph-icon">!</span>
+              <span class="ph-text">
+                <code>{{ currentInstance.instance_id }}</code> errored without producing any logs.
+              </span>
+            }
+            @case ('done') {
+              <span class="ph-icon">✓</span>
+              <span class="ph-text">
+                <code>{{ currentInstance.instance_id }}</code> completed without per-agent events.
+              </span>
+            }
+          }
+        </div>
+      }
+
+      @if (errorMsg) {
+        <div class="error-block">
+          <div class="error-title">Error</div>
+          <div class="error-body">{{ errorMsg }}</div>
+          @if (errorTraceback && showThinking) {
+            <pre class="error-trace">{{ errorTraceback }}</pre>
+          }
+        </div>
+      }
+
+      @for (card of cards; track $index) {
+        <div class="agent-card" [class.expanded]="card.expanded">
+          <div class="card-header" (click)="toggleCard(card)">
+            <div class="card-dot" [style.background]="card.color"></div>
+            <span class="card-name">{{ card.label }}</span>
+            @if (card.status === 'running') {
+              <evo-badge variant="warn">running</evo-badge>
+            } @else {
+              <evo-badge variant="ok">done</evo-badge>
+            }
+            <span class="card-chevron">{{ card.expanded ? '▾' : '▸' }}</span>
+          </div>
+          @if (card.expanded) {
+            <div class="card-body">
+              @if (card.toolCalls.length > 0) {
+                <div class="delta-field">
+                  <div class="delta-key tool-key">tools</div>
+                  <div class="tool-list">
+                    @for (tc of card.toolCalls; track $index) {
+                      <div class="tool-row">
+                        <span class="tool-name">{{ tc.tool }}</span>
+                        @if (tc.argsPreview) {
+                          <span class="tool-args">{{ tc.argsPreview }}</span>
+                        }
+                        <span class="tool-result">→ {{ tc.resultPreview }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (showThinking && card.thinkingStream) {
+                <div class="delta-field">
+                  <div class="delta-key think-key">thinking</div>
+                  <pre class="delta-code think-stream">{{ card.thinkingStream }}</pre>
+                </div>
+              }
+              @for (f of formatDelta(card.delta); track f.key) {
+                <div class="delta-field">
+                  <div class="delta-key">{{ f.key }}</div>
+                  @if (f.type === 'code' || f.type === 'json') {
+                    <pre class="delta-code">{{ f.value }}</pre>
+                  } @else {
+                    <div class="delta-text">{{ f.value }}</div>
+                  }
+                </div>
+              }
+              @if (card.toolCalls.length === 0 && !card.thinkingStream && formatDelta(card.delta).length === 0) {
+                <div class="empty-card-hint">routing</div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (currentInstance?.status === 'running' && cards.length > 0) {
+        <div class="running-row">
+          <span class="spinner"></span> Agent running…
+        </div>
+      }
+
+      @if (finalPatch) {
+        <div class="final-block">
+          <div class="final-header">
+            Final Patch
+            @if (outputPath) { <span class="output-path">→ {{ outputPath }}</span> }
+          </div>
+          <pre class="diff-view">@for (ln of formatDiff(finalPatch); track $index) {<span [class]="ln.cls">{{ ln.line }}
+</span>}</pre>
+        </div>
+      }
+
+      @if (cancelled) {
+        <div class="cancelled-row">Cancelled</div>
+      }
+    </div>
+  </div>
+
+</div>

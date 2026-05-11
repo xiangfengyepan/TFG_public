@@ -1,0 +1,350 @@
+<div class="topo-layout">
+
+  <!-- ─── Left Panel ────────────────────────────────────────── -->
+  <evo-box class="left-box" title="Configurations">
+
+    <div class="topo-section-label">Predefined</div>
+    <div class="topo-list">
+      @for (cfg of predefinedList; track cfg.stem) {
+        <div class="topo-item"
+             [class.active]="cfg.stem === currentConfigName"
+             (click)="loadPredefined(cfg.stem)"
+             [title]="cfg.description || cfg.stem">
+          {{ cfg.id }}
+        </div>
+      }
+      @if (predefinedList.length === 0) {
+        <div class="empty-hint">No predefined configurations.</div>
+      }
+    </div>
+
+    <hr class="topo-divider" />
+
+    <div class="topo-section-label">Loaded</div>
+    <div class="topo-list">
+      @for (cfg of loadedList; track cfg.stem) {
+        <div class="topo-item loaded"
+             [class.active]="cfg.stem === currentConfigName"
+             (click)="loadPredefined(cfg.stem)"
+             (dblclick)="renameLoaded(cfg.stem)"
+             [title]="cfg.description || cfg.stem + ' — double-click to rename'">
+          <span class="loaded-name">{{ cfg.id }}</span>
+          <button class="loaded-delete"
+                  type="button"
+                  title="Delete this loaded config"
+                  (click)="deleteLoaded(cfg.stem, $event)">×</button>
+        </div>
+      }
+      @if (loadedList.length === 0) {
+        <div class="empty-hint">No loaded configurations. Use the brand menu's <strong>Load config…</strong> to import one.</div>
+      }
+    </div>
+
+  </evo-box>
+
+  <!-- ─── Center ────────────────────────────────────────────── -->
+  <div class="center-col">
+    <!-- Toolbar -->
+    <div class="graph-toolbar">
+      <span class="topo-title">{{ currentConfigName || '-' }}</span>
+      @if (currentConfigName && !isLoadedConfig) {
+        <span class="readonly-chip"
+              title="Predefined configs are read-only. Use the brand menu's Export config… to keep an edited variant.">
+          read-only
+        </span>
+      }
+      <div class="toolbar-sep"></div>
+      <evo-button [variant]="addEdgeMode ? 'active' : 'default'"
+                  [disabled]="!isLoadedConfig"
+                  (clicked)="toggleAddEdgeMode()"
+                  title="Click two nodes to connect them. Drag from START to a node to set the entry point; drag from a node to END to toggle that node's membership in the config's `end` list (the nodes allowed to route to END at runtime).">
+        ↗ {{ addEdgeMode ? (edgeSource ? 'Click target…' : 'Click source…') : 'Add Edge' }}
+      </evo-button>
+      <evo-button variant="danger"
+                  [disabled]="!isLoadedConfig || (!selectedAgent && !selectedEdgeId)"
+                  (clicked)="deleteSelected()">
+        Delete
+      </evo-button>
+      <evo-button [disabled]="!currentConfig" (clicked)="relayout()"
+                  title="Discard saved positions and re-run the breadthfirst layout.">
+        Relayout
+      </evo-button>
+      <evo-button [disabled]="!currentConfig" (clicked)="reloadGraph()"
+                  title="Force the cytoscape canvas to redraw — use this if the graph stays blank after switching configs or returning to the page.">
+        ↻ Reload
+      </evo-button>
+      <evo-button [disabled]="!currentConfig" (clicked)="fitGraph()">Fit</evo-button>
+      @if (isLoadedConfig) {
+        <evo-button [variant]="saveFlash ? 'success' : 'default'"
+                    [disabled]="!currentConfig"
+                    (clicked)="saveToDisk()"
+                    title="Persist the current edits to evomas/config/loaded/.json">
+          {{ saveFlash ? 'Saved ✓' : 'Save' }}
+        </evo-button>
+      }
+      @if (saveError) {
+        <span class="save-error" [title]="saveError">⚠ Save failed</span>
+      }
+    </div>
+
+    <!-- Graph canvas. The cytoscape host stays in the DOM AND visible at
+         all times so it always has measurable dimensions; the error panel
+         is overlaid via absolute positioning when a load fails. Hiding
+         the host with [hidden] used to race with cytoscape's resize and
+         left the next successful load with elements positioned at 0×0. -->
+    <div class="graph-area">
+      <div class="graph-wrap"
+           #graphEl
+           (dragover)="onGraphDragOver($event)"
+           (drop)="onGraphDrop($event)">
+      </div>
+      @if (loadError) {
+        <div class="graph-error">
+          <div class="graph-error-title">Could not load configuration</div>
+          <div class="graph-error-body">{{ loadError }}</div>
+          <div class="graph-error-hint">Check the backend logs and try selecting the config again.</div>
+        </div>
+      }
+    </div>
+
+    <!-- Bottom palette: 8 agent types, each draggable onto the graph. -->
+    <div class="agent-palette">
+      <span class="palette-label">Drag a type →</span>
+      @for (t of agentTypes; track t.type) {
+        <div class="palette-chip"
+             [style.border-color]="t.color"
+             [style.color]="t.color"
+             [title]="t.description"
+             draggable="true"
+             (dragstart)="onPaletteDragStart($event, t.type)">
+          {{ t.type }}
+        </div>
+      }
+      @if (agentTypes.length === 0) {
+        <span class="palette-label" style="opacity:.6">Loading types…</span>
+      }
+    </div>
+  </div>
+
+  <!-- ─── Right Panel ───────────────────────────────────────── -->
+  <evo-box class="right-box" [title]="selectedAgent ? '' : 'Agent Config'" [hasActions]="!!selectedAgent">
+
+    <ng-container box-actions>
+      @if (selectedAgent) {
+        <div class="agent-badge" [style.background]="getAgentColorStyle(selectedAgent)">
+          {{ agentLabels[baseAgentId(selectedAgent)] ?? selectedAgent }}
+        </div>
+      }
+    </ng-container>
+
+    @if (selectedAgent && agentBlock) {
+
+      <!-- Header with parameter help -->
+      <div class="cfg-header-row">
+        <span class="cfg-section-title">Parameters</span>
+        <evo-help-popover title="Parameter reference">
+          <dl>
+            <dt>Model</dt>      <dd>Ollama model name pulled from <code>ollama list</code>.</dd>
+            <dt>Router</dt>     <dd>How the node picks its next edge: <code>python</code> calls the agent's <code>route(state)</code>, <code>llm</code> asks an LLM, blank → static single edge.</dd>
+            <dt>Think</dt>      <dd>Enable the model's chain-of-thought / hidden reasoning channel (Qwen3, gpt-oss, …).</dd>
+            <dt>Stream</dt>     <dd>Stream tokens incrementally rather than wait for the full response.</dd>
+            <dt>Temperature</dt><dd>Sampling randomness. <code>0</code> = greedy, higher = more creative. Typical 0.2–0.8.</dd>
+            <dt>top_p</dt>      <dd>Nucleus sampling: keep tokens until their cumulative probability ≥ p.</dd>
+            <dt>min_p</dt>      <dd>Drop tokens below this probability (relative to the top token). 0 disables.</dd>
+            <dt>Repeat Penalty</dt><dd>Penalty applied to recent tokens to discourage loops. 1.0 = off.</dd>
+            <dt>top_k</dt>      <dd>Cap the candidate set to the k most likely tokens. 0 disables.</dd>
+            <dt>num_ctx</dt>    <dd>Context window in tokens. Higher = more memory but more VRAM.</dd>
+            <dt>num_predict</dt><dd>Max tokens to generate. <code>-1</code> = until the model stops itself.</dd>
+            <dt>repeat_last_n</dt><dd>How many recent tokens the repeat penalty looks back at. <code>-1</code> uses num_ctx.</dd>
+            <dt>seed</dt>       <dd>RNG seed for reproducibility. <code>0</code> picks a random one.</dd>
+          </dl>
+        </evo-help-popover>
+      </div>
+
+      <div class="config-fields">
+
+        <!-- Model -->
+        <div class="cfg-full">
+          <label class="cfg-label">Model</label>
+          <evo-select [options]="modelSelectOptions"
+                      [ngModel]="agentBlock.model"
+                      (ngModelChange)="onAgentField('model', $event)" />
+        </div>
+
+        <!-- think -->
+        <div class="cfg-row">
+          <label class="cfg-label">Think</label>
+          <evo-switch [ngModel]="!!agentBlock.think"
+                      (ngModelChange)="onAgentField('think', $event)" />
+        </div>
+
+        <!-- stream -->
+        <div class="cfg-row">
+          <label class="cfg-label">Stream</label>
+          <evo-switch [ngModel]="!!agentBlock.stream"
+                      (ngModelChange)="onAgentField('stream', $event)" />
+        </div>
+
+        <!-- temperature -->
+        <evo-slider label="Temperature" [min]="0" [max]="2" [step]="0.05"
+                    [ngModel]="agentBlock.temperature"
+                    (ngModelChange)="onAgentField('temperature', $event)" />
+
+        <!-- top_p -->
+        <evo-slider label="top_p" [min]="0" [max]="1" [step]="0.01"
+                    [ngModel]="agentBlock.top_p"
+                    (ngModelChange)="onAgentField('top_p', $event)" />
+
+        <!-- min_p -->
+        <evo-slider label="min_p" [min]="0" [max]="1" [step]="0.01"
+                    [ngModel]="agentBlock.min_p"
+                    (ngModelChange)="onAgentField('min_p', $event)" />
+
+        <!-- repeat_penalty -->
+        <evo-slider label="Repeat Penalty" [min]="0" [max]="2" [step]="0.01"
+                    [ngModel]="agentBlock.repeat_penalty"
+                    (ngModelChange)="onAgentField('repeat_penalty', $event)" />
+
+        <!-- top_k -->
+        <div class="cfg-row">
+          <label class="cfg-label">top_k</label>
+          <evo-spinbox [min]="0" [max]="200" [step]="1"
+                       [ngModel]="agentBlock.top_k"
+                       (ngModelChange)="onAgentField('top_k', $event)" />
+        </div>
+
+        <!-- num_ctx -->
+        <div class="cfg-row">
+          <label class="cfg-label">num_ctx</label>
+          <evo-spinbox [min]="512" [max]="131072" [step]="512"
+                       [ngModel]="agentBlock.num_ctx"
+                       (ngModelChange)="onAgentField('num_ctx', $event)" />
+        </div>
+
+        <!-- num_predict -->
+        <div class="cfg-row">
+          <label class="cfg-label">num_predict</label>
+          <evo-spinbox [min]="-1" [max]="4096" [step]="1"
+                       [ngModel]="agentBlock.num_predict"
+                       (ngModelChange)="onAgentField('num_predict', $event)" />
+        </div>
+
+        <!-- repeat_last_n -->
+        <div class="cfg-row">
+          <label class="cfg-label">repeat_last_n</label>
+          <evo-spinbox [min]="-1" [max]="512" [step]="1"
+                       [ngModel]="agentBlock.repeat_last_n"
+                       (ngModelChange)="onAgentField('repeat_last_n', $event)" />
+        </div>
+
+        <!-- seed -->
+        <div class="cfg-row">
+          <label class="cfg-label">seed</label>
+          <evo-spinbox [min]="-1" [max]="999999" [step]="1"
+                       [ngModel]="agentBlock.seed"
+                       (ngModelChange)="onAgentField('seed', $event)" />
+        </div>
+
+      </div>
+
+      <!-- ─── Tools ───────────────────────────────────────────── -->
+      <div class="tools-section">
+        <div class="cfg-header-row">
+          <span class="cfg-section-title">Tools</span>
+          <evo-help-popover title="Tool whitelist & defaults">
+            <p>Restrict which MCP tools this agent may call, and pin default arguments that the agent code can still override at the call site.</p>
+            <p>An empty list disables tools entirely. Removing the section makes every registered tool callable (legacy/permissive mode).</p>
+            <dl>
+              @for (t of availableTools; track t.name) {
+                <dt>{{ t.name }}</dt><dd>{{ t.description || '—' }}</dd>
+              }
+            </dl>
+          </evo-help-popover>
+        </div>
+
+        @if (currentTools.length === 0) {
+          <div class="empty-hint sm">No tools allowed for this agent.</div>
+        }
+
+        @for (tool of currentTools; track tool.name; let i = $index) {
+          <div class="tool-card">
+            <div class="tool-head">
+              <span class="tool-name">{{ tool.name }}</span>
+              <button type="button" class="tool-remove" (click)="removeTool(i)" title="Remove">x</button>
+            </div>
+            @if (toolDescription(tool.name)) {
+              <div class="tool-desc">{{ toolDescription(tool.name) }}</div>
+            }
+            <label class="cfg-label tool-params-label">Default params (JSON object)</label>
+            <textarea class="tool-params"
+                      spellcheck="false"
+                      [ngModel]="paramsJson(i)"
+                      (ngModelChange)="onParamsInput(i, $event)"
+                      placeholder="{}"></textarea>
+            @if (toolParamsError[i]) {
+              <div class="tool-error">Invalid JSON: {{ toolParamsError[i] }}</div>
+            }
+          </div>
+        }
+
+        @if (unusedToolNames.length > 0) {
+          <div class="add-tool-row">
+            <evo-select [options]="['', ...unusedToolNames]"
+                        [ngModel]="''"
+                        (ngModelChange)="$event && addTool($event)" />
+          </div>
+        }
+      </div>
+
+      <!-- ─── Prompts ─────────────────────────────────────────── -->
+      <div class="prompts-section">
+        <div class="cfg-header-row">
+          <span class="cfg-section-title">Prompts</span>
+          <evo-help-popover title="Prompt slots">
+            <dl>
+              <dt>system</dt><dd>Instruction sent as the model's system role. Sets the agent's persona, rules, and output format.</dd>
+              <dt>user</dt>  <dd>Template for the user-role message. Supports Python <code>str.format(...)</code> placeholders like <code>{{ '{' }}issue{{ '}' }}</code>.</dd>
+              <dt>proxy</dt> <dd>Template injected when this agent answers another agent (proxy hop in the topology).</dd>
+              <dt>route</dt> <dd>Reserved for future LLM-driven routing experiments; currently unused (every multi-edge node is software-routed).</dd>
+            </dl>
+          </evo-help-popover>
+        </div>
+
+        <div class="prompt-tabs">
+          @for (slot of ['system', 'user', 'proxy', 'route']; track slot) {
+            <button type="button"
+                    class="prompt-tab"
+                    [class.active]="promptTab === slot"
+                    [class.has-content]="!!getPrompt($any(slot))"
+                    (click)="togglePromptTab($any(slot))">
+              {{ slot }}
+            </button>
+          }
+        </div>
+
+        @if (promptTab) {
+          <textarea class="prompt-editor"
+                    [ngModel]="getPrompt(promptTab)"
+                    (ngModelChange)="onPromptChange(promptTab, $event)"
+                    spellcheck="false"
+                    placeholder="(empty)"></textarea>
+          <div class="prompt-hint">
+            @if (isLoadedConfig) {
+              Edits are in memory until you press <strong>Save</strong>.
+            } @else {
+              Predefined configs are read-only — use the brand menu's <strong>Export config…</strong> to keep an edited variant.
+            }
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="empty-hint center-hint">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-muted);opacity:.4"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
+        <span>Click a node to<br>edit its config</span>
+      </div>
+    }
+
+  </evo-box>
+
+</div>

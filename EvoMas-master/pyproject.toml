@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evomas"
+version = "0.1.0"
+description = "Evolutionary multi-agent framework for SWE-bench-style program repair."
+requires-python = ">=3.10"
+readme = "README.md"
+dependencies = [
+    "langchain",
+    "langgraph",
+    "langchain-ollama",
+    "pydantic",
+    "pyyaml",
+    "rich",
+    "datasets",
+    "wandb",
+    "weave",
+    "python-dotenv",
+    "flake8",
+    "unidiff",
+    "fastapi",
+    "uvicorn[standard]",
+    "typer",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+# `pip install -e .` registers an `evomas` command in the venv's Scripts/
+# that resolves to `evomas.cli:main`. The Typer app wraps every script /
+# server entry point listed in TODO.md's `## CLI` section.
+evomas = "evomas.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["evomas*"]
+exclude = ["app*", "api*", "results*", "SWE-bench*"]

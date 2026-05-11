@@ -1,0 +1,269 @@
+<div class="results-layout">
+
+  <!-- ─── Left: instance picker ─────────────────────────────── -->
+  <evo-box title="Instances" [hasActions]="true" class="left-panel" [noPad]="true">
+    <ng-container box-actions>
+      <evo-button size="sm" (clicked)="refresh()" title="Refresh">↺</evo-button>
+    </ng-container>
+    <div class="instance-search">
+      <input type="text"
+             class="instance-search-input"
+             placeholder="Filter by instance_id or run_id…"
+             [(ngModel)]="filter" />
+    </div>
+    <label class="group-toggle-row">
+      <evo-switch [(ngModel)]="groupByInstance" />
+      <span class="group-toggle-label">Group by instance</span>
+    </label>
+    <div class="instance-list" #instanceList>
+      @if (loading) {
+        <div class="empty-hint">Loading…</div>
+      } @else if (instances.length === 0) {
+        <div class="empty-hint">No results yet</div>
+      } @else if (filteredInstances.length === 0) {
+        <div class="empty-hint">No matches for "{{ filter }}"</div>
+      } @else if (groupByInstance) {
+        @for (inst of filteredInstances; track inst.instance_id) {
+          <div class="inst-item"
+               [class.active]="inst.instance_id === selectedId"
+               (click)="selectInstance(inst.instance_id)"
+               [title]="inst.instance_id">
+            <div class="inst-name">{{ inst.instance_id }}</div>
+            <div class="inst-meta">
+              @if (inst.predictions.length) { <span class="badge p">{{ inst.predictions.length }} pred</span> }
+              @if (inst.evaluations.length) { <span class="badge e">{{ inst.evaluations.length }} eval</span> }
+            </div>
+          </div>
+        }
+      } @else {
+        <!-- Group by job. One row = one inference run (run_id), expandable
+             to show the per-instance entries that share that run_id. -->
+        @for (job of jobGroups; track job.runId) {
+          <div class="inst-group">
+            <button class="inst-group-head clickable" type="button" (click)="toggleJob(job.runId)">
+              <span class="caret">{{ isJobOpen(job.runId) ? '▾' : '▸' }}</span>
+              <span class="inst-group-tag mono">{{ job.runId }}</span>
+              <span class="inst-group-count">{{ job.entries.length }}</span>
+            </button>
+            @if (isJobOpen(job.runId)) {
+              @for (entry of job.entries; track entry.instance.instance_id + '@' + entry.run.run_id) {
+                <div class="inst-item"
+                     [class.active]="entry.instance.instance_id === selectedId && entry.run.run_id === selectedRunId"
+                     (click)="selectInstanceInJob(entry.instance, entry.run)"
+                     [title]="entry.instance.instance_id">
+                  <div class="inst-name">{{ entry.instance.instance_id }}</div>
+                  <div class="inst-meta">
+                    @if (entry.run.prediction) { <span class="badge p">pred</span> }
+                    @if (entry.run.evaluation) { <span class="badge e">eval</span> }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      }
+    </div>
+  </evo-box>
+
+  <!-- ─── Center: details ───────────────────────────────────── -->
+  <div class="center-col">
+    @if (!selectedId) {
+      <div class="center-hint">
+        <div>Select an instance to view its prediction and evaluation</div>
+      </div>
+    } @else {
+      <!-- Header / single run picker -->
+      <evo-box [title]="selectedId!" class="header-box">
+        <div class="run-pickers">
+          <div class="picker-block" style="flex: 1;">
+            <label class="field-label">Run</label>
+            @if (current!.runs.length === 0) {
+              <div class="empty-hint sm">— no runs —</div>
+            } @else {
+              <div class="run-row">
+                <evo-select [options]="runOptions"
+                            [ngModel]="selectedRunId"
+                            (ngModelChange)="selectRun($event)" />
+                <evo-button size="sm"
+                            [disabled]="!predictionConfigJson"
+                            title="Download the unified-config JSON used to produce this run"
+                            (clicked)="downloadPredictionConfig()">⬇ Config</evo-button>
+              </div>
+            }
+          </div>
+        </div>
+      </evo-box>
+
+      <!-- Two-column inner: prediction / evaluation -->
+      <div class="inner-grid">
+        <!-- Prediction -->
+        <evo-box title="Prediction" [hasActions]="true" class="inner-box">
+          <ng-container box-actions>
+            <evo-button size="sm" [disabled]="!prediction" (clicked)="downloadPrediction()">⬇ JSONL</evo-button>
+            <evo-button size="sm" [disabled]="!prediction"
+                        title="Reveal the .jsonl file in the OS file explorer"
+                        (clicked)="reveal(selectedPredFile?.path)">📁 JSONL</evo-button>
+            <evo-button size="sm" [disabled]="!predictionLog || predictionLogMissing"
+                        title="Download the NDJSON SSE-event transcript saved when the prediction was generated"
+                        (clicked)="downloadPredictionLogFile()">⬇ Log</evo-button>
+            <evo-button size="sm" [disabled]="!predictionLogPath"
+                        title="Reveal the .log file in the OS file explorer"
+                        (clicked)="reveal(predictionLogPath)">📁 Log</evo-button>
+          </ng-container>
+          @if (!prediction) {
+            <div class="empty-hint">No prediction selected</div>
+          } @else {
+            <div class="kv">
+              <div class="k">File</div>
+              <div class="v mono small">{{ prediction.name }}</div>
+            </div>
+            <div class="kv">
+              <div class="k">Start of inference</div>
+              <div class="v small">{{ predictionTimestamp }}</div>
+            </div>
+            <div class="kv">
+              <div class="k">End of inference</div>
+              <div class="v small">
+                {{ predictionEndTimestamp }}
+                @if (predictionDuration) {
+                  <span class="duration">· {{ predictionDuration }}</span>
+                }
+              </div>
+            </div>
+            <div class="kv">
+              <div class="k">Config used</div>
+              <div class="v mono small">{{ predictionConfigUsed }}</div>
+            </div>
+            @if (prediction.data.tokens && prediction.data.tokens.total > 0) {
+              <div class="kv">
+                <div class="k">LLM tokens</div>
+                <div class="v mono small"
+                     [title]="'input = prompt + context tokens sent to the model · output = generated tokens · total = input + output'">
+                  in {{ prediction.data.tokens.input | number }}
+                  · out {{ prediction.data.tokens.output | number }}
+                  · total <strong>{{ prediction.data.tokens.total | number }}</strong>
+                </div>
+              </div>
+            }
+            <div class="section-label">model_patch</div>
+            @if (prediction.data.model_patch) {
+              <pre class="diff-view">@for (ln of formatDiff(prediction.data.model_patch); track $index) {<span [class]="ln.cls">{{ ln.line }}
+</span>}</pre>
+            } @else {
+              <pre class="patch-view">(empty)</pre>
+            }
+
+            <!-- Raw run log: NDJSON SSE-event transcript saved alongside the
+                 prediction by the inference worker. Hidden behind a switch
+                 because it can be large (one line per agent_event /
+                 thinking_chunk / tool_call). -->
+            <div class="logs-toggle-row">
+              <label class="field-label">Show run log (events)</label>
+              <evo-switch [ngModel]="showPredictionLog" (ngModelChange)="togglePredictionLog($event)" />
+            </div>
+            @if (showPredictionLog) {
+              @if (predictionLogMissing) {
+                <div class="empty-state">
+                  <div class="empty-title">No log saved for this prediction.</div>
+                  <div class="empty-body">
+                    Predictions generated before the log writer landed don't carry a
+                    transcript. Run inference again to get a <code>.log</code> sidecar.
+                  </div>
+                </div>
+              } @else if (predictionLog === null) {
+                <div class="empty-hint">Loading log…</div>
+              } @else if (predictionLog === '') {
+                <div class="empty-hint">(empty)</div>
+              } @else {
+                <pre class="log-view raw-log">{{ predictionLog }}</pre>
+              }
+            }
+          }
+        </evo-box>
+
+        <!-- Evaluation -->
+        <evo-box title="Evaluation" [hasActions]="true" class="inner-box">
+          <ng-container box-actions>
+            <evo-button size="sm" [disabled]="!evaluation" (clicked)="downloadZip()">⬇ Download (zip)</evo-button>
+            <evo-button size="sm" [disabled]="!evaluation?.summary_path"
+                        title="Reveal the cross-model summary JSON in the OS file explorer"
+                        (clicked)="reveal(evaluation?.summary_path)">📁 summary.json</evo-button>
+            <evo-button size="sm" [disabled]="!evaluation?.run_dir"
+                        title="Reveal the run's logs/run_evaluation/<run_id> folder in the OS file explorer"
+                        (clicked)="reveal(evaluation?.run_dir)">📁 run dir</evo-button>
+          </ng-container>
+          @if (!selectedEvalDir) {
+            <div class="empty-state">
+              <div class="empty-title">No evaluation has been run for this prediction yet.</div>
+              <div class="empty-body">
+                Head to the <strong>Evaluation</strong> page and run the harness against
+                <code>{{ selectedPredFile?.name }}</code>. The result will show up here automatically.
+              </div>
+            </div>
+          } @else if (!evaluation) {
+            <div class="empty-hint">Loading evaluation…</div>
+          } @else {
+            <div class="kv">
+              <div class="k">Resolved</div>
+              <div class="v">
+                @if (resolvedFlag() === true)  { <span class="pill ok">resolved</span> }
+                @else if (resolvedFlag() === false) { <span class="pill err">unresolved</span> }
+                @else { <span class="pill">—</span> }
+              </div>
+            </div>
+            @if (testStatus()) {
+              <div class="section-label">Tests</div>
+              <table class="tests-table">
+                <tr><th>Group</th><th>passed</th><th>failed</th></tr>
+                @for (row of testStatus()!; track row.group) {
+                  <tr>
+                    <td class="mono">{{ row.group }}</td>
+                    <td class="passed">{{ row.passed }}</td>
+                    <td [class.failed]="row.failed > 0">{{ row.failed }}</td>
+                  </tr>
+                }
+              </table>
+            }
+
+            <!-- Logs toggle -->
+            <div class="logs-toggle-row">
+              <label class="field-label">Show evaluation logs</label>
+              <evo-switch [ngModel]="showLogs" (ngModelChange)="toggleLogs($event)" />
+            </div>
+
+            @if (showLogs) {
+              <div class="log-tabs">
+                <button class="tab" [class.active]="activeLog === 'run_instance.log'" (click)="setActiveLog('run_instance.log')">run_instance.log</button>
+                <button class="tab" [class.active]="activeLog === 'test_output.txt'" (click)="setActiveLog('test_output.txt')">test_output.txt</button>
+                <button class="tab" [class.active]="activeLog === 'eval.sh'"          (click)="setActiveLog('eval.sh')">eval.sh</button>
+                <button class="tab" [class.active]="activeLog === 'patch.diff'"       (click)="setActiveLog('patch.diff')">patch.diff</button>
+                <button class="tab" [class.active]="activeLog === 'report.json'"      (click)="setActiveLog('report.json')">report.json</button>
+                <span class="grow"></span>
+                <evo-button size="sm" [disabled]="!logContent" (clicked)="downloadLog()">⬇</evo-button>
+              </div>
+              <div class="log-view">
+                @if (loadingLog) {
+                  <div class="log-line"><span class="sl-dim">Loading…</span></div>
+                } @else if (!logContent) {
+                  <div class="log-line"><span class="sl-dim">(empty)</span></div>
+                } @else {
+                  @for (line of coloredLog(); track $index) {
+                    <div class="log-line">
+                      @for (seg of line; track $index) {
+                        <span [class]="seg.c">{{ seg.t }}</span>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            }
+          }
+        </evo-box>
+      </div>
+    }
+
+    @if (error) {
+      <div class="error-banner">{{ error }}</div>
+    }
+  </div>
+</div>
