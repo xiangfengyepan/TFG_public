@@ -1,0 +1,12 @@
+# Local clone of gephi-lite (only needed at runtime for local mode)
+gephi-lite/
+
+# Build artifacts of the public deploy
+deploy/dist/
+deploy/dist-*/
+deploy/_gephi-lite-src/
+
+# Python / editor noise
+__pycache__/
+*.pyc
+.vscode/

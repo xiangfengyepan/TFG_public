@@ -1,45 +1,71 @@
 # SWE-bench Graph Visualizer
 
-Generates a GEXF graph from the SWE-bench repository analysis CSVs and opens it in **Gephi Lite** (running locally) with layout, appearance, filters, and quality settings applied automatically.
+Generates a GEXF graph from the SWE-bench repository analysis CSVs and opens it in **Gephi Lite** (running locally or against the public instance) with layout, appearance, filters, and quality settings applied automatically.
+
+A static deploy is also available — see [`deploy/`](deploy/README.md) — which publishes the visualizer to `https://xiangfengyepan.github.io/TFG_public/repo-graph/` so it can be cited from a document with one stable URL.
 
 ## Prerequisites
 
 - **Windows** (tested on Windows 11)
 - **Python 3** on PATH (`python`, `python3`, or `py`)
-- **Node.js 18+** on PATH — required to run the local Gephi Lite dev server
 - **Browser**: Edge, Chrome, or Firefox installed — tested with **Edge only**
+
+`pip install selenium` is handled automatically by the run scripts.
+
+### Extra prerequisites for local mode
+
+Local mode runs Gephi Lite from a clone of the upstream repo. Skip this section if you only plan to use online mode.
+
+- **Node.js 18+** on PATH (provides `npm`) — required to run the local Gephi Lite dev server
 - **gephi-lite** cloned into `repo_graph/gephi-lite/` with dependencies installed:
 
 ```powershell
+git clone https://github.com/gephi/gephi-lite.git
 cd gephi-lite
 npm install
+cd ..
 ```
-
-`pip install selenium` is handled automatically by `run.ps1`.
 
 ---
 
 ## Quick start
 
-Open PowerShell in the `repo_graph` folder and run:
+Open PowerShell in the `repo_graph` folder and run `run.ps1` with the `-Mode` you want:
 
 ```powershell
-# Radial layout (default)
-.\run.ps1
+# Local — uses ./gephi-lite dev server (needs Node.js + npm install, see above)
+.\run.ps1                # -Mode local is the default
+.\run.ps1 -Mode local
 
+# Online — uses the public https://lite.gephi.org/ instance (no clone needed)
+.\run.ps1 -Mode online
+```
+
+Combine with the other parameters as needed:
+
+```powershell
 # Hierarchical layout
 .\run.ps1 -Layout hierarchical
+.\run.ps1 -Mode online -Layout hierarchical
 
 # Skip GEXF/session regeneration and go straight to Gephi Lite
 .\run.ps1 -SkipGenerate
-.\run.ps1 -SkipGenerate -Layout hierarchical
+.\run.ps1 -Mode online -SkipGenerate -Layout hierarchical
 ```
+
+| Parameter | Default | Description |
+|---|---|---|
+| `-Mode` | `local` | `local` runs the dev server from `./gephi-lite`; `online` uses `https://lite.gephi.org/` |
+| `-Layout` | `radial` | Layout name: `radial` or `hierarchical` |
+| `-SkipGenerate` | *(off)* | Skip GEXF and session regeneration |
+
+Local mode fails fast with an install hint if `./gephi-lite` is missing or `node_modules` is not installed.
 
 The script will:
 1. Check Python and install `selenium` if missing
-2. Generate `swe_bench_graph.gexf` from the analysis CSVs
+2. Generate `raw_swe_bench_graph.gexf` from the analysis CSVs
 3. Generate `config/session_<layout>.json` from the JS layout files in `layouts/`
-4. Start the local Gephi Lite dev server (`http://localhost:5173/gephi-lite/`)
+4. Start the local Gephi Lite dev server at `http://localhost:5173/gephi-lite/` *(local mode only — online mode opens `https://lite.gephi.org/` instead)*
 5. Open a browser, load Gephi Lite, and automatically:
    - Upload the GEXF file
    - Set node color → `node_type`, node size → `Degree (dynamic)`
@@ -161,11 +187,14 @@ python open_gephi.py --local --filter repo `
 
 `generate.ps1` iterates over every repository node and produces one filtered GEXF (and optionally PNG) per repo using `open_gephi.py`.
 
-> **Note:** Start the local dev server manually before running `generate.ps1` (see [Pre-starting the dev server](#pre-starting-the-dev-server)), then pass `--local` via the `-OpenGephiArgs` parameter if you have customised the script. The default invocation in `generate.ps1` uses the remote URL; edit line 122 to add `--local` if needed.
+Like `run.ps1`, it accepts `-Mode local|online` (default `local`). In local mode it starts the dev server once at the beginning of the batch, reuses it for every repo, and stops it at the end. If a server is already reachable on `-LocalPort` it is reused as-is and left running.
 
 ```powershell
-# All repos found in config/dataset.json → exports\ folder
+# All repos found in config/dataset.json → exports\ folder (local mode)
 .\generate.ps1
+
+# Use the public lite.gephi.org instance instead
+.\generate.ps1 -Mode online
 
 # Specific repos only
 .\generate.ps1 -Repos "repo_OpenHands,repo_Prometheus"
@@ -188,6 +217,7 @@ python open_gephi.py --local --filter repo `
 
 | Parameter | Default | Description |
 |---|---|---|
+| `-Mode` | `local` | `local` runs (and reuses) the dev server from `./gephi-lite`; `online` uses `https://lite.gephi.org/` |
 | `-OutputDir` | `.\exports` | Folder where the exported files are saved |
 | `-Layout` | `radial` (or `hierarchical` when `-ExportPng`) | Layout name passed to `open_gephi.py` |
 | `-Repos` | *(all)* | Comma-separated repo node IDs to process |
@@ -196,6 +226,7 @@ python open_gephi.py --local --filter repo `
 | `-PngWidth` | `2480` | PNG export width in pixels |
 | `-PngHeight` | `3508` | PNG export height in pixels |
 | `-PngLayout` | `hierarchical` | Layout name used for the PNG snapshot |
+| `-LocalPort` | `5173` | Port for the local dev server (local mode only) |
 
 > **Layout auto-selection:** when `-ExportPng` is set without an explicit `-Layout`, the script defaults to `hierarchical` instead of `radial`. Pass `-Layout radial` to override.
 
@@ -228,7 +259,7 @@ python generate_filters.py   # optional — only needed if you want filters
 ```
 
 This produces:
-- `swe_bench_graph.gexf`
+- `raw_swe_bench_graph.gexf`
 - `config/session_radial.json`
 - `config/session_hierarchical.json`
 - `config/filters_repo.json` *(if generate_filters.py was run)*
@@ -253,7 +284,7 @@ Click **Save and run** inside the editor to apply the layout.
 
 ### 5 — Upload the graph
 
-Click **Open a local file** in the welcome dialog (or **Workspace → Open**), select `swe_bench_graph.gexf`, and click **Open**.
+Click **Open a local file** in the welcome dialog (or **Workspace → Open**), select `raw_swe_bench_graph.gexf`, and click **Open**.
 
 ### 6 — Apply a filter (optional)
 

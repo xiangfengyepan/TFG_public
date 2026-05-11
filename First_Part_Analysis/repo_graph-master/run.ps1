@@ -1,6 +1,10 @@
 <#
 .SYNOPSIS
-  Generate the SWE-bench graph and open it in Gephi Lite.
+  Generate the SWE-bench graph and open it in Gephi Lite (local or online).
+
+.PARAMETER Mode
+  Where to open Gephi Lite: 'local' (default) starts the local dev server
+  from ./gephi-lite, 'online' uses the public https://lite.gephi.org/ instance.
 
 .PARAMETER Layout
   Layout name to use: radial (default) or hierarchical.
@@ -10,10 +14,14 @@
 
 .EXAMPLE
   .\run.ps1
+  .\run.ps1 -Mode online
   .\run.ps1 -Layout hierarchical
+  .\run.ps1 -Mode online -Layout hierarchical
   .\run.ps1 -SkipGenerate
 #>
 param(
+    [ValidateSet("local", "online")]
+    [string]$Mode = "local",
     [string]$Layout = "radial",
     [switch]$SkipGenerate
 )
@@ -48,6 +56,36 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "  OK (v$seleniumVer)"
 }
 
+# ── Local-mode prerequisites: gephi-lite clone + node_modules ────────────────
+if ($Mode -eq "local") {
+    $GephiDir = Join-Path $ScriptDir "gephi-lite"
+    if (-not (Test-Path $GephiDir)) {
+        Write-Error @"
+Local mode requires the gephi-lite repo cloned at: $GephiDir
+
+Run:
+  git clone https://github.com/gephi/gephi-lite.git "$GephiDir"
+  cd "$GephiDir"
+  npm install
+
+Or use online mode instead: .\run.ps1 -Mode online
+"@
+        exit 1
+    }
+    if (-not (Test-Path (Join-Path $GephiDir "node_modules"))) {
+        Write-Error @"
+gephi-lite is cloned but dependencies are not installed.
+
+Run:
+  cd "$GephiDir"
+  npm install
+
+Or use online mode instead: .\run.ps1 -Mode online
+"@
+        exit 1
+    }
+}
+
 if (-not $SkipGenerate) {
     # ── Generate GEXF ──────────────────────────────────────────────────────────
     Write-Host "`nGenerating GEXF..."
@@ -61,5 +99,9 @@ if (-not $SkipGenerate) {
 }
 
 # ── Open Gephi Lite ───────────────────────────────────────────────────────────
-Write-Host "`nLaunching Gephi Lite (layout=$Layout)..."
-& $pythonCmd "$ScriptDir\open_gephi.py" --layout $Layout --local --start-server
+Write-Host "`nLaunching Gephi Lite (mode=$Mode, layout=$Layout)..."
+if ($Mode -eq "local") {
+    & $pythonCmd "$ScriptDir\open_gephi.py" --layout $Layout --local --start-server
+} else {
+    & $pythonCmd "$ScriptDir\open_gephi.py" --layout $Layout
+}

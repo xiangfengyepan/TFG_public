@@ -3,6 +3,10 @@
 .SYNOPSIS
     Generate filtered GEXF (and optionally PNG) files for each repo node using open_gephi.py.
 
+.PARAMETER Mode
+    Where to open Gephi Lite: 'local' (default) runs the dev server from
+    ./gephi-lite, 'online' uses the public https://lite.gephi.org/ instance.
+
 .PARAMETER OutputDir
     Directory where the exported files are saved. Default: .\exports
 
@@ -39,6 +43,8 @@
     .\generate.ps1 -ExportPng -PngWidth 1920 -PngHeight 1080
 #>
 param(
+    [ValidateSet("local", "online")]
+    [string]   $Mode       = "local",
     [string]   $OutputDir  = ".\exports",
     [string]   $Layout     = "radial",
     [string]   $Repos      = "",
@@ -46,7 +52,8 @@ param(
     [switch]   $ExportPng,             # Also export a PNG snapshot
     [int]      $PngWidth   = 2480,
     [int]      $PngHeight  = 3508,
-    [string]   $PngLayout  = "hierarchical"   # Layout for PNG export
+    [string]   $PngLayout  = "hierarchical",   # Layout for PNG export
+    [int]      $LocalPort  = 5173
 )
 
 Set-StrictMode -Version Latest
@@ -76,6 +83,80 @@ if (-not $py) {
     exit 1
 }
 Write-Host "Using Python: $py"
+
+# ── Local-mode prerequisites + shared dev server ──────────────────────────────
+
+$GephiDir       = Join-Path $here "gephi-lite"
+$LocalUrl       = "http://localhost:$LocalPort/gephi-lite/"
+$serverProc     = $null   # background process we own, if we started the server ourselves
+$serverWasReady = $false  # true if the server was already running before we started
+
+function Test-LocalServer {
+    param([string]$Url)
+    try {
+        $req = [System.Net.WebRequest]::Create($Url)
+        $req.Timeout = 2000
+        $resp = $req.GetResponse()
+        $resp.Close()
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+if ($Mode -eq "local") {
+    if (-not (Test-Path $GephiDir)) {
+        Write-Error @"
+Local mode requires the gephi-lite repo cloned at: $GephiDir
+
+Run:
+  git clone https://github.com/gephi/gephi-lite.git "$GephiDir"
+  cd "$GephiDir"
+  npm install
+
+Or use online mode instead: .\generate.ps1 -Mode online
+"@
+        exit 1
+    }
+    if (-not (Test-Path (Join-Path $GephiDir "node_modules"))) {
+        Write-Error @"
+gephi-lite is cloned but dependencies are not installed.
+
+Run:
+  cd "$GephiDir"
+  npm install
+
+Or use online mode instead: .\generate.ps1 -Mode online
+"@
+        exit 1
+    }
+
+    if (Test-LocalServer $LocalUrl) {
+        Write-Host "Local Gephi Lite dev server already running at $LocalUrl"
+        $serverWasReady = $true
+    } else {
+        Write-Host "Starting local Gephi Lite dev server (port $LocalPort)..."
+        $serverProc = Start-Process -FilePath "cmd.exe" `
+            -ArgumentList "/c", "npm", "run", "start" `
+            -WorkingDirectory $GephiDir `
+            -WindowStyle Hidden `
+            -PassThru
+
+        $deadline = (Get-Date).AddSeconds(120)
+        while ((Get-Date) -lt $deadline) {
+            if (Test-LocalServer $LocalUrl) { break }
+            Start-Sleep -Seconds 1
+        }
+        if (-not (Test-LocalServer $LocalUrl)) {
+            Write-Error "Dev server did not become ready at $LocalUrl within 120 s."
+            if ($serverProc -and -not $serverProc.HasExited) {
+                taskkill /F /T /PID $serverProc.Id 2>&1 | Out-Null
+            }
+            exit 1
+        }
+        Write-Host "Dev server ready at $LocalUrl"
+    }
+}
 
 # ── Resolve repo list ──────────────────────────────────────────────────────────
 
@@ -153,6 +234,9 @@ foreach ($repo in $repoList) {
         "--export-path", $exportFile,
         "--no-interaction"
     )
+    if ($Mode -eq "local") {
+        $openGephiArgs += @("--local", "--local-port", $LocalPort)
+    }
     if ($ExportPng) {
         $openGephiArgs += @(
             "--export-png-path", $pngFile,
@@ -180,6 +264,15 @@ foreach ($repo in $repoList) {
     }
 
     if ($repoOk) { $ok++ } else { $fail++ }
+}
+
+# ── Stop dev server if we started it ──────────────────────────────────────────
+
+if ($serverProc -and -not $serverWasReady) {
+    Write-Host "Stopping local Gephi Lite dev server..."
+    if (-not $serverProc.HasExited) {
+        taskkill /F /T /PID $serverProc.Id 2>&1 | Out-Null
+    }
 }
 
 # ── Summary ───────────────────────────────────────────────────────────────────
