@@ -33,7 +33,7 @@ from pathlib import Path
 BASE           = Path(r"C:\Users\XF\Desktop\TFG\First_Part_Analysis")
 REPO_CSV       = BASE / "Open-Source-Proyects-SWE-Bench - Repositories.csv"
 AGENTS_DIR     = BASE / "Prompt_Anlysis" / "agents_csv"
-OUTPUT         = Path(__file__).parent / "swe_bench_graph.gexf"
+OUTPUT         = Path(__file__).parent / "raw_swe_bench_graph.gexf"
 DATASET_OUTPUT = Path(__file__).parent / "config" / "dataset.json"
 
 # ---------------------------------------------------------------------------

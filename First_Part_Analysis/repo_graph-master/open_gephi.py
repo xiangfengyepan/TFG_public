@@ -6,7 +6,7 @@ Usage:
   py -3 open_gephi.py [options]
 
 Options:
-  --gexf PATH        Path to the .gexf file   (default: swe_bench_graph.gexf)
+  --gexf PATH        Path to the .gexf file   (default: raw_swe_bench_graph.gexf)
   --session PATH     Path to session JSON     (default: config/session_<layout>.json)
   --layout NAME      Layout name             (default: radial)
   --url URL          Gephi Lite URL          (default: https://lite.gephi.org/v1.0.2/#/)
@@ -612,7 +612,7 @@ def main():
     )
     parser.add_argument(
         "--gexf",
-        default=str(here / "swe_bench_graph.gexf"),
+        default=str(here / "raw_swe_bench_graph.gexf"),
         help="Path to the .gexf file",
     )
     parser.add_argument(
