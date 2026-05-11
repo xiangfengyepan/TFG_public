@@ -56,9 +56,9 @@
           <attvalue for="repo_comments" value="- A2A Agent for comunicate agents running on different systems or servers.&#xA;- Metaclass agent to wrap the agent method to add pre and post logic (like for debug): https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_agent_meta.py#L147&#xA;- ToolKit class for mange tools: https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/tool/_toolkit.py#L117&#xA;- A agent example: https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/docs/tutorial/en/src/quickstart_agent.py#L164&#xA;- contruct prompt from a template for the tools etc. See example folder for example, docs/tutorial and test prompts use in each agent."/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="186" g="137" b="63"/>
+        <viz:color r="128" g="119" b="203"/>
         <viz:size value="40"/>
-        <viz:position x="182.6284287026162" y="-238.00600208737055"/>
+        <viz:position x="0" y="2250"/>
       </node>
       <node id="agent_agentscope_0" label="A2AAgent">
         <attvalues>
@@ -70,9 +70,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_a2a_agent.py#L29"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="343.07277613656737" y="-492.2408661153082"/>
+        <viz:position x="500" y="1875"/>
       </node>
       <node id="agent_agentscope_1" label="AgentBase">
         <attvalues>
@@ -84,9 +84,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_agent_base.py#L30"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="352.03544894919906" y="-485.8714260821847"/>
+        <viz:position x="500" y="2025"/>
       </node>
       <node id="agent_agentscope_2" label="ReActAgentBase">
         <attvalues>
@@ -98,9 +98,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_react_agent_base.py#L12"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="360.8798972371327" y="-479.3388152133275"/>
+        <viz:position x="500" y="2175"/>
       </node>
       <node id="agent_agentscope_3" label="ReActAgent">
         <attvalues>
@@ -112,9 +112,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_react_agent.py#L98"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="369.6031507577459" y="-472.64522736397856"/>
+        <viz:position x="500" y="2325"/>
       </node>
       <node id="agent_agentscope_4" label="RealtimeAgent">
         <attvalues>
@@ -126,9 +126,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_realtime_agent.py#L28"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="378.2022799694133" y="-465.7929104504893"/>
+        <viz:position x="500" y="2475"/>
       </node>
       <node id="agent_agentscope_5" label="UserAgent">
         <attvalues>
@@ -140,9 +140,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/agentscope-ai/agentscope/blob/28cfb99a21902d330dab6cb3762a739198cf972f/src/agentscope/agent/_user_agent.py#L12"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="386.6743970153384" y="-458.7841656954002"/>
+        <viz:position x="500" y="2625"/>
       </node>
     </nodes>
     <edges>
@@ -150,37 +150,37 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="157" source="repo_agentscope" target="agent_agentscope_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="158" source="repo_agentscope" target="agent_agentscope_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="159" source="repo_agentscope" target="agent_agentscope_3" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="160" source="repo_agentscope" target="agent_agentscope_4" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
       <edge id="161" source="repo_agentscope" target="agent_agentscope_5" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="154" g="107" b="192"/>
+        <viz:color r="174" g="152" b="65"/>
       </edge>
     </edges>
   </graph>

@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- Same paper as agentless&#xA;- Exclusively RAG-based localization"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="103" g="133" b="206"/>
+        <viz:color r="190" g="134" b="61"/>
         <viz:size value="10"/>
-        <viz:position x="-297.4334584121431" y="-39.157857666015396"/>
+        <viz:position x="0" y="16650"/>
       </node>
     </nodes>
     <edges/>

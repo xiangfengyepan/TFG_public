@@ -60,9 +60,9 @@
           <attvalue for="repo_comments" value="- Majority Vote Ensembler&#xA;The Majority Vote Ensembler is a tool that helps select the best solution from multiple candidates using an LLM. https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/majority_vote_ensembler.py#L201&#xA;- CLI: https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/cli.py#L29"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="80" g="175" b="155"/>
+        <viz:color r="123" g="166" b="71"/>
         <viz:size value="10"/>
-        <viz:position x="212.13203435596427" y="212.13203435596424"/>
+        <viz:position x="0" y="8100"/>
       </node>
       <node id="agent_augment_swebench_agent_0" label="general_agent">
         <attvalues>
@@ -74,9 +74,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/agent.py#L20"/>
           <attvalue for="agent_comment" value="- inherid from LLTool  https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/utils/common.py#L359"/>
         </attvalues>
-        <viz:color r="201" g="84" b="121"/>
+        <viz:color r="146" g="111" b="197"/>
         <viz:size value="40"/>
-        <viz:position x="424.26406871192853" y="424.2640687119285"/>
+        <viz:position x="500" y="8100"/>
       </node>
       <node id="prompt_augment_swebench_agent_0_1" label="SYSTEM: SYSTEM_PROMPT ">
         <attvalues>
@@ -86,9 +86,9 @@
           <attvalue for="prompt_text" value="SYSTEM_PROMPT = f&quot;&quot;&quot;&#xD;&#xA;You are an AI assistant helping a software engineer implement pull requests,&#xD;&#xA;and you have access to tools to interact with the engineer's codebase.&#xD;&#xA;&#xD;&#xA;Working directory: {{workspace_root}}&#xD;&#xA;Operating system: {platform.system()}&#xD;&#xA;&#xD;&#xA;Guidelines:&#xD;&#xA;- You are working in a codebase with other engineers and many different components. Be careful that changes you make in one component don't break other components.&#xD;&#xA;- When designing changes, implement them as a senior software engineer would. This means following best practices such as separating concerns and avoiding leaky interfaces.&#xD;&#xA;- When possible, choose the simpler solution.&#xD;&#xA;- Use your bash tool to set up any necessary environment variables, such as those needed to run tests.&#xD;&#xA;- You should run relevant tests to verify that your changes work.&#xD;&#xA;&#xD;&#xA;Make sure to call the complete tool when you are done with the task, or when you have an answer to the question.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/prompts/system_prompt.py#L3"/>
         </attvalues>
-        <viz:color r="123" g="166" b="71"/>
+        <viz:color r="201" g="85" b="118"/>
         <viz:size value="10"/>
-        <viz:position x="636.3961030678928" y="636.3961030678927"/>
+        <viz:position x="1000" y="8100"/>
       </node>
       <node id="tool_1bb6bc9c24" label="sequential_thinking_tool.py#L39">
         <attvalues>
@@ -96,9 +96,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/sequential_thinking_tool.py#L39"/>
         </attvalues>
-        <viz:color r="144" g="112" b="197"/>
+        <viz:color r="196" g="125" b="62"/>
         <viz:size value="10"/>
-        <viz:position x="1213.5254915624212" y="881.6778784387097"/>
+        <viz:position x="2000" y="5400"/>
       </node>
       <node id="tool_46cdea436e" label="complete_tool.py#L11">
         <attvalues>
@@ -106,9 +106,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/complete_tool.py#L11"/>
         </attvalues>
-        <viz:color r="144" g="112" b="197"/>
+        <viz:color r="196" g="125" b="62"/>
         <viz:size value="10"/>
-        <viz:position x="1140.6089484000463" y="974.1720724952755"/>
+        <viz:position x="2000" y="5670"/>
       </node>
       <node id="tool_b32bd4dc5f" label="str_replace_tool.py#L136">
         <attvalues>
@@ -116,9 +116,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/str_replace_tool.py#L136"/>
         </attvalues>
-        <viz:color r="144" g="112" b="197"/>
+        <viz:color r="196" g="125" b="62"/>
         <viz:size value="10"/>
-        <viz:position x="1060.6601717798214" y="1060.6601717798212"/>
+        <viz:position x="2000" y="5940"/>
       </node>
     </nodes>
     <edges>
@@ -126,31 +126,31 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="84" b="121"/>
+        <viz:color r="146" g="111" b="197"/>
       </edge>
       <edge id="199" source="agent_augment_swebench_agent_0" target="prompt_augment_swebench_agent_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="123" g="166" b="71"/>
+        <viz:color r="201" g="85" b="118"/>
       </edge>
       <edge id="200" source="agent_augment_swebench_agent_0" target="tool_1bb6bc9c24" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="144" g="112" b="197"/>
+        <viz:color r="196" g="125" b="62"/>
       </edge>
       <edge id="201" source="agent_augment_swebench_agent_0" target="tool_46cdea436e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="144" g="112" b="197"/>
+        <viz:color r="196" g="125" b="62"/>
       </edge>
       <edge id="202" source="agent_augment_swebench_agent_0" target="tool_b32bd4dc5f" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="144" g="112" b="197"/>
+        <viz:color r="196" g="125" b="62"/>
       </edge>
     </edges>
   </graph>

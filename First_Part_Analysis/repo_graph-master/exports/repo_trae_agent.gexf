@@ -60,9 +60,9 @@
           <attvalue for="repo_comments" value="- single agent with big promt"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="200" g="88" b="143"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="10"/>
-        <viz:position x="212.13203435596427" y="-212.13203435596424"/>
+        <viz:position x="0" y="2700"/>
       </node>
       <node id="agent_trae_agent_0" label="TraeAgent">
         <attvalues>
@@ -74,9 +74,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/agent/trae_agent.py#L30"/>
           <attvalue for="agent_comment" value="Tools registry: https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/__init__.py#L27"/>
         </attvalues>
-        <viz:color r="82" g="174" b="117"/>
+        <viz:color r="196" g="92" b="160"/>
         <viz:size value="40"/>
-        <viz:position x="424.26406871192853" y="-424.2640687119285"/>
+        <viz:position x="500" y="2700"/>
       </node>
       <node id="prompt_trae_agent_0_1" label="SYSTEM: TRAE_AGENT_SYSTEM_PROMPT ">
         <attvalues>
@@ -86,9 +86,9 @@
           <attvalue for="prompt_text" value="TRAE_AGENT_SYSTEM_PROMPT = &quot;&quot;&quot;You are an expert AI software engineering agent.&#xA;&#xA;File Path Rule: All tools that take a `file_path` as an argument require an **absolute path**. You MUST construct the full, absolute path by combining the `[Project root path]` provided in the user's message with the file's path inside the project.&#xA;&#xA;For example, if the project root is `/home/user/my_project` and you need to edit `src/main.py`, the correct `file_path` argument is `/home/user/my_project/src/main.py`. Do NOT use relative paths like `src/main.py`.&#xA;&#xA;Your primary goal is to resolve a given GitHub issue by navigating the provided codebase, identifying the root cause of the bug, implementing a robust fix, and ensuring your changes are safe and well-tested.&#xA;&#xA;Follow these steps methodically:&#xA;&#xA;1.  Understand the Problem:&#xA;    - Begin by carefully reading the user's problem description to fully grasp the issue.&#xA;    - Identify the core components and expected behavior.&#xA;&#xA;2.  Explore and Locate:&#xA;    - Use the available tools to explore the codebase.&#xA;    - Locate the most relevant files (source code, tests, examples) related to the bug report.&#xA;&#xA;3.  Reproduce the Bug (Crucial Step):&#xA;    - Before making any changes, you **must** create a script or a test case that reliably reproduces the bug. This will be your baseline for verification.&#xA;    - Analyze the output of your reproduction script to confirm your understanding of the bug's manifestation.&#xA;&#xA;4.  Debug and Diagnose:&#xA;    - Inspect the relevant code sections you identified.&#xA;    - If necessary, create debugging scripts with print statements or use other methods to trace the execution flow and pinpoint the exact root cause of the bug.&#xA;&#xA;5.  Develop and Implement a Fix:&#xA;    - Once you have identified the root cause, develop a precise and targeted code modification to fix it.&#xA;    - Use the provided file editing tools to apply your patch. Aim for minimal, clean changes.&#xA;&#xA;6.  Verify and Test Rigorously:&#xA;    - Verify the Fix: Run your initial reproduction script to confirm that the bug is resolved.&#xA;    - Prevent Regressions: Execute the existing test suite for the modified files and related components to ensure your fix has not introduced any new bugs.&#xA;    - Write New Tests: Create new, specific test cases (e.g., using `pytest`) that cover the original bug scenario. This is essential to prevent the bug from recurring in the future. Add these tests to the codebase.&#xA;    - Consider Edge Cases: Think about and test potential edge cases related to your changes.&#xA;&#xA;7.  Summarize Your Work:&#xA;    - Conclude your trajectory with a clear and concise summary. Explain the nature of the bug, the logic of your fix, and the steps you took to verify its correctness and safety.&#xA;&#xA;**Guiding Principle:** Act like a senior software engineer. Prioritize correctness, safety, and high-quality, test-driven development.&#xA;&#xA;# GUIDE FOR HOW TO USE &quot;sequential_thinking&quot; TOOL:&#xA;- Your thinking should be thorough and so it's fine if it's very long. Set total_thoughts to at least 5, but setting it up to 25 is fine as well. You'll need more total thoughts when you are considering multiple possible solutions or root causes for an issue.&#xA;- Use this tool as much as you find necessary to improve the quality of your answers.&#xA;- You can run bash commands (like tests, a reproduction script, or 'grep'/'find' to find relevant context) in between thoughts.&#xA;- The sequential_thinking tool can help you break down complex problems, analyze issues step-by-step, and ensure a thorough approach to problem-solving.&#xA;- Don't hesitate to use it multiple times throughout your thought process to enhance the depth and accuracy of your solutions.&#xA;&#xA;If you are sure the issue has been solved, you should call the `task_done` to finish the task.&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/prompt/agent_prompt.py#L4"/>
         </attvalues>
-        <viz:color r="131" g="119" b="201"/>
+        <viz:color r="119" g="122" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="636.3961030678928" y="-636.3961030678927"/>
+        <viz:position x="1000" y="2700"/>
       </node>
       <node id="tool_f53b67a888" label="bash_tool.py#L19">
         <attvalues>
@@ -96,9 +96,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/bash_tool.py#L19"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1495.376000599692" y="-117.68864359176742"/>
+        <viz:position x="2000" y="2970"/>
       </node>
       <node id="tool_7b509a8ad4" label="ckg_tool.py#L14">
         <attvalues>
@@ -106,9 +106,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/ckg_tool.py#L14"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="0"/>
+        <viz:position x="2000" y="3240"/>
       </node>
       <node id="tool_0226e8ec6e" label="edit_tool.py#L27">
         <attvalues>
@@ -116,9 +116,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/edit_tool.py#L27"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1495.376000599692" y="117.68864359176742"/>
+        <viz:position x="2000" y="3510"/>
       </node>
       <node id="tool_f34fe8ba10" label="json_edit_tool.py#L17">
         <attvalues>
@@ -126,9 +126,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/json_edit_tool.py#L17"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1481.5325108927066" y="234.65169756034663"/>
+        <viz:position x="2000" y="3780"/>
       </node>
       <node id="tool_08753b498e" label="sequential_thinking_tool.py#L32">
         <attvalues>
@@ -136,9 +136,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/sequential_thinking_tool.py#L32"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1458.554880596515" y="350.1680457838578"/>
+        <viz:position x="2000" y="4050"/>
       </node>
       <node id="tool_6b2a9b68c1" label="task_done_tool.py#L9">
         <attvalues>
@@ -146,9 +146,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/task_done_tool.py#L9"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1426.5847744427303" y="463.5254915624211"/>
+        <viz:position x="2000" y="4320"/>
       </node>
     </nodes>
     <edges>
@@ -156,49 +156,49 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="82" g="174" b="117"/>
+        <viz:color r="196" g="92" b="160"/>
       </edge>
       <edge id="163" source="agent_trae_agent_0" target="prompt_trae_agent_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="131" g="119" b="201"/>
+        <viz:color r="119" g="122" b="204"/>
       </edge>
       <edge id="164" source="agent_trae_agent_0" target="tool_f53b67a888" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
       <edge id="165" source="agent_trae_agent_0" target="tool_7b509a8ad4" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
       <edge id="166" source="agent_trae_agent_0" target="tool_0226e8ec6e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
       <edge id="167" source="agent_trae_agent_0" target="tool_f34fe8ba10" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
       <edge id="168" source="agent_trae_agent_0" target="tool_08753b498e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
       <edge id="169" source="agent_trae_agent_0" target="tool_6b2a9b68c1" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="158" g="159" b="65"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
     </edges>
   </graph>

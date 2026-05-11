@@ -161,7 +161,7 @@ Or use online mode instead: .\generate.ps1 -Mode online
 # ── Resolve repo list ──────────────────────────────────────────────────────────
 
 if ($Repos -ne "") {
-    $repoList = $Repos -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+    $repoList = @($Repos -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" })
 } else {
     Write-Host "Reading repo nodes from config\dataset.json..."
     $repoListRaw = & $py -c @"
@@ -175,7 +175,7 @@ print('\n'.join(repos))
         Write-Error "Failed to read repo nodes from dataset.json"
         exit 1
     }
-    $repoList = $repoListRaw -split "`n" | Where-Object { $_.Trim() -ne "" }
+    $repoList = @($repoListRaw -split "`n" | Where-Object { $_.Trim() -ne "" })
 }
 
 Write-Host "Repos to process ($($repoList.Count)): $($repoList -join ', ')"

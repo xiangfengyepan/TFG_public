@@ -60,9 +60,9 @@
           <attvalue for="repo_comments" value="- AbstractAgent: (DefaultAgent and RetryAgent)&#xA;- class for Agents Config"/>
           <attvalue for="rawSize" value="25"/>
         </attvalues>
-        <viz:color r="195" g="93" b="161"/>
+        <viz:color r="201" g="86" b="106"/>
         <viz:size value="25"/>
-        <viz:position x="149.99999999999997" y="-259.8076211353316"/>
+        <viz:position x="0" y="1800"/>
       </node>
       <node id="agent_SWE_agent_0" label="DefaultAgent">
         <attvalues>
@@ -74,9 +74,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/agents.py#L443"/>
           <attvalue for="agent_comment" value="All there as the same Promt an tools since shellAgent inherit and Retry use it"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="90"/>
         <viz:size value="40"/>
-        <viz:position x="275.8874150687158" y="-532.8096603916844"/>
+        <viz:position x="500" y="1650"/>
       </node>
       <node id="prompt_SWE_agent_0_1" label="SYSTEM: system_template: str ">
         <attvalues>
@@ -86,9 +86,9 @@
           <attvalue for="prompt_text" value="system_template: str = &quot;&quot;&quot;&lt;setting>You are an expert software engineer overseeing junior developers. They suggest actions to take to solve a problem. You must choose the best action to take. &lt;/setting>&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="387.9915707202111" y="-812.0729899769253"/>
+        <viz:position x="1000" y="1567.5"/>
       </node>
       <node id="prompt_SWE_agent_0_2" label="PROXY: instance_template: str ">
         <attvalues>
@@ -98,9 +98,9 @@
           <attvalue for="prompt_text" value="instance_template: str = dedent(&quot;&quot;&quot;&#xA;    We're solving the following problem&#xA;&#xA;    &lt;problem_statement>&#xA;    {{problem_statement}}&#xA;    &lt;/problem_statement>&#xA;&#xA;    So far, we've performed the following actions:&#xA;&#xA;    &lt;trajectory>&#xA;    {{traj}}&#xA;    &lt;/trajectory>&#xA;    &quot;&quot;&quot;)&#xA;&#xA;    comparison_template: str = dedent(&quot;&quot;&quot;&#xA;    Two junior developers suggested the following actions:&#xA;&#xA;    &lt;thought1>&#xA;    {{thought1}}&#xA;    &lt;/thought1>&#xA;&#xA;    &lt;action1>&#xA;    {{action1}}&#xA;    &lt;/action1>&#xA;&#xA;    &lt;thought2>&#xA;    {{thought2}}&#xA;    &lt;/thought2>&#xA;&#xA;    &lt;action2>&#xA;    {{action2}}&#xA;    &lt;/action2>&#xA;&#xA;    Please compare the two actions in detail.&#xA;&#xA;    Which action should we take?&#xA;&#xA;    If you think the first action is better, respond with &quot;first&quot;.&#xA;    If you think the second action is better, respond with &quot;second&quot;.&#xA;&#xA;    The last line of your response MUST be &quot;first&quot; or &quot;second&quot;.&#xA;    &quot;&quot;&quot;)"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="413.83112260307377" y="-799.2144905875266"/>
+        <viz:position x="1000" y="1650"/>
       </node>
       <node id="prompt_SWE_agent_0_3" label="HUMAN: comparison_template: str ">
         <attvalues>
@@ -110,9 +110,9 @@
           <attvalue for="prompt_text" value="comparison_template: str = dedent(&quot;&quot;&quot;&#xA;    Two junior developers suggested the following actions:&#xA;&#xA;    &lt;thought1>&#xA;    {{thought1}}&#xA;    &lt;/thought1>&#xA;&#xA;    &lt;action1>&#xA;    {{action1}}&#xA;    &lt;/action1>&#xA;&#xA;    &lt;thought2>&#xA;    {{thought2}}&#xA;    &lt;/thought2>&#xA;&#xA;    &lt;action2>&#xA;    {{action2}}&#xA;    &lt;/action2>&#xA;&#xA;    Please compare the two actions in detail.&#xA;&#xA;    Which action should we take?&#xA;&#xA;    If you think the first action is better, respond with &quot;first&quot;.&#xA;    If you think the second action is better, respond with &quot;second&quot;.&#xA;&#xA;    The last line of your response MUST be &quot;first&quot; or &quot;second&quot;.&#xA;    &quot;&quot;&quot;)"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L120"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="439.2450806233895" y="-785.5340598269129"/>
+        <viz:position x="1000" y="1732.5"/>
       </node>
       <node id="tool_575f84612e" label="tools.py#L227">
         <attvalues>
@@ -120,9 +120,9 @@
           <attvalue for="rawSize" value="25"/>
           <attvalue for="tool_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"/>
         </attvalues>
-        <viz:color r="181" g="149" b="64"/>
+        <viz:color r="191" g="134" b="61"/>
         <viz:size value="25"/>
-        <viz:position x="1481.5325108927066" y="-234.6516975603463"/>
+        <viz:position x="2000" y="2700"/>
       </node>
       <node id="agent_SWE_agent_1" label="RetryAgent">
         <attvalues>
@@ -134,9 +134,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/agents.py#L257"/>
           <attvalue for="agent_comment" value="All there as the same Promt an tools since shellAgent inherit and Retry use it"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="90"/>
         <viz:size value="40"/>
-        <viz:position x="299.99999999999994" y="-519.6152422706632"/>
+        <viz:position x="500" y="1800"/>
       </node>
       <node id="prompt_SWE_agent_1_1" label="SYSTEM: system_template: str ">
         <attvalues>
@@ -146,9 +146,9 @@
           <attvalue for="prompt_text" value="system_template: str = &quot;&quot;&quot;&lt;setting>You are an expert software engineer overseeing junior developers. They suggest actions to take to solve a problem. You must choose the best action to take. &lt;/setting>&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="424.7764667431451" y="-793.4512923306697"/>
+        <viz:position x="1000" y="1717.5"/>
       </node>
       <node id="prompt_SWE_agent_1_2" label="PROXY: instance_template: str ">
         <attvalues>
@@ -158,9 +158,9 @@
           <attvalue for="prompt_text" value="instance_template: str = dedent(&quot;&quot;&quot;&#xA;    We're solving the following problem&#xA;&#xA;    &lt;problem_statement>&#xA;    {{problem_statement}}&#xA;    &lt;/problem_statement>&#xA;&#xA;    So far, we've performed the following actions:&#xA;&#xA;    &lt;trajectory>&#xA;    {{traj}}&#xA;    &lt;/trajectory>&#xA;    &quot;&quot;&quot;)&#xA;&#xA;    comparison_template: str = dedent(&quot;&quot;&quot;&#xA;    Two junior developers suggested the following actions:&#xA;&#xA;    &lt;thought1>&#xA;    {{thought1}}&#xA;    &lt;/thought1>&#xA;&#xA;    &lt;action1>&#xA;    {{action1}}&#xA;    &lt;/action1>&#xA;&#xA;    &lt;thought2>&#xA;    {{thought2}}&#xA;    &lt;/thought2>&#xA;&#xA;    &lt;action2>&#xA;    {{action2}}&#xA;    &lt;/action2>&#xA;&#xA;    Please compare the two actions in detail.&#xA;&#xA;    Which action should we take?&#xA;&#xA;    If you think the first action is better, respond with &quot;first&quot;.&#xA;    If you think the second action is better, respond with &quot;second&quot;.&#xA;&#xA;    The last line of your response MUST be &quot;first&quot; or &quot;second&quot;.&#xA;    &quot;&quot;&quot;)"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="449.9999999999999" y="-779.4228634059948"/>
+        <viz:position x="1000" y="1800"/>
       </node>
       <node id="prompt_SWE_agent_1_3" label="HUMAN: comparison_template: str ">
         <attvalues>
@@ -170,9 +170,9 @@
           <attvalue for="prompt_text" value="comparison_template: str = dedent(&quot;&quot;&quot;&#xA;    Two junior developers suggested the following actions:&#xA;&#xA;    &lt;thought1>&#xA;    {{thought1}}&#xA;    &lt;/thought1>&#xA;&#xA;    &lt;action1>&#xA;    {{action1}}&#xA;    &lt;/action1>&#xA;&#xA;    &lt;thought2>&#xA;    {{thought2}}&#xA;    &lt;/thought2>&#xA;&#xA;    &lt;action2>&#xA;    {{action2}}&#xA;    &lt;/action2>&#xA;&#xA;    Please compare the two actions in detail.&#xA;&#xA;    Which action should we take?&#xA;&#xA;    If you think the first action is better, respond with &quot;first&quot;.&#xA;    If you think the second action is better, respond with &quot;second&quot;.&#xA;&#xA;    The last line of your response MUST be &quot;first&quot; or &quot;second&quot;.&#xA;    &quot;&quot;&quot;)"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L120"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="474.7607424523802" y="-764.5928572946942"/>
+        <viz:position x="1000" y="1882.5"/>
       </node>
       <node id="agent_SWE_agent_2" label="ShellAgent">
         <attvalues>
@@ -184,9 +184,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/extra/shell_agent.py#L13"/>
           <attvalue for="agent_comment" value="All there as the same Promt an tools since shellAgent inherit and Retry use it"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="90"/>
         <viz:size value="40"/>
-        <viz:position x="323.4829937466001" y="-505.33034022977193"/>
+        <viz:position x="500" y="1950"/>
       </node>
       <node id="prompt_SWE_agent_2_1" label="SYSTEM: system_template: str ">
         <attvalues>
@@ -196,9 +196,9 @@
           <attvalue for="prompt_text" value="system_template: str = &quot;&quot;&quot;&lt;setting>You are an expert software engineer overseeing junior developers. They suggest actions to take to solve a problem. You must choose the best action to take. &lt;/setting>&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L105"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="460.6699110363367" y="-773.1644282206559"/>
+        <viz:position x="1000" y="1867.5"/>
       </node>
       <node id="prompt_SWE_agent_2_2" label="PROXY: instance_template: str ">
         <attvalues>
@@ -208,9 +208,9 @@
           <attvalue for="prompt_text" value="instance_template: str = dedent(&quot;&quot;&quot;&#xA;    We're solving the following problem&#xA;&#xA;    &lt;problem_statement>&#xA;    {{problem_statement}}&#xA;    &lt;/problem_statement>&#xA;&#xA;    So far, we've performed the following actions:&#xA;&#xA;    &lt;trajectory>&#xA;    {{traj}}&#xA;    &lt;/trajectory>&#xA;    &quot;&quot;&quot;)&#xA;&#xA;    comparison_template: str = dedent(&quot;&quot;&quot;&#xA;    Two junior developers suggested the following actions:&#xA;&#xA;    &lt;thought1>&#xA;    {{thought1}}&#xA;    &lt;/thought1>&#xA;&#xA;    &lt;action1>&#xA;    {{action1}}&#xA;    &lt;/action1>&#xA;&#xA;    &lt;thought2>&#xA;    {{thought2}}&#xA;    &lt;/thought2>&#xA;&#xA;    &lt;action2>&#xA;    {{action2}}&#xA;    &lt;/action2>&#xA;&#xA;    Please compare the two actions in detail.&#xA;&#xA;    Which action should we take?&#xA;&#xA;    If you think the first action is better, respond with &quot;first&quot;.&#xA;    If you think the second action is better, respond with &quot;second&quot;.&#xA;&#xA;    The last line of your response MUST be &quot;first&quot; or &quot;second&quot;.&#xA;    &quot;&quot;&quot;)"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L106"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="485.22449061990017" y="-757.9955103446579"/>
+        <viz:position x="1000" y="1950"/>
       </node>
       <node id="prompt_SWE_agent_2_3" label="HUMAN: comparison_template: str ">
         <attvalues>
@@ -220,9 +220,9 @@
           <attvalue for="prompt_text" value="comparison_template: str = dedent(&quot;&quot;&quot;&#xA;    Two junior developers suggested the following actions:&#xA;&#xA;    &lt;thought1>&#xA;    {{thought1}}&#xA;    &lt;/thought1>&#xA;&#xA;    &lt;action1>&#xA;    {{action1}}&#xA;    &lt;/action1>&#xA;&#xA;    &lt;thought2>&#xA;    {{thought2}}&#xA;    &lt;/thought2>&#xA;&#xA;    &lt;action2>&#xA;    {{action2}}&#xA;    &lt;/action2>&#xA;&#xA;    Please compare the two actions in detail.&#xA;&#xA;    Which action should we take?&#xA;&#xA;    If you think the first action is better, respond with &quot;first&quot;.&#xA;    If you think the second action is better, respond with &quot;second&quot;.&#xA;&#xA;    The last line of your response MUST be &quot;first&quot; or &quot;second&quot;.&#xA;    &quot;&quot;&quot;)"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/action_sampler.py#L120"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="509.28005368709745" y="-742.0470516863921"/>
+        <viz:position x="1000" y="2032.5"/>
       </node>
     </nodes>
     <edges>
@@ -230,91 +230,91 @@
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="90"/>
       </edge>
       <edge id="142" source="agent_SWE_agent_0" target="prompt_SWE_agent_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="143" source="agent_SWE_agent_0" target="prompt_SWE_agent_0_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="144" source="agent_SWE_agent_0" target="prompt_SWE_agent_0_3" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="145" source="agent_SWE_agent_0" target="tool_575f84612e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="149" b="64"/>
+        <viz:color r="191" g="134" b="61"/>
       </edge>
       <edge id="146" source="repo_SWE_agent" target="agent_SWE_agent_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="90"/>
       </edge>
       <edge id="147" source="agent_SWE_agent_1" target="prompt_SWE_agent_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="148" source="agent_SWE_agent_1" target="prompt_SWE_agent_1_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="149" source="agent_SWE_agent_1" target="prompt_SWE_agent_1_3" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="150" source="agent_SWE_agent_1" target="tool_575f84612e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="149" b="64"/>
+        <viz:color r="191" g="134" b="61"/>
       </edge>
       <edge id="151" source="repo_SWE_agent" target="agent_SWE_agent_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="170" b="101"/>
+        <viz:color r="109" g="169" b="90"/>
       </edge>
       <edge id="152" source="agent_SWE_agent_2" target="prompt_SWE_agent_2_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="153" source="agent_SWE_agent_2" target="prompt_SWE_agent_2_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="154" source="agent_SWE_agent_2" target="prompt_SWE_agent_2_3" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
       <edge id="155" source="agent_SWE_agent_2" target="tool_575f84612e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="181" g="149" b="64"/>
+        <viz:color r="191" g="134" b="61"/>
       </edge>
     </edges>
   </graph>
