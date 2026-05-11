@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:viz="http:///www.gexf.net/1.1draft/viz">
+  <meta/>
+  <graph defaultedgetype="directed">
+    <attributes class="node">
+      <attribute id="node_type" title="node_type" type="string"/>
+      <attribute id="url" title="url" type="string"/>
+      <attribute id="commits" title="commits" type="string"/>
+      <attribute id="releases" title="releases" type="string"/>
+      <attribute id="stars" title="stars" type="string"/>
+      <attribute id="analyzed" title="analyzed" type="string"/>
+      <attribute id="publication" title="publication" type="string"/>
+      <attribute id="framework" title="framework" type="string"/>
+      <attribute id="dependency_graph" title="dependency_graph" type="string"/>
+      <attribute id="has_agents" title="has_agents" type="string"/>
+      <attribute id="num_agents" title="num_agents" type="string"/>
+      <attribute id="topology_description" title="topology_description" type="string"/>
+      <attribute id="topology_file" title="topology_file" type="string"/>
+      <attribute id="topology_type" title="topology_type" type="string"/>
+      <attribute id="topology_url" title="topology_url" type="string"/>
+      <attribute id="programming_language" title="programming_language" type="string"/>
+      <attribute id="autonomy_rating" title="autonomy_rating" type="string"/>
+      <attribute id="autonomy_description" title="autonomy_description" type="string"/>
+      <attribute id="repo_comments" title="repo_comments" type="string"/>
+      <attribute id="rawSize" title="rawSize" type="integer"/>
+      <attribute id="agent_name" title="agent_name" type="string"/>
+      <attribute id="agent_type" title="agent_type" type="string"/>
+      <attribute id="short_description" title="short_description" type="string"/>
+      <attribute id="agent_in_repo" title="agent_in_repo" type="string"/>
+      <attribute id="agent_comment" title="agent_comment" type="string"/>
+      <attribute id="prompt_type" title="prompt_type" type="string"/>
+      <attribute id="prompt_text" title="prompt_text" type="string"/>
+      <attribute id="prompt_url" title="prompt_url" type="string"/>
+      <attribute id="tool_url" title="tool_url" type="string"/>
+    </attributes>
+    <attributes class="edge">
+      <attribute id="rawWeight" title="rawWeight" type="integer"/>
+    </attributes>
+    <nodes>
+      <node id="repo_auto_code_rover" label="auto-code-rover">
+        <attvalues>
+          <attvalue for="node_type" value="repo"/>
+          <attvalue for="url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267"/>
+          <attvalue for="commits" value="345"/>
+          <attvalue for="releases" value="2"/>
+          <attvalue for="stars" value="3051"/>
+          <attvalue for="analyzed" value="TRUE"/>
+          <attvalue for="publication" value="https://arxiv.org/abs/2404.05427"/>
+          <attvalue for="framework" value="own scripts"/>
+          <attvalue for="dependency_graph" value="AutoCodeRoverSG_auto-code-rover_4cac70.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="6"/>
+          <attvalue for="topology_description" value="Publication Figure 2: Overall workflow of AutoCodeRover."/>
+          <attvalue for="topology_file" value="auto_code_rover_topology.jpg"/>
+          <attvalue for="topology_type" value="null"/>
+          <attvalue for="topology_url" value="null"/>
+          <attvalue for="programming_language" value="Python, TypeScript"/>
+          <attvalue for="autonomy_rating" value="1"/>
+          <attvalue for="autonomy_description" value="1 – Orchestrated: execution decided by software workflow or human"/>
+          <attvalue for="repo_comments" value="- agent_common.py&#xA;- Inference: (ReviewManager: (reproducer, review and patch agent)) &amp; (Project Manager: (SeachManager: (proxy and seach agent)))"/>
+          <attvalue for="rawSize" value="40"/>
+        </attvalues>
+        <viz:color r="196" g="125" b="62"/>
+        <viz:size value="40"/>
+        <viz:position x="300" y="0"/>
+      </node>
+      <node id="agent_auto_code_rover_0" label="Proxy">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="16"/>
+          <attvalue for="agent_name" value="Proxy"/>
+          <attvalue for="agent_type" value="Helper/Proxy"/>
+          <attvalue for="short_description" value="A proxy agent. Process raw response into json format."/>
+          <attvalue for="agent_in_repo" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_proxy.py#L1"/>
+          <attvalue for="agent_comment" value="No class"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="16"/>
+        <viz:position x="599.3704088153161" y="-27.479320161912458"/>
+      </node>
+      <node id="prompt_auto_code_rover_0_1" label="PROXY: PROXY_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="PROXY_PROMPT = &quot;&quot;&quot;&#xA;You are a helpful assistant that retreive API calls and bug locations from a text into json format.&#xA;The text will consist of two parts:&#xA;1. do we need more context?&#xA;2. where are bug locations?&#xA;Extract API calls from question 1 (leave empty if not exist) and bug locations from question 2 (leave empty if not exist).&#xA;&#xA;The API calls include:&#xA;search_method_in_class(method_name: str, class_name: str)&#xA;search_method_in_file(method_name: str, file_path: str)&#xA;search_method(method_name: str)&#xA;search_class_in_file(self, class_name, file_name: str)&#xA;search_class(class_name: str)&#xA;search_code_in_file(code_str: str, file_path: str)&#xA;search_code(code_str: str)&#xA;get_code_around_line(file_path: str, line_number: int, window_size: int)&#xA;&#xA;Provide your answer in JSON structure like this, you should ignore the argument placeholders in api calls.&#xA;For example, search_code(code_str=&quot;str&quot;) should be search_code(&quot;str&quot;)&#xA;search_method_in_file(&quot;method_name&quot;, &quot;path.to.file&quot;) should be search_method_in_file(&quot;method_name&quot;, &quot;path/to/file&quot;)&#xA;Make sure each API call is written as a valid python expression.&#xA;&#xA;{&#xA;    &quot;API_calls&quot;: [&quot;api_call_1(args)&quot;, &quot;api_call_2(args)&quot;, ...],&#xA;    &quot;bug_locations&quot;:[{&quot;file&quot;: &quot;path/to/file&quot;, &quot;class&quot;: &quot;class_name&quot;, &quot;method&quot;: &quot;method_name&quot;, &quot;intended_behavior&quot;, &quot;This code should ...&quot;}, {&quot;file&quot;: &quot;path/to/file&quot;, &quot;class&quot;: &quot;class_name&quot;, &quot;method&quot;: &quot;method_name&quot;, &quot;intended_behavior&quot;: &quot;...&quot;} ... ]&#xA;}&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_proxy.py#L16"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.0556132229741" y="-41.21898024286869"/>
+      </node>
+      <node id="agent_auto_code_rover_1" label="Reproducer">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="22"/>
+          <attvalue for="agent_name" value="Reproducer"/>
+          <attvalue for="agent_type" value="Bug reproduction"/>
+          <attvalue for="short_description" value="Agent responsible for reproducing given issues. Prove that a reported bug actually exists and make a test in order to do so."/>
+          <attvalue for="agent_in_repo" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_reproducer.py#L57"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="22"/>
+        <viz:position x="599.7733217984081" y="-16.491284331524074"/>
+      </node>
+      <node id="prompt_auto_code_rover_1_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = (&#xA;    &quot;You are an experienced software engineer responsible for reproducing given issues.&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_reproducer.py#L18"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="898.4041789715479" y="-53.571738878432626"/>
+      </node>
+      <node id="prompt_auto_code_rover_1_2" label="PROXY: INITIAL_REQUEST ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="INITIAL_REQUEST = (&#xA;    &quot;Please try to write a standalone python file `reproducer.py` to reproduce&quot;&#xA;    &quot; the issue. Put the file in a code block.\n\n&quot;&#xA;    &quot;The file would be put in the root directory of the project and executed&quot;&#xA;    &quot; by `python3 reproducer.py`. The script should raise an `AssertionError` when&quot;&#xA;    &quot; the issue is present and print a stack trace of the issue. The script should also&quot;&#xA;    &quot; exit with code 0 when the issue is fixed.\n\n&quot;&#xA;    # Reformat the stacktrace, so that context retrieval agent can&#xA;    # get the line numbers right later&#xA;    &quot;Please use the following function to print the stack trace, so that the line numbers&quot;&#xA;    &quot; of the statements are shown clearly:\n&quot;&#xA;    &quot;```\n&quot;&#xA;    &quot;def print_stacktrace(e: Exception):\n&quot;&#xA;    &quot;    import traceback&quot;&#xA;    &quot;    import sys&quot;&#xA;    &quot;    tb = traceback.extract_tb(e.__traceback__)\n&quot;&#xA;    '    print(&quot;Traceback (most recent call last):&quot;, file=sys.stderr)\n'&#xA;    &quot;    for frame in tb:\n&quot;&#xA;    &quot;        line_number = frame.lineno\n&quot;&#xA;    '        code_context = frame.line.strip() if frame.line else &quot;Unknown&quot;\n'&#xA;    &quot;        print(f'  File \&quot;{frame.filename}\&quot;', file=sys.stderr)\n&quot;&#xA;    '        print(f&quot;    {line_number}: {code_context}&quot;, file=sys.stderr)\n'&#xA;    '    print(f&quot;{e.__class__.__name__}: {e}&quot;, file=sys.stderr)\n'&#xA;    &quot;```\n&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_reproducer.py#L21"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.9905544966848" y="4.1233259330024294"/>
+      </node>
+      <node id="agent_auto_code_rover_2" label="Reviewer">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="16"/>
+          <attvalue for="agent_name" value="Reviewer"/>
+          <attvalue for="agent_type" value="Reviewer"/>
+          <attvalue for="short_description" value="Agent that given a reproduction test and a patch for the issue decide whether the created patch resolves the issue."/>
+          <attvalue for="agent_in_repo" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_reviewer.py#L30"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="16"/>
+        <viz:position x="599.9748121233337" y="-5.4977102115754315"/>
+      </node>
+      <node id="prompt_auto_code_rover_2_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = (&#xA;    &quot;You are an experienced software engineer responsible for maintaining a project.&quot;&#xA;    &quot;An issue has been submitted. &quot;&#xA;    &quot;Engineer A has written a reproduction test for the issue. &quot;&#xA;    &quot;Engineer B has written a patch for the issue. &quot;&#xA;    &quot;Your task is to decide whether the created patch resolves the issue.&quot;&#xA;    &quot;NOTE: both the test and the patch may be wrong.&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_reviewer.py#L17"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.9622181850006" y="-8.246565317363148"/>
+      </node>
+      <node id="agent_auto_code_rover_3" label="Search">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="40"/>
+          <attvalue for="agent_name" value="Search"/>
+          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="short_description" value="Agent that invoke a few search API calls to gather sufficient code context for resolving the issue. Selects the search APIs to use, and returns the selected APIs in its response in&#xA;non-json format."/>
+          <attvalue for="agent_in_repo" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L1"/>
+          <attvalue for="agent_comment" value="No class"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="40"/>
+        <viz:position x="599.9748121233337" y="5.4977102115754315"/>
+      </node>
+      <node id="prompt_auto_code_rover_3_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = &quot;&quot;&quot;You are a software developer maintaining a large project.&#xA;You are working on an issue submitted to your project.&#xA;The issue contains a description marked between &lt;issue> and &lt;/issue>.&#xA;Your task is to invoke a few search API calls to gather sufficient code context for resolving the issue.&#xA;The collected context will later be sent to your colleage for writing a patch.&#xA;Do not worry about test files or writing test; you are only interested in crafting a patch.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L16"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.7638723300344" y="-20.614898730327422"/>
+      </node>
+      <node id="prompt_auto_code_rover_3_2" label="PROXY: SELECT_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="SELECT_PROMPT = (&#xA;    &quot;Based on the files, classes, methods, and code statements from the issue related to the bug, you can use the following search APIs to get more context of the project.&quot;&#xA;    &quot;\n- search_class(class_name: str): Search for a class in the codebase.&quot;&#xA;    &quot;\n- search_class_in_file(self, class_name, file_name: str): Search for a class in a given file.&quot;&#xA;    &quot;\n- search_method_in_file(method_name: str, file_path: str): Search for a method in a given file..&quot;&#xA;    &quot;\n- search_method_in_class(method_name: str, class_name: str): Search for a method in a given class.&quot;&#xA;    &quot;\n- search_method(method_name: str): Search for a method in the entire codebase.&quot;&#xA;    &quot;\n- search_code(code_str: str): Search for a code snippet in the entire codebase.&quot;&#xA;    &quot;\n- search_code_in_file(code_str: str, file_path: str): Search for a code snippet in a given file file.&quot;&#xA;    &quot;\n- get_code_around_line(file_path: str, line_number: int, window_size: int): Get the code around a given line number in a file. window_size is the number of lines before and after the line number.&quot;&#xA;    &quot;\n\nYou must give correct number of arguments when invoking API calls.&quot;&#xA;    &quot;\n\nNote that you can use multiple search APIs in one round.&quot;&#xA;    &quot;\n\nNow analyze the issue and select necessary APIs to get more context of the project. Each API call must have concrete arguments as inputs.&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L25"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.9989504979999" y="-1.3744462516919205"/>
+      </node>
+      <node id="prompt_auto_code_rover_3_3" label="ANALYZE_PROMPT = (&#xA;    &quot;Let's analyze co">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="null"/>
+          <attvalue for="prompt_text" value="ANALYZE_PROMPT = (&#xA;    &quot;Let's analyze collected context first.\n&quot;&#xA;    &quot;If an API call could not find any code, you should think about what other API calls you can make to get more context.\n&quot;&#xA;    &quot;If an API call returns some result, you should analyze the result and think about these questions:\n&quot;&#xA;    &quot;1. What does this part of the code do?\n&quot;&#xA;    &quot;2. What is the relationship between this part of the code and the bug?\n&quot;&#xA;    &quot;3. Given the issue description, what would be the intended behavior of this part of the code?\n&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L41"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.8226399531054" y="17.866634485092177"/>
+      </node>
+      <node id="prompt_auto_code_rover_3_4" label="PROXY: ANALYZE_AND_SELECT_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="ANALYZE_AND_SELECT_PROMPT = (&#xA;    &quot;Based on your analysis, answer below questions:\n&quot;&#xA;    &quot;1. do we need more context: construct search API calls to get more context of the project. If you don't need more context, LEAVE THIS EMTPY.\n&quot;&#xA;    &quot;2. where are bug locations: buggy files, classes, and methods. &quot;&#xA;    &quot;Only include the necessary locations that need to be fixed. &quot;&#xA;    &quot;For each bug location, you should also describe the intended behavior of the code at that location, &quot;&#xA;    &quot;in order to resolve the issue. &quot;&#xA;    &quot;The intended behavior should preserve the existing functionality of the code. &quot;&#xA;    &quot;If you think two methods in the same class are buggy, you should provide two bug locations (E.g. Location 1: File: a.py, Class: A, Method: a. Location 2: File: a.py, Class: A, Method: b.). &quot;&#xA;    &quot;If you want to add a method to a class, you should only provide the file and class as bug location, &quot;&#xA;    &quot;and describe the new method in intended behavior. &quot;&#xA;    &quot;If you still need more context, LEAVE THIS EMPTY.&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_search.py#L51"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.2350212867432" y="37.09954839928177"/>
+      </node>
+      <node id="tool_98bc160cad" label="common.py#L136">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/model/common.py#L136"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="1336.5097862825519" y="680.9857496093201"/>
+      </node>
+      <node id="agent_auto_code_rover_4" label="Select">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="16"/>
+          <attvalue for="agent_name" value="Select"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="Agent that acts as a pull request reviewer and selects the PR from multiples that actually will resolve the given issue."/>
+          <attvalue for="agent_in_repo" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_select.py#L1"/>
+          <attvalue for="agent_comment" value="No class"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="16"/>
+        <viz:position x="599.7733217984081" y="16.491284331524074"/>
+      </node>
+      <node id="prompt_auto_code_rover_4_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = (&#xA;    &quot;You are a pull request reviewer. You need to choose the one PR from multiple that&quot;&#xA;    &quot; actually will resolve the given issue.&quot;&#xA;)"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_select.py#L9"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.6599826976121" y="24.736926497286113"/>
+      </node>
+      <node id="agent_auto_code_rover_5" label="WritePatch">
+        <attvalues>
+          <attvalue for="node_type" value="agent"/>
+          <attvalue for="rawSize" value="28"/>
+          <attvalue for="agent_name" value="WritePatch"/>
+          <attvalue for="agent_type" value="Patcher"/>
+          <attvalue for="short_description" value="An agent, which is only responsible for the write_patch tool call. Write a patch that resolves this issue."/>
+          <attvalue for="agent_in_repo" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_write_patch.py#L86"/>
+          <attvalue for="agent_comment" value="null"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+        <viz:size value="28"/>
+        <viz:position x="599.3704088153161" y="27.479320161912458"/>
+      </node>
+      <node id="prompt_auto_code_rover_5_1" label="SYSTEM: SYSTEM_PROMPT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="SYSTEM"/>
+          <attvalue for="prompt_text" value="SYSTEM_PROMPT = &quot;&quot;&quot;You are a software developer maintaining a large project.&#xA;You are working on an issue submitted to your project.&#xA;The issue contains a description marked between &lt;issue> and &lt;/issue>.&#xA;Another developer has already collected code context related to the issue for you.&#xA;Your task is to write a patch that resolves this issue.&#xA;Do not make changes to test files or write tests; you are only interested in crafting a patch.&#xA;REMEMBER:&#xA;- You should only make minimal changes to the code to resolve the issue.&#xA;- Your patch should preserve the program functionality as much as possible.&#xA;- In your patch, DO NOT include the line numbers at the beginning of each line!&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_write_patch.py#L29"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="899.9149916597265" y="12.369631606257103"/>
+      </node>
+      <node id="prompt_auto_code_rover_5_2" label="PROXY: USER_PROMPT_INIT ">
+        <attvalues>
+          <attvalue for="node_type" value="prompt"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="prompt_type" value="PROXY"/>
+          <attvalue for="prompt_text" value="USER_PROMPT_INIT = &quot;&quot;&quot;Write a patch for the issue, based on the relevant code context.&#xA;First explain the reasoning, and then write the actual patch.&#xA;When writing the patch, remember the following:&#xA; - You do not have to modify every location provided - just make the necessary changes.&#xA; - Pay attention to the addtional context as well - sometimes it might be better to fix there.&#xA; - You should import necessary libraries if needed.&#xA;&#xA;Return the patch in the format below.&#xA;Within `&lt;file>&lt;/file>`, replace `...` with actual file path.&#xA;Within `&lt;original>&lt;/original>`, replace `...` with the original code snippet from the program.&#xA;Within `&lt;patched>&lt;/patched>`, replace `...` with the fixed version of the original code.&#xA;When adding orignal code and updated code, pay attention to indentation, as the code is in Python.&#xA;You can write multiple modifications if needed.&#xA;&#xA;Example format:&#xA;&#xA;# modification 1&#xA;```&#xA;&lt;file>...&lt;/file>&#xA;&lt;original>...&lt;/original>&#xA;&lt;patched>...&lt;/patched>&#xA;```&#xA;&#xA;# modification 2&#xA;```&#xA;&lt;file>...&lt;/file>&#xA;&lt;original>...&lt;/original>&#xA;&lt;patched>...&lt;/patched>&#xA;```&#xA;&#xA;# modification 3&#xA;...&#xA;```&#xA;NOTE:&#xA;- In your patch, DO NOT include the line numbers at the beginning of each line!&#xA;- Inside &lt;original> and &lt;/original>, you should provide the original code snippet from the program.&#xA;This original code snippet MUST match exactly to a continuous block of code in the original program,&#xA;since the system will use this to locate the code to be modified.&#xA;&quot;&quot;&quot;"/>
+          <attvalue for="prompt_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_write_patch.py#L42"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+        <viz:size value="10"/>
+        <viz:position x="897.2716244073087" y="70.0259382905331"/>
+      </node>
+      <node id="tool_b3192b7298" label="agent_write_patch.py#L163">
+        <attvalues>
+          <attvalue for="node_type" value="tool"/>
+          <attvalue for="rawSize" value="10"/>
+          <attvalue for="tool_url" value="https://github.com/AutoCodeRoverSG/auto-code-rover/blob/585d3e639aeda58ef0b6a151dd1cc2721a94d267/app/agents/agent_write_patch.py#L163"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+        <viz:size value="10"/>
+        <viz:position x="1278.9602465311382" y="783.7478470739233"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge id="176" source="repo_auto_code_rover" target="agent_auto_code_rover_0" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="177" source="agent_auto_code_rover_0" target="prompt_auto_code_rover_0_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="178" source="repo_auto_code_rover" target="agent_auto_code_rover_1" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="179" source="agent_auto_code_rover_1" target="prompt_auto_code_rover_1_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="180" source="agent_auto_code_rover_1" target="prompt_auto_code_rover_1_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="181" source="repo_auto_code_rover" target="agent_auto_code_rover_2" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="182" source="agent_auto_code_rover_2" target="prompt_auto_code_rover_2_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="183" source="repo_auto_code_rover" target="agent_auto_code_rover_3" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="184" source="agent_auto_code_rover_3" target="prompt_auto_code_rover_3_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="185" source="agent_auto_code_rover_3" target="prompt_auto_code_rover_3_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="186" source="agent_auto_code_rover_3" target="prompt_auto_code_rover_3_3" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="187" source="agent_auto_code_rover_3" target="prompt_auto_code_rover_3_4" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="188" source="agent_auto_code_rover_3" target="tool_98bc160cad" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+      <edge id="189" source="repo_auto_code_rover" target="agent_auto_code_rover_4" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="190" source="agent_auto_code_rover_4" target="prompt_auto_code_rover_4_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="191" source="repo_auto_code_rover" target="agent_auto_code_rover_5" weight="6" label="has_agent">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="156" g="102" b="193"/>
+      </edge>
+      <edge id="192" source="agent_auto_code_rover_5" target="prompt_auto_code_rover_5_1" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="193" source="agent_auto_code_rover_5" target="prompt_auto_code_rover_5_2" weight="6" label="has_prompt">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="116" g="167" b="84"/>
+      </edge>
+      <edge id="194" source="agent_auto_code_rover_5" target="tool_b3192b7298" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="201" g="85" b="116"/>
+      </edge>
+    </edges>
+  </graph>
+</gexf>
