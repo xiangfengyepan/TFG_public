@@ -22,6 +22,7 @@ Write-Host "[setup] checking prerequisites" -ForegroundColor Cyan
 $pythonOk = Test-Cli "python" "Install Python 3.12+ from https://www.python.org/downloads/ (Python 3.12.6 is the dev baseline)."
 $ollamaOk = Test-Cli "ollama" "Install Ollama from https://ollama.com/download."
 $dockerOk = Test-Cli "docker" "Install Docker Desktop from https://www.docker.com/products/docker-desktop/ (required for SWE-bench evaluation)."
+$npmOk    = Test-Cli "npm"    "Install Node.js 18+ from https://nodejs.org/ (needed for the Angular frontend)."
 
 if (-not $pythonOk) {
     Write-Host "[setup] python is mandatory; aborting." -ForegroundColor Red
@@ -32,6 +33,9 @@ if (-not $ollamaOk) {
 }
 if (-not $dockerOk) {
     Write-Host "[setup] continuing without docker — `evomas run evaluation` will fail until you install it."
+}
+if (-not $npmOk) {
+    Write-Host "[setup] continuing without npm — `evomas web` will fail until you install Node.js."
 }
 
 # ─── 2. Ensure the venv exists ───────────────────────────────────────────────
@@ -54,7 +58,7 @@ Write-Host "[setup] upgrading pip + wheel" -ForegroundColor Cyan
 # script is registered against `evomas.cli:main`. No more hand-maintained
 # `pip install langchain langgraph ...` list.
 Write-Host "[setup] installing evomas (editable) + dependencies + dev extras" -ForegroundColor Cyan
-& $PythonEvomas -m pip install -e ".[dev]"
+& $PythonEvomas -m pip install -e "."
 
 # Snapshot exact resolved versions to requirements.txt for reproducibility /
 # recovery if a downstream package ships a breaking release. pyproject.toml
@@ -62,7 +66,24 @@ Write-Host "[setup] installing evomas (editable) + dependencies + dev extras" -F
 Write-Host "[setup] freezing pinned versions to requirements.txt" -ForegroundColor Cyan
 & $PythonEvomas -m pip freeze | Out-File -Encoding utf8 (Join-Path $RepoRoot "requirements.txt")
 
-# ─── 4. PowerShell $PROFILE wrapper ──────────────────────────────────────────
+# ─── 4. Install npm deps for the Angular frontend ────────────────────────────
+# Without this, `npx ng serve` (invoked by `evomas web` / start_frontend.ps1)
+# resolves `ng` against the global npm registry, fetches the wrong package,
+# and exits with "could not determine executable to run". `npm install`
+# populates app\node_modules so npx finds the Angular CLI locally.
+if ($npmOk) {
+    Write-Host "[setup] installing app\ npm dependencies (Angular CLI + project deps)" -ForegroundColor Cyan
+    Push-Location (Join-Path $RepoRoot "app")
+    try {
+        npm install --no-audit --no-fund
+    } finally {
+        Pop-Location
+    }
+} else {
+    Write-Host "[setup] skipping npm install — node/npm not available." -ForegroundColor Yellow
+}
+
+# ─── 5. PowerShell $PROFILE wrapper ──────────────────────────────────────────
 # pip install -e . registers `evomas.exe` inside the venv. To call it from
 # anywhere without activating the venv first, append a function to the
 # user's PowerShell profile that delegates to the venv's exe.
@@ -91,7 +112,7 @@ $EndMarker
 Add-Content -Path $ProfilePath -Value $Block -Encoding utf8
 Write-Host "[setup] appended evomas function to $ProfilePath" -ForegroundColor Green
 
-# ─── 5. .env scaffolding hint ────────────────────────────────────────────────
+# ─── 6. .env scaffolding hint ────────────────────────────────────────────────
 if (-not (Test-Path (Join-Path $RepoRoot "evomas\.env"))) {
     Write-Host "[setup] reminder: copy evomas\.env.example -> evomas\.env and fill in OLLAMA_BASE_URL" -ForegroundColor Yellow
 }

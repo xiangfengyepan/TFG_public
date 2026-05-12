@@ -6,50 +6,60 @@ Evolutionary multi-agent framework for [SWE-bench](https://www.swebench.com/)–
 
 | Tool | Why | Where to get it |
 |---|---|---|
-| Windows 11 / 10 | The project targets Windows; the `start_*.ps1` and `setup.ps1` scripts assume PowerShell. | — |
 | Python 3.12+ (3.12.6 is the dev baseline) | Runs the agent framework and the FastAPI backend. | https://www.python.org/downloads/ |
 | Ollama | Hosts the local LLM each agent calls. | https://ollama.com/download |
-| Docker Desktop | Required for SWE-bench evaluation (the harness runs each instance in a container). Not needed for inference-only flows. | https://www.docker.com/products/docker-desktop/ |
+| Docker (Desktop on Windows/macOS, Engine on Linux) | Required for SWE-bench evaluation (the harness runs each instance in a container). Not needed for inference-only flows. On Windows the harness invocation is shelled through WSL; on macOS / Linux it runs natively. | https://www.docker.com/products/docker-desktop/  ·  https://docs.docker.com/engine/install/ |
 | Node.js 18+ | Builds and serves the Angular frontend. | https://nodejs.org/ |
+| WSL2 (Windows only) | The SWE-bench harness ships POSIX-only steps; on Windows the API server shells out via `wsl ...`. Not needed on macOS / Linux. | https://learn.microsoft.com/windows/wsl/install |
 
 ## Install
+
+Windows (PowerShell):
 
 ```powershell
 .\setup.ps1
 ```
 
-`setup.ps1` checks for the prerequisites above, creates a fresh venv at `evomas\venv`, runs `pip install -e .` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), and appends an `evomas` function to your PowerShell `$PROFILE` so the command is reachable from any directory.
+Linux / macOS (bash):
 
-Open a new PowerShell window after running setup so the profile change takes effect, then verify:
+```bash
+chmod +x setup.sh 
+bash setup.sh
+```
 
-```powershell
+The setup script checks for the prerequisites above, creates a venv at `evomas/venv` (reusing it if already present), runs `pip install -e "."` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
+
+Open a new shell (or `source` the rc file) so the profile change takes effect, then verify:
+
+```bash
 evomas --help
 ```
 
 ### Setup fails or imports break after an upgrade
 
-`setup.ps1` is intentionally non-destructive — it reuses any existing `evomas\venv`. If a previous install left the venv in a broken state (missing packages, mismatched versions, `ModuleNotFoundError`), delete it manually and rerun:
+The setup script is intentionally non-destructive — it reuses any existing `evomas/venv`. If a previous install left the venv in a broken state (missing packages, mismatched versions, `ModuleNotFoundError`), delete it and rerun setup (`rm -r` works in both bash and PowerShell, which aliases it to `Remove-Item -Recurse`):
 
-```powershell
-Remove-Item -Recurse -Force .\evomas\venv
-.\setup.ps1
 ```
+rm -r evomas/venv
+```
+
+Then rerun the platform-appropriate setup command from the Install section above.
 
 ## Environment
 
-Two `.env` files drive the framework. Copy the examples and fill in values for your machine:
+Two `.env` files drive the framework. Copy the examples and fill in values for your machine — `cp` is an alias for `Copy-Item` in PowerShell, so the same line works in both shells:
 
-```powershell
-Copy-Item evomas\.env.example evomas\.env
-Copy-Item api\.env.example    api\.env
+```
+cp evomas/.env.example evomas/.env
+cp api/.env.example    api/.env
 ```
 
 | Variable | File | Purpose |
 |---|---|---|
-| `OLLAMA_BASE_URL` | `evomas\.env` | URL of the Ollama server every agent's LLM call targets. Default: `http://localhost:11434`. |
-| `WANDB_API_KEY` | `evomas\.env` | Optional. Only needed if you call `init_weave()`. |
-| `RESULTS_DIR` | `evomas\.env` | Optional. Where predictions + evaluations are written. Relative paths resolve against the repo root. Default: `<repo>/results`. |
-| `API_HOST`, `API_PORT` | `api\.env` | Bind addr for the FastAPI backend. Default: `0.0.0.0:8000`. |
+| `OLLAMA_BASE_URL` | `evomas/.env` | URL of the Ollama server every agent's LLM call targets. Default: `http://localhost:11434`. |
+| `WANDB_API_KEY` | `evomas/.env` | Optional. Only needed if you call `init_weave()`. |
+| `RESULTS_DIR` | `evomas/.env` | Optional. Where predictions + evaluations are written. Relative paths resolve against the repo root. Default: `<repo>/results`. |
+| `API_HOST`, `API_PORT` | `api/.env` | Bind addr for the FastAPI backend. Default: `0.0.0.0:8000`. |
 
 ## Run
 

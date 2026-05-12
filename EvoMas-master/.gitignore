@@ -3,6 +3,7 @@
 # (a frontend page) isn't swept up.
 /results/
 swebench_instances.jsonl
+requirements.txt
 
 # ─── Standard GitHub Python .gitignore ───────────────────────────────────────
 # Byte-compiled / optimized / DLL files
