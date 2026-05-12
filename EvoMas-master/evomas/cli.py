@@ -14,6 +14,7 @@ upstream doesn't require touching this CLI.
 from __future__ import annotations
 
 import os
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -79,19 +80,23 @@ def _run_script(script_name: str, extra_args: list[str]) -> int:
     ).returncode
 
 
-def _run_powershell(ps1_name: str, extra_args: list[str]) -> int:
-    """Subprocess one of the `scripts/` PowerShell entry points. Windows-only
-    by design - the project targets Windows and the start_*.ps1 scripts use
-    Windows paths and PowerShell built-ins."""
-    ps1_path = REPO_ROOT / "scripts" / ps1_name
-    if not ps1_path.is_file():
-        typer.echo(f"script not found: {ps1_path}", err=True)
+def _run_shell_script(script_stem: str, extra_args: list[str]) -> int:
+    """Subprocess a `scripts/` entry point picking the right interpreter
+    for the current OS: `.ps1` via PowerShell on Windows, `.sh` via bash
+    on Linux/macOS. The two variants are kept in sync (same args, same
+    behaviour). `script_stem` is the filename WITHOUT extension, e.g.
+    ``"start_api"``."""
+    if platform.system() == "Windows":
+        script_path = REPO_ROOT / "scripts" / f"{script_stem}.ps1"
+        cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
+               "-File", str(script_path), *extra_args]
+    else:
+        script_path = REPO_ROOT / "scripts" / f"{script_stem}.sh"
+        cmd = ["bash", str(script_path), *extra_args]
+    if not script_path.is_file():
+        typer.echo(f"script not found: {script_path}", err=True)
         return 1
-    return subprocess.run(
-        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
-         "-File", str(ps1_path), *extra_args],
-        cwd=REPO_ROOT,
-    ).returncode
+    return subprocess.run(cmd, cwd=REPO_ROOT).returncode
 
 
 # ─── ollama subcommands ───────────────────────────────────────────────────────
@@ -200,14 +205,14 @@ def run_evaluation(ctx: typer.Context) -> None:
 # ─── server entry points ──────────────────────────────────────────────────────
 @app.command()
 def web() -> None:
-    """Start the Angular frontend dev server (`start_frontend.ps1`)."""
-    raise typer.Exit(_run_powershell("start_frontend.ps1", []))
+    """Start the Angular frontend dev server (scripts/start_frontend.{ps1,sh})."""
+    raise typer.Exit(_run_shell_script("start_frontend", []))
 
 
 @app.command()
 def api() -> None:
-    """Start the FastAPI backend (`start_api.ps1`)."""
-    raise typer.Exit(_run_powershell("start_api.ps1", []))
+    """Start the FastAPI backend (scripts/start_api.{ps1,sh})."""
+    raise typer.Exit(_run_shell_script("start_api", []))
 
 
 def main() -> None:
