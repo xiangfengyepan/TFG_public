@@ -35,7 +35,7 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2410.14684"/>
           <attvalue for="framework" value="plug-in"/>
-          <attvalue for="dependency_graph" value="ozyyshr_RepoGraph_9cdb72.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/ozyyshr_RepoGraph_9cdb72.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- We introduce RepoGraph, an effective plug-in repo-level module that offers the desired context and substantially boosts the LLMs' AI software engineering capability.&#xA;- SWE-agent and agentless incorport RepoGraph"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="78" g="177" b="139"/>
+        <viz:color r="201" g="87" b="134"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="12150"/>
+        <viz:position x="0" y="14400"/>
       </node>
     </nodes>
     <edges/>

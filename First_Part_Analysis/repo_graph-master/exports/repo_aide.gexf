@@ -35,7 +35,7 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="null"/>
-          <attvalue for="dependency_graph" value="codestoryai_aide_4775af.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/codestoryai_aide_4775af.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="null"/>
@@ -45,12 +45,12 @@
           <attvalue for="programming_language" value="TypeScript, CSS, JavaScript, Rust, HTML"/>
           <attvalue for="autonomy_rating" value="0"/>
           <attvalue for="autonomy_description" value="0 - No Classification"/>
-          <attvalue for="repo_comments" value="- This project is no longer maintained. See our announcement here. &#xA;- AST navigation"/>
+          <attvalue for="repo_comments" value="- This project is no longer maintained. See our announcement https://x.com/aide_dev/status/1891862381074186388. &#xA;- AST navigation"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="94" g="171" b="104"/>
+        <viz:color r="94" g="172" b="105"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="6750"/>
+        <viz:position x="0" y="12150"/>
       </node>
     </nodes>
     <edges/>

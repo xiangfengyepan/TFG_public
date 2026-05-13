@@ -35,11 +35,11 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2407.01489"/>
           <attvalue for="framework" value="llama-index"/>
-          <attvalue for="dependency_graph" value="OpenAutoCoder_Agentless_051c7d.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/OpenAutoCoder_Agentless_051c7d.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="Figure 1: Overview of AGENTLESS."/>
-          <attvalue for="topology_file" value="Agentless_topology.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/Agentless_topology.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- three phase process: localization, repair, and patch validation."/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="63" g="173" b="175"/>
+        <viz:color r="195" g="93" b="161"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="7200"/>
+        <viz:position x="0" y="12600"/>
       </node>
     </nodes>
     <edges/>

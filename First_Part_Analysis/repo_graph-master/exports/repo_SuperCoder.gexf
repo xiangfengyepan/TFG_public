@@ -35,7 +35,7 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="null"/>
-          <attvalue for="dependency_graph" value="TransformerOptimus_SuperCoder_9b0ca6.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/TransformerOptimus_SuperCoder_9b0ca6.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- This project is under active development and may still have issues."/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="186" g="139" b="64"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="7650"/>
+        <viz:position x="0" y="13050"/>
       </node>
     </nodes>
     <edges/>

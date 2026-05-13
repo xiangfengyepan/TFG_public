@@ -43,9 +43,9 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="ridgesai_ridges_9f9ef9.json"/>
-          <attvalue for="has_agents" value="FALSE"/>
-          <attvalue for="num_agents" value="null"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/ridgesai_ridges_9f9ef9.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="1"/>
           <attvalue for="topology_description" value="null"/>
           <attvalue for="topology_file" value="null"/>
           <attvalue for="topology_type" value="null"/>
@@ -56,9 +56,9 @@
           <attvalue for="repo_comments" value="- No README.md in repo"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="201" g="86" b="105"/>
+        <viz:color r="201" g="85" b="116"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="4950"/>
+        <viz:position x="0" y="20250"/>
       </node>
       <node id="agent_ridges_0" label="Agent">
         <attvalues>
@@ -70,17 +70,17 @@
           <attvalue for="agent_in_repo" value="https://github.com/ridgesai/ridges/blob/5d5936410a295b599e42ccb22a10e2b86d441f0b/models/agent.py#L19"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="94"/>
+        <viz:color r="116" g="167" b="84"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="4950"/>
+        <viz:position x="500" y="20250"/>
       </node>
     </nodes>
     <edges>
-      <edge id="175" source="repo_ridges" target="agent_ridges_0" weight="6" label="has_agent">
+      <edge id="428" source="repo_ridges" target="agent_ridges_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="94"/>
+        <viz:color r="116" g="167" b="84"/>
       </edge>
     </edges>
   </graph>

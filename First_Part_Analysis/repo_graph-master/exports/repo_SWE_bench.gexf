@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="null"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="102" g="170" b="96"/>
+        <viz:color r="103" g="133" b="206"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="3600"/>
+        <viz:position x="0" y="19800"/>
       </node>
     </nodes>
     <edges/>

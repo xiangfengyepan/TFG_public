@@ -47,7 +47,7 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2503.21557"/>
           <attvalue for="framework" value="framework itself"/>
-          <attvalue for="dependency_graph" value="microsoft_debug-gym_cf4c75.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/microsoft_debug-gym_cf4c75.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="4"/>
           <attvalue for="topology_description" value="null"/>
@@ -60,9 +60,9 @@
           <attvalue for="repo_comments" value="- project page https://microsoft.github.io/debug-gym/"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="100" g="138" b="204"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="11250"/>
+        <viz:position x="0" y="4950"/>
       </node>
       <node id="agent_debug_gym_0" label="BaseAgent">
         <attvalues>
@@ -74,9 +74,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/base_agent.py#L88"/>
           <attvalue for="agent_comment" value="- History tracker: https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/history_tracker.py#L8"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="11025"/>
+        <viz:position x="500" y="4725"/>
       </node>
       <node id="agent_debug_gym_1" label="FroggyAgent">
         <attvalues>
@@ -88,9 +88,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/froggy_agent.py#L19"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="11175"/>
+        <viz:position x="500" y="4875"/>
       </node>
       <node id="agent_debug_gym_2" label="SimpleAgent">
         <attvalues>
@@ -102,9 +102,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/simple_agent.py#L100"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
         <viz:size value="40"/>
-        <viz:position x="500" y="11325"/>
+        <viz:position x="500" y="5025"/>
       </node>
       <node id="prompt_debug_gym_2_1" label="SYSTEM: system_prompt: str ">
         <attvalues>
@@ -114,9 +114,9 @@
           <attvalue for="prompt_text" value="system_prompt: str = &quot;&quot;&quot;You are a helpful assistant that can interact with a computer to solve tasks.&#xD;&#xA;&lt;IMPORTANT>&#xD;&#xA;* If user provides a path, you should NOT assume it's relative to the current working directory. Instead, you should explore the file system to find the file before working on it.&#xD;&#xA;&lt;/IMPORTANT>&#xD;&#xA;&#xD;&#xA;You have access to the following functions:&#xD;&#xA;&#xD;&#xA;{tools_description}&#xD;&#xA;&#xD;&#xA;If you choose to call a function ONLY reply in the following format with NO suffix:&#xD;&#xA;&#xD;&#xA;Provide any reasoning for the function call here.&#xD;&#xA;&lt;function=example_function_name>&#xD;&#xA;&lt;parameter=example_parameter_1>value_1&lt;/parameter>&#xD;&#xA;&lt;parameter=example_parameter_2>&#xD;&#xA;This is the value for the second parameter&#xD;&#xA;that can span&#xD;&#xA;multiple lines&#xD;&#xA;&lt;/parameter>&#xD;&#xA;&lt;/function>&#xD;&#xA;&#xD;&#xA;&lt;IMPORTANT>&#xD;&#xA;Reminder:&#xD;&#xA;- Function calls MUST follow the specified format, start with &lt;function= and end with &lt;/function>&#xD;&#xA;- Required parameters MUST be specified&#xD;&#xA;- Only call one function at a time&#xD;&#xA;- Always provide reasoning for your function call in natural language BEFORE the function call (not after)&#xD;&#xA;&lt;/IMPORTANT>&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/simple_agent.py#L59"/>
         </attvalues>
-        <viz:color r="94" g="171" b="104"/>
+        <viz:color r="108" g="169" b="94"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="11283.75"/>
+        <viz:position x="1000" y="4983.75"/>
       </node>
       <node id="prompt_debug_gym_2_2" label="HUMAN: instance_prompt: str ">
         <attvalues>
@@ -126,9 +126,9 @@
           <attvalue for="prompt_text" value="instance_prompt: str = &quot;&quot;&quot;&#xD;&#xA;I have uploaded a python code repository in the /testbed directory.&#xD;&#xA;&#xD;&#xA;Now consider the following instructions:&#xD;&#xA;&#xD;&#xA;\n\n{{ info.instructions }}\n\n&#xD;&#xA;&#xD;&#xA;Can you help me solve the issue?&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/simple_agent.py#L88"/>
         </attvalues>
-        <viz:color r="94" g="171" b="104"/>
+        <viz:color r="108" g="169" b="94"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="11366.25"/>
+        <viz:position x="1000" y="5066.25"/>
       </node>
       <node id="tool_f2c7b8f746" label="tool.py#L41">
         <attvalues>
@@ -136,9 +136,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/gym/tools/tool.py#L41"/>
         </attvalues>
-        <viz:color r="196" g="91" b="158"/>
+        <viz:color r="170" g="96" b="190"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="14580"/>
+        <viz:position x="2000" y="13230"/>
       </node>
       <node id="agent_debug_gym_3" label="AgentSolution">
         <attvalues>
@@ -150,53 +150,53 @@
           <attvalue for="agent_in_repo" value="https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/solution_agent.py#L10"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="11475"/>
+        <viz:position x="500" y="5175"/>
       </node>
     </nodes>
     <edges>
-      <edge id="295" source="repo_debug_gym" target="agent_debug_gym_0" weight="6" label="has_agent">
+      <edge id="325" source="repo_debug_gym" target="agent_debug_gym_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
       </edge>
-      <edge id="296" source="repo_debug_gym" target="agent_debug_gym_1" weight="6" label="has_agent">
+      <edge id="326" source="repo_debug_gym" target="agent_debug_gym_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
       </edge>
-      <edge id="297" source="repo_debug_gym" target="agent_debug_gym_2" weight="6" label="has_agent">
+      <edge id="327" source="repo_debug_gym" target="agent_debug_gym_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
       </edge>
-      <edge id="298" source="agent_debug_gym_2" target="prompt_debug_gym_2_1" weight="6" label="has_prompt">
+      <edge id="328" source="agent_debug_gym_2" target="prompt_debug_gym_2_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="94" g="171" b="104"/>
+        <viz:color r="108" g="169" b="94"/>
       </edge>
-      <edge id="299" source="agent_debug_gym_2" target="prompt_debug_gym_2_2" weight="6" label="has_prompt">
+      <edge id="329" source="agent_debug_gym_2" target="prompt_debug_gym_2_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="94" g="171" b="104"/>
+        <viz:color r="108" g="169" b="94"/>
       </edge>
-      <edge id="300" source="agent_debug_gym_2" target="tool_f2c7b8f746" weight="6" label="has_tool">
+      <edge id="330" source="agent_debug_gym_2" target="tool_f2c7b8f746" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="196" g="91" b="158"/>
+        <viz:color r="170" g="96" b="190"/>
       </edge>
-      <edge id="301" source="repo_debug_gym" target="agent_debug_gym_3" weight="6" label="has_agent">
+      <edge id="331" source="repo_debug_gym" target="agent_debug_gym_3" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="190" g="135" b="61"/>
       </edge>
     </edges>
   </graph>

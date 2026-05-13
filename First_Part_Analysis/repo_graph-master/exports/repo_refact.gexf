@@ -35,7 +35,7 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="smallcloudai_refact_7ba63e.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/smallcloudai_refact_7ba63e.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="null"/>
           <attvalue for="topology_description" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- not in python"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="63" g="173" b="175"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="4500"/>
+        <viz:position x="0" y="20700"/>
       </node>
     </nodes>
     <edges/>

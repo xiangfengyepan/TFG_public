@@ -43,7 +43,7 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="langgraph, langchain"/>
-          <attvalue for="dependency_graph" value="evandiewald_aegis_273adb.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/evandiewald_aegis_273adb.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="2"/>
           <attvalue for="topology_description" value="null"/>
@@ -56,9 +56,9 @@
           <attvalue for="repo_comments" value="- It is significantly inspired by Moatless Tools&#xA;- Getting Started&#xA;Coming soon.&#xA;- Flake8Linter (analyze code sintex without runnning the code)&#xA;- all prompts in use in agent.py https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/agent.py#L1&#xA;- tools defined in also in agent.py&#xA;- prompt template: https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/prompt_templates.py#L3"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="79" g="174" b="155"/>
+        <viz:color r="155" g="107" b="190"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="18000"/>
+        <viz:position x="0" y="7650"/>
       </node>
       <node id="agent_aegis_0" label="Editor">
         <attvalues>
@@ -70,37 +70,37 @@
           <attvalue for="agent_in_repo" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/editor.py#L31"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="203" g="84" b="96"/>
+        <viz:color r="109" g="169" b="78"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="17925"/>
+        <viz:position x="500" y="7575"/>
       </node>
       <node id="agent_aegis_1" label="Environment">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="Environment"/>
-          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="agent_type" value="Environment setup"/>
           <attvalue for="short_description" value="null"/>
           <attvalue for="agent_in_repo" value="https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/environment.py#L28"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="203" g="84" b="96"/>
+        <viz:color r="109" g="169" b="78"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="18075"/>
+        <viz:position x="500" y="7725"/>
       </node>
     </nodes>
     <edges>
-      <edge id="380" source="repo_aegis" target="agent_aegis_0" weight="6" label="has_agent">
+      <edge id="391" source="repo_aegis" target="agent_aegis_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="203" g="84" b="96"/>
+        <viz:color r="109" g="169" b="78"/>
       </edge>
-      <edge id="381" source="repo_aegis" target="agent_aegis_1" weight="6" label="has_agent">
+      <edge id="392" source="repo_aegis" target="agent_aegis_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="203" g="84" b="96"/>
+        <viz:color r="109" g="169" b="78"/>
       </edge>
     </edges>
   </graph>

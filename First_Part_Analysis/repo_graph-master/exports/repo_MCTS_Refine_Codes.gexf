@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- Inspired by ReST-MCTS&#xA;- MCTS: https://github.com/mcts-refine/MCTS-Refine-Codes/tree/638074eb58e6e692ff124a6aeea81c4652a292b6/MCTS&#xA;- use auto-code-rover https://github.com/mcts-refine/MCTS-Refine-Codes/tree/638074eb58e6e692ff124a6aeea81c4652a292b6/auto_code_rover"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="105" g="130" b="206"/>
+        <viz:color r="202" g="93" b="65"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="21150"/>
+        <viz:position x="0" y="18900"/>
       </node>
     </nodes>
     <edges/>

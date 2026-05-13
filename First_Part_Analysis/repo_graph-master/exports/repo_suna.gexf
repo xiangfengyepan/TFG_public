@@ -44,7 +44,7 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="framework itself"/>
-          <attvalue for="dependency_graph" value="kortix-ai_suna_94ad70.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/kortix-ai_suna_94ad70.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="6"/>
           <attvalue for="topology_description" value="null"/>
@@ -57,79 +57,79 @@
           <attvalue for="repo_comments" value="- End-to-end application platform&#xA;- system agent CRUD: (Create, Read, Update, Delete) &#xA;- &quot;&quot;&quot;Agent-related API models.&quot;&quot;&quot;: https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/api_models/agents.py#L1&#xA;- Api: Agent Service: (AgentFilter, AgentLoader:(AgentData))&#xA;- Api: executor.py->StatelessCoordinator->ManagerInitializer->ToolManager, MCPManager, ThreadManager, etc->tools&#xA;- Core prompt in: https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/prompts/core_prompt.py#L1"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="196" g="125" b="62"/>
+        <viz:color r="186" g="139" b="64"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="1350"/>
+        <viz:position x="0" y="2250"/>
       </node>
       <node id="agent_suna_0" label="AgentData">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="AgentData"/>
-          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="agent_type" value="Environment setup"/>
           <attvalue for="short_description" value="Complete agent data including configuration.&#xA;    &#xA;    This is the single source of truth for agent representation."/>
           <attvalue for="agent_in_repo" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_loader.py#L14"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="975"/>
+        <viz:position x="500" y="1875"/>
       </node>
       <node id="agent_suna_1" label="AgentLoader">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="AgentLoader"/>
-          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="agent_type" value="Environment setup"/>
           <attvalue for="short_description" value="Unified agent loading service.&#xD;&#xA;    &#xD;&#xA;    Handles all agent data loading with consistent behavior:&#xD;&#xA;    - Single agent: loads full config&#xD;&#xA;    - List operations: loads metadata only (fast)&#xD;&#xA;    - Batch loading: efficient version fetching"/>
           <attvalue for="agent_in_repo" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_loader.py#L160"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="1125"/>
+        <viz:position x="500" y="2025"/>
       </node>
       <node id="agent_suna_2" label="AgentService">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="AgentService"/>
-          <attvalue for="agent_type" value="Planner/Orchestrator, Enviorment setup"/>
+          <attvalue for="agent_type" value="Planner/Orchestrator"/>
           <attvalue for="short_description" value="Takes Filter and Loader"/>
           <attvalue for="agent_in_repo" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_service.py#L30"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="1275"/>
+        <viz:position x="500" y="2175"/>
       </node>
       <node id="agent_suna_3" label="AgentFilters">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="AgentFilters"/>
-          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="agent_type" value="Environment setup"/>
           <attvalue for="short_description" value="Is just a data structure like many other define in repo"/>
           <attvalue for="agent_in_repo" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_service.py#L8"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="1425"/>
+        <viz:position x="500" y="2325"/>
       </node>
       <node id="agent_suna_4" label="KortixAgent">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="16"/>
           <attvalue for="agent_name" value="KortixAgent"/>
-          <attvalue for="agent_type" value="Localizator, Patcher, Reviewer"/>
+          <attvalue for="agent_type" value="Locator"/>
           <attvalue for="short_description" value="Already build agent, Super worker"/>
           <attvalue for="agent_in_repo" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/agent.py#L94"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="16"/>
-        <viz:position x="500" y="1575"/>
+        <viz:position x="500" y="2475"/>
       </node>
       <node id="tool_d06c7e9341" label="tools.py#L63">
         <attvalues>
@@ -137,9 +137,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/tools.py#L63"/>
         </attvalues>
-        <viz:color r="201" g="85" b="118"/>
+        <viz:color r="113" g="169" b="71"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="2430"/>
+        <viz:position x="2000" y="4860"/>
       </node>
       <node id="agent_suna_5" label="Agent">
         <attvalues>
@@ -151,53 +151,53 @@
           <attvalue for="agent_in_repo" value="https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/agent.py#L14"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="1725"/>
+        <viz:position x="500" y="2625"/>
       </node>
     </nodes>
     <edges>
-      <edge id="134" source="repo_suna" target="agent_suna_0" weight="6" label="has_agent">
+      <edge id="190" source="repo_suna" target="agent_suna_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="135" source="repo_suna" target="agent_suna_1" weight="6" label="has_agent">
+      <edge id="191" source="repo_suna" target="agent_suna_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="136" source="repo_suna" target="agent_suna_2" weight="6" label="has_agent">
+      <edge id="192" source="repo_suna" target="agent_suna_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="137" source="repo_suna" target="agent_suna_3" weight="6" label="has_agent">
+      <edge id="193" source="repo_suna" target="agent_suna_3" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="138" source="repo_suna" target="agent_suna_4" weight="6" label="has_agent">
+      <edge id="194" source="repo_suna" target="agent_suna_4" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="139" source="agent_suna_4" target="tool_d06c7e9341" weight="6" label="has_tool">
+      <edge id="195" source="agent_suna_4" target="tool_d06c7e9341" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="85" b="118"/>
+        <viz:color r="113" g="169" b="71"/>
       </edge>
-      <edge id="140" source="repo_suna" target="agent_suna_5" weight="6" label="has_agent">
+      <edge id="196" source="repo_suna" target="agent_suna_5" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="146" g="111" b="197"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
     </edges>
   </graph>

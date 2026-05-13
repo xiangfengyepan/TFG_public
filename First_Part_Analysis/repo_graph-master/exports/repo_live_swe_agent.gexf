@@ -39,7 +39,7 @@
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="null"/>
           <attvalue for="topology_description" value="Figure 2: Overview of LIVE-SWE-AGENT"/>
-          <attvalue for="topology_file" value="live-swe-agent_topology.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/live-swe-agent_topology.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- Can not analyze (no Code at all)"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="80" g="174" b="155"/>
+        <viz:color r="146" g="111" b="197"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="13050"/>
+        <viz:position x="0" y="21150"/>
       </node>
     </nodes>
     <edges/>

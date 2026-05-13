@@ -35,11 +35,11 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2506.07636"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="THUDM_SWE-Dev_c5f81e.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/THUDM_SWE-Dev_c5f81e.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="This pipeline automatically generates and validates test cases for code repositories. It clones a repo, extracts relevant code context, and uses a language model to create tests and environments. The tests are then parsed, dependencies installed, and executed in isolated environments. Optionally, failing tests are refined using feedback, and the process runs in parallel to produce validated results efficiently."/>
-          <attvalue for="topology_file" value="Swe-dev_pipeline.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/Swe-dev_pipeline.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python, Shell, Dockerfile"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- issue -> pipeline: get_description -> generate testcase -> eval testcase"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="186" g="139" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="15750"/>
+        <viz:position x="0" y="16200"/>
       </node>
     </nodes>
     <edges/>

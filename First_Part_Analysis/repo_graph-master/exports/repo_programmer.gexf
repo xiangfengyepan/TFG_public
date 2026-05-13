@@ -46,7 +46,7 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="wandb_programmer_612eac.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/wandb_programmer_612eac.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="3"/>
           <attvalue for="topology_description" value="- User prompt and agent are choses by the user"/>
@@ -59,9 +59,9 @@
           <attvalue for="repo_comments" value="- programmer is a command-line based AI programmer, that will help you get stuff done.&#xA;&#xA;WARNING: programmer has direct access to your machine, it can run commands, and read and write files, without safety checks. You have been warned!&#xA;- use weave https://docs.wandb.ai/weave/concepts/what-is-weave"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="79" g="174" b="155"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="16200"/>
+        <viz:position x="0" y="6750"/>
       </node>
       <node id="agent_programmer_0" label="Agent">
         <attvalues>
@@ -73,9 +73,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/wandb/programmer/blob/9b25bc7d4d4e4f4d685737de66147c248d1159d8/programmer/agent.py#L58"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="203" g="84" b="96"/>
         <viz:size value="25"/>
-        <viz:position x="500" y="16050"/>
+        <viz:position x="500" y="6600"/>
       </node>
       <node id="prompt_programmer_0_1" label="SYSTEM: SYSTEM_MESSAGE ">
         <attvalues>
@@ -85,9 +85,9 @@
           <attvalue for="prompt_text" value="SYSTEM_MESSAGE = &quot;&quot;&quot;Assistant is a programming assistant named &quot;programmer&quot;.&#xD;&#xA;programmer is autonomous, and does not stop to ask for user input until it is totally stuck.&#xD;&#xA;programmer always has access to a shell and local filesystem in perform tasks, via its tools.&#xD;&#xA;programmer writes code directly to files instead of to the terminal, unless it is showing snippets for discussion.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/wandb/programmer/blob/9b25bc7d4d4e4f4d685737de66147c248d1159d8/programmer/config.py#L1"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="16050"/>
+        <viz:position x="1000" y="6600"/>
       </node>
       <node id="agent_programmer_1" label="AgentTextEditorO1">
         <attvalues>
@@ -99,9 +99,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/wandb/programmer/blob/9b25bc7d4d4e4f4d685737de66147c248d1159d8/programmer/agent_texteditor_o1.py#L75"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="203" g="84" b="96"/>
         <viz:size value="25"/>
-        <viz:position x="500" y="16200"/>
+        <viz:position x="500" y="6750"/>
       </node>
       <node id="prompt_programmer_1_1" label="SYSTEM: SYSTEM_MESSAGE ">
         <attvalues>
@@ -111,9 +111,9 @@
           <attvalue for="prompt_text" value="SYSTEM_MESSAGE = &quot;&quot;&quot;Assistant is a programming assistant named &quot;programmer&quot;.&#xD;&#xA;programmer is autonomous, and does not stop to ask for user input until it is totally stuck.&#xD;&#xA;programmer always has access to a shell and local filesystem in perform tasks, via its tools.&#xD;&#xA;programmer writes code directly to files instead of to the terminal, unless it is showing snippets for discussion.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/wandb/programmer/blob/9b25bc7d4d4e4f4d685737de66147c248d1159d8/programmer/config.py#L1"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="16200"/>
+        <viz:position x="1000" y="6750"/>
       </node>
       <node id="agent_programmer_2" label="AgentTextEditor">
         <attvalues>
@@ -125,9 +125,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/wandb/programmer/blob/9b25bc7d4d4e4f4d685737de66147c248d1159d8/programmer/agent_texteditor.py#L67"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="203" g="84" b="96"/>
         <viz:size value="25"/>
-        <viz:position x="500" y="16350"/>
+        <viz:position x="500" y="6900"/>
       </node>
       <node id="prompt_programmer_2_1" label="SYSTEM: SYSTEM_MESSAGE ">
         <attvalues>
@@ -137,47 +137,47 @@
           <attvalue for="prompt_text" value="SYSTEM_MESSAGE = &quot;&quot;&quot;Assistant is a programming assistant named &quot;programmer&quot;.&#xD;&#xA;programmer is autonomous, and does not stop to ask for user input until it is totally stuck.&#xD;&#xA;programmer always has access to a shell and local filesystem in perform tasks, via its tools.&#xD;&#xA;programmer writes code directly to files instead of to the terminal, unless it is showing snippets for discussion.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/wandb/programmer/blob/9b25bc7d4d4e4f4d685737de66147c248d1159d8/programmer/config.py#L1"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="155" g="109" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="16350"/>
+        <viz:position x="1000" y="6900"/>
       </node>
     </nodes>
     <edges>
-      <edge id="359" source="repo_programmer" target="agent_programmer_0" weight="6" label="has_agent">
+      <edge id="382" source="repo_programmer" target="agent_programmer_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="203" g="84" b="96"/>
       </edge>
-      <edge id="360" source="agent_programmer_0" target="prompt_programmer_0_1" weight="6" label="has_prompt">
+      <edge id="383" source="agent_programmer_0" target="prompt_programmer_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="361" source="repo_programmer" target="agent_programmer_1" weight="6" label="has_agent">
+      <edge id="384" source="repo_programmer" target="agent_programmer_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="203" g="84" b="96"/>
       </edge>
-      <edge id="362" source="agent_programmer_1" target="prompt_programmer_1_1" weight="6" label="has_prompt">
+      <edge id="385" source="agent_programmer_1" target="prompt_programmer_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
-      <edge id="363" source="repo_programmer" target="agent_programmer_2" weight="6" label="has_agent">
+      <edge id="386" source="repo_programmer" target="agent_programmer_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="203" g="84" b="96"/>
       </edge>
-      <edge id="364" source="agent_programmer_2" target="prompt_programmer_2_1" weight="6" label="has_prompt">
+      <edge id="387" source="agent_programmer_2" target="prompt_programmer_2_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="155" g="109" b="191"/>
       </edge>
     </edges>
   </graph>

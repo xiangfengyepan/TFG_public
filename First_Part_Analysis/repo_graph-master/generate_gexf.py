@@ -30,9 +30,10 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-BASE           = Path(r"C:\Users\XF\Desktop\TFG\First_Part_Analysis")
+BASE           = Path(r"C:\Users\XF\Desktop\TFG_public\First_Part_Analysis")
 REPO_CSV       = BASE / "Open-Source-Proyects-SWE-Bench - Repositories.csv"
-AGENTS_DIR     = BASE / "Prompt_Anlysis" / "agents_csv"
+AGENT_TYPE_CSV = BASE / "Open-Source-Proyects-SWE-Bench - AgentType.csv"
+AGENTS_DIR     = BASE / "Prompt_Analysis" / "agents_csv"
 OUTPUT         = Path(__file__).parent / "raw_swe_bench_graph.gexf"
 DATASET_OUTPUT = Path(__file__).parent / "config" / "dataset.json"
 
@@ -121,6 +122,43 @@ def normalize(s):
 
 def build_csv_map():
     return {normalize(p.stem): p for p in AGENTS_DIR.glob("*.csv")}
+
+def build_agent_type_map():
+    """
+    Parse AgentType.csv into {normalized_repo: {normalized_agent_name: type_label}}.
+    Header row gives type labels; first column is the repo; remaining cells contain
+    comma/newline-separated agent names (with optional "(Parent)" suffix).
+    """
+    out = {}
+    if not AGENT_TYPE_CSV.exists():
+        return out
+    with open(AGENT_TYPE_CSV, encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.reader(f))
+    if not rows:
+        return out
+    header = rows[0]
+    type_labels = header[1:]
+    for row in rows[1:]:
+        if not row or not row[0].strip():
+            continue
+        repo_key = normalize(row[0])
+        if repo_key in ("description",):
+            continue
+        repo_entry = out.setdefault(repo_key, {})
+        for idx, cell in enumerate(row[1:]):
+            if idx >= len(type_labels):
+                break
+            label = type_labels[idx].strip()
+            if not label or not cell or not cell.strip():
+                continue
+            for raw in re.split(r"[,\n]", cell):
+                name = raw.strip()
+                if not name:
+                    continue
+                name = re.sub(r"\s*\([^)]*\)\s*$", "", name).strip()
+                if name:
+                    repo_entry.setdefault(normalize(name), label)
+    return out
 
 # ---------------------------------------------------------------------------
 # Dataset skeleton  (Gephi Lite 1.0_dataset format)
@@ -276,12 +314,22 @@ def emit_prompts_tools(row, parent_id, id_prefix,
 # Standard single-section CSV  (most repos)
 # ---------------------------------------------------------------------------
 
+def resolve_agent_type(agent_name, csv_value, repo_name, agent_type_map):
+    repo_types = agent_type_map.get(normalize(repo_name)) if agent_type_map else None
+    if repo_types:
+        looked_up = repo_types.get(normalize(agent_name))
+        if looked_up:
+            return looked_up
+    return csv_value
+
 def process_agent_csv(path, repo_name, repo_node_id,
-                      nodes_el, edges_el, tool_map, counters, dataset=None):
+                      nodes_el, edges_el, tool_map, counters,
+                      dataset=None, agent_type_map=None):
     sections = split_csv_sections(path)
     if sections is not None:
         process_multisection_csv(sections, repo_name, repo_node_id,
-                                 nodes_el, edges_el, tool_map, counters, dataset)
+                                 nodes_el, edges_el, tool_map, counters,
+                                 dataset, agent_type_map)
         return
 
     with open(path, encoding="utf-8-sig", newline="") as f:
@@ -300,7 +348,9 @@ def process_agent_csv(path, repo_name, repo_node_id,
             add_node(nodes_el, agent_id, a_name, {
                 "node_type":         "agent",
                 "agent_name":        a_name,
-                "agent_type":        row.get("Agent Type", ""),
+                "agent_type":        resolve_agent_type(
+                                         a_name, row.get("Agent Type", ""),
+                                         repo_name, agent_type_map),
                 "short_description": row.get("Short Description", ""),
                 "agent_in_repo":     row.get("Agent in the repo", ""),
                 "agent_comment":     row.get(comment_col, "") if comment_col else "",
@@ -319,7 +369,8 @@ def process_agent_csv(path, repo_name, repo_node_id,
 # ---------------------------------------------------------------------------
 
 def process_multisection_csv(sections, repo_name, repo_node_id,
-                              nodes_el, edges_el, tool_map, counters, dataset=None):
+                              nodes_el, edges_el, tool_map, counters,
+                              dataset=None, agent_type_map=None):
     section1_text = sections[0]
     section2_text = sections[1] if len(sections) > 1 else ""
 
@@ -369,7 +420,9 @@ def process_multisection_csv(sections, repo_name, repo_node_id,
         add_node(nodes_el, agent_id, a_name, {
             "node_type":         "agent",
             "agent_name":        a_name,
-            "agent_type":        row.get("Agent Type", ""),
+            "agent_type":        resolve_agent_type(
+                                     a_name, row.get("Agent Type", ""),
+                                     repo_name, agent_type_map),
             "short_description": row.get("Short Description", ""),
             "agent_in_repo":     row.get("Agent in the repo", ""),
             "agent_comment":     row.get("Comments", ""),
@@ -391,7 +444,8 @@ def process_multisection_csv(sections, repo_name, repo_node_id,
 # ---------------------------------------------------------------------------
 
 def main():
-    csv_map  = build_csv_map()
+    csv_map        = build_csv_map()
+    agent_type_map = build_agent_type_map()
     consumed = set()
     tool_map = {}
     dataset  = build_dataset()
@@ -429,7 +483,8 @@ def main():
             if key in csv_map and key not in consumed:
                 consumed.add(key)
                 process_agent_csv(csv_map[key], repo_name, repo_id,
-                                  nodes_el, edges_el, tool_map, counters, dataset)
+                                  nodes_el, edges_el, tool_map, counters,
+                                  dataset, agent_type_map)
 
     # ── orphan agent CSVs (not matched to any repo row) ─────────────────────
     NULL_ATTRS = {attr: "null" for _, attr in ATTRS if attr != "node_type"}
@@ -443,7 +498,8 @@ def main():
         add_node(nodes_el, repo_id, repo_name, orphan_attrs, dataset)
         n_repos += 1
         process_agent_csv(path, repo_name, repo_id,
-                          nodes_el, edges_el, tool_map, counters, dataset)
+                          nodes_el, edges_el, tool_map, counters,
+                          dataset, agent_type_map)
 
     # ── write GEXF ────────────────────────────────────────────────────────────
     tree = ET.ElementTree(gexf)

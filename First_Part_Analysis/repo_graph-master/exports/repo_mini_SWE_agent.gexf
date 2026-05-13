@@ -46,9 +46,9 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2405.15793"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="SWE-agent_mini-swe-agent_47b2f5.json"/>
-          <attvalue for="has_agents" value="FALSE"/>
-          <attvalue for="num_agents" value="0"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/SWE-agent_mini-swe-agent_47b2f5.json"/>
+          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="num_agents" value="2"/>
           <attvalue for="topology_description" value="null"/>
           <attvalue for="topology_file" value="null"/>
           <attvalue for="topology_type" value="null"/>
@@ -56,12 +56,12 @@
           <attvalue for="programming_language" value="Python"/>
           <attvalue for="autonomy_rating" value="0"/>
           <attvalue for="autonomy_description" value="0 - No Classification"/>
-          <attvalue for="repo_comments" value="- # Agent implementations&#xD;&#xA;&#xD;&#xA;* `default.py` - Minimal default agent implementation.&#xD;&#xA;* `interactive.py` - Extends `default.py` with some minimal human-in-the-loop functionality (confirm actions, etc.)."/>
+          <attvalue for="repo_comments" value="- # Agent implementations&#xA;&#xA;* `default.py` - Minimal default agent implementation.&#xA;* `interactive.py` - Extends `default.py` with some minimal human-in-the-loop functionality (confirm actions, etc.)."/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="128" g="119" b="203"/>
+        <viz:color r="119" g="122" b="204"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="6300"/>
+        <viz:position x="0" y="11700"/>
       </node>
       <node id="agent_mini_SWE_agent_0" label="DefaultAgent">
         <attvalues>
@@ -73,9 +73,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/default.py#L33"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="174" g="152" b="65"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="6225"/>
+        <viz:position x="500" y="11625"/>
       </node>
       <node id="agent_mini_SWE_agent_1" label="InteractiveAgent">
         <attvalues>
@@ -87,9 +87,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/interactive.py#L32"/>
           <attvalue for="agent_comment" value="- prompt user: https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/utils/prompt_user.py#L1"/>
         </attvalues>
-        <viz:color r="174" g="152" b="65"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="40"/>
-        <viz:position x="500" y="6375"/>
+        <viz:position x="500" y="11775"/>
       </node>
       <node id="prompt_mini_SWE_agent_1_1" label="HUMAN: prompt ">
         <attvalues>
@@ -99,29 +99,29 @@
           <attvalue for="prompt_text" value="prompt = (&#xD;&#xA;            f&quot;[bold yellow]Execute {len(commands)} action(s)?[/] [green][bold]Enter[/] to confirm[/], &quot;&#xD;&#xA;            &quot;[red]type [bold]comment[/] to reject[/], or [blue][bold]/h[/] to show available commands[/]\n&quot;&#xD;&#xA;            &quot;[bold yellow]>[/bold yellow] &quot;&#xD;&#xA;        )"/>
           <attvalue for="prompt_url" value="https://github.com/SWE-agent/mini-swe-agent/blob/6f1b1966166301d68f54bd5b427ec9a596ea853c/src/minisweagent/agents/interactive.py#L142"/>
         </attvalues>
-        <viz:color r="94" g="172" b="105"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="6375"/>
+        <viz:position x="1000" y="11775"/>
       </node>
     </nodes>
     <edges>
-      <edge id="195" source="repo_mini_SWE_agent" target="agent_mini_SWE_agent_0" weight="6" label="has_agent">
+      <edge id="425" source="repo_mini_SWE_agent" target="agent_mini_SWE_agent_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="174" g="152" b="65"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="196" source="repo_mini_SWE_agent" target="agent_mini_SWE_agent_1" weight="6" label="has_agent">
+      <edge id="426" source="repo_mini_SWE_agent" target="agent_mini_SWE_agent_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="174" g="152" b="65"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="197" source="agent_mini_SWE_agent_1" target="prompt_mini_SWE_agent_1_1" weight="6" label="has_prompt">
+      <edge id="427" source="agent_mini_SWE_agent_1" target="prompt_mini_SWE_agent_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="94" g="172" b="105"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
     </edges>
   </graph>
