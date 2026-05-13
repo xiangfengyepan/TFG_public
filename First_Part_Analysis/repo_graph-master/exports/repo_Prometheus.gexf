@@ -47,11 +47,11 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2507.19942"/>
           <attvalue for="framework" value="langgraph, langchain"/>
-          <attvalue for="dependency_graph" value="EuniAI_Prometheus_c3e26d.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/EuniAI_Prometheus_c3e26d.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="5"/>
           <attvalue for="topology_description" value="Publication Fig. 6. An overview of our multi-agent architecture"/>
-          <attvalue for="topology_file" value="prometheus_multi-agent architecture.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/prometheus_multi-agent%20architecture.png"/>
           <attvalue for="topology_type" value="Hierarchical"/>
           <attvalue for="topology_url" value="https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/README.md?plain=1#L130"/>
           <attvalue for="programming_language" value="Python, Shell"/>
@@ -60,9 +60,9 @@
           <attvalue for="repo_comments" value="- agent represent subgraph with nodes"/>
           <attvalue for="rawSize" value="20"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="20"/>
-        <viz:position x="0" y="9000"/>
+        <viz:position x="0" y="4050"/>
       </node>
       <node id="node_Prometheus_2" label="BugReproducingExecuteNode">
         <attvalues>
@@ -74,9 +74,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_execute_node.py#L18"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="17.5"/>
-        <viz:position x="1000" y="8831.25"/>
+        <viz:position x="1000" y="3881.25"/>
       </node>
       <node id="prompt_Prometheus_node2_1" label="SYSTEM: BugReproducingExecuteNode_SYS_PROMPT ">
         <attvalues>
@@ -86,9 +86,9 @@
           <attvalue for="prompt_text" value="BugReproducingExecuteNode_SYS_PROMPT = \&#xA;You are a testing expert focused solely on executing THE SINGLE bug reproduction test file.&#xA;Your only goal is to run the test file created by the previous agent and return its output as it is.&#xA;&#xA;Adapt the user provided test command to execute the single bug reproduction test file.&#xA;&#xA;Rules:&#xA;* DO NOT CHECK IF THE TEST FILE EXISTS. IT IS GUARANTEED TO EXIST.&#xA;* DO NOT EXECUTE THE WHOLE TEST SUITE. ONLY EXECUTE THE SINGLE BUG REPRODUCTION TEST FILE.&#xA;* DO NOT EDIT ANY FILES.&#xA;* DO NOT ASSUME ALL DEPENDENCIES ARE INSTALLED.&#xA;* STOP TRYING IF THE TEST EXECUTES.&#xA;&#xA;REMINDER:&#xA;* Install dependencies if needed!"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_execute_node.py#L19"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="8790"/>
+        <viz:position x="1500" y="3840"/>
       </node>
       <node id="prompt_Prometheus_node2_2" label="HUMAN: BugReproducingExecuteNode_HUMAN_PROMPT ">
         <attvalues>
@@ -98,9 +98,9 @@
           <attvalue for="prompt_text" value="BugReproducingExecuteNode_HUMAN_PROMPT = \&#xA;ISSUE INFORMATION:&#xA;Title: {title}&#xA;Description: {body}&#xA;Comments: {comments}&#xA;&#xA;Bug reproducing file:&#xA;{reproduced_bug_file}&#xA;&#xA;User provided test commands:&#xA;{test_commands}"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_execute_node.py#L36"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="8872.5"/>
+        <viz:position x="1500" y="3922.5"/>
       </node>
       <node id="tool_4f16b9c513" label="bug_reproducing_execute_node.py#L66">
         <attvalues>
@@ -108,9 +108,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_execute_node.py#L66"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="6480"/>
+        <viz:position x="2000" y="5940"/>
       </node>
       <node id="node_Prometheus_3" label="BugReproducingFileNode">
         <attvalues>
@@ -122,9 +122,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_file_node.py#L15"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="20"/>
-        <viz:position x="1000" y="8943.75"/>
+        <viz:position x="1000" y="3993.75"/>
       </node>
       <node id="prompt_Prometheus_node3_1" label="SYSTEM: BugReproducingFileNode_SYS_PROMPT ">
         <attvalues>
@@ -134,9 +134,9 @@
           <attvalue for="prompt_text" value="BugReproducingFileNode_SYS_PROMPT = \&#xA;You are a test file manager. Your task is to save the provided bug reproducing code in the project. You should:&#xA;&#xA;1. Examine the project structure to identify existing test file naming patterns and test folder organization&#xA;2. Use the create_file tool to save the bug reproducing code in a SINGLE new test file that do not yet exists,&#xA;   the name should follow the project's existing test filename conventions&#xA;3. After creating the file, return its relative path&#xA;&#xA;Tools available:&#xA;- create_file: Create a new SINGLE file with specified content&#xA;&#xA;If create_file fails because there is already a file with that names, use another name.&#xA;Respond with the created file's relative path."/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_file_node.py#L16"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="8902.5"/>
+        <viz:position x="1500" y="3952.5"/>
       </node>
       <node id="prompt_Prometheus_node3_2" label="HUMAN: BugReproducingFileNode_HUMAN_PROMPT ">
         <attvalues>
@@ -146,9 +146,9 @@
           <attvalue for="prompt_text" value="BugReproducingFileNode_HUMAN_PROMPT = \&#xA;Save this bug reproducing code in the project:&#xA;{bug_reproducing_code}&#xA;&#xA;Current project structure:&#xA;{project_structure}"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_file_node.py#L31"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="8985"/>
+        <viz:position x="1500" y="4035"/>
       </node>
       <node id="tool_e6ab4a0797" label="bug_reproducing_file_node.py#L52">
         <attvalues>
@@ -156,9 +156,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_file_node.py#L52"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="6750"/>
+        <viz:position x="2000" y="6210"/>
       </node>
       <node id="tool_cdb3e9e84d" label="bug_reproducing_file_node.py#L61">
         <attvalues>
@@ -166,9 +166,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_file_node.py#L61"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="7020"/>
+        <viz:position x="2000" y="6480"/>
       </node>
       <node id="node_Prometheus_4" label="BugReproducingStructuredNode">
         <attvalues>
@@ -180,9 +180,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_structured_node.py#L30"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="15"/>
-        <viz:position x="1000" y="9056.25"/>
+        <viz:position x="1000" y="4106.25"/>
       </node>
       <node id="prompt_Prometheus_node4_1" label="SYSTEM: BugReproducingStructuredNode_SYS_PROMPT ">
         <attvalues>
@@ -192,9 +192,9 @@
           <attvalue for="prompt_text" value="BugReproducingStructuredNode_SYS_PROMPT = \&#xA;You are an agent that verifies if a test properly reproduces a reported bug. You analyze:&#xA;1. Issue description and any provided examples&#xA;2. The test code written to reproduce the bug&#xA;3. The test execution results&#xA;&#xA;For reproduced_bug to be True, the test MUST:&#xA;1. Fail (since bug isn't fixed yet)&#xA;2. Fail in exactly the same way described in the issue&#xA;3. Use the exact examples from the issue if any were provided&#xA;4. Demonstrate the same underlying problem&#xA;&#xA;Set reproduced_bug_failure_log to contain:&#xA;- The complete test execution output/log&#xA;- For passing tests: Explanation that test passed but should fail to demonstrate the unfixed bug&#xA;- For wrong failures: Full error log and explanation of how the error differs from what's described&#xA;- For wrong examples: Full error log and explanation of which example from the issue should be used&#xA;- For wrong behavior: Full error log and explanation of what behavior should be tested instead&#xA;- For any other issues: Full error log and detailed explanation of the problem&#xA;&#xA;Example 1 - Correct Reproduction:&#xA;```&#xA;Issue:&#xA;Title: Array.pop() crashes on empty array&#xA;Description: Calling pop() on empty array throws &quot;Cannot read property 'length' of undefined&quot; but should throw &quot;Array is empty&quot;&#xA;Example: let arr = []; arr.pop(); // Shows wrong error&#xA;&#xA;Test:&#xA;def test_empty_array_pop():&#xA;    arr = []&#xA;    with pytest.raises(ValueError, match=&quot;Cannot read property 'length' of undefined&quot;):&#xA;        arr.pop()&#xA;&#xA;Result: Test failed with &quot;Cannot read property 'length' of undefined&quot;&#xA;&#xA;Output:&#xA;{&#xA;    &quot;reproduced_bug&quot;: true,&#xA;    &quot;reproduced_bug_failure_log&quot;: &quot;FAILED tests/test_array.py::test_empty_array_pop - Cannot read property 'length' of undefined&quot;,&#xA;    &quot;reproduced_bug_commands&quot;: [&quot;pytest tests/test_array.py&quot;]&#xA;}&#xA;```&#xA;&#xA;Example 2 - Wrong Error:&#xA;```&#xA;Issue:&#xA;Title: Array.pop() crashes on empty array&#xA;Description: Calling pop() on empty array throws &quot;Cannot read property 'length' of undefined&quot; but should throw &quot;Array is empty&quot;&#xA;Example: let arr = []; arr.pop(); // Shows wrong error&#xA;&#xA;Test:&#xA;def test_empty_array_pop():&#xA;    arr = []&#xA;    with pytest.raises(IndexError):&#xA;        arr.pop()&#xA;&#xA;Result: Test failed with &quot;IndexError: pop from empty list&quot;&#xA;&#xA;Output:&#xA;{&#xA;    &quot;reproduced_bug&quot;: false,&#xA;    &quot;reproduced_bug_failure_log&quot;: &quot;FAILED tests/test_array.py::test_empty_array_pop - IndexError: pop from empty list\\n\\nTest fails with IndexError but issue describes 'Cannot read property length' error. Test needs to verify the specific error message reported in the bug.&quot;,&#xA;    &quot;reproduced_bug_commands&quot;: [&quot;pytest tests/test_array.py&quot;]&#xA;}&#xA;```&#xA;&#xA;Example 3 - Wrong Example:&#xA;```&#xA;Issue:&#xA;Title: Array.pop() crashes on empty array&#xA;Description: Calling pop() on empty array throws &quot;Cannot read property 'length' of undefined&quot; but should throw &quot;Array is empty&quot;&#xA;Example: let arr = []; arr.pop(); // Shows wrong error&#xA;&#xA;Test:&#xA;def test_array_pop():&#xA;    arr = [1, 2, 3]&#xA;    arr.pop()&#xA;    assert len(arr) == 2&#xA;&#xA;Result: Test passed&#xA;&#xA;Output:&#xA;{&#xA;    &quot;reproduced_bug&quot;: false,&#xA;    &quot;reproduced_bug_failure_log&quot;: &quot;PASSED tests/test_array.py::test_array_pop\\n\\nTest passes but should fail since the bug is not fixed. Test should verify pop() behavior on an empty array as shown in the issue example. Current test uses [1,2,3] array which doesn't demonstrate the reported bug.&quot;,&#xA;    &quot;reproduced_bug_commands&quot;: [&quot;pytest tests/test_array.py&quot;]&#xA;}"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_structured_node.py#L31"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9015"/>
+        <viz:position x="1500" y="4065"/>
       </node>
       <node id="prompt_Prometheus_node4_2" label="HUMAN: BugReproducingStructuredNode_HUMAN_PROMP">
         <attvalues>
@@ -204,9 +204,9 @@
           <attvalue for="prompt_text" value="BugReproducingStructuredNode_HUMAN_PROMPT = \&#xA;ISSUE INFORMATION:&#xA;Title: {title}&#xA;Description: {body}&#xA;Comments: {comments}&#xA;&#xA;Bug reproduction code:&#xA;{bug_reproducing_code}&#xA;&#xA;Log from executing bug reproducing file:&#xA;{bug_reproducing_log}"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_structured_node.py#L120"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9097.5"/>
+        <viz:position x="1500" y="4147.5"/>
       </node>
       <node id="node_Prometheus_5" label="BugReproducingWriteNode">
         <attvalues>
@@ -218,9 +218,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_write_node.py#L14"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="15"/>
-        <viz:position x="1000" y="9168.75"/>
+        <viz:position x="1000" y="4218.75"/>
       </node>
       <node id="prompt_Prometheus_node5_1" label="SYSTEM: BugReproducingWriteNode_SYS_PROMPT ">
         <attvalues>
@@ -230,9 +230,9 @@
           <attvalue for="prompt_text" value="BugReproducingWriteNode_SYS_PROMPT = \&#xA;You are a QA automation expert who writes focused a single test case to reproduce software bugs.&#xA;Given an issue description, create a single minimal test with MINIMAL number of assertions&#xA;that demonstrates the problem.&#xA;&#xA;Requirements:&#xA;- Include all necessary imports and setup code shown in similar tests&#xA;- Must use the example from the issue if provided&#xA;- Focus on the core problem of the bug issue&#xA;- Write MINIMAL number of assertions that fail now but will pass when fixed&#xA;- Keep tests minimal and focused, do not write duplicate tests that test the same bug&#xA;- Follow the style and patterns used in the similar test cases&#xA;&#xA;&lt;example>&#xA;&lt;bug_report>&#xA;Title: JSON parser fails with empty arrays&#xA;Description: The JsonParser class crashes when trying to parse an empty array - it should return an empty list but instead raises a ValueError.&#xA;Example:&#xA;```python&#xA;parser = JsonParser()&#xA;result = parser.parse_array(['[', ']'])  # Raises ValueError!&#xA;```&#xA;&lt;/bug_report>&#xA;&#xA;&lt;similar_test_cases>&#xA;### Existing Array Parser Tests&#xA;```python&#xA;import pytest&#xA;from unittest.mock import Mock, patch&#xA;&#xA;@pytest.fixture&#xA;def parser():&#xA;    &quot;&quot;&quot;Fixture to create a fresh parser instance for each test.&quot;&quot;&quot;&#xA;    return JsonParser()&#xA;&#xA;def test_parse_single_element_array(parser):&#xA;    &quot;&quot;&quot;Test parsing array with single element.&#xA;    Validates basic array parsing functionality.&#xA;    &quot;&quot;&quot;&#xA;    tokens = ['[', '42', ']']&#xA;    result = parser.parse_array(tokens)&#xA;    assert result == [42]&#xA;&#xA;def test_parse_nested_arrays(parser):&#xA;    &quot;&quot;&quot;Test parsing nested array structures.&#xA;    Ensures proper handling of array nesting.&#xA;    &quot;&quot;&quot;&#xA;    tokens = ['[', '[', '1', ']', ',', '[', '2', ',', '3', ']', ']']&#xA;    result = parser.parse_array(tokens)&#xA;    assert result == [[1], [2, 3]]&#xA;&#xA;@patch('json.parser.TokenStream')&#xA;def test_parse_with_mocked_stream(mock_stream, parser):&#xA;    &quot;&quot;&quot;Test parsing with mocked token stream.&quot;&quot;&quot;&#xA;    mock_stream.peek.return_value = ']'&#xA;    mock_stream.consume.return_value = ']'&#xA;    result = parser.parse_with_stream(mock_stream)&#xA;    assert mock_stream.peek.called&#xA;```&#xA;&lt;/similar_test_cases>&#xA;&#xA;&lt;thought_process>&#xA;1. Look at Similar Tests:&#xA;   - Check the imports and setup they use&#xA;   - Note the fixture and mock patterns&#xA;   - See how assertions are written&#xA;   - Match their style and format&#xA;&#xA;2. Core Issue:&#xA;   - What is the bug&#xA;   - What should happen instead&#xA;   - What examples were given&#xA;&#xA;3. Write Test:&#xA;   - Use same patterns as similar tests&#xA;   - Include same import style&#xA;   - Match fixture usage&#xA;   - Follow same assertion style&#xA;&lt;/thought_process>&#xA;&#xA;&lt;test_code>&#xA;import pytest&#xA;from json.parser import JsonParser&#xA;&#xA;@pytest.fixture&#xA;def parser():&#xA;    &quot;&quot;&quot;Fixture to create a fresh parser instance for each test.&quot;&quot;&quot;&#xA;    return JsonParser()&#xA;&#xA;def test_empty_array_parsing(parser):&#xA;    &quot;&quot;&quot;Test parsing of empty array.&#xA;    Validates that empty arrays are handled correctly without raising errors.&#xA;    &quot;&quot;&quot;&#xA;    tokens = ['[', ']']&#xA;    result = parser.parse_array(tokens)&#xA;    assert result == []&#xA;&lt;/test_code>&#xA;&lt;/example>"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_write_node.py#L15"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9168.75"/>
+        <viz:position x="1500" y="4218.75"/>
       </node>
       <node id="tool_13ac4ca1b5" label="bug_reproducing_write_node.py#L134">
         <attvalues>
@@ -240,9 +240,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/bug_reproducing_write_node.py#L134"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="7290"/>
+        <viz:position x="2000" y="6750"/>
       </node>
       <node id="node_Prometheus_7" label="ContextProviderNode">
         <attvalues>
@@ -254,9 +254,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L22"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="40"/>
-        <viz:position x="1000" y="9150"/>
+        <viz:position x="1000" y="4200"/>
       </node>
       <node id="prompt_Prometheus_node7_1" label="SYSTEM: ContextProviderNode_SYS_PROMPT ">
         <attvalues>
@@ -266,9 +266,9 @@
           <attvalue for="prompt_text" value="ContextProviderNode_SYS_PROMPT = \&#xA;You are a context gatherer that searches a Neo4j knowledge graph representation of a &#xA;codebase. Your role is to efficiently find relevant code and documentation context based on user queries.&#xA;&#xA;Knowledge Graph Structure:&#xA;1. Node Types:&#xA;   - FileNode: Files and directories in the codebase&#xA;   - ASTNode: Abstract Syntax Tree nodes representing code structure&#xA;   - TextNode: Documentation, comments, and other text content&#xA;&#xA;2. Core Relationships:&#xA;   - HAS_FILE: Directory → File relationships&#xA;   - HAS_AST: File → AST root node connection&#xA;   - HAS_TEXT: File → Text chunk linkage&#xA;   - PARENT_OF: AST node hierarchy&#xA;   - NEXT_CHUNK: Sequential text chunk connections&#xA;&#xA;Search Strategy Guidelines:&#xA;1. Source Code Search:&#xA;   - Prioritize relative_path tools when exact file location is known&#xA;   - Fall back to basename tools for filename-only searches&#xA;   - Use AST node searches to find specific code structures&#xA;   - Use preview_* or read_* tools with more than hundred lines to get more context than class/function&#xA;   - If a search returns no results, try alternative approaches with broader scope&#xA;&#xA;2. Documentation/Text Search:&#xA;   - Use find_text_node_* tools for docs and comments&#xA;   - Follow NEXT_CHUNK relationships for complete text using get_next_text_node_with_node_id&#xA;   - Search globally or scope to specific files as needed&#xA;   - Be flexible with search terms if initial attempts fail&#xA;&#xA;3. Exploratory Search:&#xA;   - Start with find_file_node_* to verify paths&#xA;   - Use preview_file_content_* for quick content scanning&#xA;   - Use read_code_* tools to read more content beyond previews&#xA;   - Always have fallback strategies ready if primary search fails&#xA;&#xA;4. Critical Rules:&#xA;   - Do not repeat the same query!&#xA;&#xA;In your response, just provide a short summary with a few sentences (3-4 sentences) on what you have done.&#xA;As your searched are automatically visible to the user, you do not need to repeat them. &#xA;&#xA;Available AST node types for code structure search: {ast_node_types}&#xA;&#xA;PLEASE CALL THE MINIMUM NUMBER OF TOOLS NEEDED TO ANSWER THE QUERY!&#xA;YOU MUST USE THE TOOLS TO FIND THE CODE AND DOCUMENTATION CONTEXT GIVEN THE QUERY!&#xA;DO NOT DO ANYTHING ELSE BEYOND FOLLOW THE QUERY!"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L36"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9150"/>
+        <viz:position x="1500" y="4200"/>
       </node>
       <node id="tool_e8988cdc72" label="context_provider_node.py#L136">
         <attvalues>
@@ -276,9 +276,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L136"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="7560"/>
+        <viz:position x="2000" y="7020"/>
       </node>
       <node id="tool_1fe7b3cfd1" label="context_provider_node.py#L150">
         <attvalues>
@@ -286,9 +286,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L150"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="7830"/>
+        <viz:position x="2000" y="7290"/>
       </node>
       <node id="tool_0bcc6fd7d6" label="context_provider_node.py#L166">
         <attvalues>
@@ -296,9 +296,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L166"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="8100"/>
+        <viz:position x="2000" y="7560"/>
       </node>
       <node id="tool_135a3ec5e5" label="context_provider_node.py#L179">
         <attvalues>
@@ -306,9 +306,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L179"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="8370"/>
+        <viz:position x="2000" y="7830"/>
       </node>
       <node id="tool_0780e6fceb" label="context_provider_node.py#L193">
         <attvalues>
@@ -316,9 +316,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L193"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="8640"/>
+        <viz:position x="2000" y="8100"/>
       </node>
       <node id="tool_dfc5eebd04" label="context_provider_node.py#L206">
         <attvalues>
@@ -326,9 +326,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L206"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="8910"/>
+        <viz:position x="2000" y="8370"/>
       </node>
       <node id="tool_b87bef434e" label="context_provider_node.py#L221">
         <attvalues>
@@ -336,9 +336,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L221"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="9180"/>
+        <viz:position x="2000" y="8640"/>
       </node>
       <node id="tool_6a9450d272" label="context_provider_node.py#L234">
         <attvalues>
@@ -346,9 +346,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L234"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="9450"/>
+        <viz:position x="2000" y="8910"/>
       </node>
       <node id="tool_cba4522eeb" label="context_provider_node.py#L247">
         <attvalues>
@@ -356,9 +356,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L247"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="9720"/>
+        <viz:position x="2000" y="9180"/>
       </node>
       <node id="tool_bb881f7b4e" label="context_provider_node.py#L262">
         <attvalues>
@@ -366,9 +366,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L262"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="9990"/>
+        <viz:position x="2000" y="9450"/>
       </node>
       <node id="tool_d1d5c90e4a" label="context_provider_node.py#L275">
         <attvalues>
@@ -376,9 +376,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/context_provider_node.py#L275"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="10260"/>
+        <viz:position x="2000" y="9720"/>
       </node>
       <node id="node_Prometheus_9" label="EditNode">
         <attvalues>
@@ -390,9 +390,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L22"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="25"/>
-        <viz:position x="1000" y="9187.5"/>
+        <viz:position x="1000" y="4237.5"/>
       </node>
       <node id="prompt_Prometheus_node9_1" label="SYSTEM: EditNode_SYS_PROMPT ">
         <attvalues>
@@ -402,9 +402,9 @@
           <attvalue for="prompt_text" value="EditNode_SYS_PROMPT = \&#xA;You are a specialized editing agent responsible for implementing precise changes to files. Your&#xA;primary focus is on accurately implementing the code changes that have been analyzed and&#xA;proposed by the user.&#xA;&#xA;IMPORTANT:&#xA;- You must EXECUTE the provided tools directly. Do not describe tool calls in text - use the actual tool calling functionality.&#xA;- The provided context and analysis contain ALL necessary information for you to perform your task. So do NOT explore for more context and structures in the codebase!&#xA;- If the context is really insufficient to perform the edits, you may read the MINIMUM number of files to get necessary information, but do NOT explore the codebase beyond that!&#xA;&#xA;ROLE AND RESPONSIBILITIES:&#xA;- Implement the exact code changes specified in the analysis using direct tool execution&#xA;- Maintain code quality and consistent style&#xA;- Ensure precise content replacement&#xA;- Verify changes after implementation ONLY by reading files. (Do NOT WRITE or RUN any tests!)&#xA;&#xA;TOOL USAGE REQUIREMENTS:&#xA;1. ALWAYS start by using the read_file tool to identify the exact content to be changed&#xA;2. EXECUTE the edit_file tool to make changes&#xA;3. VERIFY changes by ONLY using read_file tool again&#xA;4. NEVER describe tool calls in text - use actual tool execution&#xA;&#xA;CRITICAL FILE EDIT BEHAVIOR:&#xA;The edit_file operation performs an EXACT STRING REPLACEMENT in the file:&#xA;- Matches must be exact (including whitespace and indentation)&#xA;- Only one match of old_content should exist in the file&#xA;- If multiple matches exist, more context is needed&#xA;- If no matches exist, content must be verified by reading the file again&#xA;- Do NOT FIND, WRITE or RUN any tests, your change will be tested by reproduction tests and regression tests later!!!&#xA;&#xA;EXAMPLE:&#xA;&#xA;&lt;example id=&quot;multi-line-replacement&quot;>&#xA;&lt;file_before>&#xA;class StringUtils:&#xA;    def reverse_string(self, s: str) -> str:&#xA;        # TODO: implement proper reversal&#xA;        result = &quot;&quot;&#xA;        result += s  # Bug: just copies string&#xA;        return result  # Doesn't reverse&#xA;    &#xA;    def other_method():&#xA;&lt;/file_before>&#xA;&#xA;&lt;execution_steps>&#xA;1. First, identify the exact location to make the edit:&#xA;&lt;tool>read_file&lt;/tool>&#xA;&#xA;2. Execute the edit with exact multi-line content match:&#xA;&lt;tool>edit_file&lt;/tool> with:&#xA;{&#xA;    &quot;old_content&quot;: &quot;        # TODO: implement proper reversal\n        result = \&quot;\&quot;\n        result += s  # Bug: just copies string\n        return result  # Doesn't reverse&quot;,&#xA;    &quot;new_content&quot;: &quot;        result = s[::-1]  # Proper string reversal\n        return result&quot;&#xA;}&#xA;&#xA;3. Verify the changes:&#xA;&lt;tool>read_file&lt;/tool>&#xA;&lt;/execution_steps>&#xA;&lt;/example>&#xA;&#xA;MANDATORY REQUIREMENTS:&#xA;1. EXECUTE tools directly - do not describe tool usage in text&#xA;2. ALWAYS read file before and after changes&#xA;3. Include exact whitespace and indentation in old_content&#xA;4. When replacing multiple lines, include all lines in old_content&#xA;5. If multiple matches found, include more context&#xA;6. Verify uniqueness of matches by reading files again before changes&#xA;7. NEVER find, write or run any tests, your change will be tested by reproduction tests and regression tests later!!!"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L23"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9187.5"/>
+        <viz:position x="1500" y="4237.5"/>
       </node>
       <node id="tool_96a47897c7" label="edit_node.py#L109">
         <attvalues>
@@ -412,9 +412,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L109"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="10530"/>
+        <viz:position x="2000" y="9990"/>
       </node>
       <node id="tool_f79a040251" label="edit_node.py#L120">
         <attvalues>
@@ -422,9 +422,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L120"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="10800"/>
+        <viz:position x="2000" y="10260"/>
       </node>
       <node id="tool_9707ce7f15" label="edit_node.py#L129">
         <attvalues>
@@ -432,9 +432,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L129"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="11070"/>
+        <viz:position x="2000" y="10530"/>
       </node>
       <node id="tool_6cb7938a75" label="edit_node.py#L138">
         <attvalues>
@@ -442,9 +442,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L138"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="11340"/>
+        <viz:position x="2000" y="10800"/>
       </node>
       <node id="tool_9fc77fdb40" label="edit_node.py#L147">
         <attvalues>
@@ -452,9 +452,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/edit_node.py#L147"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="11610"/>
+        <viz:position x="2000" y="11070"/>
       </node>
       <node id="node_Prometheus_10" label="FinalPatchSelectionNode">
         <attvalues>
@@ -466,9 +466,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/final_patch_selection_node.py#L19"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="15"/>
-        <viz:position x="1000" y="9300"/>
+        <viz:position x="1000" y="4350"/>
       </node>
       <node id="prompt_Prometheus_node10_1" label="SYSTEM: FinalPatchSelectionNode_SYS_PROMPT ">
         <attvalues>
@@ -478,9 +478,9 @@
           <attvalue for="prompt_text" value="FinalPatchSelectionNode_SYS_PROMPT = \&#xA;You are an expert programming assistant specialized in evaluating and selecting the best patch among multiple options. Your goal is to analyze each patch and select the most appropriate one based on the following prioritized criteria:&#xA;&#xA;1. EFFECTIVENESS: The patch must correctly fix the reported issue&#xA;2. PRESERVATION: The patch should preserve existing functionality unless the issue specifically requires behavioral changes&#xA;3. MINIMALITY: The patch should be minimal and focused, avoiding unnecessary changes&#xA;4. STYLE COHERENCE: The patch should maintain consistent coding style with the surrounding code&#xA;&#xA;Analysis Process:&#xA;1. First, understand the issue from the provided issue_info and context&#xA;2. Examine each patch carefully, considering:&#xA;   - Does it fix the root cause of the issue?&#xA;   - Does it maintain existing behavior (if appropriate)?&#xA;   - Is it the most minimal solution possible?&#xA;   - Does it match the project's coding style?&#xA;3. Compare patches systematically against each criterion&#xA;4. Provide detailed reasoning for your selection&#xA;&#xA;Output Requirements:&#xA;- You must provide structured output with two fields:&#xA;  - reasoning: A clear step-by-step explanation of your selection process&#xA;  - patch_index: The index of the selected patch (must be valid within the given range)&#xA;&#xA;Example:&#xA;&#xA;&lt;example>&#xA;Issue Info:&#xA;Title: Fix null pointer exception in UserService.getUser()&#xA;Body: Method throws NullPointerException when user ID is not found&#xA;Comments: - Occurs in production environment&#xA;          - Affects customer-facing API&#xA;&#xA;Context:&#xA;```java&#xA;// File: src/main/java/com/example/service/UserService.java&#xA;public User getUser(String userId) {&#xA;    User user = userRepository.findById(userId);&#xA;    return user.withLastAccessTime(LocalDateTime.now());&#xA;}&#xA;```&#xA;&#xA;Patches:&#xA;Patch at index 0:&#xA;```diff&#xA;diff --git a/src/main/java/com/example/service/UserService.java b/src/main/java/com/example/service/UserService.java&#xA;index 1234567..89abcde 100644&#xA;--- a/src/main/java/com/example/service/UserService.java&#xA;+++ b/src/main/java/com/example/service/UserService.java&#xA;@@ -42,6 +42,9 @@ public class UserService {&#xA;     public User getUser(String userId) {&#xA;         User user = userRepository.findById(userId);&#xA;+        if (user == null) {&#xA;+            throw new UserNotFoundException(&quot;User not found: &quot; + userId);&#xA;+        }&#xA;         return user.withLastAccessTime(LocalDateTime.now());&#xA;     }&#xA;```&#xA;&#xA;Patch at index 1:&#xA;```diff&#xA;diff --git a/src/main/java/com/example/service/UserService.java b/src/main/java/com/example/service/UserService.java&#xA;index 1234567..89abcde 100644&#xA;--- a/src/main/java/com/example/service/UserService.java&#xA;+++ b/src/main/java/com/example/service/UserService.java&#xA;@@ -42,6 +42,12 @@ public class UserService {&#xA;     public User getUser(String userId) {&#xA;+        if (userId == null) {&#xA;+            throw new IllegalArgumentException(&quot;userId cannot be null&quot;);&#xA;+        }&#xA;         User user = userRepository.findById(userId);&#xA;+        if (user == null) {&#xA;+            throw new UserNotFoundException(&quot;User not found: &quot; + userId);&#xA;+        }&#xA;         return user.withLastAccessTime(LocalDateTime.now());&#xA;     }&#xA;```&#xA;&#xA;Assistant Response:&#xA;{&#xA;  &quot;reasoning&quot;: &quot;1. EFFECTIVENESS:\n- Both patches address the null pointer exception\n- Patch 1 adds additional input validation\n\n2. PRESERVATION:\n- Both patches maintain the core functionality\n- Both correctly throw appropriate exceptions\n\n3. MINIMALITY:\n- Patch 0 is more minimal, only adding the necessary null check for the user object\n- Patch 1 adds extra validation for userId that wasn't part of the reported issue\n\n4. STYLE COHERENCE:\n- Both patches maintain consistent indentation and spacing\n- Both follow Java exception handling conventions\n- Both use appropriate exception types\n\nCONCLUSION:\nPatch 0 is selected because it:\n- Directly fixes the specific issue (NPE on null user)\n- Maintains existing behavior\n- Provides the most minimal solution\n- Follows consistent style with fewer changes to the code&quot;,&#xA;  &quot;patch_index&quot;: 0&#xA;}&#xA;&lt;/example>&#xA;&#xA;Remember:&#xA;- Always analyze all available patches thoroughly&#xA;- Provide clear, step-by-step reasoning for your selection&#xA;- Select the patch that best balances the prioritized criteria&#xA;- Ensure the selected patch_index is valid within the given range&#xA;- Default to patch index 0 only if you cannot make a valid selection after careful analysis&#xA;- Pay attention to the git diff format, including file paths, chunk headers, and line numbers"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/final_patch_selection_node.py#L20"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9258.75"/>
+        <viz:position x="1500" y="4308.75"/>
       </node>
       <node id="prompt_Prometheus_node10_2" label="HUMAN: FinalPatchSelectionNode_HUMAN_PROMPT ">
         <attvalues>
@@ -490,9 +490,9 @@
           <attvalue for="prompt_text" value="FinalPatchSelectionNode_HUMAN_PROMPT = \&#xA;{issue_info}&#xA;&#xA;Context:&#xA;{context}&#xA;&#xA;I have generated the following patches, now please select the best patch among them:&#xA;{patches}&#xA;&#xA;Remember to provide structured output with two fields:&#xA;- reasoning: A clear step-by-step explanation of your selection process&#xA;- patch_index: The index of the selected patch (must be valid within the given range)"/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/final_patch_selection_node.py#L113"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9341.25"/>
+        <viz:position x="1500" y="4391.25"/>
       </node>
       <node id="node_Prometheus_15" label="IssueBugAnalyzerNode">
         <attvalues>
@@ -504,9 +504,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/issue_bug_analyzer_node.py#L13"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="15"/>
-        <viz:position x="1000" y="9412.5"/>
+        <viz:position x="1000" y="4462.5"/>
       </node>
       <node id="prompt_Prometheus_node15_1" label="SYSTEM: IssueBugAnalyzerNode_SYS_PROMPT ">
         <attvalues>
@@ -516,9 +516,9 @@
           <attvalue for="prompt_text" value="IssueBugAnalyzerNode_SYS_PROMPT = \&#xA;You are an expert software engineer specializing in bug analysis and fixes. Your role is to:&#xA;&#xA;1. Carefully analyze reported software issues and bugs by:&#xA;   - Understanding issue descriptions and symptoms&#xA;   - Identifying affected code components&#xA;   - Tracing problematic execution paths&#xA;&#xA;2. Determine root causes through systematic investigation:&#xA;   - Analyze why the current behavior deviates from expected&#xA;   - Identify which specific code elements are responsible&#xA;   - Understand the context and interactions causing the issue&#xA;&#xA;3. Provide high-level fix suggestions by describing:&#xA;   - Which specific files need modification&#xA;   - Which functions or code blocks need changes&#xA;   - What logical changes are needed (e.g., &quot;variable x needs to be renamed to y&quot;, &quot;need to add validation for parameter z&quot;)&#xA;   - Why these changes would resolve the issue&#xA;&#xA;4. For patch failures, analyze by:&#xA;   - Understanding error messages and test failures&#xA;   - Identifying what went wrong with the previous attempt&#xA;   - Suggesting revised high-level changes that avoid the previous issues&#xA;&#xA;RECOMMENDED TOOL USAGE:&#xA;- The web_search tool is RECOMMENDED for bug analysis, especially when:&#xA;  * Encountering unfamiliar error messages or exceptions&#xA;  * Working with specific libraries/frameworks that may have known issues&#xA;  * Dealing with complex bugs that could benefit from community knowledge&#xA;  * Needing official documentation for error resolution&#xA;- When using web_search, consider searching for:&#xA;  * Similar error messages or exceptions&#xA;  * Known issues with the specific libraries/frameworks involved&#xA;  * Best practices for the type of bug you're analyzing&#xA;  * Official documentation for error resolution&#xA;&#xA;Tools available:&#xA;- web_search: Searches the web for technical information to aid in bug analysis and resolution.&#xA;When using the web_search tool, it's recommended to include these parameters:&#xA;    - include_domains: ['stackoverflow.com', 'github.com', 'developer.mozilla.org', 'learn.microsoft.com', 'fastapi.tiangolo.com'&#xA;            'docs.python.org', 'pydantic.dev', 'pypi.org', 'readthedocs.org', 'docs.djangoproject.com','flask.palletsprojects.com']&#xA;    - search_depth: &quot;advanced&quot;&#xA;&#xA;    Make sure to explicitly pass these parameters in your tool call.&#xA;&#xA;Important:&#xA;- Do NOT provide actual code snippets or diffs&#xA;- DO provide clear file paths and function names where changes are needed&#xA;- Focus on describing WHAT needs to change and WHY, not HOW to change it&#xA;- Keep descriptions precise and actionable, as they will be used by another agent to implement the changes&#xA;- Use web search when you need additional context or community insights&#xA;&#xA;Communicate in a clear, technical manner focused on accurate analysis and practical suggestions&#xA;rather than implementation details."/>
           <attvalue for="prompt_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/issue_bug_analyzer_node.py#L14"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="9412.5"/>
+        <viz:position x="1500" y="4462.5"/>
       </node>
       <node id="tool_5e27cb707c" label="issue_bug_analyzer_node.py#L83">
         <attvalues>
@@ -526,9 +526,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/issue_bug_analyzer_node.py#L83"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="12420"/>
+        <viz:position x="2000" y="11880"/>
       </node>
       <node id="node_Prometheus_17" label="IssueClassifierNode">
         <attvalues>
@@ -540,9 +540,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/652848606683753952a18b8dc0312584f2c67d99/prometheus/lang_graph/nodes/issue_classifier_node.py#L19"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
         <viz:size value="12.5"/>
-        <viz:position x="1000" y="8700"/>
+        <viz:position x="1000" y="3750"/>
       </node>
       <node id="prompt_Prometheus_node17_1" label="SYSTEM: IssueClassifierNode_SYS_PROMPT ">
         <attvalues>
@@ -552,37 +552,37 @@
           <attvalue for="prompt_text" value="IssueClassifierNode_SYS_PROMPT = \&#xA;You are an expert GitHub issue classifier. Your task is to analyze GitHub issues and classify them into exactly one of these categories:&#xA;- &quot;bug&quot;: Issues reporting software defects, unexpected behavior, or crashes&#xA;- &quot;feature&quot;: Feature requests, enhancements, or new functionality proposals&#xA;- &quot;documentation&quot;: Requests for documentation improvements, corrections, or additions&#xA;- &quot;question&quot;: Questions about usage, implementation, or general inquiries&#xA;&#xA;You will receive issue information including the title, body, comments, and relevant codebase context. Analyze all provided information carefully to determine the most appropriate category.&#xA;&#xA;Guidelines for classification:&#xA;1. Each issue must be classified as exactly one type&#xA;2. Focus on the core intent of the issue, not peripheral discussions&#xA;3. If an issue contains multiple aspects, classify based on the primary purpose&#xA;4. Consider both the original post and any follow-up comments&#xA;&#xA;Here are examples of inputs and their corresponding classifications:&#xA;&#xA;INPUT 1:&#xA;```&#xA;ISSUE INFORMATION:&#xA;Title: App crashes when processing large files&#xA;Body: When I try to process files larger than 1GB, the application crashes with an OutOfMemoryError. Steps to reproduce:&#xA;1. Load file larger than 1GB&#xA;2. Click process&#xA;3. Application crashes&#xA;Comments:&#xA;User1: I can confirm this issue on version 2.1.0&#xA;User2: Same problem here, happens with 1.2GB files&#xA;&#xA;CODEBASE CONTEXT:&#xA;Current file processing implementation uses in-memory buffering without streaming support.&#xA;```&#xA;&#xA;OUTPUT 1:&#xA;{&#xA;  &quot;issue_type&quot;: &quot;bug&quot;&#xA;}&#xA;&#xA;INPUT 2:&#xA;```&#xA;ISSUE INFORMATION:&#xA;Title: Add dark mode support&#xA;Body: It would be great if we could add dark mode support to the UI. Many users work at night and the current light theme can be straining on the eyes.&#xA;Comments:&#xA;User1: +1 for dark mode&#xA;User2: Could we also add custom theme support while we're at it?&#xA;&#xA;CODEBASE CONTEXT:&#xA;UI currently only supports light theme, using hard-coded color values.&#xA;```&#xA;&#xA;OUTPUT 2:&#xA;{&#xA;  &quot;issue_type&quot;: &quot;feature&quot;&#xA;}&#xA;&#xA;INPUT 3:&#xA;```&#xA;ISSUE INFORMATION:&#xA;Title: Installation instructions unclear for Windows&#xA;Body: The README doesn't explain how to install on Windows. The Linux instructions don't work and there's no mention of Windows-specific steps.&#xA;Comments:&#xA;User1: Adding steps for Windows would be helpful&#xA;User2: The prerequisites section should also mention required Windows components&#xA;&#xA;CODEBASE CONTEXT:&#xA;README.md focuses on Linux/Mac installation processes.&#xA;```&#xA;&#xA;OUTPUT 3:&#xA;{&#xA;  &quot;issue_type&quot;: &quot;documentation&quot;&#xA;}&#xA;&#xA;INPUT 4:&#xA;```&#xA;ISSUE INFORMATION:&#xA;Title: How to implement custom authentication?&#xA;Body: I want to add my own authentication provider. What's the best way to implement this? Should I extend the BaseAuth class?&#xA;Comments:&#xA;User1: Have you checked the authentication docs?&#xA;User2: You'll need to implement the AuthProvider interface&#xA;&#xA;CODEBASE CONTEXT:&#xA;Authentication system supports custom providers through AuthProvider interface.&#xA;```&#xA;&#xA;OUTPUT 4:&#xA;{&#xA;  &quot;issue_type&quot;: &quot;question&quot;&#xA;}&#xA;&#xA;Analyze the provided issue and respond with a JSON object containing only the issue_type field with one of the four allowed values: &quot;bug&quot;, &quot;feature&quot;, &quot;documentation&quot;, or &quot;question&quot;."/>
           <attvalue for="prompt_url" value="null"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1500" y="8700"/>
+        <viz:position x="1500" y="3750"/>
       </node>
       <node id="agent_Prometheus_0" label="Issue Classification Agent">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="12.5"/>
           <attvalue for="agent_name" value="Issue Classification Agent"/>
-          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="agent_type" value="Locator"/>
           <attvalue for="short_description" value="Automatically classifies GitHub issues into categories (bug, question, feature, documentation)."/>
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/issue_classification_subgraph.py#L15"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
         <viz:size value="12.5"/>
-        <viz:position x="500" y="8700"/>
+        <viz:position x="500" y="3750"/>
       </node>
       <node id="agent_Prometheus_1" label="Environment Build Agent">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="Environment Build Agent"/>
-          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="agent_type" value="Environment setup"/>
           <attvalue for="short_description" value="Automatically sets up and configures the development environment for testing and building."/>
           <attvalue for="agent_in_repo" value="null"/>
           <attvalue for="agent_comment" value="Status: In Progress"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="8850"/>
+        <viz:position x="500" y="3900"/>
       </node>
       <node id="agent_Prometheus_2" label="Bug Reproduction Agent">
         <attvalues>
@@ -594,327 +594,327 @@
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/bug_reproduction_subgraph.py#L29"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
         <viz:size value="20"/>
-        <viz:position x="500" y="9000"/>
+        <viz:position x="500" y="4050"/>
       </node>
       <node id="agent_Prometheus_3" label="Context Retrieval Agent">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="12.5"/>
           <attvalue for="agent_name" value="Context Retrieval Agent"/>
-          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="agent_type" value="Locator"/>
           <attvalue for="short_description" value="Retrieves relevant code and documentation context from the Neo4j knowledge graph."/>
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/context_retrieval_subgraph.py#L26"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
         <viz:size value="12.5"/>
-        <viz:position x="500" y="9150"/>
+        <viz:position x="500" y="4200"/>
       </node>
       <node id="agent_Prometheus_4" label="Issue Resolution Agent">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="17.5"/>
           <attvalue for="agent_name" value="Issue Resolution Agent"/>
-          <attvalue for="agent_type" value="Patcher, Reviewer"/>
+          <attvalue for="agent_type" value="Patcher"/>
           <attvalue for="short_description" value="Generates and validates bug fix patches for verified bugs."/>
           <attvalue for="agent_in_repo" value="https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/issue_verified_bug_subgraph.py#L35"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
         <viz:size value="17.5"/>
-        <viz:position x="500" y="9300"/>
+        <viz:position x="500" y="4350"/>
       </node>
     </nodes>
     <edges>
-      <edge id="208" source="node_Prometheus_2" target="prompt_Prometheus_node2_1" weight="6" label="has_prompt">
+      <edge id="239" source="node_Prometheus_2" target="prompt_Prometheus_node2_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="209" source="node_Prometheus_2" target="prompt_Prometheus_node2_2" weight="6" label="has_prompt">
+      <edge id="240" source="node_Prometheus_2" target="prompt_Prometheus_node2_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="210" source="node_Prometheus_2" target="tool_4f16b9c513" weight="6" label="has_tool">
+      <edge id="241" source="node_Prometheus_2" target="tool_4f16b9c513" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="211" source="node_Prometheus_3" target="prompt_Prometheus_node3_1" weight="6" label="has_prompt">
+      <edge id="242" source="node_Prometheus_3" target="prompt_Prometheus_node3_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="212" source="node_Prometheus_3" target="prompt_Prometheus_node3_2" weight="6" label="has_prompt">
+      <edge id="243" source="node_Prometheus_3" target="prompt_Prometheus_node3_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="213" source="node_Prometheus_3" target="tool_e6ab4a0797" weight="6" label="has_tool">
+      <edge id="244" source="node_Prometheus_3" target="tool_e6ab4a0797" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="214" source="node_Prometheus_3" target="tool_cdb3e9e84d" weight="6" label="has_tool">
+      <edge id="245" source="node_Prometheus_3" target="tool_cdb3e9e84d" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="215" source="node_Prometheus_4" target="prompt_Prometheus_node4_1" weight="6" label="has_prompt">
+      <edge id="246" source="node_Prometheus_4" target="prompt_Prometheus_node4_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="216" source="node_Prometheus_4" target="prompt_Prometheus_node4_2" weight="6" label="has_prompt">
+      <edge id="247" source="node_Prometheus_4" target="prompt_Prometheus_node4_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="217" source="node_Prometheus_5" target="prompt_Prometheus_node5_1" weight="6" label="has_prompt">
+      <edge id="248" source="node_Prometheus_5" target="prompt_Prometheus_node5_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="218" source="node_Prometheus_5" target="tool_13ac4ca1b5" weight="6" label="has_tool">
+      <edge id="249" source="node_Prometheus_5" target="tool_13ac4ca1b5" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="220" source="node_Prometheus_7" target="prompt_Prometheus_node7_1" weight="6" label="has_prompt">
+      <edge id="251" source="node_Prometheus_7" target="prompt_Prometheus_node7_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="221" source="node_Prometheus_7" target="tool_e8988cdc72" weight="6" label="has_tool">
+      <edge id="252" source="node_Prometheus_7" target="tool_e8988cdc72" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="222" source="node_Prometheus_7" target="tool_1fe7b3cfd1" weight="6" label="has_tool">
+      <edge id="253" source="node_Prometheus_7" target="tool_1fe7b3cfd1" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="223" source="node_Prometheus_7" target="tool_0bcc6fd7d6" weight="6" label="has_tool">
+      <edge id="254" source="node_Prometheus_7" target="tool_0bcc6fd7d6" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="224" source="node_Prometheus_7" target="tool_135a3ec5e5" weight="6" label="has_tool">
+      <edge id="255" source="node_Prometheus_7" target="tool_135a3ec5e5" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="225" source="node_Prometheus_7" target="tool_0780e6fceb" weight="6" label="has_tool">
+      <edge id="256" source="node_Prometheus_7" target="tool_0780e6fceb" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="226" source="node_Prometheus_7" target="tool_dfc5eebd04" weight="6" label="has_tool">
+      <edge id="257" source="node_Prometheus_7" target="tool_dfc5eebd04" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="227" source="node_Prometheus_7" target="tool_b87bef434e" weight="6" label="has_tool">
+      <edge id="258" source="node_Prometheus_7" target="tool_b87bef434e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="228" source="node_Prometheus_7" target="tool_6a9450d272" weight="6" label="has_tool">
+      <edge id="259" source="node_Prometheus_7" target="tool_6a9450d272" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="229" source="node_Prometheus_7" target="tool_cba4522eeb" weight="6" label="has_tool">
+      <edge id="260" source="node_Prometheus_7" target="tool_cba4522eeb" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="230" source="node_Prometheus_7" target="tool_bb881f7b4e" weight="6" label="has_tool">
+      <edge id="261" source="node_Prometheus_7" target="tool_bb881f7b4e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="231" source="node_Prometheus_7" target="tool_d1d5c90e4a" weight="6" label="has_tool">
+      <edge id="262" source="node_Prometheus_7" target="tool_d1d5c90e4a" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="234" source="node_Prometheus_9" target="prompt_Prometheus_node9_1" weight="6" label="has_prompt">
+      <edge id="265" source="node_Prometheus_9" target="prompt_Prometheus_node9_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="235" source="node_Prometheus_9" target="tool_96a47897c7" weight="6" label="has_tool">
+      <edge id="266" source="node_Prometheus_9" target="tool_96a47897c7" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="236" source="node_Prometheus_9" target="tool_f79a040251" weight="6" label="has_tool">
+      <edge id="267" source="node_Prometheus_9" target="tool_f79a040251" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="237" source="node_Prometheus_9" target="tool_9707ce7f15" weight="6" label="has_tool">
+      <edge id="268" source="node_Prometheus_9" target="tool_9707ce7f15" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="238" source="node_Prometheus_9" target="tool_6cb7938a75" weight="6" label="has_tool">
+      <edge id="269" source="node_Prometheus_9" target="tool_6cb7938a75" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="239" source="node_Prometheus_9" target="tool_9fc77fdb40" weight="6" label="has_tool">
+      <edge id="270" source="node_Prometheus_9" target="tool_9fc77fdb40" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="240" source="node_Prometheus_10" target="prompt_Prometheus_node10_1" weight="6" label="has_prompt">
+      <edge id="271" source="node_Prometheus_10" target="prompt_Prometheus_node10_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="241" source="node_Prometheus_10" target="prompt_Prometheus_node10_2" weight="6" label="has_prompt">
+      <edge id="272" source="node_Prometheus_10" target="prompt_Prometheus_node10_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="248" source="node_Prometheus_15" target="prompt_Prometheus_node15_1" weight="6" label="has_prompt">
+      <edge id="279" source="node_Prometheus_15" target="prompt_Prometheus_node15_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="249" source="node_Prometheus_15" target="tool_5e27cb707c" weight="6" label="has_tool">
+      <edge id="280" source="node_Prometheus_15" target="tool_5e27cb707c" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="201" g="86" b="106"/>
+        <viz:color r="113" g="126" b="204"/>
       </edge>
-      <edge id="252" source="node_Prometheus_17" target="prompt_Prometheus_node17_1" weight="6" label="has_prompt">
+      <edge id="283" source="node_Prometheus_17" target="prompt_Prometheus_node17_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="176" g="151" b="64"/>
       </edge>
-      <edge id="270" source="repo_Prometheus" target="agent_Prometheus_0" weight="6" label="has_agent">
+      <edge id="301" source="repo_Prometheus" target="agent_Prometheus_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
       </edge>
-      <edge id="271" source="agent_Prometheus_0" target="node_Prometheus_17" weight="6" label="has_node">
+      <edge id="302" source="agent_Prometheus_0" target="node_Prometheus_17" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="272" source="repo_Prometheus" target="agent_Prometheus_1" weight="6" label="has_agent">
+      <edge id="303" source="repo_Prometheus" target="agent_Prometheus_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
       </edge>
-      <edge id="273" source="repo_Prometheus" target="agent_Prometheus_2" weight="6" label="has_agent">
+      <edge id="304" source="repo_Prometheus" target="agent_Prometheus_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
       </edge>
-      <edge id="274" source="agent_Prometheus_2" target="node_Prometheus_2" weight="6" label="has_node">
+      <edge id="305" source="agent_Prometheus_2" target="node_Prometheus_2" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="275" source="agent_Prometheus_2" target="node_Prometheus_3" weight="6" label="has_node">
+      <edge id="306" source="agent_Prometheus_2" target="node_Prometheus_3" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="276" source="agent_Prometheus_2" target="node_Prometheus_4" weight="6" label="has_node">
+      <edge id="307" source="agent_Prometheus_2" target="node_Prometheus_4" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="277" source="agent_Prometheus_2" target="node_Prometheus_5" weight="6" label="has_node">
+      <edge id="308" source="agent_Prometheus_2" target="node_Prometheus_5" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="278" source="repo_Prometheus" target="agent_Prometheus_3" weight="6" label="has_agent">
+      <edge id="309" source="repo_Prometheus" target="agent_Prometheus_3" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
       </edge>
-      <edge id="279" source="agent_Prometheus_3" target="node_Prometheus_7" weight="6" label="has_node">
+      <edge id="310" source="agent_Prometheus_3" target="node_Prometheus_7" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="280" source="repo_Prometheus" target="agent_Prometheus_4" weight="6" label="has_agent">
+      <edge id="311" source="repo_Prometheus" target="agent_Prometheus_4" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="191" g="92" b="166"/>
       </edge>
-      <edge id="281" source="agent_Prometheus_4" target="node_Prometheus_9" weight="6" label="has_node">
+      <edge id="312" source="agent_Prometheus_4" target="node_Prometheus_9" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="282" source="agent_Prometheus_4" target="node_Prometheus_10" weight="6" label="has_node">
+      <edge id="313" source="agent_Prometheus_4" target="node_Prometheus_10" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
-      <edge id="283" source="agent_Prometheus_4" target="node_Prometheus_15" weight="6" label="has_node">
+      <edge id="314" source="agent_Prometheus_4" target="node_Prometheus_15" weight="6" label="has_node">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="201" g="90" b="75"/>
       </edge>
     </edges>
   </graph>

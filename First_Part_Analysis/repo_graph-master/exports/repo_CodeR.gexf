@@ -39,7 +39,7 @@
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="Figure 1: Multi-Agent framework of CODER with task graphs.&#xA;Manager&#xA;Reproducer&#xA;Fault Localizer&#xA;Editor&#xA;Verifier"/>
-          <attvalue for="topology_file" value="CodeR_framework.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/CodeR_framework.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- Can not analyze (no Code at all)"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="184" g="144" b="64"/>
+        <viz:color r="119" g="122" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="13950"/>
+        <viz:position x="0" y="14850"/>
       </node>
     </nodes>
     <edges/>

@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- ask_aware.py https://github.com/qodo-ai/aware-swe-agent/blob/c68225a96ce7fb1ef7c61123d81facba9800ab68/src/aware_swe_agent/examples/aware_open_repos_analysis/ask_aware.py#L1&#xA;- prompt in a .toml https://github.com/qodo-ai/aware-swe-agent/blob/c68225a96ce7fb1ef7c61123d81facba9800ab68/src/aware_swe_agent/examples/aware_open_repos_analysis/agents/ask_open_aware.toml#L1"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="181" g="94" b="178"/>
+        <viz:color r="138" g="113" b="199"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="5850"/>
+        <viz:position x="0" y="11250"/>
       </node>
     </nodes>
     <edges/>
