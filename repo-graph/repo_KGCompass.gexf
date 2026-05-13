@@ -50,7 +50,7 @@
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="2"/>
           <attvalue for="topology_description" value="Fig. 3. Overview of KGCOMPASS"/>
-          <attvalue for="topology_file" value="KGCompass_overview.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/KGCompass_overview.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python, HTML, JavaScript, Shell, CSS, Dockerfile"/>
@@ -59,9 +59,9 @@
           <attvalue for="repo_comments" value="- both agent are run in __main__"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="201" g="86" b="105"/>
+        <viz:color r="201" g="88" b="75"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="17550"/>
+        <viz:position x="0" y="7200"/>
       </node>
       <node id="agent_KGCompass_0" label="CodeAnalyzer">
         <attvalues>
@@ -73,23 +73,23 @@
           <attvalue for="agent_in_repo" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/fl.py#L44"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="94"/>
+        <viz:color r="98" g="170" b="101"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="17475"/>
+        <viz:position x="500" y="7125"/>
       </node>
       <node id="agent_KGCompass_1" label="CodeRepair">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="40"/>
           <attvalue for="agent_name" value="CodeRepair"/>
-          <attvalue for="agent_type" value="Localizator, Patcher"/>
+          <attvalue for="agent_type" value="Locator"/>
           <attvalue for="short_description" value="localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue."/>
           <attvalue for="agent_in_repo" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/repair.py#L77"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="94"/>
+        <viz:color r="98" g="170" b="101"/>
         <viz:size value="40"/>
-        <viz:position x="500" y="17625"/>
+        <viz:position x="500" y="7275"/>
       </node>
       <node id="prompt_KGCompass_1_1" label="SYSTEM: BASE_PROMPT_TEMPLATE ">
         <attvalues>
@@ -99,29 +99,29 @@
           <attvalue for="prompt_text" value="BASE_PROMPT_TEMPLATE = &quot;&quot;&quot;&#xD;&#xA;We are currently solving the following issue within our repository. Here is the issue text:&#xD;&#xA;--- BEGIN ISSUE ---&#xD;&#xA;{problem_statement}&#xD;&#xA;--- END ISSUE ---&#xD;&#xA;&#xD;&#xA;Below are some code segments, each from a relevant file. One or more of these files may contain bugs.&#xD;&#xA;--- BEGIN FILE ---&#xD;&#xA;```&#xD;&#xA;{content}&#xD;&#xA;```&#xD;&#xA;--- END FILE ---&#xD;&#xA;&#xD;&#xA;Please first localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue.&#xD;&#xA;&#xD;&#xA;Every *SEARCH/REPLACE* edit must use this format:&#xD;&#xA;1. The file path&#xD;&#xA;2. The start of search block: &lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH&#xD;&#xA;3. A contiguous chunk of lines to search for in the existing source code&#xD;&#xA;4. The dividing line: =======&#xD;&#xA;5. The lines to replace into the source code&#xD;&#xA;6. The end of the replace block: >>>>>>> REPLACE&#xD;&#xA;&#xD;&#xA;Here is an example for python:&#xD;&#xA;&#xD;&#xA;```python&#xD;&#xA;### django/core/management/commands/migrate.py&#xD;&#xA;- start_line : 15&#xD;&#xA;- end_line : 17&#xD;&#xA;&lt;&lt;&lt;&lt;&lt;&lt;&lt; SEARCH&#xD;&#xA;    def my_method(self):&#xD;&#xA;        result = 1 + 1&#xD;&#xA;        return result&#xD;&#xA;=======&#xD;&#xA;    def my_method(self):&#xD;&#xA;        result = 1 + 2  # Fixed the calculation&#xD;&#xA;        return result&#xD;&#xA;>>>>>>> REPLACE&#xD;&#xA;```&#xD;&#xA;&#xD;&#xA;IMPORTANT NOTES:&#xD;&#xA;1. Line numbers start from 1 (not 0)&#xD;&#xA;2. The SEARCH block must match the exact content and indentation from the original file&#xD;&#xA;3. The REPLACE block must maintain proper indentation relative to the surrounding code&#xD;&#xA;4. Only include the specific lines that need to be changed&#xD;&#xA;5. If modifying a method, include its entire definition in both blocks if it helps clarity&#xD;&#xA;6. Only generate edits when actual changes are needed&#xD;&#xA;7. Verify that the replacement code is actually different from the original&#xD;&#xA;&#xD;&#xA;Please note that the *SEARCH/REPLACE* edit REQUIRES PROPER INDENTATION. If you would like to add a line like '        print(x)', you must fully write that out, with all those spaces before the code!&#xD;&#xA;Wrap the *SEARCH/REPLACE* edit in blocks ```python...```.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/repair.py#L23"/>
         </attvalues>
-        <viz:color r="170" g="96" b="190"/>
+        <viz:color r="114" g="125" b="205"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="17625"/>
+        <viz:position x="1000" y="7275"/>
       </node>
     </nodes>
     <edges>
-      <edge id="377" source="repo_KGCompass" target="agent_KGCompass_0" weight="6" label="has_agent">
+      <edge id="388" source="repo_KGCompass" target="agent_KGCompass_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="94"/>
+        <viz:color r="98" g="170" b="101"/>
       </edge>
-      <edge id="378" source="repo_KGCompass" target="agent_KGCompass_1" weight="6" label="has_agent">
+      <edge id="389" source="repo_KGCompass" target="agent_KGCompass_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="94"/>
+        <viz:color r="98" g="170" b="101"/>
       </edge>
-      <edge id="379" source="agent_KGCompass_1" target="prompt_KGCompass_1_1" weight="6" label="has_prompt">
+      <edge id="390" source="agent_KGCompass_1" target="prompt_KGCompass_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="170" g="96" b="190"/>
+        <viz:color r="114" g="125" b="205"/>
       </edge>
     </edges>
   </graph>

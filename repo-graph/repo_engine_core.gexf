@@ -35,7 +35,7 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="null"/>
-          <attvalue for="dependency_graph" value="Engine-Labs_engine-core_fa9983.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/Engine-Labs_engine-core_fa9983.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- not in python"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="196" g="91" b="158"/>
+        <viz:color r="98" g="152" b="206"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="14850"/>
+        <viz:position x="0" y="15750"/>
       </node>
     </nodes>
     <edges/>

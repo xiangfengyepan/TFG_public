@@ -60,7 +60,7 @@
           <attvalue for="repo_comments" value="- from rich.console import Console&#xA;from rich.panel import Panel"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="196" g="91" b="158"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
         <viz:position x="0" y="10800"/>
       </node>
@@ -74,7 +74,7 @@
           <attvalue for="agent_in_repo" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/patch_agent.py#L355"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="94" g="171" b="104"/>
+        <viz:color r="119" g="122" b="204"/>
         <viz:size value="40"/>
         <viz:position x="500" y="10800"/>
       </node>
@@ -86,7 +86,7 @@
           <attvalue for="prompt_text" value="SYSTEM_PROMPT = f&quot;&quot;&quot;&#xD;&#xA;You serve as an intelligent coding assistant, collaborating with software developers to execute pull request implementations,&#xD;&#xA;equipped with comprehensive tools for codebase interaction and manipulation.&#xD;&#xA;&#xD;&#xA;Current workspace: {{workspace_root}}&#xD;&#xA;System environment: {platform.system()}&#xD;&#xA;&#xD;&#xA;Core Principles:&#xD;&#xA;- Operate within a collaborative development environment containing multiple engineers and interconnected modules. Exercise caution to ensure modifications in one area do not compromise functionality elsewhere.&#xD;&#xA;- Approach code modifications with the expertise of a seasoned software architect. Adhere to engineering excellence principles including proper abstraction layers and interface encapsulation.&#xD;&#xA;- Favor straightforward, elegant solutions over complex alternatives when feasible.&#xD;&#xA;- Leverage your bash capabilities to configure essential environment settings, particularly those required for test execution.&#xD;&#xA;- Execute comprehensive testing procedures to validate the correctness of your implementations.&#xD;&#xA;&#xD;&#xA;Remember to invoke the completion tool upon task fulfillment or when providing a definitive response to inquiries.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/prompts/system_prompt.py#L3"/>
         </attvalues>
-        <viz:color r="119" g="122" b="204"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="10"/>
         <viz:position x="1000" y="10800"/>
       </node>
@@ -96,9 +96,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/sequential_thinking_tool.py#L52"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="13770"/>
+        <viz:position x="2000" y="18630"/>
       </node>
       <node id="tool_7a4ef3a61e" label="complete_tool.py#L11">
         <attvalues>
@@ -106,9 +106,9 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/complete_tool.py#L11"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="14040"/>
+        <viz:position x="2000" y="18900"/>
       </node>
       <node id="tool_b6d544d759" label="str_replace_tool.py#L250">
         <attvalues>
@@ -116,41 +116,41 @@
           <attvalue for="rawSize" value="10"/>
           <attvalue for="tool_url" value="https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/str_replace_tool.py#L250"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="10"/>
-        <viz:position x="2000" y="14310"/>
+        <viz:position x="2000" y="19170"/>
       </node>
     </nodes>
     <edges>
-      <edge id="290" source="repo_joycode_agent" target="agent_joycode_agent_0" weight="6" label="has_agent">
-        <attvalues>
-          <attvalue for="rawWeight" value="6"/>
-        </attvalues>
-        <viz:color r="94" g="171" b="104"/>
-      </edge>
-      <edge id="291" source="agent_joycode_agent_0" target="prompt_joycode_agent_0_1" weight="6" label="has_prompt">
+      <edge id="420" source="repo_joycode_agent" target="agent_joycode_agent_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
         <viz:color r="119" g="122" b="204"/>
       </edge>
-      <edge id="292" source="agent_joycode_agent_0" target="tool_8536d02e46" weight="6" label="has_tool">
+      <edge id="421" source="agent_joycode_agent_0" target="prompt_joycode_agent_0_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
-      <edge id="293" source="agent_joycode_agent_0" target="tool_7a4ef3a61e" weight="6" label="has_tool">
+      <edge id="422" source="agent_joycode_agent_0" target="tool_8536d02e46" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="94" g="171" b="104"/>
       </edge>
-      <edge id="294" source="agent_joycode_agent_0" target="tool_b6d544d759" weight="6" label="has_tool">
+      <edge id="423" source="agent_joycode_agent_0" target="tool_7a4ef3a61e" weight="6" label="has_tool">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="175" g="152" b="64"/>
+        <viz:color r="94" g="171" b="104"/>
+      </edge>
+      <edge id="424" source="agent_joycode_agent_0" target="tool_b6d544d759" weight="6" label="has_tool">
+        <attvalues>
+          <attvalue for="rawWeight" value="6"/>
+        </attvalues>
+        <viz:color r="94" g="171" b="104"/>
       </edge>
     </edges>
   </graph>

@@ -43,11 +43,11 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2410.20285"/>
           <attvalue for="framework" value="framework itself"/>
-          <attvalue for="dependency_graph" value="aorwall_moatless-tools_617dfd.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/aorwall_moatless-tools_617dfd.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="1"/>
           <attvalue for="topology_description" value="Figure 1: SWE-Search Overview. Tree search. Each state is represented as a node from which the&#xA;agent can expand from, and each corresponding action is presented as an edge. Evaluation. Uses&#xA;all relevant context including trajectory information, file context, and executed tests, to provide a&#xA;quantitative value estimation and qualitative explanation in natural language. Expansion. Nodes can&#xA;be expanded using value function feedback from future actions."/>
-          <attvalue for="topology_file" value="moatless-tools_topology.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/moatless-tools_topology.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python"/>
@@ -56,9 +56,9 @@
           <attvalue for="repo_comments" value="- MoatlessComponent: Base class for dynamically loadable components. https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/component.py#L21"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="138" g="115" b="200"/>
+        <viz:color r="109" g="169" b="90"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="9900"/>
+        <viz:position x="0" y="10350"/>
       </node>
       <node id="agent_moatless_tools_0" label="ActionAgent">
         <attvalues>
@@ -70,17 +70,17 @@
           <attvalue for="agent_in_repo" value="https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/agent.py#L42"/>
           <attvalue for="agent_comment" value="- AgentConfigManager: Manages agent configurations. https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/manager.py#L14"/>
         </attvalues>
-        <viz:color r="138" g="161" b="66"/>
+        <viz:color r="162" g="98" b="191"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="9900"/>
+        <viz:position x="500" y="10350"/>
       </node>
     </nodes>
     <edges>
-      <edge id="289" source="repo_moatless_tools" target="agent_moatless_tools_0" weight="6" label="has_agent">
+      <edge id="419" source="repo_moatless_tools" target="agent_moatless_tools_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="138" g="161" b="66"/>
+        <viz:color r="162" g="98" b="191"/>
       </edge>
     </edges>
   </graph>

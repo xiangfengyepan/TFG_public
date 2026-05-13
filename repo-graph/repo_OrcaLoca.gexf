@@ -46,11 +46,11 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2502.00350"/>
           <attvalue for="framework" value="framework itself, llama-index"/>
-          <attvalue for="dependency_graph" value="fishmingyu_OrcaLoca_2c0263.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/fishmingyu_OrcaLoca_2c0263.json"/>
           <attvalue for="has_agents" value="TRUE"/>
           <attvalue for="num_agents" value="6"/>
           <attvalue for="topology_description" value="Figure 2. An overview of ORCALOCA using a demonstrating example from issue django_14580. (a) shows an abbreviated version of the&#xA;issue's problem statement, where the user emphasizes Creat eModel and MigrationWriter. (b) presents the exploration sequence of&#xA;our agent over a part of the whole CodeGraph. (c) provides details of the Action Scheduler Queue (ASQ). Specifically, action decomposition&#xA;is applied from 1 to 2 and from 8&#xA;8&#xA;agent's final output. Please note this is a demonstration, experiments may use different configuration.&#xA;&#xA;e&#xA;&#xA;12&#xA;6&#xA;4&#xA;&#xA;6&#xA;&#xA;ASQ status&#xA;&#xA;models.py&#xA;&#xA;serializer_factory&#xA;&#xA;LLM Guided Action&#xA;search_callable(serializer_factory)&#xA;Due to LLM's emphasis&#xA;on action, the priority of&#xA;k changes to 3 and&#xA;surpasses that of c,&#xA;which is 2.&#xA;&#xA;Closer to PB Taget&#xA;&#xA;Potential Bugs(PB)&#xA;TypeSerializer&#xA;TypeSerializer.serialize&#xA;Distance-Aware&#xA;Context Pruning&#xA;TypeSerializer.serialize&#xA;TypeSerializer&#xA;serializer_factory&#xA;Deconstructable ...&#xA;OperationWriter&#xA;MigrationWriterserialize&#xA;Rd: MigrationWriter.as_string&#xA;CreateModel&#xA;-&#xA;&#xA;g&#xA;&#xA;h.&#xA;&#xA;m&#xA;&#xA;S&#xA;&#xA;8&#xA;&#xA;9&#xA;&#xA;Function Call&#xA;&#xA;2&#xA;&#xA;File Related Action to ASQ&#xA;&#xA;k.&#xA;&#xA;9&#xA;&#xA;E&#xA;&#xA;Score &amp; Rank&#xA;Top-K&#xA;&#xA;File Action Decomposition&#xA;&#xA;serializer.py&#xA;0g TypeSerializer&#xA;Q Deconstruct ...&#xA;FloatSerializer&#xA;BaseSerializer&#xA;&#xA;X&#xA;&#xA;n.&#xA;&#xA;(c) Action Planning Queue Detail&#xA;&#xA;(d) Context Manager Detail&#xA;&#xA;Bug Report&#xA;After examining the serialization&#xA;process, the bug is in&#xA;TypeSerializer.serialize() method in&#xA;django/db/migrations/serializer.py.&#xA;The special case [(models.Model,&#xA;'models.Model', [)] explicitly sets an&#xA;empty import list for models.Model,&#xA;which causes the missing import&#xA;statement in the generated migration&#xA;&#xA;TypeSerializer.serialize&#xA;&#xA;(e) Final Output&#xA;&#xA;to&#xA;&#xA;steps from 6&#xA;&#xA;to&#xA;&#xA;and&#xA;&#xA;to&#xA;&#xA;(d)&#xA;&#xA;as discussed in Section 3.3. Additionally, techniques described in Section 3.2 are used to handle&#xA;illustrates the distance-aware context pruning process, elaborated in Section 3.4. Finally, (e) shows the"/>
-          <attvalue for="topology_file" value="OrcaLoca_workflow_example.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/OrcaLoca_workflow_example.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python"/>
@@ -59,23 +59,23 @@
           <attvalue for="repo_comments" value="- considered agentless and not multi agent system since the agent does not communicate with each others"/>
           <attvalue for="rawSize" value="40"/>
         </attvalues>
-        <viz:color r="162" g="98" b="191"/>
+        <viz:color r="94" g="171" b="104"/>
         <viz:size value="40"/>
-        <viz:position x="0" y="17100"/>
+        <viz:position x="0" y="3600"/>
       </node>
       <node id="agent_OrcaLoca_0" label="OrcarAgent">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="agent_name" value="OrcarAgent"/>
-          <attvalue for="agent_type" value="Enviorment setup"/>
+          <attvalue for="agent_type" value="Environment setup"/>
           <attvalue for="short_description" value="&quot;&quot;&quot;&#xD;&#xA;    Orcar agent worker.&#xD;&#xA;    Environment container lives during agent lifetime;&#xD;&#xA;    Dataset is independent from agent;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;    Example call:&#xD;&#xA;    agent = OrcarAgent(args=args, llm=llm, final_stage='Search')&#xD;&#xA;    for inst in ds:&#xD;&#xA;        agent.run(dict(inst))&#xD;&#xA;    &quot;&quot;&quot;"/>
           <attvalue for="agent_in_repo" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/agent.py#L43"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="16725"/>
+        <viz:position x="500" y="3225"/>
       </node>
       <node id="agent_OrcaLoca_1" label="CodeScorer">
         <attvalues>
@@ -87,21 +87,21 @@
           <attvalue for="agent_in_repo" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/code_scorer.py#L28"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="22"/>
-        <viz:position x="500" y="16875"/>
+        <viz:position x="500" y="3375"/>
       </node>
       <node id="prompt_OrcaLoca_1_1" label="SYSTEM: CODE_SCORER_SYSTEM_PROMPT ">
         <attvalues>
           <attvalue for="node_type" value="prompt"/>
           <attvalue for="rawSize" value="10"/>
           <attvalue for="prompt_type" value="SYSTEM"/>
-          <attvalue for="prompt_text" value="CODE_SCORER_SYSTEM_PROMPT = (&#xD;&#xA;    &quot;You are a python coding expert. &quot;&#xD;&#xA;    &quot;Your job is to score how likely a piece of code will need to be modified &quot;&#xD;&#xA;    &quot;to solve a github issue. &quot;&#xD;&#xA;    &quot;The issue description will be presented in 'problem_statement'. &quot;&#xD;&#xA;)"/>
+          <attvalue for="prompt_text" value="CODE_SCORER_SYSTEM_PROMPT = (&#xA;    &quot;You are a python coding expert. &quot;&#xA;    &quot;Your job is to score how likely a piece of code will need to be modified &quot;&#xA;    &quot;to solve a github issue. &quot;&#xA;    &quot;The issue description will be presented in 'problem_statement'. &quot;&#xA;)"/>
           <attvalue for="prompt_url" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/code_scorer.py#L13"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="16833.75"/>
+        <viz:position x="1000" y="3333.75"/>
       </node>
       <node id="prompt_OrcaLoca_1_2" label="HUMAN: CODE_SCORER_ORDER_PROMPT ">
         <attvalues>
@@ -111,9 +111,9 @@
           <attvalue for="prompt_text" value="CODE_SCORER_ORDER_PROMPT = (&#xD;&#xA;    &quot;Please score how likely this piece of code will need to be modified to solve a github issue. &quot;&#xD;&#xA;    &quot;Please score the likeliness with an integer between 0 and 100, the higher the more likely.&quot;&#xD;&#xA;    &quot;Your output will be processed by program instead of human, &quot;&#xD;&#xA;    &quot;so please ONLY output a single integer.&quot;&#xD;&#xA;)"/>
           <attvalue for="prompt_url" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/code_scorer.py#L20"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="16916.25"/>
+        <viz:position x="1000" y="3416.25"/>
       </node>
       <node id="agent_OrcaLoca_2" label="EditWorker">
         <attvalues>
@@ -125,9 +125,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/edit_agent.py#L44"/>
           <attvalue for="agent_comment" value="- use from llama_index.core.tools"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="22"/>
-        <viz:position x="500" y="17025"/>
+        <viz:position x="500" y="3525"/>
       </node>
       <node id="prompt_OrcaLoca_2_1" label="SYSTEM: EDIT_SYSTEM_HEADER ">
         <attvalues>
@@ -137,9 +137,9 @@
           <attvalue for="prompt_text" value="EDIT_SYSTEM_HEADER = r&quot;&quot;&quot;&#xD;&#xA;You are a professional software engineer tasked with revising code snippets based solely on the provided information. You will receive:&#xD;&#xA;- A problem statement.&#xD;&#xA;- Code snippets in the &lt;Bug Code> tag.&#xD;&#xA;- Contextual references in the &lt;References> tag.&#xD;&#xA;- Helpful hints in the &lt;Hint> tag.&#xD;&#xA;&#xD;&#xA;You could use the provided API call below to revise the code snippets when necessary:&#xD;&#xA;{tool_desc}&#xD;&#xA;&#xD;&#xA;Output Requirements:&#xD;&#xA;- Return your response as a JSON object in the following structure:&#xD;&#xA;  {{&#xD;&#xA;    &quot;feedback&quot;: &quot;&lt;Your observation and reasoning as a string>&quot;,&#xD;&#xA;    &quot;action_input&quot;: &lt;A dictionary containing the editor command arguments>&#xD;&#xA;  }}&#xD;&#xA;- If you believe the issue has been resolved, set &quot;feedback&quot; to &quot;PATCH COMPLETE&quot; and provide an empty dictionary for &quot;action_input&quot;.&#xD;&#xA;- Each response should include only one command and one piece of feedback.&#xD;&#xA;- Do not include any extra text, titles, or formatting outside of the JSON structure.&#xD;&#xA;&#xD;&#xA;Here is the expected JSON format:&#xD;&#xA;{edit_output_format}&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/prompts.py#L88"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="16983.75"/>
+        <viz:position x="1000" y="3483.75"/>
       </node>
       <node id="prompt_OrcaLoca_2_2" label="PROXY: EDIT_REQUIREMENTS ">
         <attvalues>
@@ -149,23 +149,23 @@
           <attvalue for="prompt_text" value="EDIT_REQUIREMENTS = r&quot;&quot;&quot;&#xD;&#xA;The revised code snippets should respect the requirements below:&#xD;&#xA;1. The revised code snippets should fix the issue mentioned in the problem statement.&#xD;&#xA;2. The code containing any error messages should be deterministic.&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/prompts.py#L112"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="17066.25"/>
+        <viz:position x="1000" y="3566.25"/>
       </node>
       <node id="agent_OrcaLoca_3" label="SearchWorker">
         <attvalues>
           <attvalue for="node_type" value="agent"/>
           <attvalue for="rawSize" value="16"/>
           <attvalue for="agent_name" value="SearchWorker"/>
-          <attvalue for="agent_type" value="Localizator"/>
+          <attvalue for="agent_type" value="Locator"/>
           <attvalue for="short_description" value="&quot;&quot;&quot;Search Agent worker.&quot;&quot;&quot;"/>
           <attvalue for="agent_in_repo" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/search_agent.py#L110"/>
           <attvalue for="agent_comment" value="- use from llama_index.core.tools"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="16"/>
-        <viz:position x="500" y="17175"/>
+        <viz:position x="500" y="3675"/>
       </node>
       <node id="prompt_OrcaLoca_3_1" label="SYSTEM: SEARCH_SYSTEM_HEADER ">
         <attvalues>
@@ -175,9 +175,9 @@
           <attvalue for="prompt_text" value="SEARCH_SYSTEM_HEADER = r&quot;&quot;&quot;&#xD;&#xA;You are a professional software engineer that use API calls to report bug code snippets from a text into JSON format.&#xD;&#xA;You need to extract where are the bug locations by analyzing the text.&#xD;&#xA;The given text contains the problem statement and the code snippets.&#xD;&#xA;There are some API calls that you can use to extract the information.&#xD;&#xA;The API calls include:&#xD;&#xA;{tool_desc}&#xD;&#xA;&#xD;&#xA;&lt;TASKS>&#xD;&#xA;Everytime you will do the following things:&#xD;&#xA;&#xD;&#xA;1. Provide the observation based on given input:&#xD;&#xA;Everytime we will provide a new search result in tag &lt;New Info>.&#xD;&#xA;It may contain the disambiguation info if the search action is related to multiple classes or methods.&#xD;&#xA;Also, previous search result will be provided in tag &lt;Search Result>. You need to analyze the new search result based on the previous one, and provide the observation&#xD;&#xA;based on whole context.&#xD;&#xA;2. Think about where the bug might be in the code by the whole given context(including all Search Result), and provide the potential bug locations. Potential here means the most possible locations up to current context.&#xD;&#xA;3. Check whether it contains any class, method or function you need to further search. Especially, if disambiguation info is provided, you need to search for the specific class or method.&#xD;&#xA;Plan the new_search_actions based on the current context. You can use the given API calls to search for the bug locations.&#xD;&#xA;You can put multiple actions in the new_search_actions list. Be sure to use arguments in the tool description.&#xD;&#xA;If you make sure the context is enough to answer the question, you can keep the new_search_actions list empty.&#xD;&#xA;&#xD;&#xA;Conclusion is a final standalone step to provide the final bug locations when nothing else to search. Please keep in mind to&#xD;&#xA;follow the instruction &quot;Now let's come to a conclusion. &quot;.&#xD;&#xA;&lt;/TASKS>&#xD;&#xA;&#xD;&#xA;&lt;OUTPUT FORMAT>&#xD;&#xA;1. Regular Step Format:&#xD;&#xA;    Provide your answer in a clear JSON structure like this,&#xD;&#xA;    {step_format}&#xD;&#xA;    Make sure each API call is written as a valid python expression and code_snippet is a valid python string.&#xD;&#xA;    In potential_bug_locations, you should provide the file path, class name and method name.&#xD;&#xA;    It's not the final answer, just a hint for possible bug locations.&#xD;&#xA;    If a method does not belong to any class, set class to empty string.&#xD;&#xA;    You can provide multiple actions in the new_search_actions. DO NOT add any title or description. NEVER surround your response with markdown code markers.&#xD;&#xA;2. Conclusion Format:&#xD;&#xA;    After no input actions in search queue, provide the final bug locations in JSON structure like this.&#xD;&#xA;    {bug_locations}&#xD;&#xA;    DO NOT generate observation or new_search_actions in the conclusion step.&#xD;&#xA;    DO NOT mix it with any title or description. If a method does not belong to any class, set class to empty string. NEVER surround your response with markdown code markers.&#xD;&#xA;&lt;/OUTPUT FORMAT>&#xD;&#xA;&quot;&quot;&quot;"/>
           <attvalue for="prompt_url" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/prompts.py#L40"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="17175"/>
+        <viz:position x="1000" y="3675"/>
       </node>
       <node id="agent_OrcaLoca_4" label="TraceAnalysisWorker">
         <attvalues>
@@ -189,9 +189,9 @@
           <attvalue for="agent_in_repo" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/trace_analysis_agent.py#L60"/>
           <attvalue for="agent_comment" value="null"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="16"/>
-        <viz:position x="500" y="17325"/>
+        <viz:position x="500" y="3825"/>
       </node>
       <node id="prompt_OrcaLoca_4_1" label="SYSTEM: TRACE_ANALYSIS_PROMPTS ">
         <attvalues>
@@ -201,9 +201,9 @@
           <attvalue for="prompt_text" value="TRACE_ANALYSIS_PROMPTS = {&#xD;&#xA;    &quot;header&quot;: &quot;&quot;&quot;&#xD;&#xA;You are an expert python developer, mastering at summarizing and extracting from github issues.&#xD;&#xA;&quot;&quot;&quot;,&#xD;&#xA;    &quot;example&quot;: r&quot;&quot;&quot;&#xD;&#xA;&lt;repo_name>{example_repo_name}&lt;repo_name>&#xD;&#xA;&lt;example_input_description>&#xD;&#xA;{example_input_description}&#xD;&#xA;&lt;/example_input_description>&#xD;&#xA;&lt;example_output>&#xD;&#xA;{example_output}&#xD;&#xA;&lt;/example_output>&#xD;&#xA;&quot;&quot;&quot;,&#xD;&#xA;    &quot;slice&quot;: r&quot;&quot;&quot;&#xD;&#xA;Your task is to slice strings from human reported github issue.&#xD;&#xA;Every slice shouldn't overlap with another slice. Non-existanct slice should be set to ''.&#xD;&#xA;&#xD;&#xA;Your output should strictly follow the format below.&#xD;&#xA;{output_format}&#xD;&#xA;DO NOT SPEAK ANY REDUNDANT WORDS (like 'json', 'output', etc.)&#xD;&#xA;&#xD;&#xA;The meanings of each field are:&#xD;&#xA;{output_fields}&#xD;&#xA;&#xD;&#xA;An example is given below:&#xD;&#xA;{example}&#xD;&#xA;&#xD;&#xA;Below is the real task for you to solve:&#xD;&#xA;&lt;repo_name>{repo_name}&lt;/repo_name>&#xD;&#xA;{input_description}&#xD;&#xA;&quot;&quot;&quot;,&#xD;&#xA;    &quot;parse&quot;: r&quot;&quot;&quot;&#xD;&#xA;Your task is to extract python code keywords and the filepath they belong to (if exist) from human reported github issue.&#xD;&#xA;Non-existanct filepath should be set to ''.&#xD;&#xA;&#xD;&#xA;Your output should strictly follow the format below.&#xD;&#xA;{output_format}&#xD;&#xA;DO NOT SPEAK ANY REDUNDANT WORDS (like 'json', 'output', etc.)&#xD;&#xA;&#xD;&#xA;The meanings of each field are:&#xD;&#xA;{output_fields}&#xD;&#xA;&#xD;&#xA;An example is given below:&#xD;&#xA;{example}&#xD;&#xA;&#xD;&#xA;Below is the real task for you to solve:&#xD;&#xA;&lt;repo_name>{repo_name}&lt;/repo_name>&#xD;&#xA;&lt;input_description>&#xD;&#xA;{input_description}&#xD;&#xA;&lt;/input_description>&#xD;&#xA;&quot;&quot;&quot;,&#xD;&#xA;    &quot;judge&quot;: r&quot;&quot;&quot;&#xD;&#xA;Your task is to judge whether an input github issue is successfully reproduced,&#xD;&#xA;based on the reproducer_log generated by a reproducer snippet;&#xD;&#xA;If reproduce didn't succeed, try to generate a fixed reproduced snippet.&#xD;&#xA;&#xD;&#xA;Some examples of judgement include:&#xD;&#xA;1. SUCCESS if (the exactly same error message) from input_description is found in reproducer_log;&#xD;&#xA;1. FAILURE if the error message from input_description is different or irrelevant from the one found in reproducer_log;&#xD;&#xA;1. SUCCESS if (the same printed output) from input_description is found in reproducer_log;&#xD;&#xA;1. FAILURE if the reproducer in input_description is expected to have output (error or printed log) but reproducer_log is empty;&#xD;&#xA;1. FAILURE if the reproducer in input_description is expected to raise an error, but no error found from reproducer_log;&#xD;&#xA;1. FAILURE if the reproducer in input_description is not expected to raise any errors, but 1 or more errors are found from reproducer_log;&#xD;&#xA;1. FAILURE if the input_description describes different output for expected and problematic behavior, but the reproducer_log matches with expected one;&#xD;&#xA;&#xD;&#xA;Your output should strictly follow the format below.&#xD;&#xA;{output_format}&#xD;&#xA;DO NOT SPEAK ANY REDUNDANT WORDS (like 'json', 'output', etc.)&#xD;&#xA;&#xD;&#xA;The meanings of each field are:&#xD;&#xA;{output_fields}&#xD;&#xA;&#xD;&#xA;Below is the real task for you to solve:&#xD;&#xA;&lt;repo_name>{repo_name}&lt;/repo_name>&#xD;&#xA;&lt;input_description>&#xD;&#xA;{input_description}&#xD;&#xA;&lt;/input_description>&#xD;&#xA;&lt;reproducer_snippet>&#xD;&#xA;{reproducer_snippet}&#xD;&#xA;&lt;/reproducer_snippet>&#xD;&#xA;&lt;reproducer_log>&#xD;&#xA;{reproducer_log}&#xD;&#xA;&lt;/reproducer_log>&#xD;&#xA;&quot;&quot;&quot;,&#xD;&#xA;    &quot;summarize&quot;: r&quot;&quot;&quot;&#xD;&#xA;Your task is to summarize a human reported github issue in natural language.&#xD;&#xA;&#xD;&#xA;Your output should strictly follow the format below.&#xD;&#xA;{output_format}&#xD;&#xA;DO NOT SPEAK ANY REDUNDANT WORDS (like 'json', 'output', etc.)&#xD;&#xA;&#xD;&#xA;The meanings of each field are:&#xD;&#xA;{output_fields}&#xD;&#xA;&#xD;&#xA;An example is given below:&#xD;&#xA;{example}&#xD;&#xA;&#xD;&#xA;Below is the issue for you to summarize:&#xD;&#xA;&lt;repo_name>{repo_name}&lt;/repo_name>&#xD;&#xA;&lt;input_description>&#xD;&#xA;{input_description}&#xD;&#xA;&lt;/input_description>&#xD;&#xA;&quot;&quot;&quot;,&#xD;&#xA;}"/>
           <attvalue for="prompt_url" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/prompts.py#L354"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
         <viz:size value="10"/>
-        <viz:position x="1000" y="17325"/>
+        <viz:position x="1000" y="3825"/>
       </node>
       <node id="agent_OrcaLoca_5" label="VerifyAgentWrapper">
         <attvalues>
@@ -215,83 +215,83 @@
           <attvalue for="agent_in_repo" value="https://github.com/fishmingyu/OrcaLoca/blob/37db289be2dc3b7432183fe08b3f06becce87c27/Orcar/verify_agent_wrapper.py#L12"/>
           <attvalue for="agent_comment" value="- not really a gent but a wrapper that git apply patch an see if working"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
         <viz:size value="10"/>
-        <viz:position x="500" y="17475"/>
+        <viz:position x="500" y="3975"/>
       </node>
     </nodes>
     <edges>
-      <edge id="365" source="repo_OrcaLoca" target="agent_OrcaLoca_0" weight="6" label="has_agent">
+      <edge id="222" source="repo_OrcaLoca" target="agent_OrcaLoca_0" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
-      <edge id="366" source="repo_OrcaLoca" target="agent_OrcaLoca_1" weight="6" label="has_agent">
+      <edge id="223" source="repo_OrcaLoca" target="agent_OrcaLoca_1" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
-      <edge id="367" source="agent_OrcaLoca_1" target="prompt_OrcaLoca_1_1" weight="6" label="has_prompt">
+      <edge id="224" source="agent_OrcaLoca_1" target="prompt_OrcaLoca_1_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="368" source="agent_OrcaLoca_1" target="prompt_OrcaLoca_1_2" weight="6" label="has_prompt">
+      <edge id="225" source="agent_OrcaLoca_1" target="prompt_OrcaLoca_1_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="369" source="repo_OrcaLoca" target="agent_OrcaLoca_2" weight="6" label="has_agent">
+      <edge id="226" source="repo_OrcaLoca" target="agent_OrcaLoca_2" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
-      <edge id="370" source="agent_OrcaLoca_2" target="prompt_OrcaLoca_2_1" weight="6" label="has_prompt">
+      <edge id="227" source="agent_OrcaLoca_2" target="prompt_OrcaLoca_2_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="371" source="agent_OrcaLoca_2" target="prompt_OrcaLoca_2_2" weight="6" label="has_prompt">
+      <edge id="228" source="agent_OrcaLoca_2" target="prompt_OrcaLoca_2_2" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="372" source="repo_OrcaLoca" target="agent_OrcaLoca_3" weight="6" label="has_agent">
+      <edge id="229" source="repo_OrcaLoca" target="agent_OrcaLoca_3" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
-      <edge id="373" source="agent_OrcaLoca_3" target="prompt_OrcaLoca_3_1" weight="6" label="has_prompt">
+      <edge id="230" source="agent_OrcaLoca_3" target="prompt_OrcaLoca_3_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="374" source="repo_OrcaLoca" target="agent_OrcaLoca_4" weight="6" label="has_agent">
+      <edge id="231" source="repo_OrcaLoca" target="agent_OrcaLoca_4" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
-      <edge id="375" source="agent_OrcaLoca_4" target="prompt_OrcaLoca_4_1" weight="6" label="has_prompt">
+      <edge id="232" source="agent_OrcaLoca_4" target="prompt_OrcaLoca_4_1" weight="6" label="has_prompt">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="191" g="134" b="61"/>
+        <viz:color r="175" g="152" b="64"/>
       </edge>
-      <edge id="376" source="repo_OrcaLoca" target="agent_OrcaLoca_5" weight="6" label="has_agent">
+      <edge id="233" source="repo_OrcaLoca" target="agent_OrcaLoca_5" weight="6" label="has_agent">
         <attvalues>
           <attvalue for="rawWeight" value="6"/>
         </attvalues>
-        <viz:color r="109" g="169" b="90"/>
+        <viz:color r="196" g="91" b="158"/>
       </edge>
     </edges>
   </graph>

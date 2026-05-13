@@ -35,7 +35,7 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="not found"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="getappmap_navie-editor_78ab97.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/getappmap_navie-editor_78ab97.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="null"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- navie is a Python package containing code for editing code with Navie AI.&#xA;- has a editor: https://github.com/getappmap/navie-editor/blob/c8629e9fbd5a150f8c0bf2b02725ae4b09ce461d/navie/editor.py#L15&#xA;- simple solver: https://github.com/getappmap/navie-editor/blob/c8629e9fbd5a150f8c0bf2b02725ae4b09ce461d/navie/simple_solver.py#L8"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="201" g="85" b="116"/>
+        <viz:color r="113" g="126" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="20250"/>
+        <viz:position x="0" y="18450"/>
       </node>
     </nodes>
     <edges/>

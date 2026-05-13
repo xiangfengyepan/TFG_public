@@ -35,22 +35,22 @@
           <attvalue for="analyzed" value="TRUE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2502.18449"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="facebookresearch_swe-rl_435470.json"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/facebookresearch_swe-rl_435470.json"/>
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="Figure 7: The Agentless Mini scaffold. The design emphasizes easy decomposition, parallelization,&#xA;and scalability."/>
-          <attvalue for="topology_file" value="swe-rl_topology.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/swe-rl_topology.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python"/>
           <attvalue for="autonomy_rating" value="0"/>
           <attvalue for="autonomy_description" value="0 - No Classification"/>
-          <attvalue for="repo_comments" value="- Agentless Mini builds on top of Agentless with the following key improvements and functionality changes:&#xD;&#xA;&#xD;&#xA;Fast async inference with openai-python.&#xD;&#xA;Code refactoring for better scalability, parallelization, and accessibility.&#xD;&#xA;Only performing file-level localization, and entire file content will be used for repair.&#xD;&#xA;Support of using multiple reproduction tests for reranking."/>
+          <attvalue for="repo_comments" value="- Agentless Mini builds on top of Agentless with the following key improvements and functionality changes:&#xA;&#xA;Fast async inference with openai-python.&#xA;Code refactoring for better scalability, parallelization, and accessibility.&#xA;Only performing file-level localization, and entire file content will be used for repair.&#xA;Support of using multiple reproduction tests for reranking."/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="98" g="152" b="206"/>
+        <viz:color r="109" g="169" b="94"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="8550"/>
+        <viz:position x="0" y="13500"/>
       </node>
     </nodes>
     <edges/>

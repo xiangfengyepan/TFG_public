@@ -39,7 +39,7 @@
           <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="Figure 3: Architecture of CGM and its Graph RAG extension: Given an issue, (a) Rewriter extracts&#xA;code entities and keywords from the issue (Extractor), and modifies the original issue into more&#xA;detailed queries (Inferer). Based on this, (b) Retriever locates relevant nodes from the corresponding&#xA;code graph; then expands these nodes to a connected subgraph by including neighboring and&#xA;upstream nodes. (c) Reranker ranks retrieved results in two stages: File Name Rank and File&#xA;Skeleton Rank, selecting the most relevant files for modification. Finally, (d) Reader (CGM) takes the&#xA;retrieved graph and selected files as input. Each node's code content is encoded by an Encoder &amp;,&#xA;producing a node token via the Adapter A. Node tokens are then concatenated with text tokens in&#xA;the prompt before entering the LLM decoder D, where the adjacency matrix replaces its original&#xA;attention mask."/>
-          <attvalue for="topology_file" value="codefuse-cgm_architecture_.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/codefuse-cgm_architecture_.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python, Shell"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- Agentless graph RAG: see paper why better &quot;Agentless models offer a more controlled approach to simulating real-world SE processes by following well-defined, fixed steps rather than relying on LLM agents to make autonomous decisions or&#xA;use complex tools.&quot;"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="201" g="90" b="75"/>
+        <viz:color r="119" g="122" b="204"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="10350"/>
+        <viz:position x="0" y="13950"/>
       </node>
     </nodes>
     <edges/>

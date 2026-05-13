@@ -35,11 +35,11 @@
           <attvalue for="analyzed" value="FALSE"/>
           <attvalue for="publication" value="https://arxiv.org/abs/2505.18955"/>
           <attvalue for="framework" value="own scripts"/>
-          <attvalue for="dependency_graph" value="ucsb-mlsec_Co-PatcheR_c4c101.json"/>
-          <attvalue for="has_agents" value="TRUE"/>
+          <attvalue for="dependency_graph" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Dependency%20graph%20JSON/ucsb-mlsec_Co-PatcheR_c4c101.json"/>
+          <attvalue for="has_agents" value="FALSE"/>
           <attvalue for="num_agents" value="0"/>
           <attvalue for="topology_description" value="Figure 1: The overall training recipes and inference pipeline of Co-PatcheR. We design one model"/>
-          <attvalue for="topology_file" value="Co-PatcherR_overall_training_inference.png"/>
+          <attvalue for="topology_file" value="https://github.com/xiangfengyepan/TFG_public/blob/main/First_Part_Analysis/Topology%20Files/Co-PatcherR_overall_training_inference.png"/>
           <attvalue for="topology_type" value="null"/>
           <attvalue for="topology_url" value="null"/>
           <attvalue for="programming_language" value="Python"/>
@@ -48,9 +48,9 @@
           <attvalue for="repo_comments" value="- BFS: https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/repair/bfs.py#L1&#xA;- rerank (rank patches): https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/repair/rerank.py#L1&#xA;- compres_file.py: https://github.com/ucsb-mlsec/Co-PatcheR/blob/7f425b9a36005dcb2585eb5d08bf8d0013ffcc75/patchpilot/util/compress_file.py#L1"/>
           <attvalue for="rawSize" value="10"/>
         </attvalues>
-        <viz:color r="100" g="138" b="204"/>
+        <viz:color r="92" g="166" b="211"/>
         <viz:size value="10"/>
-        <viz:position x="0" y="18450"/>
+        <viz:position x="0" y="17100"/>
       </node>
     </nodes>
     <edges/>
