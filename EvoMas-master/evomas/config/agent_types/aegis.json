@@ -1,0 +1,22 @@
+{
+  "id": "aegis",
+  "source_csv": "aegis.csv",
+  "agents": [
+    {
+      "name": "Editor",
+      "agent_type": "Patcher",
+      "short_description": "",
+      "source_url": "https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/editor.py#L31",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "Environment",
+      "agent_type": "Environment setup",
+      "short_description": "",
+      "source_url": "https://github.com/evandiewald/aegis/blob/cd81da38f4c0f618cc6e6e063094ceefaf63a669/issue_reviewer/environment.py#L28",
+      "prompts": {},
+      "tools": []
+    }
+  ]
+}

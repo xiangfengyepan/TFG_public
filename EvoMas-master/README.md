@@ -56,10 +56,23 @@ cp api/.env.example    api/.env
 
 | Variable | File | Purpose |
 |---|---|---|
-| `OLLAMA_BASE_URL` | `evomas/.env` | URL of the Ollama server every agent's LLM call targets. Default: `http://localhost:11434`. |
+| `OLLAMA_BASE_URL` | `evomas/.env` | URL the Ollama server every `ollama/*` agent targets. Default: `http://localhost:11434`. |
+| `GOOGLE_API_KEY` | `evomas/.env` | Required only when at least one agent's `model` starts with `gemini/`. Get a key at [Google AI Studio](https://aistudio.google.com/app/apikey). |
+| `OPENAI_API_KEY` | `evomas/.env` | Required only when at least one agent's `model` starts with `openai/`. Get a key at [OpenAI Platform](https://platform.openai.com/api-keys). |
+| `OPENAI_BASE_URL` | `evomas/.env` | Optional. Override the OpenAI endpoint — useful for Azure OpenAI, OpenRouter, or a local LiteLLM proxy. |
 | `WANDB_API_KEY` | `evomas/.env` | Optional. Only needed if you call `init_weave()`. |
 | `RESULTS_DIR` | `evomas/.env` | Optional. Where predictions + evaluations are written. Relative paths resolve against the repo root. Default: `<repo>/results`. |
 | `API_HOST`, `API_PORT` | `api/.env` | Bind addr for the FastAPI backend. Default: `0.0.0.0:8000`. |
+
+Each agent picks its LLM provider via the `model` field's prefix (LiteLLM-style):
+
+```json
+"localize_agent": { "class": "LocalizeAgent", "model": "ollama/qwen3.5:9b",     ... }
+"patch_agent":    { "class": "PatchAgent",    "model": "gemini/gemini-1.5-pro", ... }
+"reviewer":       { "class": "ReviewerAgent", "model": "openai/gpt-4o-mini",     ... }
+```
+
+A bare model name without a `/` (e.g. `"qwen3.5:9b"`) is treated as `ollama/...` for backward compatibility with the shipped predefined configs.
 
 ## Run
 

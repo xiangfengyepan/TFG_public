@@ -28,10 +28,20 @@ from evomas.tools.openhands.loc_tools import (
     get_entity_contents,
     search_code_snippets,
 )
+from evomas.tools.openhands.aliases import (
+    OPENHANDS_ALIAS_TOOLS,
+    browser,
+    ipython,
+    llm_based_edit,
+)
 
 __all__ = [
     "OPENHANDS_TOOLS",
     "LOC_TOOLS",
+    "OPENHANDS_ALIAS_TOOLS",
+    "browser",
+    "ipython",
+    "llm_based_edit",
     "think",
     "str_replace_editor",
     "execute_ipython_cell",

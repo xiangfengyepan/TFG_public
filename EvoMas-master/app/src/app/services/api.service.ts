@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import {
   UnifiedConfig, ConfigSummary, Instance, InferenceEvent, EvalEvent,
   ResultInstance, ResultPrediction, ResultEvaluation, ToolDescriptor,
-  AgentType, PredictionInspection,
+  AgentType, AgentVariant, PredictionInspection,
 } from '../models/types';
 
 const BASE = 'http://localhost:8000/api';
@@ -36,6 +36,14 @@ export class ApiService {
   // ─── Agent types ──────────────────────────────────────────────────
   getAgentTypes(): Observable<AgentType[]> {
     return this.http.get<AgentType[]>(`${BASE}/agent-types`);
+  }
+
+  /** Same data the `variants` field of `getAgentTypes()` already carries,
+   * but flat / keyed by AGENT_TYPE -- convenient for callers that only
+   * need the variants list. The first entry in each bucket is the EvoMas
+   * built-in (the default selection for the Topology dropdown). */
+  getAgentVariants(): Observable<Record<string, AgentVariant[]>> {
+    return this.http.get<Record<string, AgentVariant[]>>(`${BASE}/agent-variants`);
   }
 
   // ─── Unified Configs ──────────────────────────────────────────────
@@ -116,6 +124,16 @@ export class ApiService {
     );
   }
 
+  /** Internal NDJSON SSE-event log saved under `evomas/logs/inference_logs/`
+   * by the inference worker — same stream the Inference page consumes live.
+   * Returned for completed runs so the Results-page modal can replay them
+   * as agent cards + hand-off chips with full fidelity. */
+  getResultPredictionNdjson(path: string): Observable<{ path: string; name: string; exists: boolean; raw: string }> {
+    return this.http.get<{ path: string; name: string; exists: boolean; raw: string }>(
+      `${BASE}/results/prediction/ndjson?path=${encodeURIComponent(path)}`,
+    );
+  }
+
   getResultEvaluation(dir: string): Observable<ResultEvaluation> {
     return this.http.get<ResultEvaluation>(`${BASE}/results/evaluation?dir=${encodeURIComponent(dir)}`);
   }
@@ -144,6 +162,18 @@ export class ApiService {
     if (limit !== undefined) params.set('limit', String(limit));
     return this.http.post<{ count: number; subset: string; split: string; path: string }>(
       `${BASE}/instances/refresh?${params.toString()}`, {},
+    );
+  }
+
+  /** Append a user-provided GitHub repo as an instance. The backend writes a
+   * subset=custom row to swebench_instances.jsonl; the Evaluation page
+   * filters those rows out before invoking the SWE-bench harness. */
+  addCustomInstance(repo: string, problem_statement: string, base_commit?: string): Observable<{
+    instance_id: string; repo: string; base_commit: string; duplicate: boolean;
+  }> {
+    return this.http.post<{ instance_id: string; repo: string; base_commit: string; duplicate: boolean }>(
+      `${BASE}/instances/custom`,
+      { repo, problem_statement, base_commit: base_commit || null },
     );
   }
 

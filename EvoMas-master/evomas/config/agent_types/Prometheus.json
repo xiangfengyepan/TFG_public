@@ -1,0 +1,54 @@
+{
+  "id": "Prometheus",
+  "source_csv": "Prometheus.csv",
+  "agents": [
+    {
+      "name": "Issue Classification Agent",
+      "agent_type": "Locator",
+      "short_description": "Automatically classifies GitHub issues into categories (bug, question, feature, documentation).",
+      "source_url": "https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/issue_classification_subgraph.py#L15",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "Environment Build Agent",
+      "agent_type": "Environment setup",
+      "short_description": "Automatically sets up and configures the development environment for testing and building.",
+      "source_url": "",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "Bug Reproduction Agent",
+      "agent_type": "Bug reproduction",
+      "short_description": "Attempts to reproduce reported bugs by writing and executing reproduction tests.",
+      "source_url": "https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/bug_reproduction_subgraph.py#L29",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "Context Retrieval Agent",
+      "agent_type": "Locator",
+      "short_description": "Retrieves relevant code and documentation context from the Neo4j knowledge graph.",
+      "source_url": "https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/context_retrieval_subgraph.py#L26",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "Issue Resolution Agent (Patcher)",
+      "agent_type": "Patcher",
+      "short_description": "Generates and validates bug fix patches for verified bugs.",
+      "source_url": "https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/issue_verified_bug_subgraph.py#L35",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "Issue Resolution Agent (Reviewer)",
+      "agent_type": "Reviewer",
+      "short_description": "Generates and validates bug fix patches for verified bugs.",
+      "source_url": "https://github.com/EuniAI/Prometheus/blob/e318aafca0a90b104cba03eae4716aab93c07487/prometheus/lang_graph/subgraphs/issue_verified_bug_subgraph.py#L35",
+      "prompts": {},
+      "tools": []
+    }
+  ]
+}

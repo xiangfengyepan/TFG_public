@@ -8,7 +8,7 @@ from evomas.agents.llm_tool_agent import LLMToolAgent
 
 class BaseAgentType(LLMToolAgent):
     """Base agent — generic, role-less. Used when none of the specialized
-    type bases (Localizator, Patcher, …) apply.
+    type bases (Locator, Patcher, …) apply.
 
     Carries the canonical Ollama Modelfile defaults — no system/user prompt,
     no tool whitelist. Per the upstream docs:

@@ -1,0 +1,30 @@
+:host { display: contents; }
+
+.validation-panel {
+  margin: 6px 0;
+  padding: 8px 10px;
+  background: rgba(248, 81, 73, 0.10);
+  border: 1px solid var(--danger, #f85149);
+  border-radius: 6px;
+  color: var(--danger, #f85149);
+  font-size: 12px;
+}
+.validation-panel.validation-panel-warn {
+  background: rgba(227, 179, 65, 0.10);
+  border-color: var(--warn, #e3b341);
+  color: var(--warn, #e3b341);
+}
+.validation-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.validation-dismiss {
+  background: transparent; border: none;
+  color: var(--warn, #e3b341);
+  font-size: 16px; line-height: 1;
+  cursor: pointer; padding: 0 4px;
+}
+.validation-dismiss:hover { opacity: 0.7; }
+.validation-note { margin: 2px 0 6px; font-size: 11px; opacity: 0.85; }
+.validation-list { margin: 0; padding-left: 18px; list-style: disc; }
+.validation-list li { margin: 1px 0; }

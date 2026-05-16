@@ -34,7 +34,7 @@ class EnvironmentSetupAgent(LLMToolAgent):
         "Bootstrap the environment so tests can run."
     )
     DEFAULT_TOOLS: ClassVar[tuple[str, ...]] = (
-        "execute_bash", "read_file", "view", "list_files", "glob", "think", "finish",
+        "read_file", "list_files", "search_code",
     )
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {
         "temperature":  0.2,

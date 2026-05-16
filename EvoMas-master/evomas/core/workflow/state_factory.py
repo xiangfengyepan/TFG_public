@@ -9,23 +9,36 @@ carries per-agent `state` declarations.
 workspace_path, issue_text) plus a couple of accumulators (errors, thinking).
 `final_patch` is no longer a runtime input — the runner reads `state[cfg.end]`
 after the graph completes (see `evomas/core/workflow/runner.py`).
+
+Reducer wiring: with fan-out topologies (multiple downstream nodes scheduled
+in the same LangGraph super-step), two parallel agents will return overlapping
+deltas — every LLMToolAgent always writes `{"thinking": ...}`, and any branch
+that errors out adds to `errors`. Plain LangGraph channels use `LastValue`
+semantics and reject concurrent writes (`INVALID_CONCURRENT_GRAPH_UPDATE`).
+We tag the two accumulator slots with `Annotated[..., reducer]` so the
+super-step merges instead of crashing. Per-agent producer slots stay as plain
+`LastValue` channels because each agent uniquely owns its `state[self.name]`
+slot by node-id convention.
 """
 from __future__ import annotations
 
+import operator
 from copy import deepcopy
-from typing import Any, TypedDict
+from typing import Annotated, Any, TypedDict
 
 from evomas.agents.base_agent import BaseAgent
 
 # Runtime-seeded keys present in every workflow state, regardless of topology.
 # The runner seeds `instance`, `workspace_path`, and `issue_text` from the
 # SWE-bench instance; `errors` and `thinking` accumulate during the run.
+# `errors` / `thinking` use `Annotated[..., operator.add]` so fan-in branches
+# concatenate cleanly (list-concat for errors, string-concat for thinking).
 RUNTIME_INPUTS: list[dict[str, Any]] = [
     {"name": "instance",       "type": dict[str, Any]},
     {"name": "workspace_path", "type": str},
     {"name": "issue_text",     "type": str},
-    {"name": "errors",         "type": list[str], "default": []},
-    {"name": "thinking",       "type": str,       "default": ""},
+    {"name": "errors",         "type": Annotated[list[str], operator.add], "default": []},
+    {"name": "thinking",       "type": Annotated[str,       operator.add], "default": ""},
 ]
 
 

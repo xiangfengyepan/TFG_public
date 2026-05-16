@@ -1,0 +1,99 @@
+<div class="graph-toolbar">
+  <span class="topo-title">{{ currentConfigName || '-' }}</span>
+  @if (currentConfigName && !isLoadedConfig) {
+    <span class="readonly-chip"
+          title="Predefined configs are read-only. Use the brand menu's Export config… to keep an edited variant.">
+      read-only
+    </span>
+  }
+  @if (currentConfigName && isLoadedConfig && dirty) {
+    <span class="unsaved-chip"
+          title="In-memory edits not yet written to disk. Click Save to persist.">
+      unsaved
+    </span>
+  }
+  @if (currentConfigName && isLoadedConfig && !validated) {
+    <span class="unvalidated-chip"
+          title="Topology edits since the last Validate click haven't been re-checked. Click Validate to clear this — Save is disabled until you do.">
+      unvalidated
+    </span>
+  }
+  <div class="toolbar-sep"></div>
+
+  <evo-button [variant]="addEdgeMode ? 'active' : 'default'"
+              [disabled]="!isLoadedConfig"
+              (clicked)="toggleAddEdge.emit()"
+              title="Click two nodes to connect them. Drag from START to a node to set the entry point; drag from a node to END to toggle that node's membership in the config's `end` list (the nodes allowed to route to END at runtime).">
+    ↗ {{ addEdgeMode ? (edgeSource ? 'Click target…' : 'Click source…') : 'Add Edge' }}
+  </evo-button>
+  <evo-button variant="danger"
+              [disabled]="!isLoadedConfig || (!selectedAgent && !selectedEdgeId)"
+              (clicked)="delete.emit()"
+              title="Remove the selected node(s) or edge(s) from the in-memory graph. Hit Save to persist.">
+    🗑 Delete
+  </evo-button>
+  <evo-button [disabled]="!isLoadedConfig || !selectedAgent"
+              (clicked)="rename.emit()"
+              title="Rename the selected node. The new name must not collide with any other node in this config; all edges, entry, and end references are updated automatically.">
+    ✎ Rename
+  </evo-button>
+
+  <div class="toolbar-group-sep"></div>
+
+  <evo-button [variant]="validateFlash ? 'success' : 'default'"
+              [disabled]="!hasConfig"
+              (clicked)="validate.emit()"
+              title="Check that entry / end / edges are well-formed and every node has degree > 0. Save also runs this and surfaces any issues as a warning.">
+    {{ validateFlash ? 'Valid ✓' : '✓ Validate' }}
+  </evo-button>
+
+  <div class="toolbar-group-sep"></div>
+
+  @if (isLoadedConfig) {
+    <evo-button [variant]="saveFlash ? 'success' : (dirty ? 'primary' : 'default')"
+                [disabled]="!hasConfig || !validated"
+                (clicked)="save.emit()"
+                title="Persist the current edits to evomas/config/loaded/{{ currentConfigName }}.json. Validate must run first — Save is disabled while the topology has unacknowledged edits; the validation panel surfaces issues but does not block Save.">
+      {{ saveFlash ? 'Saved ✓' : '💾 Save' }}
+    </evo-button>
+    @if (saveError) {
+      <span class="save-error" [title]="saveError">⚠ Save failed</span>
+    }
+  }
+
+  <div class="toolbar-group-sep"></div>
+
+  <evo-button variant="ghost" [disabled]="!hasConfig" (clicked)="fit.emit()"
+              title="Zoom + pan the canvas so every node fits in view.">⊡ Fit</evo-button>
+  <evo-button variant="ghost" [disabled]="!hasConfig" (clicked)="relayout.emit()"
+              title="Discard saved positions and re-run the breadthfirst layout. Useful after lots of palette drops.">⇄ Relayout</evo-button>
+  <evo-button variant="ghost" [disabled]="!hasConfig" (clicked)="reload.emit()"
+              title="Re-fetch the active config from the backend and rebuild the canvas. Recovery for a stuck graph after switching configs.">↻ Reload</evo-button>
+
+  <div class="toolbar-group-sep"></div>
+
+  <evo-help-popover title="LangGraph super-steps">
+    <div class="compiled-graph-popover">
+      @if (outline.empty) {
+        <div class="cg-empty">(no config loaded)</div>
+      } @else {
+        <div class="cg-section">Super-steps ({{ outline.steps.length }})</div>
+        <ul class="cg-steps">
+          @for (s of outline.steps; track s.step) {
+            <li>
+              <div class="cg-step-label">step {{ s.step }}</div>
+              <div class="cg-step-agents">
+                @for (n of s.nodes; track n) {
+                  <code>{{ n }}</code>
+                }
+                @if (s.note) {
+                  <span class="cg-meta">— {{ s.note }}</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </evo-help-popover>
+</div>

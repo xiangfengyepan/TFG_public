@@ -39,6 +39,7 @@ export class EvoSelectComponent implements ControlValueAccessor {
       typeof o === 'string' ? { value: o, label: o } : o
     );
   }
+  @Input() set disabled(v: boolean) { this.isDisabled = !!v; }
 
   value = '';
   isDisabled = false;

@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, ClassVar
 
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage
-from langchain_ollama import ChatOllama
 
 from evomas.config.loader import AgentConfig, agent_config_from_block
-from evomas.models.langchain_ollama_model import build_chat_ollama, llm_invoke
+from evomas.models import build_chat, llm_invoke
 
 if TYPE_CHECKING:
     from evomas.mcp.server import MCPServer
@@ -98,7 +98,29 @@ class BaseAgent(ABC):
         elif type(self).DEFAULT_TOOLS:
             self.tool_policy = {name: {} for name in type(self).DEFAULT_TOOLS}
         self._thinking: str = ""
+        # The accumulated final assistant response text from the most recent
+        # `_invoke()` call that produced content (overwritten per iteration in
+        # LLMToolAgent's loop, so the LAST response sticks). Persisted on the
+        # instance so `_producer_value()` can surface it into the agent's
+        # state slot at end-of-run — used by the hand-off chips and by
+        # downstream agents that read `state[self.predecessor_name]`.
+        self._final_response_text: str = ""
+        # Workspace path pinned at the top of `run()` so subclasses (e.g.
+        # PatcherAgent's `_producer_value`) can snapshot the diff without
+        # plumbing `workspace` through the producer hook signature.
+        self._last_workspace_path: str = ""
+        # Upstream producer's slot value captured at the top of
+        # `_run_llm_loop` — substituted into the user prompt as
+        # `{predecessor}` when the template references it. Read by
+        # inference-page tooling to show what the receiver actually
+        # consumed from the source on a hand-off chip.
+        self._last_predecessor_value: str = ""
         self._on_think: Callable[[str], None] | None = None
+        # Fires ONCE per `_invoke()` call with the full LLM response text,
+        # after the streaming loop closes. Per-chunk streaming is intentional
+        # for thinking (so the trajectory shows live reasoning) but not for
+        # the response (the UI shows it as a single block when finished).
+        self._on_response: Callable[[str], None] | None = None
         self._on_tool: Callable[[str, dict, Any], None] | None = None
         # Cumulative LLM token usage across every `_invoke()` call this
         # agent makes during a single graph run. The runner / API worker
@@ -123,20 +145,51 @@ class BaseAgent(ABC):
             self._on_tool(name, merged, result)
         return result
 
-    def make_llm(self, **overrides: Any) -> ChatOllama:
-        return build_chat_ollama(self.config, **overrides)
+    def make_llm(self, **overrides: Any) -> BaseChatModel:
+        """Construct the LangChain ChatModel for this agent's configured
+        provider. Provider is selected from the `<provider>/<model>` prefix
+        on `self.config.model` -- see `evomas/models/__init__.py`."""
+        return build_chat(self.config, **overrides)
 
-    def _invoke(self, llm: ChatOllama, messages: list[BaseMessage]) -> Any:
+    def _invoke(self, llm: BaseChatModel, messages: list[BaseMessage]) -> Any:
         """Stream the LLM response, logging thinking tokens in real-time."""
         response, self._thinking, usage = llm_invoke(
-            llm, messages, agent_name=self.name, on_think=self._on_think
+            llm, messages, agent_name=self.name,
+            on_think=self._on_think,
         )
         # Accumulate cumulative token counts so the runner / API worker
         # can report a single in/out/total for the instance.
         self._tokens["input"]  += int(usage.get("input", 0))
         self._tokens["output"] += int(usage.get("output", 0))
         self._tokens["total"]  += int(usage.get("total", 0))
+        # Surface the full response text after streaming completes (single
+        # event, not per-chunk). LangChain message `content` may be a string
+        # or list of content blocks; coerce to a plain string for the UI.
+        if self._on_response is not None:
+            raw = getattr(response, "content", "")
+            if isinstance(raw, list):
+                text = "".join(
+                    c.get("text", "") if isinstance(c, dict) else str(c)
+                    for c in raw
+                )
+            else:
+                text = str(raw or "")
+            if text:
+                self._on_response(text)
         return response
+
+    def _producer_value(self) -> Any:
+        """The value to write into this agent's state slot at end-of-run.
+
+        Default = the final assistant response text captured by the LLM loop.
+        Subclasses whose canonical artifact lives elsewhere override this —
+        e.g. `PatcherAgent` returns the workspace `git diff` because the patch
+        is the real artifact (the response text is usually just an `ok`/ack).
+        Used by `LLMToolAgent.run()` to populate `state[self.name]` so the
+        hand-off chips carry the produced artifact and downstream agents have
+        a real value at `state[self.predecessor_name]`.
+        """
+        return self._final_response_text
 
     @abstractmethod
     def run(self, state: dict[str, Any]) -> dict[str, Any]:

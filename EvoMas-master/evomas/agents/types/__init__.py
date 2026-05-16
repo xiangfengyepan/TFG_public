@@ -6,10 +6,9 @@ documents the role's expected state contract and slots cleanly under
 `LLMToolAgent` (so concrete subclasses inherit the function-calling loop +
 fallback machinery for free).
 
-Concrete star agents (ManagerAgent, LocalizeAgent, …) inherit from the
-matching type base; the topology JSON's `class` field can also reference a
-type name directly (e.g. `"class": "Localizator"`) for fully declarative
-agents that don't need bespoke Python.
+Topology JSON blocks reference these types by their `AGENT_TYPE` label
+(e.g. `"class": "Locator"`) -- the runtime registry resolves the name
+to the matching base class without any bespoke per-agent Python.
 
 Color palette is defined here so `/api/agent-types` can serve it to the
 frontend (single source of truth — UI palette + node coloring).
@@ -23,7 +22,7 @@ from evomas.agents.types.base_agent_type import BaseAgentType
 from evomas.agents.types.bug_reproduction import BugReproductionAgent
 from evomas.agents.types.environment_setup import EnvironmentSetupAgent
 from evomas.agents.types.helper_proxy import HelperProxyAgent
-from evomas.agents.types.localizator import LocalizatorAgent
+from evomas.agents.types.locator import LocatorAgent
 from evomas.agents.types.orchestrator import OrchestratorAgent
 from evomas.agents.types.patcher import PatcherAgent
 from evomas.agents.types.reviewer import ReviewerAgent
@@ -31,11 +30,11 @@ from evomas.agents.types.reviewer import ReviewerAgent
 # Ordered as in the SWE-bench AgentType.csv so the frontend palette renders
 # them in a consistent, intentional order. Each type is registered TWICE so a
 # config block can spell its `class` either as the human-readable AGENT_TYPE
-# (e.g. "Localizator", "Helper/Proxy") OR the Python class name from
-# evomas/agents/types/ (e.g. "LocalizatorAgent", "HelperProxyAgent"). Both
+# (e.g. "Locator", "Helper/Proxy") OR the Python class name from
+# evomas/agents/types/ (e.g. "LocatorAgent", "HelperProxyAgent"). Both
 # resolve to the same class via the AGENT_REGISTRY in runner.py.
 _TYPES: tuple[type[BaseAgent], ...] = (
-    LocalizatorAgent,
+    LocatorAgent,
     PatcherAgent,
     HelperProxyAgent,
     OrchestratorAgent,
@@ -51,7 +50,7 @@ for _cls in _TYPES:
 
 # Stable tints used both by the frontend palette and the topology graph.
 TYPE_COLORS: dict[str, str] = {
-    "Localizator":          "#388bfd",  # blue
+    "Locator":              "#388bfd",  # blue
     "Patcher":              "#56d364",  # green
     "Helper/Proxy":         "#a371f7",  # purple
     "Planner/Orchestrator": "#e3b341",  # amber
@@ -98,7 +97,7 @@ __all__ = [
     "BugReproductionAgent",
     "EnvironmentSetupAgent",
     "HelperProxyAgent",
-    "LocalizatorAgent",
+    "LocatorAgent",
     "OrchestratorAgent",
     "PatcherAgent",
     "ReviewerAgent",

@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any, ClassVar
 
 from evomas.agents.llm_tool_agent import LLMToolAgent
+from evomas.tools.patch_tools import generate_diff_impl
 
 
 class HelperProxyAgent(LLMToolAgent):
@@ -34,23 +35,28 @@ class HelperProxyAgent(LLMToolAgent):
     OUTPUT_DEFAULT: ClassVar[str] = ""
 
     DEFAULT_SYSTEM: ClassVar[str] = (
-        "You are a read-only helper / proxy agent. You do not modify source files.\n\n"
-        "Common duties:\n"
-        "- Extract structured JSON from another agent's free-form output (e.g. parse a "
-        "<files>…</files> or <patch>…</patch> block into a clean object).\n"
-        "- Pick the best of several candidate patches by their validation scores. "
-        "(When the LangGraph state already carries `candidate_patches`, that "
-        "selection runs deterministically in code — you won't be asked to pick "
-        "via the LLM.)\n"
-        "- Answer factual questions about the code by reading it with `view` / `read_file` / "
-        "`grep` / `glob`.\n\n"
-        "When you have produced your answer, call `finish` with a one-sentence summary."
+        "You are a read-only finalizer agent. You do not modify source files.\n\n"
+        "Available tools (use ONLY these):\n"
+        "  * `read_file(path, with_line_numbers, max_chars)` — read a file's contents.\n"
+        "  * `list_files(directory, extension)` — recursive glob listing.\n"
+        "  * `search_code(query, directory)` — BM25 search across .py files.\n\n"
+        "Duty: in the linear chain topology you receive the reviewer's verdict\n"
+        "and the workspace already contains the patcher's edits. Respond with\n"
+        "a one-line acknowledgement (e.g. 'patch accepted: <one-sentence summary>')\n"
+        "and emit NO tool calls — the loop exits as soon as you respond without\n"
+        "a tool call. The base runner reads the workspace `git diff` as the\n"
+        "final prediction patch.\n\n"
+        "If the predecessor bundles `{patches, validations}` the framework\n"
+        "selects the best candidate deterministically before your run; you'll\n"
+        "never be asked to pick via the LLM."
     )
     DEFAULT_USER: ClassVar[str] = (
-        "## Task\n{issue}\n\n## Workspace\n{workspace}\n"
+        "## Task\n{issue}\n\n## Workspace\n{workspace}\n\n"
+        "## Upstream (reviewer verdict)\n{predecessor}\n\n"
+        "Respond with a one-line acknowledgement. Emit no tool calls."
     )
     DEFAULT_TOOLS: ClassVar[tuple[str, ...]] = (
-        "read_file", "view", "grep", "glob", "list_files", "think", "finish",
+        "read_file", "list_files", "search_code",
     )
     # Lightweight read-only role.
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {
@@ -58,6 +64,32 @@ class HelperProxyAgent(LLMToolAgent):
         "num_ctx":      4096,
         "num_predict":  512,
     }
+
+    def _producer_value(self) -> str:
+        """Same rationale as `PatcherAgent._producer_value`: HelperProxy is
+        the canonical finalizer / ensembler slot, and `runner.py` reads
+        `state[end_key]` straight into the prediction's `model_patch`. The
+        LLM ack text the loop produces ("patch accepted: …") is useful
+        for the hand-off chip face but the wrong value for the prediction
+        file — the SWE-bench harness would receive a sentence instead of
+        a diff and fail to apply it.
+
+        Surface the workspace `git diff` instead; fall back to the
+        captured response text only when the workspace has zero changes
+        (so the runner's own `generate_diff_impl` fallback still has a
+        chance to fire on an empty slot, preserving the pre-refactor
+        behaviour for chains that never modify the workspace).
+
+        Only fires on the LLM-fallthrough branch — when `run()` short-
+        circuits with `return {self.name: best_patch}` (the ensembler
+        path) this override is never consulted.
+        """
+        workspace = (self._last_workspace_path or "").strip()
+        if workspace:
+            diff = generate_diff_impl(workspace) or ""
+            if diff.strip():
+                return diff
+        return self._final_response_text
 
     def run(self, state: dict[str, Any]) -> dict[str, Any]:
         # Edge-driven input: under the linear-chain model the predecessor

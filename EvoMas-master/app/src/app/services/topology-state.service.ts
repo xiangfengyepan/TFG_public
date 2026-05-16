@@ -33,8 +33,28 @@ export class TopologyStateService {
   // UI flags
   addEdgeMode = false;
 
+  /** True when the active config has in-memory edits that haven't been
+   * written to disk. Reset on `setCurrentConfig()` (switching configs)
+   * and on a successful `saveToDisk` from the Topology page.
+   * Drives the "unsaved" toolbar chip. */
+  dirty = false;
+
+  /** True when the active config has been validated since the last edit.
+   * Fresh-loaded configs default to `validated: true` (the user hasn't
+   * touched anything yet). Every site that calls `markDirty()` also
+   * flips this to `false`; the Validate toolbar button flips it back to
+   * `true` whether or not findings were surfaced — the user has at
+   * least acknowledged the diagnostics. Save is disabled while this is
+   * `false` so the user can't ship un-inspected edits. */
+  validated = true;
+
   // Persisted node positions per config name
   nodePositions: Record<string, Record<string, { x: number; y: number }>> = {};
+
+  // Persisted dropdown selection for each palette chip (one entry per
+  // canonical AGENT_TYPE). Survives navigation away from the page. Empty
+  // map = every chip defaults to the EvoMas built-in (first variant).
+  selectedVariantByType: Record<string, string> = {};
 
   // Notifies subscribers when currentConfig is replaced (e.g. by Open file).
   readonly configChanged = new Subject<UnifiedConfig | null>();
@@ -44,6 +64,10 @@ export class TopologyStateService {
     this.currentConfigName = displayName;
     this.selectedAgent = null;
     this.selectedEdgeId = null;
+    this.dirty = false;
+    // Fresh-loaded config starts validated — Save is enabled until the
+    // user touches anything, mirroring the "no unsaved edits" baseline.
+    this.validated = true;
     this.configChanged.next(config);
   }
 

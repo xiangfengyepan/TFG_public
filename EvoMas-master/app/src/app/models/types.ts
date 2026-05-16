@@ -41,6 +41,10 @@ export interface AgentTool {
 
 export interface AgentBlock extends AgentConfig {
   class: string;
+  /** Variant key (e.g. "evomas:Locator" or "OpenHands:CodeActAgent")
+   * recording which palette dropdown choice seeded this block. Optional,
+   * for traceability only -- the runtime reads `prompts` + `tools` directly. */
+  variant?: string;
   state?: StateField[];
   tools?: AgentTool[];
   prompts?: PromptBlock;
@@ -80,15 +84,18 @@ export interface ConfigSummary {
   source: 'predefined' | 'loaded';
 }
 
-export type SwebenchSubset = 'lite' | 'full' | 'verified';
-export type SwebenchSplit = 'dev' | 'test' | 'train';
+export type SwebenchSubset = 'lite' | 'full' | 'verified' | 'custom';
+export type SwebenchSplit = 'dev' | 'test' | 'train' | 'custom';
 
 /** Splits actually shipped per subset on HuggingFace.
- * (Confirmed against the dataset cards as of 2026-05.) */
+ * (Confirmed against the dataset cards as of 2026-05.) The synthetic
+ * `custom/custom` group hosts user-added GitHub repos from the Inference
+ * page's "Add custom GitHub repo" form. */
 export const SUBSET_SPLITS: Record<SwebenchSubset, SwebenchSplit[]> = {
   lite:     ['dev', 'test'],
   full:     ['dev', 'test', 'train'],
   verified: ['test'],
+  custom:   ['custom'],
 };
 
 export interface Instance {
@@ -101,8 +108,10 @@ export interface Instance {
 
 export interface InferenceEvent {
   type:
-    | 'status' | 'start' | 'agent_event' | 'thinking_chunk' | 'tool_call'
-    | 'instance_start' | 'instance_done' | 'done' | 'error' | 'cancelled';
+    | 'status' | 'start' | 'agent_event' | 'thinking_chunk' | 'response'
+    | 'tool_call' | 'agent_input' | 'agent_tokens' | 'run_id'
+    | 'instance_start' | 'instance_done' | 'done' | 'error' | 'cancelled'
+    | 'handoff';
   message?: string;
   instance_id?: string;
   instance_ids?: string[];
@@ -116,9 +125,38 @@ export interface InferenceEvent {
   output_path?: string;
   traceback?: string;
   chunk?: string;
+  // response event payload — full LLM response after streaming completes.
+  content?: string;
   tool?: string;
   args_preview?: string;
   result_preview?: string;
+  // agent_input event payload — predecessor outputs the agent received.
+  inputs?: Record<string, unknown>;
+  // agent_tokens event payload — per-agent cumulative LLM usage.
+  input?: number;
+  output?: number;
+  // handoff event payload — one per outgoing edge after an agent runs.
+  // `from`/`to` are agent node ids; `summary` is a short type+size string
+  // for the chip face; `preview` is the truncated full payload for a
+  // click-to-expand modal. `keys` lists every state-slot the producer
+  // wrote on this step (usually just `[agent_name]`).
+  from?: string;
+  to?: string;
+  summary?: string;
+  preview?: string;
+  keys?: string[];
+  timestamp?: string;
+}
+
+/** Hand-off chip rendered between two agent cards on the inference page.
+ * Built from a `handoff` InferenceEvent; one chip per outgoing edge. */
+export interface HandoffChip {
+  from: string;
+  to: string;
+  summary: string;   // 'list(2 items, ~25 B)'
+  preview: string;   // full payload (16KB cap on the server)
+  keys: string[];
+  timestamp: string;
 }
 
 export interface EvalEvent {
@@ -222,23 +260,62 @@ export interface ResultEvaluation {
 
 // ─── Agent types (live catalog from /api/agent-types) ──────────────
 export interface AgentType {
-  type: string;          // e.g. "Localizator", "Patcher"
+  type: string;          // e.g. "Locator", "Patcher"
   color: string;         // hex
   description: string;
-  class: string;         // backing Python class name (e.g. "LocalizatorAgent")
+  class: string;         // backing Python class name (e.g. "LocatorAgent")
   /** Per-type defaults the frontend uses to seed a freshly-dropped node. */
   default_system: string;
   default_user: string;
   default_tools: string[];
   default_config: Record<string, unknown>;
+  /** Variants for this canonical AGENT_TYPE: the EvoMas built-in first,
+   * then every CSV-derived alternative from open-source SWE-bench solver
+   * repos. Populated by the same `/api/agent-types` response. */
+  variants?: AgentVariant[];
+}
+
+/** One row in an AGENT_TYPE bucket -- either the EvoMas built-in or a
+ * CSV-derived alternative from `evomas/config/agent_types/*.json`. */
+export interface AgentVariant {
+  /** Stable id used as the drag payload; e.g. "evomas:Locator" or
+   * "OpenHands:CodeActAgent". */
+  key: string;
+  /** Display string, e.g. "EvoMas · default" or "OpenHands · CodeActAgent". */
+  label: string;
+  /** Originating repo (`"evomas"` for the built-in; CSV stem otherwise). */
+  repo: string;
+  /** Upstream agent name within the repo, e.g. "CodeActAgent" or "Coder".
+   * For built-ins this equals the AGENT_TYPE so the dropped-node id can
+   * fall back to a stable `evomas_<type>` pattern. */
+  name: string;
+  /** Canonical AGENT_TYPE this variant belongs to. */
+  agent_type: string;
+  /** Source-code anchor in the upstream repo (empty for built-ins). */
+  source_url: string;
+  description: string;
+  default_system: string;
+  default_user: string;
+  default_proxy: string;
+  default_tools: string[];
+  default_config: Record<string, unknown>;
+}
+
+/** Lower-snake-case a free-form label (AGENT_TYPE, variant name, ...) into
+ * a safe node id base. Used by `suggestNodeId` for collision suffixing and
+ * by the Topology drop handler to derive a fresh id directly. */
+export function normalizeNodeBase(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[\/\s]+/g, '_')
+    .replace(/[^a-z0-9_]+/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
 }
 
 // Snake-case fallback ID generator used when dropping a type chip onto the graph.
 export function suggestNodeId(typeLabel: string, takenIds: Set<string>): string {
-  const base = typeLabel
-    .toLowerCase()
-    .replace(/[\/\s]+/g, '_')
-    .replace(/[^a-z0-9_]+/g, '');
+  const base = normalizeNodeBase(typeLabel) || 'agent';
   let i = 1;
   while (takenIds.has(`${base}_${i}`)) i += 1;
   return `${base}_${i}`;

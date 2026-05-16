@@ -1,0 +1,14 @@
+{
+  "id": "moatless-tools",
+  "source_csv": "moatless-tools.csv",
+  "agents": [
+    {
+      "name": "ActionAgent",
+      "agent_type": "Base agent",
+      "short_description": "base agent component",
+      "source_url": "https://github.com/aorwall/moatless-tools/blob/011ead57a5c81664e9c45e07e1f50b17e695cc63/moatless/agent/agent.py#L42",
+      "prompts": {},
+      "tools": []
+    }
+  ]
+}

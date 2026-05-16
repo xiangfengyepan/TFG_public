@@ -68,9 +68,7 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "exclude": [
-              "src/integration/**/*.spec.ts"
-            ]
+            "exclude": []
           }
         }
       }

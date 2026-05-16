@@ -1,7 +1,43 @@
 import { Injectable } from '@angular/core';
 import { Subject, Subscription, timer } from 'rxjs';
 import { ApiService } from './api.service';
-import { InferenceEvent, AGENT_COLORS, AGENT_LABELS, UnifiedConfig } from '../models/types';
+import { AgentType, InferenceEvent, AGENT_COLORS, AGENT_LABELS, HandoffChip, UnifiedConfig } from '../models/types';
+
+/** Build the per-node colour map for one run from the active config plus
+ * the /api/agent-types catalog. Used by:
+ *   - the live Inference page (`refreshNodeColors`),
+ *   - the Results-page modal (`parseNdjsonToRunInstance` callers),
+ * so the card-dot colour matches the agent's `class` field regardless
+ * of which page is rendering. Extracted from `InferenceComponent` so it
+ * doesn't drift across the two consumers. */
+export function buildNodeColors(
+  cfg: Pick<UnifiedConfig, 'agents'>,
+  agentTypes: AgentType[],
+): Record<string, string> {
+  // Two lookups off the agent-types catalog so the JSON's `class` field
+  // can be either the human-readable AGENT_TYPE label ("Locator",
+  // "Helper/Proxy", …) OR the Python class name ("LocatorAgent",
+  // "HelperProxyAgent", …) — the backend registers both and topology
+  // JSONs in this repo use a mix.
+  const byClass: Record<string, string> = {};
+  const byType:  Record<string, string> = {};
+  for (const t of agentTypes) {
+    byClass[t.class] = t.color;
+    byType[t.type]   = t.color;
+  }
+  // LLMToolAgent is the generic config-driven base — colour it as a Base agent.
+  const aliasToType: Record<string, string> = { LLMToolAgent: 'Base agent' };
+  const out: Record<string, string> = {};
+  for (const [node, block] of Object.entries(cfg.agents ?? {})) {
+    const cls = (block as { class?: string })?.class ?? '';
+    const color = byClass[cls]
+               ?? byType[cls]
+               ?? byType[aliasToType[cls] ?? '']
+               ?? '';
+    if (color) out[node] = color;
+  }
+  return out;
+}
 
 const LOG_POLL_INTERVAL_MS = 1500;
 
@@ -9,6 +45,12 @@ export interface ToolCallEntry {
   tool: string;
   argsPreview: string;
   resultPreview: string;
+}
+
+export interface AgentTokenUsage {
+  input: number;
+  output: number;
+  total: number;
 }
 
 export interface AgentCard {
@@ -19,7 +61,10 @@ export interface AgentCard {
   delta: Record<string, unknown>;
   expanded: boolean;
   thinkingStream: string;
+  responseStream: string;
   toolCalls: ToolCallEntry[];
+  inputs: Record<string, unknown>;
+  tokens: AgentTokenUsage | null;
 }
 
 /** Per-instance state inside the active run. The cards/finalPatch buffer here
@@ -34,6 +79,11 @@ export interface RunInstance {
   runId: string;
   errorMsg: string;
   errorTraceback: string;
+  /** Hand-off chips keyed by their *target* agent. Used by the inference
+   * page to render chips immediately BEFORE the target's card. One entry
+   * per outgoing edge — a fan-out source produces multiple chips, each
+   * with its own target. */
+  handoffsByTarget: Record<string, HandoffChip[]>;
 }
 
 export type RunStatus = 'idle' | 'running' | 'done' | 'cancelled' | 'error';
@@ -51,8 +101,241 @@ function newCard(agent: string, nodeColors: Record<string, string>): AgentCard {
     delta: {},
     expanded: true,
     thinkingStream: '',
+    responseStream: '',
     toolCalls: [],
+    inputs: {},
+    tokens: null,
   };
+}
+
+/** Factory for a fresh RunInstance — shared by the live service init and
+ * by `parseNdjsonToRunInstance` so the snapshot the Results-page modal
+ * renders matches the live-page shape byte-for-byte. */
+export function newRunInstance(
+  instanceId: string,
+  status: RunInstance['status'] = 'queued',
+  runId = '',
+): RunInstance {
+  return {
+    instance_id: instanceId,
+    status,
+    cards: [],
+    finalPatch: '',
+    outputPath: '',
+    runId,
+    errorMsg: '',
+    errorTraceback: '',
+    handoffsByTarget: {},
+  };
+}
+
+/** Most-recent still-running card for `agent`, used so a thinking chunk
+ * / tool call lands on the in-flight attempt rather than retrofitting a
+ * previous, completed retry. Mirrors `InferenceRunService.openCard`. */
+function _openCard(inst: RunInstance, agent: string): AgentCard | null {
+  for (let i = inst.cards.length - 1; i >= 0; i--) {
+    if (inst.cards[i].agent === agent && inst.cards[i].status === 'running') {
+      return inst.cards[i];
+    }
+  }
+  return null;
+}
+
+/** Append a fresh card for `agent` to `inst.cards`. The label gets a
+ * "(retry N)" suffix on the 2nd+ visit so the panel reads as a sequence. */
+function _spawnCard(
+  inst: RunInstance,
+  agent: string,
+  nodeColors: Record<string, string>,
+): AgentCard {
+  const previous = inst.cards.filter(c => c.agent === agent).length;
+  const card = newCard(agent, nodeColors);
+  if (previous > 0) card.label = `${card.label} (retry ${previous + 1})`;
+  inst.cards.push(card);
+  return card;
+}
+
+/** Pure reducer: apply a single SSE/NDJSON event to one RunInstance.
+ *
+ * Only per-instance mutations live here (cards, hand-off chips, status
+ * flags, error message). Service-level state (statusMsg, this.status,
+ * selectedInstanceId, run-level `done`/`cancelled` semantics) stays in
+ * `InferenceRunService.handleEvent` because the Results-page modal
+ * replays a *completed* run — there's no live `status` to track.
+ *
+ * Used by both the live `handleEvent` and the static `parseNdjsonToRunInstance`. */
+export function applyEventToInstance(
+  inst: RunInstance,
+  ev: InferenceEvent,
+  nodeColors: Record<string, string> = {},
+): void {
+  switch (ev.type) {
+    case 'instance_start':
+      inst.status = 'running';
+      inst.cards = [];
+      inst.handoffsByTarget = {};
+      break;
+
+    case 'instance_done':
+      inst.status = 'done';
+      if (ev.output_path) inst.outputPath = ev.output_path;
+      if (ev.run_id) inst.runId = ev.run_id;
+      if (ev.patch) inst.finalPatch = ev.patch;
+      break;
+
+    case 'agent_event': {
+      const agent = ev.agent ?? 'unknown';
+      const open = _openCard(inst, agent);
+      const card = open ?? _spawnCard(inst, agent, nodeColors);
+      card.delta = open ? { ...card.delta, ...(ev.delta ?? {}) } : (ev.delta ?? {});
+      card.status = 'done';
+      break;
+    }
+
+    case 'handoff': {
+      const target = ev.to ?? '';
+      if (!target) break;
+      const chip: HandoffChip = {
+        from: ev.from ?? 'unknown',
+        to: target,
+        summary: ev.summary ?? '',
+        preview: ev.preview ?? '',
+        keys: ev.keys ?? [],
+        timestamp: ev.timestamp ?? '',
+      };
+      (inst.handoffsByTarget[target] ||= []).push(chip);
+      break;
+    }
+
+    case 'thinking_chunk': {
+      const agent = ev.agent ?? 'unknown';
+      const open = _openCard(inst, agent);
+      const card = open ?? _spawnCard(inst, agent, nodeColors);
+      card.thinkingStream += ev.chunk ?? '';
+      break;
+    }
+
+    case 'response': {
+      const agent = ev.agent ?? 'unknown';
+      const open = _openCard(inst, agent);
+      const card = open ?? _spawnCard(inst, agent, nodeColors);
+      const text = ev.content ?? '';
+      if (text) {
+        card.responseStream = card.responseStream
+          ? card.responseStream + '\n\n─────\n\n' + text
+          : text;
+      }
+      break;
+    }
+
+    case 'agent_input': {
+      const agent = ev.agent ?? 'unknown';
+      const open = _openCard(inst, agent);
+      const card = open ?? _spawnCard(inst, agent, nodeColors);
+      card.inputs = (ev.inputs as Record<string, unknown>) ?? {};
+      break;
+    }
+
+    case 'agent_tokens': {
+      const agent = ev.agent ?? 'unknown';
+      for (const card of inst.cards) {
+        if (card.agent === agent) {
+          card.tokens = {
+            input:  Number(ev['input']  ?? 0),
+            output: Number(ev['output'] ?? 0),
+            total:  Number(ev['total']  ?? 0),
+          };
+        }
+      }
+      break;
+    }
+
+    case 'tool_call': {
+      const agent = ev.agent ?? 'unknown';
+      const open = _openCard(inst, agent);
+      const card = open ?? _spawnCard(inst, agent, nodeColors);
+      card.toolCalls.push({
+        tool: ev.tool ?? '',
+        argsPreview: ev.args_preview ?? '',
+        resultPreview: ev.result_preview ?? '',
+      });
+      break;
+    }
+
+    case 'error':
+      inst.errorMsg = ev.message ?? '';
+      inst.errorTraceback = ev.traceback ?? '';
+      break;
+
+    // status / start / done / cancelled / run_id are service-level only
+    // (no per-instance mutation). run_id targets multiple instances at
+    // the service layer; the static parser doesn't need it because the
+    // NDJSON's `instance_done` carries the final runId.
+  }
+}
+
+/** Replay a completed run's NDJSON event log into a snapshot RunInstance.
+ *
+ * Multi-instance batches: if `instanceId` is non-empty, only events that
+ * are scoped to that instance (`ev.instance_id === instanceId`) OR that
+ * are instance-unscoped (`thinking_chunk` / `tool_call` etc., which the
+ * worker emits between `instance_start`/`instance_done` for the active
+ * one) are applied.
+ *
+ * Falls back to `status='done'` if the file never emitted an
+ * `instance_start` — older runs predating that event still produce a
+ * usable card view. */
+export function parseNdjsonToRunInstance(
+  raw: string,
+  instanceId: string,
+  nodeColors: Record<string, string> = {},
+): RunInstance {
+  const inst = newRunInstance(instanceId);
+  let activeInstanceId = '';
+  let sawInstanceStart = false;
+
+  for (const line of raw.split('\n')) {
+    const t = line.trim();
+    if (!t) continue;
+    let ev: InferenceEvent;
+    try { ev = JSON.parse(t) as InferenceEvent; } catch { continue; }
+
+    // Track which instance the worker is currently in: `instance_start`
+    // opens a scope; `instance_done` closes it. Unscoped events between
+    // them belong to that instance.
+    if (ev.type === 'instance_start' && ev.instance_id) {
+      activeInstanceId = ev.instance_id;
+      sawInstanceStart = true;
+    }
+
+    // Skip events scoped to a different instance.
+    if (instanceId) {
+      if (ev.instance_id && ev.instance_id !== instanceId) {
+        if (ev.type === 'instance_done' && ev.instance_id === activeInstanceId) {
+          activeInstanceId = '';
+        }
+        continue;
+      }
+      // Unscoped event (no instance_id field): apply only if the active
+      // worker scope matches our target instance.
+      if (!ev.instance_id && activeInstanceId && activeInstanceId !== instanceId) {
+        continue;
+      }
+    }
+
+    applyEventToInstance(inst, ev, nodeColors);
+
+    if (ev.type === 'instance_done' && ev.instance_id) {
+      activeInstanceId = '';
+    }
+  }
+
+  // If the file never emitted instance_start, the snapshot defaults to
+  // 'queued' which reads wrong on a completed run. Flip to 'done'.
+  if (!sawInstanceStart && inst.status === 'queued') {
+    inst.status = 'done';
+  }
+  return inst;
 }
 
 /** Single-run inference. One run at a time — a run is an SSE stream that
@@ -158,16 +441,9 @@ export class InferenceRunService {
           this.startedAt = snap.started_at ?? Date.now();
           this.errorMsg = '';
           this.status = 'running';
-          this.instances = snap.instance_ids.map(id => ({
-            instance_id: id,
-            status: 'queued',
-            cards: [],
-            finalPatch: '',
-            outputPath: '',
-            runId: snap.run_id ?? '',
-            errorMsg: '',
-            errorTraceback: '',
-          }));
+          this.instances = snap.instance_ids.map(id =>
+            newRunInstance(id, 'queued', snap.run_id ?? ''),
+          );
           this.selectedInstanceId = snap.instance_ids[0] ?? null;
           this.statusMsg = `Reattaching to run ${snap.run_id ?? ''}…`;
           this.logOffset = 0;
@@ -248,16 +524,7 @@ export class InferenceRunService {
     this.status = 'running';
     this.startedAt = Date.now();
     this.errorMsg = '';
-    this.instances = ids.map(id => ({
-      instance_id: id,
-      status: 'queued',
-      cards: [],
-      finalPatch: '',
-      outputPath: '',
-      runId: '',
-      errorMsg: '',
-      errorTraceback: '',
-    }));
+    this.instances = ids.map(id => newRunInstance(id));
     this.selectedInstanceId = ids[0] ?? null;
     this.statusMsg = `Running ${this.configLabel} (${ids.length} instance${ids.length > 1 ? 's' : ''})`;
     this.notify();
@@ -300,30 +567,11 @@ export class InferenceRunService {
     return this.instances.find(i => i.status === 'running') ?? null;
   }
 
-  /** Latest card for `agent` that's still open (running). Used so a thinking
-   * chunk / tool call lands on the in-flight attempt rather than retrofitting
-   * a previous, completed retry. Returns null once that attempt's
-   * `agent_event` (the closing event) has flipped its status to 'done'. */
-  private openCard(inst: RunInstance, agent: string): AgentCard | null {
-    for (let i = inst.cards.length - 1; i >= 0; i--) {
-      if (inst.cards[i].agent === agent && inst.cards[i].status === 'running') {
-        return inst.cards[i];
-      }
-    }
-    return null;
-  }
-
-  /** Append a fresh card for the agent. The label is suffixed with
-   * "(retry N)" when this is the 2nd+ attempt so the panel makes the retry
-   * sequence visually obvious. */
-  private spawnCard(inst: RunInstance, agent: string): AgentCard {
-    const previous = inst.cards.filter(c => c.agent === agent).length;
-    const card = newCard(agent, this.nodeColors);
-    if (previous > 0) card.label = `${card.label} (retry ${previous + 1})`;
-    inst.cards.push(card);
-    return card;
-  }
-
+  /** Dispatch a live SSE / log-tail event:
+   *  - Service-level mutations (statusMsg, this.status, selectedInstanceId,
+   *    cross-instance run_id propagation) stay here.
+   *  - Per-instance mutations delegate to `applyEventToInstance` so the
+   *    Results-page replay path uses the exact same reducer. */
   private handleEvent(ev: InferenceEvent): void {
     switch (ev.type) {
       case 'status':
@@ -333,8 +581,7 @@ export class InferenceRunService {
       case 'instance_start': {
         const inst = this.getInstance(ev.instance_id);
         if (inst) {
-          inst.status = 'running';
-          inst.cards = [];
+          applyEventToInstance(inst, ev, this.nodeColors);
           // Auto-focus the running instance unless the user has already
           // clicked into another one.
           if (!this.selectedInstanceId || this.selectedInstanceId === inst.instance_id) {
@@ -347,12 +594,7 @@ export class InferenceRunService {
 
       case 'instance_done': {
         const inst = this.getInstance(ev.instance_id);
-        if (inst) {
-          inst.status = 'done';
-          if (ev.output_path) inst.outputPath = ev.output_path;
-          if (ev.run_id) inst.runId = ev.run_id;
-          if (ev.patch) inst.finalPatch = ev.patch;
-        }
+        if (inst) applyEventToInstance(inst, ev, this.nodeColors);
         this.statusMsg = `Finished ${ev.instance_id} (${(ev.index ?? 0) + 1}/${ev.total ?? 1})`;
         break;
       }
@@ -361,42 +603,31 @@ export class InferenceRunService {
         this.statusMsg = `Running ${ev.config} on ${ev.instance_id}…`;
         break;
 
-      case 'agent_event': {
-        // Each agent_event marks the END of one node visit. Manager retries
-        // (e.g. routing back to the patcher after validation fails) show up
-        // as repeated visits to the same node — render each as its own card
-        // so the user sees per-attempt thinking / tools / patches separately.
-        const inst = this.runningInst();
-        if (!inst) return;
-        const agent = ev.agent ?? 'unknown';
-        const open = this.openCard(inst, agent);
-        const card = open ?? this.spawnCard(inst, agent);
-        card.delta = open ? { ...card.delta, ...(ev.delta ?? {}) } : (ev.delta ?? {});
-        card.status = 'done';
-        break;
-      }
-
-      case 'thinking_chunk': {
-        const inst = this.runningInst();
-        if (!inst) return;
-        const agent = ev.agent ?? 'unknown';
-        const open = this.openCard(inst, agent);
-        const card = open ?? this.spawnCard(inst, agent);
-        card.thinkingStream += ev.chunk ?? '';
-        break;
-      }
-
+      case 'agent_event':
+      case 'handoff':
+      case 'thinking_chunk':
+      case 'response':
+      case 'agent_input':
+      case 'agent_tokens':
       case 'tool_call': {
         const inst = this.runningInst();
         if (!inst) return;
-        const agent = ev.agent ?? 'unknown';
-        const open = this.openCard(inst, agent);
-        const card = open ?? this.spawnCard(inst, agent);
-        card.toolCalls.push({
-          tool: ev.tool ?? '',
-          argsPreview: ev.args_preview ?? '',
-          resultPreview: ev.result_preview ?? '',
-        });
+        applyEventToInstance(inst, ev, this.nodeColors);
+        break;
+      }
+
+      case 'run_id': {
+        if (!ev.run_id) break;
+        // Mark every queued / running instance with the run_id immediately
+        // so the .bp-item chip can display it during execution. instance_done
+        // later overwrites with the same value (idempotent). Cross-instance
+        // fan-out, so this stays at the service layer rather than per-instance.
+        for (const inst of this.instances) {
+          if (inst.status === 'queued' || inst.status === 'running') {
+            inst.runId = String(ev.run_id);
+            if (ev.output_path) inst.outputPath = String(ev.output_path);
+          }
+        }
         break;
       }
 
@@ -409,10 +640,7 @@ export class InferenceRunService {
         this.status = 'error';
         this.errorMsg = ev.message ?? 'Unknown error';
         const inst = this.runningInst() ?? this.getInstance(this.selectedInstanceId);
-        if (inst) {
-          inst.errorMsg = ev.message ?? '';
-          inst.errorTraceback = ev.traceback ?? '';
-        }
+        if (inst) applyEventToInstance(inst, ev, this.nodeColors);
         break;
       }
 

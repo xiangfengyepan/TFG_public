@@ -6,9 +6,9 @@ function makeConfig(id: string): UnifiedConfig {
   return {
     id,
     description: '',
-    entry: 'manager_agent',
+    entry: 'orchestrator',
     edges: [],
-    agents: { manager_agent: { class: 'ManagerAgent' } as any },
+    agents: { orchestrator: { class: 'Planner/Orchestrator' } as any },
   };
 }
 
@@ -31,8 +31,8 @@ describe('TopologyStateService', () => {
     svc.setCurrentConfig(makeConfig('a'), 'a');
     expect(svc.selectedAgentBlock()).toBeNull();      // no selectedAgent yet
 
-    svc.selectedAgent = 'manager_agent';
-    expect(svc.selectedAgentBlock()?.class).toBe('ManagerAgent');
+    svc.selectedAgent = 'orchestrator';
+    expect(svc.selectedAgentBlock()?.class).toBe('Planner/Orchestrator');
 
     svc.selectedAgent = 'does_not_exist';
     expect(svc.selectedAgentBlock()).toBeNull();

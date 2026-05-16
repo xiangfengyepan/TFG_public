@@ -126,3 +126,98 @@ pre {
 .badge.ok   { background: #23863633; color: var(--success); border: 1px solid #238636; }
 .badge.err  { background: #da363333; color: var(--danger);  border: 1px solid #da3633; }
 .badge.warn { background: #9e6a0333; color: var(--warn);    border: 1px solid #9e6a03; }
+
+/* --- Modal chrome ----------------------------------------------------------
+ * Global because Angular's default Emulated view encapsulation would
+ * otherwise scope these selectors to whichever component CSS defined them
+ * -- and modals get rendered from multiple route components (the Save-config
+ * dialog in <app-root>, the custom-repo dialog in <app-inference>, etc.). */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+.modal-card {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 12px 32px rgba(0,0,0,.4);
+  overflow: hidden;
+}
+.modal-title {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+.modal-body { padding: 14px 16px; }
+.modal-label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.modal-input {
+  width: 100%;
+  background: var(--bg-0);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 9px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.modal-hint { margin-top: 6px; font-size: 11px; color: var(--text-muted); }
+.modal-error { margin-top: 8px; font-size: 11px; color: var(--danger); }
+.modal-actions {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.modal-btn {
+  padding: 6px 14px;
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.modal-btn:hover { background: var(--bg-0); }
+.modal-btn[disabled] { opacity: .5; cursor: not-allowed; }
+.modal-btn.primary { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
+.modal-btn.primary:hover { filter: brightness(1.1); }
+
+/* Wider variant for the Inference custom-repo modal -- the problem-statement
+ * textarea needs more room than the default 360 px card affords. */
+.modal-card.custom-modal-card { width: 520px; }
+.modal-input.custom-modal-textarea {
+  font-family: monospace;
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Full-screen variant for the Results page "View" modal — embeds the
+ * shared <app-inference-instance-view> at near-viewport size so a long
+ * run reads as comfortably as it does on the live Inference page. */
+.modal-card.modal-card-full {
+  width: min(1400px, 95vw);
+  height: 90vh;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-card.modal-card-full .modal-body {
+  flex: 1;
+  overflow: auto;
+}
+.modal-card.modal-card-full .log-view-body {
+  /* The shared component's :host is column flex; let it stretch inside the
+     scrollable body without forcing the card to overflow. */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

@@ -113,19 +113,27 @@ def clone_workspace(instance_id: str, repo: str, base_commit: str) -> Workspace:
             )
             path = new_path
 
+    # Always wipe the destination immediately before `git clone`, even when
+    # the prior in-place reset thought it left the dir gone. `_force_rmtree`
+    # silently no-ops on a non-existent path, so this is a cheap belt-and-
+    # braces guard against the destination-not-empty failure mode (rc=3 or
+    # "File exists") we keep seeing on Windows.
     logger.info("cloning %s @ %s into %s", url, base_commit, path)
+    _force_rmtree(path)
     try:
         _run(["git", "clone", url, str(path)], timeout=900)
     except RepoCloneError as exc:
         # Last-resort retry on a fresh uuid-suffixed path when git itself
         # complains about a pre-existing file inside the brand-new clone dir
-        # (the AV-rehydrates-templates race described above).
+        # (the AV-rehydrates-templates race described above). Wipe the
+        # fallback path first too -- same reason.
         if "File exists" in str(exc):
             fallback = path.parent / f"{path.name}-{uuid.uuid4().hex[:8]}"
             logger.warning(
                 "git clone hit a stale-file conflict (%s); retrying at %s",
                 exc, fallback,
             )
+            _force_rmtree(fallback)
             _run(["git", "clone", url, str(fallback)], timeout=900)
             path = fallback
         else:

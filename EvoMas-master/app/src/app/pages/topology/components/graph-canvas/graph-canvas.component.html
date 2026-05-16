@@ -1,0 +1,14 @@
+<div class="graph-area">
+  <div class="graph-wrap"
+       #graphEl
+       (dragover)="onGraphDragOver($event)"
+       (drop)="onGraphDrop($event)">
+  </div>
+  @if (loadError) {
+    <div class="graph-error">
+      <div class="graph-error-title">Could not load configuration</div>
+      <div class="graph-error-body">{{ loadError }}</div>
+      <div class="graph-error-hint">Check the backend logs and try selecting the config again.</div>
+    </div>
+  }
+</div>

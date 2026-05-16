@@ -3,7 +3,7 @@ import { suggestNodeId } from './types';
 
 describe('suggestNodeId', () => {
   it('returns <type>_1 when nothing is taken', () => {
-    expect(suggestNodeId('Localizator', new Set())).toBe('localizator_1');
+    expect(suggestNodeId('Locator', new Set())).toBe('locator_1');
   });
 
   it('snake-cases slashes and spaces', () => {
@@ -21,7 +21,7 @@ describe('suggestNodeId', () => {
   });
 
   it('does not collide with existing node ids', () => {
-    const taken = new Set(['localizator_1']);
-    expect(suggestNodeId('Localizator', taken)).toBe('localizator_2');
+    const taken = new Set(['locator_1']);
+    expect(suggestNodeId('Locator', taken)).toBe('locator_2');
   });
 });

@@ -54,11 +54,14 @@ class ReviewerAgent(LLMToolAgent):
         "signal only.\n\n"
         "## Output\n"
         "Wrap your verdict in <review>...</review>. First line PASS or\n"
-        "FAIL, second line a one-sentence reason. Then `finish`."
+        "FAIL, second line a one-sentence reason. Once the verdict is\n"
+        "written, emit no further tool calls — the loop exits as soon as\n"
+        "you respond without one."
     )
     DEFAULT_USER: ClassVar[str] = (
         "## Issue\n{issue}\n\n"
         "## Workspace\n{workspace}\n\n"
+        "## Upstream (patcher summary)\n{predecessor}\n\n"
         "Call `generate_diff` to see the candidate patch, then verify it\n"
         "against the checks above and respond with\n"
         "<review>PASS|FAIL</review>."
@@ -66,8 +69,7 @@ class ReviewerAgent(LLMToolAgent):
     DEFAULT_TOOLS: ClassVar[tuple[str, ...]] = (
         "generate_diff", "apply_patch", "run_flake8",
         "normalize_patch", "reset_repo",
-        "read_file", "view", "grep",
-        "think", "finish",
+        "read_file",
     )
     # Short, deterministic verdict — wraps the answer in <review>…</review>.
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {

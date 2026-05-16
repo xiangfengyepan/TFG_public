@@ -1,16 +1,11 @@
 import logging
+import os
 from typing import Any
 
 from evomas.agents.base_agent import BaseAgent
-from evomas.agents.evo_star import (
-    EnsemblerAgent,
-    LocalizeAgent,
-    PatchAgent,
-    ValidateAgent,
-)
 from evomas.agents.llm_tool_agent import LLMToolAgent
 from evomas.agents.types import TYPE_REGISTRY
-from evomas.config.loader import load_config
+from evomas.config.loader import load_config, resolve_variant_block
 from evomas.core.workflow.graph_builder import build_graph
 from evomas.core.workflow.state_factory import build_initial_state, build_state_class
 from evomas.exceptions.errors import ConfigError, EvomasError, OllamaMemoryError
@@ -19,20 +14,34 @@ from evomas.utils.workspace import clone_workspace
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_RECURSION_LIMIT: int = 75
+# Per-node revisit budget. The total LangGraph super-step budget is
+# `DEFAULT_MAX_REVISITS * len(agents)`, so each node can participate in up
+# to this many super-steps before `GraphRecursionError` fires. Override via
+# the `EVOMAS_GRAPH_MAX_REVISITS` env var.
+DEFAULT_MAX_REVISITS: int = 2
+
+
+def _max_revisits() -> int:
+    raw = os.getenv("EVOMAS_GRAPH_MAX_REVISITS", "").strip()
+    if not raw:
+        return DEFAULT_MAX_REVISITS
+    try:
+        v = int(raw)
+    except ValueError:
+        logger.warning(
+            "EVOMAS_GRAPH_MAX_REVISITS=%r is not an int; using default %d",
+            raw, DEFAULT_MAX_REVISITS,
+        )
+        return DEFAULT_MAX_REVISITS
+    return max(1, v)
 
 AGENT_REGISTRY: dict[str, type[BaseAgent]] = {
-    # Hand-coded agents with bespoke Python (BM25, scoring loops, …)
-    "LocalizeAgent": LocalizeAgent,
-    "PatchAgent": PatchAgent,
-    "ValidateAgent": ValidateAgent,
-    "EnsemblerAgent": EnsemblerAgent,
     # Generic config-driven agent (function-calling LLM loop or plan-driven router).
     # Used by openhands.json for every node — prompts, tools, and routing live in
     # the JSON block, no per-node Python required.
     "LLMToolAgent": LLMToolAgent,
     # Per-type bases registered under their human-readable type name so a JSON
-    # block can spell `"class": "Localizator"` etc. and skip hand-coding.
+    # block can spell `"class": "Locator"` etc. and skip hand-coding.
     **TYPE_REGISTRY,
 }
 
@@ -40,6 +49,10 @@ AGENT_REGISTRY: dict[str, type[BaseAgent]] = {
 def _build_agents(config: dict[str, Any]) -> dict[str, BaseAgent]:
     agents: dict[str, BaseAgent] = {}
     for name, block in (config.get("agents") or {}).items():
+        # Pull `prompts` + `tools` from the variant catalog when the block
+        # sets `variant: "<RepoId>:<AgentName>"` and doesn't inline them.
+        # Inline values always win.
+        block = resolve_variant_block(block)
         cls_name = block.get("class")
         if not cls_name:
             raise ConfigError(f"agent '{name}' missing required 'class' field")
@@ -104,7 +117,13 @@ def _run_impl(instance: dict[str, Any], config: str = "") -> str:
         },
     )
 
-    invoke_config: dict[str, Any] = {"recursion_limit": DEFAULT_RECURSION_LIMIT}
+    max_revisits = _max_revisits()
+    recursion_limit = max_revisits * max(1, len(agents))
+    invoke_config: dict[str, Any] = {"recursion_limit": recursion_limit}
+    logger.info(
+        "graph runtime: %d agents x %d max revisits => recursion_limit=%d",
+        len(agents), max_revisits, recursion_limit,
+    )
     try:
         final_state = graph.invoke(initial_state, config=invoke_config)
     except OllamaMemoryError:
