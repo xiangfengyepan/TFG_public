@@ -6,3 +6,5 @@ export { EvoBadgeComponent } from './badge/evo-badge.component';
 export { EvoBoxComponent } from './box/evo-box.component';
 export { EvoSwitchComponent } from './switch/evo-switch.component';
 export { EvoHelpPopoverComponent } from './help-popover/evo-help-popover.component';
+export { EvoAgentTypePickerComponent } from './agent-type-picker/evo-agent-type-picker.component';
+export { InferenceInstanceViewComponent } from './inference-instance-view/inference-instance-view.component';

@@ -5,12 +5,28 @@ from typing import Any, Callable
 
 from langchain_core.tools import BaseTool
 
-from evomas.tools.hardcoded import derive_description_fix, detect_bug_class
+from evomas.tools.augment_swebench_agent import AUGMENT_SWEBENCH_AGENT_TOOLS
+from evomas.tools.auto_code_rover import AUTO_CODE_ROVER_TOOLS
+from evomas.tools.claude_coder import CLAUDE_CODER_TOOLS
+from evomas.tools.composio import COMPOSIO_TOOLS
+from evomas.tools.debug_gym import DEBUG_GYM_TOOLS
+from evomas.tools.joycode_agent import JOYCODE_AGENT_TOOLS
+from evomas.tools.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
 from evomas.tools.lint_tools import run_flake8
-from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_TOOLS
-from evomas.tools.patch_tools import apply_patch, generate_diff, normalize_patch, reset_repo
-from evomas.tools.repo_tools import list_files, read_file
-from evomas.tools.search_tools import search_code
+from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_ALIAS_TOOLS, OPENHANDS_TOOLS
+from evomas.tools.patch_tools import (
+    apply_description_fix,
+    apply_patch,
+    generate_diff,
+    normalize_patch,
+    reset_repo,
+)
+from evomas.tools.patchwork import PATCHWORK_TOOLS
+from evomas.tools.repo_tools import derive_description_fix, list_files, read_file
+from evomas.tools.search_tools import detect_bug_class, search_code
+from evomas.tools.suna import SUNA_TOOLS
+from evomas.tools.swe_agent import SWE_AGENT_TOOLS
+from evomas.tools.trae_agent import TRAE_AGENT_TOOLS
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +46,12 @@ class ToolRegistry:
     def register(self, tool: BaseTool) -> None:
         descriptor = _descriptor_from_tool(tool)
         self.tools[descriptor.name] = descriptor
+
+    def unregister(self, name: str) -> None:
+        """Remove a tool by name; no-op when the name isn't registered.
+        Used by the per-inference runtime tool fetcher to clean up tools it
+        added at the start of an inference run."""
+        self.tools.pop(name, None)
 
     def list(self) -> list[dict[str, Any]]:
         return [
@@ -78,13 +100,32 @@ def default_registry() -> ToolRegistry:
     registry = ToolRegistry()
     for tool in (read_file, list_files, search_code, run_flake8, apply_patch,
                  generate_diff, normalize_patch, reset_repo,
-                 detect_bug_class, derive_description_fix):
+                 detect_bug_class, derive_description_fix, apply_description_fix):
         registry.register(tool)
     # OpenHands-shape tools (used by the openhands.json topology). Registering
     # them globally keeps the MCP catalog uniform; per-agent allow-lists in the
     # unified config still gate which tools each agent can call.
-    for tool in (*OPENHANDS_TOOLS, *LOC_TOOLS):
+    for tool in (*OPENHANDS_TOOLS, *LOC_TOOLS, *OPENHANDS_ALIAS_TOOLS):
         registry.register(tool)
+    # Repo-variant tools (one bundle per `evomas/tools/<repo>/` package). Each
+    # bundle is a tuple of LangChain `@tool` callables — see the per-repo
+    # `__init__.py` for the list. Duplicate names across bundles are fine:
+    # last-registered wins, and same name = same intended semantics.
+    for bundle in (
+        AUTO_CODE_ROVER_TOOLS,
+        AUGMENT_SWEBENCH_AGENT_TOOLS,
+        CLAUDE_CODER_TOOLS,
+        COMPOSIO_TOOLS,
+        DEBUG_GYM_TOOLS,
+        JOYCODE_AGENT_TOOLS,
+        LINGMA_SWE_GPT_TOOLS,
+        PATCHWORK_TOOLS,
+        SUNA_TOOLS,
+        SWE_AGENT_TOOLS,
+        TRAE_AGENT_TOOLS,
+    ):
+        for tool in bundle:
+            registry.register(tool)
     return registry
 
 

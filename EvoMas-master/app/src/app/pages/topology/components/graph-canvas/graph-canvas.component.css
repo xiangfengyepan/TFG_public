@@ -1,0 +1,31 @@
+:host { display: flex; flex: 1; min-height: 0; }
+
+.graph-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  min-height: 0;
+}
+.graph-wrap {
+  flex: 1;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.graph-error {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  background: rgba(13, 17, 23, 0.92);
+  border: 1px dashed rgba(248,81,73,.45);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  z-index: 5;
+}
+.graph-error-title { color: var(--danger); font-size: 14px; font-weight: 600; }
+.graph-error-body  { color: var(--text); font-size: 12px; word-break: break-word; max-width: 560px; }
+.graph-error-hint  { color: var(--text-muted); font-size: 11px; }

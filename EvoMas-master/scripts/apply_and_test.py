@@ -1,0 +1,683 @@
+"""apply_and_test.py - Apply EvoMas patches to their repos and run the tests.
+
+Two modes:
+
+  1. CLI / interactive (default): pretty Rich tables to stdout.
+
+         python scripts/apply_and_test.py \\
+             --instances test_instance.jsonl \\
+             --predictions test_predictions.jsonl
+
+  2. Machine-consumable (`--report-dir` set): in addition to the Rich output,
+     writes a SWE-bench-compatible directory layout that the EvoMas Results
+     page reads directly. Used by the FastAPI evaluation worker to score
+     custom-repo predictions (subset="custom" / split="custom"):
+
+         <report-dir>/logs/run_evaluation/<run-id>/<model>/<instance_id>/
+             report.json       (keyed by instance_id, same shape as the harness)
+             patch.diff
+             test_output.txt
+         <report-dir>/<model>.<run-id>.json   (run-level summary)
+
+Resolution rule:
+  * If FAIL_TO_PASS / PASS_TO_PASS are non-empty (SWE-bench rows):
+        resolved = all FTP PASS  AND  all PTP PASS
+  * If both lists are empty (custom rows):
+        resolved = patch_applied  AND  pytest returncode == 0
+"""
+import argparse
+import json
+import logging
+import subprocess
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# Pull in the project root so we can reuse evomas.tools.patch_tools.apply_patch_impl
+# (which already falls back to `patch --fuzz=5` when `git apply` rejects a diff
+# with wrong line numbers -- the most common LLM-generated patch failure).
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+try:
+    from evomas.tools.patch_tools import apply_patch_impl, normalize_patch_impl  # noqa: E402
+    _HAS_EVOMAS_PATCH_TOOLS = True
+except Exception:  # pragma: no cover -- script must still work without evomas installed
+    _HAS_EVOMAS_PATCH_TOOLS = False
+
+try:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich.markup import escape as esc
+    _console = Console(force_terminal=True, highlight=False)
+
+    def _print(msg: str) -> None:
+        _console.print(msg)
+
+    def _rich() -> bool:
+        return True
+
+except ImportError:
+    def _print(msg: str) -> None:  # type: ignore[misc]
+        print(msg)
+
+    def _rich() -> bool:  # type: ignore[misc]
+        return False
+
+
+# -- I/O helpers --------------------------------------------------------------
+def load_jsonl(path: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    return rows
+
+
+def _parse_list(value: Any) -> list[str]:
+    """SWE-bench stores FAIL_TO_PASS / PASS_TO_PASS as a JSON-encoded string."""
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+            if isinstance(parsed, list):
+                return parsed
+        except Exception:
+            pass
+    return []
+
+
+# -- git helpers --------------------------------------------------------------
+def _workspace_root() -> Path:
+    root = Path(tempfile.gettempdir()) / "evomas_workspace"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _git(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess:
+    """Run a git command, capturing stdout+stderr. Caller decides whether
+    a non-zero rc is fatal -- we surface stderr in error messages so the
+    user can see WHY a checkout failed (the previous version swallowed it)."""
+    return subprocess.run(cmd, cwd=str(cwd) if cwd else None,
+                          capture_output=True, text=True)
+
+
+def _checkout(commit: str, cwd: Path) -> None:
+    """Best-effort checkout: try a plain checkout first, fall back to a
+    full fetch + retry if the SHA isn't local yet. Matches the proven
+    `evomas/utils/workspace.py:clone_workspace` flow."""
+    res = _git(["git", "checkout", commit], cwd=cwd)
+    if res.returncode == 0:
+        return
+    # SHA wasn't reachable from any local branch -- pull everything and retry.
+    # `--depth=1 origin <sha>` (the old behaviour) is fragile because GitHub
+    # requires uploadpack.allowReachableSHA1InWant for arbitrary-SHA fetches,
+    # and the shallow history may not contain the parents we need.
+    logger.info("checkout %s failed locally; running 'git fetch --all'", commit[:8])
+    fetch = _git(["git", "fetch", "--all"], cwd=cwd)
+    if fetch.returncode != 0:
+        raise subprocess.CalledProcessError(
+            fetch.returncode, fetch.args,
+            output=fetch.stdout, stderr=fetch.stderr,
+        )
+    res2 = _git(["git", "checkout", commit], cwd=cwd)
+    if res2.returncode != 0:
+        # Include both the initial and post-fetch stderr so the failure mode
+        # is obvious in the SSE log.
+        msg = (f"git checkout {commit} failed even after `git fetch --all`. "
+               f"initial stderr: {res.stderr.strip() or res.stdout.strip()} | "
+               f"post-fetch stderr: {res2.stderr.strip() or res2.stdout.strip()}")
+        raise subprocess.CalledProcessError(
+            res2.returncode, res2.args, output=res2.stdout, stderr=msg,
+        )
+
+
+def _force_rmtree(path: Path) -> None:
+    """Remove `path` even when Windows has partially-locked files inside
+    (Defender / OneDrive scans on the .git template files are a common
+    culprit). Mirrors `evomas/utils/workspace.py:_force_rmtree`."""
+    import os, shutil, stat
+    if not path.exists():
+        return
+
+    def _on_error(func, p, _exc):
+        try:
+            os.chmod(p, stat.S_IWRITE)
+            func(p)
+        except Exception:
+            pass
+
+    shutil.rmtree(path, onerror=_on_error)
+    if path.exists():
+        subprocess.run(["cmd", "/c", "rmdir", "/S", "/Q", str(path)],
+                       capture_output=True)
+
+
+def _do_clone(url: str, dest: Path) -> None:
+    """Clone with a uuid-suffixed fallback path if `dest` can't be fully
+    cleared (Windows AV race) -- guarantees the clone always lands somewhere."""
+    import uuid
+    res = _git(["git", "clone", url, str(dest)])
+    if res.returncode == 0:
+        return
+    # On Windows, AV can rehydrate template files inside the .git/hooks/ dir
+    # faster than git can write them, causing rc=128 with "File exists". Try
+    # one more time at a fresh uuid-suffixed path so the clone always lands.
+    if "File exists" in (res.stderr or "") + (res.stdout or ""):
+        fallback = dest.parent / f"{dest.name}-{uuid.uuid4().hex[:8]}"
+        logger.warning("clone hit File-exists race; retrying at %s", fallback)
+        res2 = _git(["git", "clone", url, str(fallback)])
+        if res2.returncode == 0:
+            # Symlink/copy: easier to just point the caller at the fallback.
+            # We rename to the original dest so downstream paths stay stable.
+            _force_rmtree(dest)
+            fallback.rename(dest)
+            return
+        raise subprocess.CalledProcessError(
+            res2.returncode, res2.args,
+            output=res2.stdout,
+            stderr=f"{res.stderr or ''}\n---\n{res2.stderr or ''}",
+        )
+    raise subprocess.CalledProcessError(
+        res.returncode, res.args, output=res.stdout, stderr=res.stderr,
+    )
+
+
+def clone_or_reuse(repo: str, base_commit: str, keep: bool = False) -> Path:
+    dest = _workspace_root() / repo.replace("/", "__")
+    if dest.is_dir() and (dest / ".git").is_dir():
+        if keep:
+            # `--keep` opts out of the pre-run scrub: reuse whatever's on
+            # disk (patched, untracked files, etc.) so the user can iterate
+            # on a previous run's state. The new patch may fail to apply
+            # if it conflicts — that's the user's call to manage.
+            logger.info("Reusing workspace %s (--keep set; skipping pre-run scrub)", dest)
+            return dest
+        # Default path: scrub leftover state — a previous run's applied
+        # patch + untracked files would otherwise pollute the new test.
+        # Cheap (no network, no rebuild) and consistent results.
+        logger.info("Cleaning workspace at %s (base_commit=%s)", dest, base_commit[:8])
+        _git(["git", "reset", "--hard", "HEAD"], cwd=dest)
+        _git(["git", "clean", "-fdx"], cwd=dest)
+        try:
+            _checkout(base_commit, cwd=dest)
+            return dest
+        except subprocess.CalledProcessError as exc:
+            logger.warning(
+                "in-place checkout failed (%s); falling through to reclone",
+                (exc.stderr or "").strip() or exc,
+            )
+        # In-place recovery exhausted -- force-remove and reclone below.
+        _force_rmtree(dest)
+    elif dest.is_dir():
+        # Dir exists but is NOT a git repo (corrupt / interrupted earlier
+        # clone). Wipe it before cloning so the clone has a clean target.
+        logger.info("workspace %s exists but is not a git repo; wiping", dest)
+        _force_rmtree(dest)
+
+    logger.info("Cloning %s @ %s", repo, base_commit[:8])
+    _do_clone(f"https://github.com/{repo}.git", dest)
+    _checkout(base_commit, cwd=dest)
+    return dest
+
+
+def apply_patch(patch: str, workspace: Path) -> tuple[bool, str]:
+    """Apply a unified diff. Prefers `evomas.tools.patch_tools.apply_patch_impl`
+    when the project's importable, which adds a `patch --fuzz=5` fallback for
+    LLM-generated diffs with wrong hunk-header line numbers (the most common
+    real-world failure). Otherwise falls back to plain `git apply --check`
+    + `git apply` so the script stays usable standalone."""
+    if not patch or not patch.strip():
+        return False, "empty patch"
+
+    if _HAS_EVOMAS_PATCH_TOOLS:
+        # normalize_patch_impl repairs blank-context lines + recomputes hunk
+        # counts; apply_patch_impl tries git apply first, then patch --fuzz=5.
+        normalized = normalize_patch_impl(patch)
+        res = apply_patch_impl(normalized or patch, str(workspace), dry_run=False)
+        if res["applied"]:
+            return True, res.get("output") or "patch applied"
+        return False, (res.get("output") or "patch did not apply").strip()
+
+    # Fallback: same bare-bones logic the script shipped with originally.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".patch", delete=False, encoding="utf-8", newline="\n"
+    ) as f:
+        f.write(patch)
+        patch_path = Path(f.name)
+    try:
+        check = subprocess.run(
+            ["git", "apply", "--check", str(patch_path)],
+            cwd=workspace, capture_output=True, text=True
+        )
+        if check.returncode != 0:
+            return False, check.stderr.strip() or check.stdout.strip()
+        result = subprocess.run(
+            ["git", "apply", str(patch_path)],
+            cwd=workspace, capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            return False, result.stderr.strip() or result.stdout.strip()
+        return True, ""
+    finally:
+        patch_path.unlink(missing_ok=True)
+
+
+def reset_workspace(workspace: Path, base_commit: str) -> None:
+    """Undo applied patch, restore clean state at base_commit."""
+    subprocess.run(["git", "checkout", base_commit, "--", "."],
+                   cwd=workspace, capture_output=True)
+
+
+# -- test runner --------------------------------------------------------------
+def run_tests(
+    workspace: Path,
+    fail_to_pass: list[str],
+    pass_to_pass: list[str],
+) -> dict[str, Any]:
+    targets = fail_to_pass + pass_to_pass
+    cmd = [sys.executable, "-m", "pytest", "-v", "--tb=short"] + (targets or [])
+    result = subprocess.run(cmd, cwd=workspace, capture_output=True, text=True)
+    output = result.stdout + result.stderr
+
+    # Parse individual test statuses from pytest output
+    # e.g. "test_calculator.py::test_multiply PASSED"
+    statuses: dict[str, str] = {}
+    for line in output.splitlines():
+        for status in ("PASSED", "FAILED", "ERROR"):
+            if f" {status}" in line:
+                tid = line.strip().split()[0]
+                statuses[tid] = status
+
+    def _status(test_id: str) -> str:
+        if test_id in statuses:
+            return statuses[test_id]
+        short = test_id.split("::")[-1]
+        for k, v in statuses.items():
+            if k.endswith(f"::{short}"):
+                return v
+        return "NOT_RUN"
+
+    ftp_results = {t: _status(t) for t in fail_to_pass}
+    ptp_results = {t: _status(t) for t in pass_to_pass}
+
+    ftp_resolved   = all(v == "PASSED" for v in ftp_results.values()) if ftp_results else True
+    ptp_maintained = all(v == "PASSED" for v in ptp_results.values()) if ptp_results else True
+
+    # Resolution fallback for custom-repo rows (no FTP/PTP lists). The
+    # SWE-bench rule needs at least one classified test to mean anything --
+    # for an empty classification axis it would always return True regardless
+    # of pytest's actual verdict. Fall back to the process return code so
+    # a failing test suite still reads as unresolved.
+    if not fail_to_pass and not pass_to_pass:
+        resolved = result.returncode == 0
+        rule = "pytest_returncode==0"
+    else:
+        resolved = ftp_resolved and ptp_maintained
+        rule = "FTP_pass AND PTP_pass"
+
+    return {
+        "resolved":         resolved,
+        "resolved_rule":    rule,
+        "ftp_resolved":     ftp_resolved,
+        "ptp_maintained":   ptp_maintained,
+        "ftp_results":      ftp_results,
+        "ptp_results":      ptp_results,
+        # Every test pytest discovered, regardless of FTP/PTP classification.
+        # Drives the FAIL_TO_PASS bucket for custom-repo instances (which
+        # carry no FTP/PTP lists from the dataset).
+        "all_test_results": statuses,
+        "returncode":       result.returncode,
+        "output":           output,
+    }
+
+
+# -- display ------------------------------------------------------------------
+def _status_icon(val: str) -> str:
+    return {"PASSED": "+", "FAILED": "x", "ERROR": "!", "NOT_RUN": "?"}.get(val, val)
+
+
+def print_result(instance_id: str, apply_ok: bool, apply_msg: str,
+                 test: dict[str, Any]) -> None:
+    if not _rich():
+        verdict = "RESOLVED" if test["resolved"] else "FAIL"
+        print(f"\n{'='*60}")
+        print(f"{instance_id}  ->  {verdict}   ({test.get('resolved_rule', '?')})")
+        if not apply_ok:
+            print(f"  patch did not apply: {apply_msg}")
+        for tid, s in test["ftp_results"].items():
+            print(f"  [FAIL->PASS] {_status_icon(s)} {tid}: {s}")
+        for tid, s in test["ptp_results"].items():
+            print(f"  [REGRESSION] {_status_icon(s)} {tid}: {s}")
+        if not test["ftp_results"] and not test["ptp_results"]:
+            print(f"  pytest returncode={test['returncode']}  (rule: {test['resolved_rule']})")
+        return
+
+    resolved = test["resolved"]
+    color = "green" if resolved else "red"
+    verdict = "[bold green]RESOLVED[/bold green]" if resolved else "[bold red]NOT RESOLVED[/bold red]"
+
+    t = Table(show_header=True, box=None, padding=(0, 2))
+    t.add_column("type", style="dim", no_wrap=True)
+    t.add_column("test")
+    t.add_column("result", no_wrap=True)
+    for tid, s in test["ftp_results"].items():
+        icon = f"[green]{_status_icon(s)}[/green]" if s == "PASSED" else f"[red]{_status_icon(s)}[/red]"
+        t.add_row("fail->pass", esc(tid.split("::")[-1]), f"{icon} {s}")
+    for tid, s in test["ptp_results"].items():
+        icon = f"[green]{_status_icon(s)}[/green]" if s == "PASSED" else f"[red]{_status_icon(s)}[/red]"
+        t.add_row("regression", esc(tid.split("::")[-1]), f"{icon} {s}")
+
+    body = f"patch: {'applied' if apply_ok else f'[red]FAILED - {esc(apply_msg[:120])}[/red]'}\n"
+    body += f"rule:  {esc(test.get('resolved_rule', '?'))}\n"
+    if not test["ftp_results"] and not test["ptp_results"]:
+        body += f"pytest returncode: {test['returncode']}\n"
+    _console.print(Panel(
+        body,
+        title=f"[bold]{esc(instance_id)}[/bold]  {verdict}",
+        border_style=color,
+    ))
+    if test["ftp_results"] or test["ptp_results"]:
+        _console.print(t)
+
+
+def print_summary(results: list[dict[str, Any]]) -> None:
+    resolved = sum(1 for r in results if r.get("resolved"))
+    total = len(results)
+    color = "green" if resolved == total else "yellow" if resolved > 0 else "red"
+    msg = f"Resolved {resolved}/{total} instances"
+    if _rich():
+        _console.print(Panel(f"[bold]{msg}[/bold]", border_style=color))
+    else:
+        print(f"\n{'='*60}\n{msg}\n{'='*60}")
+
+
+# -- SWE-bench-compatible report writers --------------------------------------
+def _bucket_tests(results: dict[str, str]) -> dict[str, list[str]]:
+    """Split a {test_id: PASSED|FAILED|ERROR|NOT_RUN} dict into the
+    SWE-bench `success` / `failure` buckets."""
+    success = [tid for tid, s in results.items() if s == "PASSED"]
+    failure = [tid for tid, s in results.items() if s != "PASSED"]
+    return {"success": success, "failure": failure}
+
+
+def write_instance_report(
+    report_dir: Path,
+    run_id: str,
+    model: str,
+    instance_id: str,
+    patch: str,
+    apply_ok: bool,
+    apply_msg: str,
+    test: dict[str, Any],
+    repo: str = "",
+    base_commit: str = "",
+    workspace: Path | None = None,
+) -> Path:
+    """Write the SWE-bench-compatible per-instance files. Returns the
+    instance directory path.
+
+    Always writes: report.json, patch.diff, test_output.txt, run_instance.log.
+    Does NOT write eval.sh -- the harness wraps a Docker container; our custom
+    flow runs pytest directly so there's no shell script equivalent. The
+    Results page tells the user this when they click the eval.sh tab on a
+    custom instance.
+    """
+    inst_dir = report_dir / "logs" / "run_evaluation" / run_id / model / instance_id
+    inst_dir.mkdir(parents=True, exist_ok=True)
+
+    patch_is_none = not (patch and patch.strip())
+
+    # SWE-bench rows carry FTP/PTP from the dataset and we put the per-test
+    # results into the matching bucket. Custom rows have empty FTP/PTP, so we
+    # drop *every* discovered test into FAIL_TO_PASS (the user-visible bucket
+    # the Results page renders -- per user request).
+    has_classification = bool(test.get("ftp_results") or test.get("ptp_results"))
+    if has_classification:
+        ftp_bucket = _bucket_tests(test.get("ftp_results", {}))
+        ptp_bucket = _bucket_tests(test.get("ptp_results", {}))
+    else:
+        ftp_bucket = _bucket_tests(test.get("all_test_results", {}))
+        ptp_bucket = {"success": [], "failure": []}
+
+    entry = {
+        "patch_is_None":              patch_is_none,
+        "patch_exists":               not patch_is_none,
+        "patch_successfully_applied": apply_ok,
+        "resolved":                   bool(test.get("resolved")),
+        "tests_status": {
+            "FAIL_TO_PASS": ftp_bucket,
+            "PASS_TO_PASS": ptp_bucket,
+            "FAIL_TO_FAIL": {"success": [], "failure": []},
+            "PASS_TO_FAIL": {"success": [], "failure": []},
+        },
+        "custom_eval": {
+            "pytest_returncode": test.get("returncode", -1),
+            "pytest_tail":       (test.get("output") or "")[-2000:],
+            "resolved_rule":     test.get("resolved_rule", "?"),
+        },
+    }
+    (inst_dir / "report.json").write_text(
+        json.dumps({instance_id: entry}, indent=2),
+        encoding="utf-8",
+    )
+    (inst_dir / "patch.diff").write_text(patch or "", encoding="utf-8")
+    (inst_dir / "test_output.txt").write_text(
+        test.get("output") or "", encoding="utf-8",
+    )
+    _write_run_instance_log(
+        inst_dir, instance_id, repo, base_commit, workspace,
+        patch, patch_is_none, apply_ok, apply_msg, test, entry,
+    )
+    return inst_dir
+
+
+def _write_run_instance_log(
+    inst_dir: Path,
+    instance_id: str,
+    repo: str,
+    base_commit: str,
+    workspace: Path | None,
+    patch: str,
+    patch_is_none: bool,
+    apply_ok: bool,
+    apply_msg: str,
+    test: dict[str, Any],
+    report_entry: dict[str, Any],
+) -> None:
+    """Emit the timestamped run_instance.log the Results page expects.
+    Mirrors the SWE-bench harness format (Python `logging` style) so the
+    same syntax-highlighting in app/src/app/pages/results/ Just Works."""
+    def _now() -> str:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
+
+    lines: list[str] = []
+    lines.append(f"{_now()} - INFO - Preparing workspace for {instance_id} (no container -- custom-repo eval)...")
+    if repo:
+        lines.append(f"{_now()} - INFO - Repo: {repo} @ {base_commit or '?'}")
+    if workspace:
+        lines.append(f"{_now()} - INFO - Workspace path: {workspace}")
+    if patch_is_none:
+        lines.append(f"{_now()} - WARNING - model_patch is empty -- nothing to apply.")
+    else:
+        lines.append(f"{_now()} - INFO - Intermediate patch for {instance_id} written to {inst_dir / 'patch.diff'}, now applying...")
+        if apply_ok:
+            lines.append(f"{_now()} - INFO - >>>>> Applied Patch:")
+            lines.append((apply_msg or "patch applied").strip())
+        else:
+            lines.append(f"{_now()} - ERROR - patch did not apply: {apply_msg.strip() or 'unknown'}")
+    lines.append(f"{_now()} - INFO - eval.sh is not generated for custom-repo evaluation -- pytest is invoked directly.")
+    lines.append(f"{_now()} - INFO - Running tests via `python -m pytest` (rule: {test.get('resolved_rule', '?')})")
+    lines.append(f"{_now()} - INFO - pytest returncode: {test.get('returncode', -1)}")
+    lines.append(f"{_now()} - INFO - Test output for {instance_id} written to {inst_dir / 'test_output.txt'}")
+    lines.append(f"{_now()} - INFO - Grading answer for {instance_id}...")
+    lines.append(f"{_now()} - INFO - report: {json.dumps({instance_id: report_entry})}")
+    lines.append(f"Result for {instance_id}: resolved: {bool(test.get('resolved'))}")
+    (inst_dir / "run_instance.log").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def write_run_summary(
+    report_dir: Path,
+    run_id: str,
+    model: str,
+    per_instance: list[dict[str, Any]],
+) -> Path:
+    """Mirror the SWE-bench wrapper's <model>.<run-id>.json aggregate."""
+    completed_ids = [r["instance_id"] for r in per_instance if r.get("completed")]
+    resolved_ids  = [r["instance_id"] for r in per_instance if r.get("resolved")]
+    error_ids     = [r["instance_id"] for r in per_instance if r.get("error")]
+
+    summary = {
+        "schema_version":      2,
+        "run_id":              run_id,
+        "model":               model,
+        "generated_at":        datetime.now(timezone.utc).isoformat(),
+        "total_instances":     len(per_instance),
+        "submitted_instances": len(per_instance),
+        "completed_instances": len(completed_ids),
+        "resolved_instances":  len(resolved_ids),
+        "completed_ids":       completed_ids,
+        "incomplete_ids":      [r["instance_id"] for r in per_instance if not r.get("completed")],
+        "error_ids":           error_ids,
+        "resolved_ids":        resolved_ids,
+    }
+    out = report_dir / f"{model}.{run_id}.json"
+    out.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    return out
+
+
+# -- main ---------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Apply patches and run tests.")
+    parser.add_argument("--instances",   required=True, help="Instance JSONL file")
+    parser.add_argument("--predictions", required=True, help="Predictions JSONL file")
+    parser.add_argument("--keep",        action="store_true",
+                        help="Keep patch applied (do not reset workspace after testing)")
+    parser.add_argument("--report-dir",  default="",
+                        help="When set, also write SWE-bench-compatible reports under "
+                             "<report-dir>/logs/run_evaluation/<run-id>/<model>/<instance_id>/")
+    parser.add_argument("--run-id",      default="",
+                        help="Run identifier used in the report path. Defaults to a timestamp.")
+    parser.add_argument("--model",       default="evomas-custom",
+                        help="Model name used in the report path. Default: 'evomas-custom'.")
+    parser.add_argument("--instance-id", dest="instance_id", default="",
+                        help="When set, narrow the apply+test loop to this single "
+                             "instance_id. Must exist in both --instances and "
+                             "--predictions; otherwise the script exits with an error.")
+    args = parser.parse_args()
+
+    report_dir = Path(args.report_dir).resolve() if args.report_dir else None
+    run_id = args.run_id or f"apply-and-test-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    model = args.model
+
+    instances   = {r["instance_id"]: r for r in load_jsonl(args.instances)}
+    predictions = {r["instance_id"]: r for r in load_jsonl(args.predictions)}
+
+    common = [iid for iid in predictions if iid in instances]
+    if args.instance_id:
+        if args.instance_id not in common:
+            _print(
+                f"[red]--instance-id {args.instance_id!r} is not in the "
+                f"intersection of --instances and --predictions.[/red]"
+            )
+            sys.exit(1)
+        common = [args.instance_id]
+    if not common:
+        _print("[red]No matching instance_ids found between the two files.[/red]")
+        sys.exit(1)
+
+    logger.info("Evaluating %d instance(s)", len(common))
+
+    all_results: list[dict[str, Any]] = []
+    per_instance_summary: list[dict[str, Any]] = []
+    for iid in common:
+        inst = instances[iid]
+        pred = predictions[iid]
+        patch = pred.get("model_patch", "")
+        repo        = inst["repo"]
+        base_commit = inst["base_commit"]
+        ftp = _parse_list(inst.get("FAIL_TO_PASS", []))
+        ptp = _parse_list(inst.get("PASS_TO_PASS", []))
+
+        logger.info("-- %s --", iid)
+
+        # Clone / reuse workspace
+        workspace = None
+        clone_error: str | None = None
+        try:
+            workspace = clone_or_reuse(repo, base_commit, keep=args.keep)
+        except subprocess.CalledProcessError as cpe:
+            detail = (cpe.stderr or "").strip() or (cpe.output or "").strip() or str(cpe)
+            logger.error("Clone failed (rc=%s): %s", cpe.returncode, detail)
+            clone_error = detail
+        except Exception as exc:  # noqa: BLE001 -- log + skip the instance
+            logger.error("Clone failed: %s", exc)
+            clone_error = str(exc)
+
+        if clone_error is not None:
+            all_results.append({"instance_id": iid, "resolved": False})
+            per_instance_summary.append({
+                "instance_id": iid, "completed": False, "resolved": False, "error": True,
+            })
+            if report_dir:
+                # Synthesize a minimal "error" report so the Results page sees the row.
+                empty_test = {
+                    "resolved": False, "resolved_rule": "clone_failed",
+                    "ftp_results": {}, "ptp_results": {}, "all_test_results": {},
+                    "returncode": -1, "output": f"clone failed: {clone_error}",
+                }
+                write_instance_report(
+                    report_dir, run_id, model, iid, patch, False,
+                    apply_msg=clone_error or "clone failed",
+                    test=empty_test,
+                    repo=repo, base_commit=base_commit, workspace=None,
+                )
+            continue
+
+        # Apply patch
+        apply_ok, apply_msg = apply_patch(patch, workspace)
+        if not apply_ok:
+            logger.warning("Patch did not apply: %s", apply_msg)
+
+        # Run tests (even if patch failed - to show baseline)
+        test = run_tests(workspace, ftp, ptp)
+        test["instance_id"] = iid
+        all_results.append(test)
+        per_instance_summary.append({
+            "instance_id": iid,
+            "completed":   True,
+            "resolved":    bool(test["resolved"]),
+            "error":       False,
+        })
+
+        print_result(iid, apply_ok, apply_msg, test)
+        logger.debug("pytest output:\n%s", test["output"])
+
+        if report_dir:
+            write_instance_report(
+                report_dir, run_id, model, iid, patch, apply_ok,
+                apply_msg=apply_msg, test=test,
+                repo=repo, base_commit=base_commit, workspace=workspace,
+            )
+
+        if not args.keep:
+            reset_workspace(workspace, base_commit)
+
+    if report_dir:
+        out = write_run_summary(report_dir, run_id, model, per_instance_summary)
+        logger.info("Run summary -> %s", out)
+
+    print_summary(all_results)
+
+
+if __name__ == "__main__":
+    main()

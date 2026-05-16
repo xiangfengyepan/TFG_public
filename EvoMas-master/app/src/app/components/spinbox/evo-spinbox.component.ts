@@ -35,6 +35,7 @@ export class EvoSpinboxComponent implements ControlValueAccessor {
   @Input() min = 0;
   @Input() max = 9999;
   @Input() step = 1;
+  @Input() set disabled(v: boolean) { this.isDisabled = !!v; }
 
   value = 0;
   isDisabled = false;

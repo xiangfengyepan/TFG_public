@@ -36,8 +36,8 @@ class BugReproductionAgent(LLMToolAgent):
         "Reproduce the bug and report the trace."
     )
     DEFAULT_TOOLS: ClassVar[tuple[str, ...]] = (
-        "read_file", "view", "execute_bash", "execute_ipython_cell",
-        "str_replace_editor", "think", "finish",
+        "read_file", "list_files", "search_code",
+        "apply_patch", "generate_diff",
     )
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {
         "temperature":  0.4,

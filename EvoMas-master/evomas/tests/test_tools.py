@@ -177,9 +177,81 @@ def test_mcp_handle_unknown_method() -> None:
 # ── agents use the MCP singleton ──────────────────────────────────────────────
 
 def test_agents_share_mcp_singleton() -> None:
-    from evomas.agents.evo_star import LocalizeAgent, PatchAgent, ValidateAgent
+    # Type-level agent bases (any of them; pick three across roles) all read
+    # the same MCP server instance via `get_server()`.
+    from evomas.agents.types import LocatorAgent, PatcherAgent, ReviewerAgent
 
     server = get_server()
-    assert LocalizeAgent().mcp is server
-    assert PatchAgent().mcp is server
-    assert ValidateAgent().mcp is server
+    assert LocatorAgent().mcp is server
+    assert PatcherAgent().mcp is server
+    assert ReviewerAgent().mcp is server
+
+
+# ── apply_description_fix (deterministic class-1 fixer) ───────────────────────
+
+def _setup_description_repo(tmp_path: Path) -> Path:
+    """Mini repo with the canonical description-class bug shape: a class
+    whose first-sentence docstring describes the desired message, but the
+    `description=` argument carries a stale wording."""
+    repo = tmp_path / "rule_repo"
+    repo.mkdir()
+    (repo / "src").mkdir()
+    (repo / "src" / "rule_l031.py").write_text(
+        '"""Module-level docstring."""\n'
+        '\n'
+        'class Rule_L031:\n'
+        '    """Avoid using table aliases in join conditions."""\n'
+        '\n'
+        '    def __init__(self):\n'
+        '        self.description = "Avoid using aliases in join conditions"\n'
+        '        self._other = None\n'
+        '\n'
+        '    def evaluate(self, segment):\n'
+        '        return None\n',
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.email", "t@e.local"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "."], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=repo, check=True)
+    return repo
+
+
+def test_apply_description_fix_resolves_class_one(tmp_path: Path) -> None:
+    """A class-1 description bug gets detected, derived, and applied in one
+    deterministic call. The file on disk reflects the docstring-derived
+    replacement; the function returns ok=True with the unified diff."""
+    from evomas.tools.patch_tools import apply_description_fix_impl
+
+    repo = _setup_description_repo(tmp_path)
+    issue = 'The rule L031 emits "Avoid using aliases in join conditions" but the docstring says otherwise.'
+
+    result = apply_description_fix_impl(issue, str(repo))
+    assert result["ok"] is True, result
+    assert result["bug_class"] == 1
+    assert result["file"].endswith("rule_l031.py")
+    # The fix collapses "table aliases" → "aliases" via _FILLER_REPLACEMENTS.
+    assert "aliases" in result["new_string"]
+    assert result["patch"].startswith("diff --git")
+    # File on disk reflects the replacement.
+    content = (repo / "src" / "rule_l031.py").read_text(encoding="utf-8")
+    assert result["new_string"] in content
+
+
+def test_apply_description_fix_skips_non_class_one(tmp_path: Path) -> None:
+    """A behaviour-class issue (no quoted-string match) returns ok=False so
+    the calling agent can fall through to the general workflow."""
+    from evomas.tools.patch_tools import apply_description_fix_impl
+
+    repo = _setup_description_repo(tmp_path)
+    issue = "Performance regression: the linter is too slow on large files."
+
+    result = apply_description_fix_impl(issue, str(repo))
+    assert result["ok"] is False
+    assert result["bug_class"] in (2, 3)
+
+
+def test_apply_description_fix_is_in_mcp_registry() -> None:
+    """The tool is registered on the default MCP server."""
+    assert "apply_description_fix" in MCPServer().registry.tools

@@ -100,61 +100,6 @@
 
 .page-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; width: 100%; }
 
-/* ─── Save modal ──────────────────────────────────────────── */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 500;
-}
-.modal-card {
-  background: var(--bg-1);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  width: 360px;
-  max-width: 90vw;
-  box-shadow: 0 12px 32px rgba(0,0,0,.4);
-  overflow: hidden;
-}
-.modal-title {
-  padding: 12px 16px;
-  font-size: 13px;
-  font-weight: 700;
-  border-bottom: 1px solid var(--border);
-}
-.modal-body { padding: 14px 16px; }
-.modal-label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-.modal-input {
-  width: 100%;
-  background: var(--bg-0);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 7px 9px;
-  font-size: 12px;
-  box-sizing: border-box;
-}
-.modal-hint { margin-top: 6px; font-size: 11px; color: var(--text-muted); }
-.modal-error { margin-top: 8px; font-size: 11px; color: var(--danger); }
-.modal-actions {
-  padding: 10px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-.modal-btn {
-  padding: 6px 14px;
-  background: var(--bg-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.modal-btn:hover { background: var(--bg-0); }
-.modal-btn.primary { background: var(--accent); color: #0d1117; border-color: var(--accent); font-weight: 600; }
-.modal-btn.primary:hover { filter: brightness(1.1); }
+/* Modal chrome (.modal-backdrop / .modal-card / .modal-*) lives in
+ * src/styles.css now -- it has to be global so route components can also
+ * render dialogs through the same class names. */

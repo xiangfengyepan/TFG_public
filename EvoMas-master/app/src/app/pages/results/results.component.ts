@@ -1,51 +1,104 @@
-import { Component, ChangeDetectorRef, ElementRef, OnInit, ViewChild } from '@angular/core';
+/** Results page shell. Owns cross-cutting state (instance tree, selection,
+ * loaded artefacts, log-viewer modal) and the async fetch pipeline; composes
+ * four sub-components plus the shared `<app-inference-instance-view>` via
+ * `<app-log-viewer-modal>`. Sub-components are pure presentation — every
+ * intent bubbles back here via @Output. */
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+
 import { ApiService } from '../../services/api.service';
 import { ResultsStateService } from '../../services/results-state.service';
-import { LogLine, parseLogLine } from '../../services/evaluation-run.service';
+import { EvaluationRunService, LogLine, parseLogLine } from '../../services/evaluation-run.service';
 import {
+  AgentType,
   ResultInstance, ResultPrediction, ResultEvaluation,
   ResultPredictionFile, ResultEvaluationDir, ResultRun,
+  UnifiedConfig,
 } from '../../models/types';
-import { EvoBoxComponent, EvoButtonComponent, EvoSelectComponent, EvoSwitchComponent } from '../../components/index';
+import { EvoBoxComponent, EvoButtonComponent, EvoSelectComponent } from '../../components/index';
+import { RunInstance, buildNodeColors, parseNdjsonToRunInstance } from '../../services/inference-run.service';
+
+import {
+  InstanceTreePickerComponent, PredictionPanelComponent,
+  EvaluationPanelComponent, LogViewerModalComponent, JobGroup,
+} from './components/index';
 
 type LogName = 'run_instance.log' | 'test_output.txt' | 'eval.sh' | 'patch.diff' | 'report.json';
 
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent, EvoSelectComponent, EvoSwitchComponent],
+  imports: [
+    CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent, EvoSelectComponent,
+    InstanceTreePickerComponent, PredictionPanelComponent,
+    EvaluationPanelComponent, LogViewerModalComponent,
+  ],
   templateUrl: './results.component.html',
   styleUrl: './results.component.css',
 })
 export class ResultsComponent implements OnInit {
-  @ViewChild('instanceList') instanceListEl?: ElementRef<HTMLDivElement>;
-
   instances: ResultInstance[] = [];
 
-  // ─── Selection state (persisted across navigation) ─────────────
+  // ─── Selection (persisted across navigation) ───────────────────
   get selectedId(): string | null { return this.state.selectedId; }
   set selectedId(v: string | null) { this.state.selectedId = v; }
   get selectedRunId(): string | null { return this.state.selectedRunId; }
   set selectedRunId(v: string | null) { this.state.selectedRunId = v; }
 
-  // ─── Loaded artefacts (re-fetched on demand) ──────────────────
+  // ─── Loaded artefacts ─────────────────────────────────────────
   prediction: ResultPrediction | null = null;
   evaluation: ResultEvaluation | null = null;
-  /** NDJSON SSE-event transcript for `prediction`. `null` while loading,
-   * empty string when the run was generated before the log writer landed. */
   predictionLog: string | null = null;
   predictionLogMissing = false;
+  predictionLogPath: string | null = null;
   showPredictionLog = false;
+  predictionConfigJson = '';
+  predictionConfigPath = '';
+  logContent = '';
+  loadingLog = false;
 
-  /** Convenience accessors so the template doesn't have to look up the run twice. */
+  // ─── Log-viewer modal state ──────────────────────────────────
+  logViewOpen = false;
+  logViewInstance: RunInstance | null = null;
+  logViewLoading = false;
+  logViewError = '';
+  logViewTitle = '';
+  private agentTypesCache: AgentType[] | null = null;
+
+  loading = false;
+  error = '';
+
+  constructor(
+    private api: ApiService,
+    private state: ResultsStateService,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private evalSvc: EvaluationRunService,
+  ) {}
+
+  // ─── State proxies ─────────────────────────────────────────────
+  get filter(): string { return this.state.filter; }
+  set filter(v: string) { this.state.filter = v; }
+  get groupByInstance(): boolean { return this.state.groupByInstance; }
+  set groupByInstance(v: boolean) { this.state.groupByInstance = v; }
+  get showLogs(): boolean { return this.state.showLogs; }
+  set showLogs(v: boolean) { this.state.showLogs = v; }
+  get activeLog(): LogName { return this.state.activeLog; }
+  set activeLog(v: LogName) { this.state.activeLog = v; }
+
+  get current(): ResultInstance | null {
+    return this.instances.find(i => i.instance_id === this.selectedId) ?? null;
+  }
   get selectedRun(): ResultRun | null {
     return this.current?.runs.find(r => r.run_id === this.selectedRunId) ?? null;
   }
+  get selectedPredFile(): ResultPredictionFile | null { return this.selectedRun?.prediction ?? null; }
+  get selectedEvalDir(): ResultEvaluationDir | null { return this.selectedRun?.evaluation ?? null; }
+  get isCustomInstance(): boolean { return (this.selectedId ?? '').startsWith('custom-'); }
 
-  /** Options for the shared `evo-select`: value = run_id, label = run_id +
-   * timestamp + a short pair-status descriptor. */
   get runOptions(): { value: string; label: string }[] {
     const runs = this.current?.runs ?? [];
     return runs.map(r => {
@@ -56,22 +109,38 @@ export class ResultsComponent implements OnInit {
       return { value: r.run_id, label: `${r.run_id} — ${ts} · ${tag}` };
     });
   }
-  get selectedPredFile(): ResultPredictionFile | null {
-    return this.selectedRun?.prediction ?? null;
-  }
-  get selectedEvalDir(): ResultEvaluationDir | null {
-    return this.selectedRun?.evaluation ?? null;
+
+  /** Set of `job/<runId>` keys carried by the state service so the open
+   * state survives navigation. */
+  get openJobs(): Set<string> { return this.state.openJobs; }
+
+  get filteredInstances(): ResultInstance[] {
+    const q = this.filter.trim().toLowerCase();
+    if (!q) return this.instances;
+    return this.instances.filter(inst =>
+      inst.instance_id.toLowerCase().includes(q) ||
+      inst.runs.some(r => (r.run_id || '').toLowerCase().includes(q))
+    );
   }
 
-  /** Start of this instance's inference, parsed from the first timestamped
-   * line of the prediction's .log file (the user-facing Python `logging`
-   * transcript at `results/predictions/logs/<stem>.log`). The first line
-   * always logs at the moment the worker starts processing, so it's the
-   * authoritative start time even when the file's mtime drifts due to
-   * other instances finishing later in the same run.
-   *
-   * Falls back to the prediction line's `started_at` field, then to a dash
-   * for legacy runs that have neither. */
+  get jobGroups(): JobGroup[] {
+    const map = new Map<string, JobGroup>();
+    for (const inst of this.filteredInstances) {
+      for (const run of inst.runs) {
+        const key = run.run_id || '(unknown)';
+        let g = map.get(key);
+        if (!g) { g = { runId: key, mtime: 0, entries: [] }; map.set(key, g); }
+        g.entries.push({ instance: inst, run });
+        if (run.mtime > g.mtime) g.mtime = run.mtime;
+      }
+    }
+    return [...map.values()].sort((a, b) => b.mtime - a.mtime);
+  }
+
+  isJobOpen(runId: string): boolean { return this.state.isSubsetOpen(`job/${runId}`); }
+  toggleJob(runId: string): void { this.state.toggleSubset(`job/${runId}`); }
+
+  // ─── Timing / config display ──────────────────────────────────
   get predictionTimestamp(): string {
     const fromLog = this.firstLogTimestamp(this.predictionLog ?? '');
     if (fromLog) return fromLog.toLocaleString();
@@ -80,11 +149,6 @@ export class ResultsComponent implements OnInit {
     return '—';
   }
 
-  /** Scan the head of the .log content for the first line matching the
-   * Python `logging` default format (`YYYY-MM-DD HH:MM:SS,mmm - LEVEL …`).
-   * Returns the parsed Date, or null when none of the first ~20 lines do.
-   * Limiting the scan keeps a malformed log from costing more than a few
-   * regex tests per render. */
   private firstLogTimestamp(raw: string): Date | null {
     if (!raw) return null;
     const re = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})[,.](\d{1,6})/;
@@ -92,7 +156,6 @@ export class ResultsComponent implements OnInit {
     for (const line of lines) {
       const m = re.exec(line);
       if (!m) continue;
-      // Build an ISO-ish string the JS Date constructor reliably parses.
       const ms = m[3].padEnd(3, '0').slice(0, 3);
       const d = new Date(`${m[1]}T${m[2]}.${ms}`);
       if (!Number.isNaN(d.getTime())) return d;
@@ -100,9 +163,6 @@ export class ResultsComponent implements OnInit {
     return null;
   }
 
-  /** End of this instance's inference (epoch ms, recorded the moment the
-   * prediction line is written to disk). Falls back to the file's mtime
-   * for legacy predictions — that is genuinely close to "ended at". */
   get predictionEndTimestamp(): string {
     const endedAt = this.prediction?.data?.['ended_at'];
     if (typeof endedAt === 'number') return new Date(endedAt).toLocaleString();
@@ -110,11 +170,6 @@ export class ResultsComponent implements OnInit {
     return p ? new Date(p.mtime * 1000).toLocaleString() : '—';
   }
 
-  /** Wall-clock duration of this instance's inference, formatted as
-   * `HH:MM:SS` (or `MM:SS` under an hour). Empty when timing is missing.
-   * Uses the .log's first-line timestamp for the start (matching what the
-   * "Start of inference" row shows) and the prediction line's `ended_at`
-   * (or file mtime) for the end. */
   get predictionDuration(): string {
     const startDate = this.firstLogTimestamp(this.predictionLog ?? '');
     const startMs = startDate
@@ -135,9 +190,6 @@ export class ResultsComponent implements OnInit {
     return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
   }
 
-  /** The config name used to produce this run, derived from the run_id
-   * (worker writes it as `<config_name>-<UID>`). Falls back to the raw
-   * run_id when the format doesn't match. */
   get predictionConfigUsed(): string {
     const runId = this.selectedRunId ?? '';
     if (!runId) return '—';
@@ -145,84 +197,9 @@ export class ResultsComponent implements OnInit {
     return m ? m[1] : runId;
   }
 
-  get showLogs(): boolean { return this.state.showLogs; }
-  set showLogs(v: boolean) { this.state.showLogs = v; }
-  get activeLog(): LogName { return this.state.activeLog; }
-  set activeLog(v: LogName) { this.state.activeLog = v; }
-  get filter(): string { return this.state.filter; }
-  set filter(v: string) { this.state.filter = v; }
-  get groupByInstance(): boolean { return this.state.groupByInstance; }
-  set groupByInstance(v: boolean) { this.state.groupByInstance = v; }
+  // ─── Lifecycle ────────────────────────────────────────────────
+  ngOnInit(): void { this.refresh(); }
 
-  /** Instances visible after applying `filter`. The filter matches instance_id
-   * substrings OR the run_id of any prediction/evaluation belonging to the
-   * instance, so users can search by either the SWE-bench id or a specific
-   * prediction-evaluation set. */
-  get filteredInstances(): ResultInstance[] {
-    const q = this.filter.trim().toLowerCase();
-    if (!q) return this.instances;
-    return this.instances.filter(inst =>
-      inst.instance_id.toLowerCase().includes(q) ||
-      inst.runs.some(r => (r.run_id || '').toLowerCase().includes(q))
-    );
-  }
-
-  /** Group filtered instances by job (run_id). Every instance belongs to one
-   * or more runs (a single inference push may have produced predictions for
-   * several instance ids, which all share the same run_id), so iterating
-   * `(instance, run)` pairs and bucketing by run_id rebuilds the original
-   * inference jobs from the per-instance result tree. The most recent job
-   * comes first; clicking an instance row inside a job auto-pins the right
-   * panel to that exact (instance, run) pair. */
-  get jobGroups(): { runId: string; mtime: number; entries: { instance: ResultInstance; run: ResultRun }[] }[] {
-    const map = new Map<string, { runId: string; mtime: number; entries: { instance: ResultInstance; run: ResultRun }[] }>();
-    for (const inst of this.filteredInstances) {
-      for (const run of inst.runs) {
-        const key = run.run_id || '(unknown)';
-        let g = map.get(key);
-        if (!g) { g = { runId: key, mtime: 0, entries: [] }; map.set(key, g); }
-        g.entries.push({ instance: inst, run });
-        if (run.mtime > g.mtime) g.mtime = run.mtime;
-      }
-    }
-    return [...map.values()].sort((a, b) => b.mtime - a.mtime);
-  }
-
-  isJobOpen(runId: string): boolean { return this.state.isSubsetOpen(`job/${runId}`); }
-  toggleJob(runId: string): void { this.state.toggleSubset(`job/${runId}`); }
-
-  selectInstanceInJob(instance: ResultInstance, run: ResultRun): void {
-    const idChanged = this.selectedId !== instance.instance_id;
-    if (idChanged) {
-      this.selectedId = instance.instance_id;
-      this.prediction = null;
-      this.evaluation = null;
-      this.predictionLog = null;
-      this.predictionLogMissing = false;
-      this.showPredictionLog = false;
-      this.logContent = '';
-      this.showLogs = false;
-    }
-    this.selectRun(run.run_id ?? null);
-  }
-  logContent = '';
-  loadingLog = false;
-
-  loading = false;
-  error = '';
-
-  constructor(
-    private api: ApiService,
-    private state: ResultsStateService,
-    private cdr: ChangeDetectorRef,
-  ) {}
-
-  ngOnInit(): void {
-    this.refresh();
-  }
-
-  /** After `refresh()` repopulates `instances`, restore the loaded artefacts
-   * for the run the user last had open (if it still exists). */
   private restoreSelection(): void {
     if (!this.selectedRunId) return;
     const run = this.selectedRun;
@@ -240,7 +217,6 @@ export class ResultsComponent implements OnInit {
         if (this.selectedId && !list.find(i => i.instance_id === this.selectedId)) {
           this.clearSelection();
         } else {
-          // Re-load artefacts for the previously selected run, if any.
           this.restoreSelection();
         }
         this.loading = false;
@@ -254,13 +230,24 @@ export class ResultsComponent implements OnInit {
     });
   }
 
-  get current(): ResultInstance | null {
-    return this.instances.find(i => i.instance_id === this.selectedId) ?? null;
-  }
-
   selectInstance(id: string): void {
     if (this.selectedId === id) return;
     this.selectedId = id;
+    this.resetArtefacts();
+    const firstRun = this.current?.runs[0] ?? null;
+    this.selectRun(firstRun?.run_id ?? null);
+  }
+
+  selectInstanceInJob(payload: { instance: ResultInstance; run: ResultRun }): void {
+    const idChanged = this.selectedId !== payload.instance.instance_id;
+    if (idChanged) {
+      this.selectedId = payload.instance.instance_id;
+      this.resetArtefacts();
+    }
+    this.selectRun(payload.run.run_id ?? null);
+  }
+
+  private resetArtefacts(): void {
     this.prediction = null;
     this.evaluation = null;
     this.predictionLog = null;
@@ -268,19 +255,12 @@ export class ResultsComponent implements OnInit {
     this.showPredictionLog = false;
     this.logContent = '';
     this.showLogs = false;
-    // Auto-pick the most recent run (the runs[] list is mtime-desc on the server).
-    const firstRun = this.current?.runs[0] ?? null;
-    this.selectRun(firstRun?.run_id ?? null);
   }
 
   clearSelection(): void {
     this.selectedId = null;
     this.selectedRunId = null;
-    this.prediction = null;
-    this.evaluation = null;
-    this.predictionLog = null;
-    this.predictionLogMissing = false;
-    this.logContent = '';
+    this.resetArtefacts();
   }
 
   selectRun(runId: string | null): void {
@@ -297,39 +277,11 @@ export class ResultsComponent implements OnInit {
       this.loadPredictionLog(this.selectedPredFile);
       this.loadPredictionConfig(this.selectedPredFile);
     }
-    if (this.selectedEvalDir)  this.loadEvaluation(this.selectedEvalDir);
-    this.revealActiveInLeftPanel();
+    if (this.selectedEvalDir) this.loadEvaluation(this.selectedEvalDir);
     this.cdr.markForCheck();
   }
 
-  /** When the user picks a run from the dropdown, reveal it on the left
-   * panel: expand the matching job group (if grouping by job) and scroll
-   * the entry into view. Called from selectRun. */
-  private revealActiveInLeftPanel(): void {
-    const id = this.selectedId;
-    const runId = this.selectedRunId;
-    if (!id) return;
-    if (!this.groupByInstance && runId) {
-      // Auto-expand the job group containing this run (job grouping is
-      // the default left-panel layout).
-      if (!this.isJobOpen(runId)) this.toggleJob(runId);
-    }
-    // Defer the scroll until Angular renders the (possibly newly-expanded)
-    // group so the target element exists in the DOM.
-    setTimeout(() => {
-      const root = this.instanceListEl?.nativeElement;
-      if (!root) return;
-      // Match the active row first; in flat mode that's enough, in grouped
-      // mode the .active class lands on the (instance × run) row.
-      const target = root.querySelector('.inst-item.active') as HTMLElement | null;
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 0);
-  }
-
-  // ─── Per-run config snapshot ──────────────────────────────────
-  predictionConfigJson = '';
-  predictionConfigPath = '';
-
+  // ─── Async loads ──────────────────────────────────────────────
   private loadPredictionConfig(p: ResultPredictionFile): void {
     this.api.getResultPredictionConfig(p.path).subscribe({
       next: res => {
@@ -339,19 +291,6 @@ export class ResultsComponent implements OnInit {
       },
       error: () => { this.predictionConfigJson = ''; this.predictionConfigPath = ''; this.cdr.markForCheck(); },
     });
-  }
-
-  /** Download the snapshot of the unified-config JSON used to produce this
-   * run. The worker writes it to results/predictions/configs/<stem>.json
-   * so renames/deletes of the source config don't strand previous runs. */
-  downloadPredictionConfig(): void {
-    if (!this.prediction || !this.predictionConfigJson) return;
-    const stem = this.prediction.name.replace(/^prediction-/, '').replace(/\.jsonl$/i, '');
-    this.downloadText(this.predictionConfigJson, `${stem}.json`, 'application/json');
-  }
-
-  togglePredictionLog(on: boolean): void {
-    this.showPredictionLog = on;
   }
 
   private loadPredictionLog(p: ResultPredictionFile): void {
@@ -414,7 +353,9 @@ export class ResultsComponent implements OnInit {
     });
   }
 
-  // ─── Downloads ─────────────────────────────────────────────
+  togglePredictionLog(on: boolean): void { this.showPredictionLog = on; }
+
+  // ─── Downloads ────────────────────────────────────────────────
   downloadPrediction(): void {
     if (!this.prediction) return;
     this.downloadText(this.prediction.raw, this.prediction.name, 'application/jsonl');
@@ -422,27 +363,26 @@ export class ResultsComponent implements OnInit {
 
   downloadPredictionLogFile(): void {
     if (!this.prediction || !this.predictionLog) return;
-    // Mirror the prediction filename's stem (`prediction-<run_id>`) so the
-    // .log sidecar is paired with the .jsonl in the user's Downloads folder.
     const stem = this.prediction.name.replace(/\.jsonl$/i, '');
     this.downloadText(this.predictionLog, `${stem}.log`, 'application/x-ndjson');
   }
 
-  /** Open the OS file explorer with the given path highlighted. Errors are
-   * silent — there's no user-visible recovery if the OS rejects the call. */
+  downloadPredictionConfig(): void {
+    if (!this.prediction || !this.predictionConfigJson) return;
+    const stem = this.prediction.name.replace(/^prediction-/, '').replace(/\.jsonl$/i, '');
+    this.downloadText(this.predictionConfigJson, `${stem}.json`, 'application/json');
+  }
+
   reveal(path: string | null | undefined): void {
     if (!path) return;
     this.api.revealInExplorer(path).subscribe({ error: () => { /* swallow */ } });
   }
 
-  predictionLogPath: string | null = null;
-
   downloadZip(): void {
     if (!this.selectedEvalDir) return;
     const url = this.api.getResultEvaluationZipUrl(this.selectedEvalDir.dir);
     const a = document.createElement('a');
-    a.href = url;
-    a.rel = 'noopener';
+    a.href = url; a.rel = 'noopener';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
 
@@ -461,13 +401,78 @@ export class ResultsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 
-  // ─── View helpers ──────────────────────────────────────────
+  goEvaluate(): void {
+    const path = this.selectedPredFile?.path;
+    if (!path) return;
+    this.evalSvc.predictionsPath = path;
+    this.router.navigate(['/evaluation']);
+  }
+
+  // ─── Log-viewer modal ─────────────────────────────────────────
+  openLogViewer(): void {
+    const file = this.selectedPredFile;
+    if (!file) return;
+    this.logViewOpen = true;
+    this.logViewLoading = true;
+    this.logViewError = '';
+    this.logViewInstance = null;
+    this.logViewTitle = this.prediction?.data?.instance_id ?? this.selectedId ?? '';
+    this.cdr.markForCheck();
+
+    const agentTypes$ = this.agentTypesCache
+      ? new Promise<AgentType[]>(res => res(this.agentTypesCache!))
+      : this.api.getAgentTypes().toPromise().then(v => v ?? []);
+
+    forkJoin({
+      ndjson: this.api.getResultPredictionNdjson(file.path),
+      cfg:    this.api.getResultPredictionConfig(file.path),
+      types:  agentTypes$,
+    }).subscribe({
+      next: ({ ndjson, cfg, types }) => {
+        this.logViewLoading = false;
+        if (types && !this.agentTypesCache) this.agentTypesCache = types;
+        if (!ndjson.exists) {
+          this.logViewError =
+            'NDJSON event log not found for this run. Older runs predate the SSE event sink — re-run inference to capture one.';
+          this.cdr.markForCheck();
+          return;
+        }
+        let nodeColors: Record<string, string> = {};
+        if (cfg.exists && cfg.raw && types?.length) {
+          try {
+            const parsed = JSON.parse(cfg.raw) as UnifiedConfig;
+            nodeColors = buildNodeColors(parsed, types);
+          } catch { /* leave nodeColors empty */ }
+        }
+        this.logViewInstance = parseNdjsonToRunInstance(
+          ndjson.raw, this.logViewTitle, nodeColors,
+        );
+        this.cdr.markForCheck();
+      },
+      error: err => {
+        this.logViewLoading = false;
+        this.logViewError = err?.error?.detail ?? err?.message ?? 'Failed to load log';
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  closeLogViewer(): void {
+    this.logViewOpen = false;
+    this.logViewInstance = null;
+    this.logViewError = '';
+    this.logViewTitle = '';
+    this.cdr.markForCheck();
+  }
+
+  // ─── View helpers ─────────────────────────────────────────────
   formatTs(mtime: number): string {
     return new Date(mtime * 1000).toLocaleString();
   }
 
-  formatDiff(patch: string): { line: string; cls: string }[] {
-    return (patch || '').split('\n').map(line => {
+  diffLines(): { line: string; cls: string }[] {
+    const patch = this.prediction?.data?.model_patch ?? '';
+    return patch.split('\n').map((line: string) => {
       let cls = '';
       if (line.startsWith('+') && !line.startsWith('+++')) cls = 'diff-add';
       else if (line.startsWith('-') && !line.startsWith('---')) cls = 'diff-rm';
@@ -476,31 +481,21 @@ export class ResultsComponent implements OnInit {
     });
   }
 
-  /** Lazily-built, format-aware colored render of `logContent`.
-   * Each tab gets a renderer tuned to its file shape:
-   *   - run_instance.log → Python log levels (parseLogLine, same as Evaluation page)
-   *   - test_output.txt  → pytest PASSED/FAILED/ERROR/skipped highlighting
-   *   - eval.sh          → shell comments greyed, shebangs marked
-   *   - patch.diff       → standard diff coloring (added/removed/header)
-   *   - report.json      → pretty-printed JSON
-   */
   coloredLog(): LogLine[] {
     if (!this.logContent) return [];
     const lines = this.logContent.split('\n');
     switch (this.activeLog) {
-      case 'test_output.txt': return lines.map(this.parseTestLine);
-      case 'eval.sh':         return lines.map(this.parseShellLine);
-      case 'patch.diff':      return lines.map(this.parseDiffLine);
+      case 'test_output.txt': return lines.map(l => this.parseTestLine(l));
+      case 'eval.sh':         return lines.map(l => this.parseShellLine(l));
+      case 'patch.diff':      return lines.map(l => this.parseDiffLine(l));
       case 'report.json':     return this.parseJsonLines();
       case 'run_instance.log':
       default:                return lines.map(parseLogLine);
     }
   }
 
-  // ─── Per-format colorizers (each returns a LogLine = LogSegment[]) ─────
   private parseTestLine(line: string): LogLine {
     if (!line.trim()) return [{ t: line || ' ', c: 'sl-dim' }];
-    // PASSED / FAILED / ERROR / SKIPPED keywords (pytest output).
     const kw = line.match(/\b(PASSED|FAILED|ERROR|SKIPPED|XFAIL|XPASS)\b/);
     if (kw) {
       const idx = kw.index!;
@@ -513,8 +508,8 @@ export class ResultsComponent implements OnInit {
         { t: line.slice(idx + kw[1].length), c: 'sl-text' },
       ];
     }
-    if (/^=+\s.*\s=+$/.test(line)) return [{ t: line, c: 'sl-info' }];   // ===== summary =====
-    if (/^_{3,}\s/.test(line))      return [{ t: line, c: 'sl-warn' }];   // ___ test name ___
+    if (/^=+\s.*\s=+$/.test(line)) return [{ t: line, c: 'sl-info' }];
+    if (/^_{3,}\s/.test(line))      return [{ t: line, c: 'sl-warn' }];
     if (/^(Traceback|.*Error:|.*Exception:|\s+File ")/.test(line)) {
       return [{ t: line, c: 'sl-err-msg' }];
     }
@@ -537,21 +532,19 @@ export class ResultsComponent implements OnInit {
     return [{ t: line, c: 'sl-text' }];
   }
 
-  /** Pretty-print + light coloring for report.json. */
   private parseJsonLines(): LogLine[] {
     let pretty = this.logContent;
     try { pretty = JSON.stringify(JSON.parse(this.logContent), null, 2); } catch { /* fall through */ }
     return pretty.split('\n').map(line => {
-      // String values (very loose tokenization — good enough for one-line keys/values).
       const out: LogLine = [];
       const re = /("(?:\\.|[^"\\])*")|(\b(?:true|false|null)\b)|(-?\d+(?:\.\d+)?)/g;
       let last = 0;
       let m: RegExpExecArray | null;
       while ((m = re.exec(line)) !== null) {
         if (m.index > last) out.push({ t: line.slice(last, m.index), c: 'sl-text' });
-        const cls = m[1] ? 'sl-ok'        // strings
-                  : m[2] ? 'sl-warn'      // booleans / null
-                  :        'sl-info';     // numbers
+        const cls = m[1] ? 'sl-ok'
+                  : m[2] ? 'sl-warn'
+                  :        'sl-info';
         out.push({ t: m[0], c: cls });
         last = m.index + m[0].length;
       }

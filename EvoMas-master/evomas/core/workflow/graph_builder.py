@@ -5,17 +5,21 @@ The config shape is the one produced by `evomas.config.loader.load_config`:
 - `end`: name (string) or list of names of the node(s) that route to END.
 - `edges`: list of `{"from": ..., "to": ...}` records
 
-Routing rules:
+Wiring rules (purely structural — no agent introspection):
 - A node listed in `end` with no outgoing edges gets a static edge to END.
-- A node listed in `end` with one or more outgoing edges gets a conditional
-  dispatch through its `route(state)` method; END is always a valid choice.
-- A node not listed in `end`:
-  * exactly one outgoing edge → static edge to that target
-  * multiple outgoing edges → conditional dispatch via `route(state)`
-    (END is still wired in as a safety-net target so a buggy router can't
-    loop forever — see `_resolve_choice`)
-- A node not listed in `end` AND with no outgoing edges is an orphan
-  dead-end and rejected at build time.
+- Any node with one or more outgoing edges gets a *static* edge to every
+  one of its targets. LangGraph fans the targets out in parallel using
+  its super-step scheduler; multi-edge sources do not consult any agent
+  router — every successor runs.
+
+Cycles are allowed; the runner caps per-node revisits via `recursion_limit`
+(see `evomas/core/workflow/runner.py:_max_revisits`).
+
+Pre-flight validation (orphan dead-ends, unreachable nodes, etc.) lives
+on the frontend Topology page's Validate button. This module just
+constructs + compiles the graph — any structural problem the frontend
+missed surfaces as a `TopologyError` wrapping whatever LangGraph (or
+the wiring code) raised, so callers get a consistent error type.
 """
 from __future__ import annotations
 
@@ -26,14 +30,23 @@ from langgraph.graph import END, START, StateGraph
 
 from evomas.agents.base_agent import BaseAgent
 from evomas.exceptions.errors import OllamaMemoryError, TopologyError
+from evomas.utils.handoff import preview_payload, summarize_payload
+
+# Cap on the inline content embedded in each hand-off log line. The full
+# producer-slot value still rides on the SSE `handoff.preview` event
+# (capped at 16 KB) for the chip modal; this tighter cap keeps the
+# human-readable `.log` scannable for runs with multi-KB diffs.
+_HANDOFF_LOG_PREVIEW_CHARS: int = 1000
 
 logger = logging.getLogger(__name__)
 
 
-def _wrap(agent: BaseAgent) -> Callable[[dict[str, Any]], dict[str, Any]]:
+def _wrap(
+    agent: BaseAgent, targets: list[str]
+) -> Callable[[dict[str, Any]], dict[str, Any]]:
     def node(state: dict[str, Any]) -> dict[str, Any]:
         try:
-            return agent.run(dict(state))
+            delta = agent.run(dict(state))
         except OllamaMemoryError:
             raise
         except Exception as exc:
@@ -42,36 +55,32 @@ def _wrap(agent: BaseAgent) -> Callable[[dict[str, Any]], dict[str, Any]]:
             errors.append(f"{agent.name}: {exc}")
             return {"errors": errors}
 
+        # Hand-off log: per outgoing edge we emit a summary line plus an
+        # "offered" content line. The canonical producer slot is
+        # `delta[agent.name]` (edge-driven IO contract); fall back to the
+        # whole delta when the agent wrote to other keys. The receiver
+        # side logs the matching "received" line from `LLMToolAgent._run_llm_loop`
+        # so the `.log` is self-sufficient — no need to cross-reference
+        # NDJSON or stitch together the source's `|resp` stream.
+        if targets and isinstance(delta, dict):
+            primary = delta.get(agent.name, delta)
+            payload_summary = summarize_payload(primary)
+            offered_preview = preview_payload(
+                primary, max_chars=_HANDOFF_LOG_PREVIEW_CHARS,
+            ).replace("\n", "\\n")
+            for target in targets:
+                logger.info(
+                    "[%s] -> [%s] payload=%s",
+                    agent.name, target, payload_summary,
+                )
+                if offered_preview.strip():
+                    logger.info(
+                        "[%s] offered to [%s]: %s",
+                        agent.name, target, offered_preview,
+                    )
+        return delta
+
     return node
-
-
-def _resolve_choice(choice: Any, valid_targets: list[str]) -> str:
-    """Clamp a router's choice to either a known target or END."""
-    if choice == END:
-        return END
-    if isinstance(choice, str) and choice in valid_targets:
-        return choice
-    logger.warning("router returned %r not in %s; routing to END", choice, valid_targets)
-    return END
-
-
-def _software_router(
-    agent: BaseAgent, source: str, targets: list[str]
-) -> Callable[[dict[str, Any]], str]:
-    # Prefer the instance method so config-driven agents (e.g. `LLMToolAgent`
-    # whose plan lives on the instance) work alongside class-level static
-    # `route(state)` methods used by hand-coded agents like `ManagerAgent`.
-    route_attr = getattr(agent, "route", None)
-    if route_attr is None:
-        raise TopologyError(
-            f"node '{source}' needs `route(state)` (multi-edge or in 'end') "
-            f"but {type(agent).__name__} has no `route(state)` method"
-        )
-
-    def _route(state: dict[str, Any]) -> str:
-        return _resolve_choice(route_attr(state), targets)
-
-    return _route
 
 
 def _normalize_end(raw_end: Any) -> set[str]:
@@ -95,77 +104,62 @@ def build_graph(
 
     `state_cls` is produced by `state_factory.build_state_class(config)`.
     `agents` maps node name → instantiated agent (already configured with its block).
+
+    Pre-flight validation lives on the frontend's Topology page (the
+    Validate toolbar button calls `validateConfig()` and surfaces every
+    well-formedness check before the user kicks off a run). This
+    function therefore just constructs the graph — any structural
+    problem the frontend missed surfaces as a `TopologyError` wrapping
+    whatever LangGraph or the wiring code raised, so the runtime still
+    gives a useful message instead of an opaque traceback.
     """
-    entry = config.get("entry")
-    if not entry:
-        raise TopologyError("config missing required 'entry' field")
-    if entry not in agents:
-        raise TopologyError(f"entry node '{entry}' not in agent registry")
+    try:
+        entry = config.get("entry")
+        end_set = _normalize_end(config.get("end", []))
 
-    if "end" not in config:
-        raise TopologyError("config missing required 'end' field")
-    end_set = _normalize_end(config["end"])
-    for name in end_set:
-        if name not in agents:
-            raise TopologyError(f"end node '{name}' not in agent registry")
+        edges = config.get("edges") or []
+        out_edges: dict[str, list[str]] = {}
+        in_edges: dict[str, list[str]] = {}
+        for e in edges:
+            src, tgt = e["from"], e["to"]
+            out_edges.setdefault(src, []).append(tgt)
+            in_edges.setdefault(tgt, []).append(src)
 
-    edges = config.get("edges") or []
-    out_edges: dict[str, list[str]] = {}
-    in_edges: dict[str, list[str]] = {}
-    for e in edges:
-        src, tgt = e["from"], e["to"]
-        if src not in agents:
-            raise TopologyError(f"edge source '{src}' not in agent registry")
-        if tgt not in agents:
-            raise TopologyError(f"edge target '{tgt}' not in agent registry")
-        out_edges.setdefault(src, []).append(tgt)
-        in_edges.setdefault(tgt, []).append(src)
+        # Edge-driven IO: tell each agent who feeds it so its `run()` can
+        # read `state[self.predecessor_name]` without hardcoding upstream
+        # node ids. Multi-upstream nodes see the first incoming edge.
+        for node_name, agent in agents.items():
+            upstream = in_edges.get(node_name) or []
+            agent.predecessor_name = upstream[0] if upstream else None
 
-    # Edge-driven IO: tell each agent who feeds it so the agent's `run()`
-    # can read `state[self.predecessor_name]` without hardcoding upstream
-    # node ids. Under the out-degree-1 linear-chain model every node has
-    # at most one predecessor; the entry node has none. When a node has
-    # multiple incoming edges (future fan-in topologies), the first one
-    # wins — agents that need richer upstream views read additional slots
-    # explicitly by node id.
-    for node_name, agent in agents.items():
-        upstream = in_edges.get(node_name) or []
-        agent.predecessor_name = upstream[0] if upstream else None
+        graph = StateGraph(state_cls)
+        for name, agent in agents.items():
+            graph.add_node(name, _wrap(agent, list(out_edges.get(name, []))))
 
-    # A node with no outgoing edges and not declared in `end` is an orphan
-    # dead-end. Catch this at build time so the runtime doesn't silently
-    # stall on a node that has no exit.
-    for name in agents:
-        if name not in out_edges and name not in end_set:
-            raise TopologyError(
-                f"node '{name}' has no outgoing edges and is not in 'end'; "
-                f"add it to 'end' or give it at least one outgoing edge"
-            )
+        graph.add_edge(START, entry)
 
-    graph = StateGraph(state_cls)
-    for name, agent in agents.items():
-        graph.add_node(name, _wrap(agent))
+        # Structural wiring: one static edge per (source, target) pair.
+        # LangGraph fans multi-edge sources out in parallel. No agent
+        # introspection.
+        for source, targets in out_edges.items():
+            for target in targets:
+                graph.add_edge(source, target)
 
-    graph.add_edge(START, entry)
+        # Static-edge wiring for end nodes that have no outgoing real edges.
+        for name in end_set:
+            if name not in out_edges:
+                graph.add_edge(name, END)
 
-    # Per-source dispatch.
-    # - Single-edge source NOT in `end` → static edge.
-    # - Single-edge source IN `end`     → conditional (route() picks between
-    #   the one target and END).
-    # - Multi-edge source                → conditional (route() picks among
-    #   targets and may also return END as a safety-net or intentional exit).
-    for source, targets in out_edges.items():
-        if len(targets) == 1 and source not in end_set:
-            graph.add_edge(source, targets[0])
-            continue
-        route_fn = _software_router(agents[source], source, targets)
-        routes = {t: t for t in targets}
-        routes[END] = END
-        graph.add_conditional_edges(source, route_fn, routes)
-
-    # Static-edge wiring for end nodes that have no outgoing real edges.
-    for name in end_set:
-        if name not in out_edges:
-            graph.add_edge(name, END)
-
-    return graph.compile()
+        return graph.compile()
+    except TopologyError:
+        # Let our own well-formedness errors propagate as-is (e.g. from
+        # `_normalize_end` rejecting a non-string `end` field).
+        raise
+    except Exception as exc:
+        # Anything LangGraph or the wiring code raised — wrong agent id
+        # in `entry`/`end`/an edge, duplicate node add, etc. — surface
+        # as a `TopologyError` so callers (runner, api/server) get a
+        # consistent error type to render in the UI.
+        raise TopologyError(
+            f"failed to compile graph from config: {type(exc).__name__}: {exc}"
+        ) from exc

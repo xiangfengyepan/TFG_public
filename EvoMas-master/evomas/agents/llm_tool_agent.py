@@ -9,7 +9,7 @@ patch via `git diff` after the graph completes.
 
 Specialized behaviors live in subclasses under `evomas/agents/types/`:
 the Orchestrator type overrides `run`/`route` to drive plan-based routing,
-the Localizator/Patcher/etc. types contribute role-specific defaults, and
+the Locator/Patcher/etc. types contribute role-specific defaults, and
 hand-coded agents that need bespoke Python (BM25, scoring loops, …) still
 subclass `BaseAgent` directly.
 """
@@ -25,6 +25,13 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 
 from evomas.agents.base_agent import BaseAgent
 from evomas.tools.patch_tools import generate_diff_impl
+from evomas.utils.handoff import preview_payload
+
+# Same cap as `graph_builder._wrap`'s offered-line cap. The full
+# predecessor value is still in `state[<predecessor>]` and on the
+# receiver's SSE `agent_input` event for the chip modal; this is the
+# log-only inline preview.
+_HANDOFF_LOG_PREVIEW_CHARS: int = 1000
 
 _PATCH_RE = re.compile(r"<patch>(.*?)</patch>", re.DOTALL | re.IGNORECASE)
 _FINISH_NAMES = {"finish"}
@@ -40,8 +47,12 @@ class LLMToolAgent(BaseAgent):
     ) -> None:
         super().__init__(config_block, node_name=node_name)
         block = config_block or {}
-
-        self.max_iters: int = int(block.get("max_iters") or 10)
+        # Honor the type's DEFAULT_CONFIG floor for `max_iters` the same way
+        # base_agent.py:63 already does for the other hyperparameters, so a
+        # type that declares max_iters in its DEFAULT_CONFIG drives runtime
+        # behaviour even when the JSON block omits the key.
+        merged = {**type(self).DEFAULT_CONFIG, **block}
+        self.max_iters: int = int(merged.get("max_iters") or 10)
 
         fb = block.get("fallback") or {}
         self.fallback_enabled: bool = bool(fb.get("enabled"))
@@ -57,6 +68,33 @@ class LLMToolAgent(BaseAgent):
         workspace: str = state.get("workspace_path") or ""
         issue: str = state.get("issue_text") or ""
         instance: dict[str, Any] = state.get("instance") or {}
+        # Pin the workspace path so `_producer_value()` overrides (e.g.
+        # PatcherAgent) can snapshot the diff without re-plumbing it.
+        self._last_workspace_path = workspace
+
+        # Pull the upstream producer's slot value so the user prompt can
+        # opt into the predecessor's output via `{predecessor}`. Capped at
+        # 8000 chars so a runaway thinking buffer can't blow the context;
+        # the full value still lives in state for programmatic readers
+        # (e.g. HelperProxyAgent's score-and-pick branch) that need it.
+        predecessor_value = ""
+        if self.predecessor_name:
+            raw = state.get(self.predecessor_name)
+            predecessor_value = str(raw or "")[:8000]
+        self._last_predecessor_value = predecessor_value
+
+        # Mirror of `graph_builder._wrap`'s "[X] offered to [Y]: …" line.
+        # Emitted from the RECEIVER side so the .log captures both halves
+        # of every hand-off in order. Skips when there's no predecessor
+        # (entry node) or when the upstream slot was empty.
+        if self.predecessor_name and predecessor_value.strip():
+            received_preview = preview_payload(
+                predecessor_value, max_chars=_HANDOFF_LOG_PREVIEW_CHARS,
+            ).replace("\n", "\\n")
+            self.logger.info(
+                "[%s] received from [%s]: %s",
+                self.name, self.predecessor_name, received_preview,
+            )
 
         system = self.prompts.get("system") or ""
         user_template = (self.prompts.get("user") or "").strip() or _DEFAULT_USER_PROMPT
@@ -64,6 +102,7 @@ class LLMToolAgent(BaseAgent):
             issue=issue[:8000],
             workspace=workspace,
             instance_id=instance.get("instance_id", ""),
+            predecessor=predecessor_value,
         )
 
         tools = self._bound_tools()
@@ -76,6 +115,11 @@ class LLMToolAgent(BaseAgent):
             self.logger.info("[%s] iter %d/%d", self.name, step + 1, self.max_iters)
             response = self._invoke(llm, messages)
             messages.append(response)
+            # Capture the final response text. We overwrite each iteration so
+            # the LAST non-empty content wins; iterations that emit only tool
+            # calls keep the previously-captured text. The producer slot is
+            # populated from this at end-of-run (see `_producer_value`).
+            self._capture_response_text(response)
 
             tool_calls = self._extract_tool_calls(response)
             if not tool_calls:
@@ -106,12 +150,58 @@ class LLMToolAgent(BaseAgent):
                 self.logger.info("[%s] finish() called — exiting loop", self.name)
                 break
 
+        # If the loop exhausted max_iters without the LLM ever producing
+        # a final assistant message (every iteration ended with another
+        # tool call), `self._final_response_text` is still empty and the
+        # producer slot would hand off `str(0 B)`. Fire ONE summarization
+        # call with no tools bound so the agent can emit its canonical
+        # output (e.g. locator's `<files>…</files>`) based on what it
+        # already found. Cheap insurance against runaway tool cycles.
+        if not self._final_response_text.strip():
+            self.logger.info("[%s] max_iters reached without response — running summary fallback", self.name)
+            try:
+                summary_messages = list(messages) + [HumanMessage(content=(
+                    "You have used all available iterations. Based on what "
+                    "you have found so far, emit your FINAL response now in "
+                    "the format your system prompt requires. Do NOT call any "
+                    "more tools."
+                ))]
+                response = self._invoke(self.make_llm(), summary_messages)
+                self._capture_response_text(response)
+            except Exception as exc:
+                self.logger.info("[%s] summary fallback failed: %s", self.name, exc)
+
         if self.fallback_enabled and workspace:
             if not (generate_diff_impl(workspace) or "").strip():
                 self.logger.info("[%s] no workspace changes — running diff fallback", self.name)
                 self._fallback_singleshot_patch(issue, workspace)
 
-        return {"thinking": self._thinking}
+        return {
+            "thinking": self._thinking,
+            self.name: self._producer_value(),
+        }
+
+    def _capture_response_text(self, response: Any) -> None:
+        """Extract the final assistant message text from a LangChain response
+        and stash it on `self._final_response_text`. Handles both the plain
+        string `content` shape and the list-of-content-parts shape that some
+        providers (Claude tool-calls, Gemini structured output) return."""
+        content = getattr(response, "content", None)
+        if isinstance(content, str):
+            text = content.strip()
+            if text:
+                self._final_response_text = content
+            return
+        if isinstance(content, list):
+            parts: list[str] = []
+            for part in content:
+                if isinstance(part, dict):
+                    parts.append(str(part.get("text", "") or ""))
+                else:
+                    parts.append(str(part))
+            joined = "".join(parts).strip()
+            if joined:
+                self._final_response_text = "".join(parts)
 
     # ─── Diff fallback ───────────────────────────────────────────────────
     def _fallback_singleshot_patch(self, issue: str, workspace: str) -> None:
@@ -189,23 +279,21 @@ class LLMToolAgent(BaseAgent):
             if self.tool_policy is not None
             else list(self.mcp.registry.tools.keys())
         )
-        from evomas.tools import hardcoded, lint_tools, patch_tools, repo_tools, search_tools
+        from evomas.tools import lint_tools, patch_tools, repo_tools, search_tools
         from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_TOOLS
 
         builtin = [
             repo_tools.read_file,
             repo_tools.list_files,
+            repo_tools.derive_description_fix,
             search_tools.search_code,
+            search_tools.detect_bug_class,
             lint_tools.run_flake8,
             patch_tools.apply_patch,
             patch_tools.generate_diff,
             patch_tools.normalize_patch,
             patch_tools.reset_repo,
-            # Deterministic hardcoded helpers -- see evomas/tools/hardcoded.py
-            # for the full list. These are the ONLY functions in the agent
-            # pipeline that bypass LLM judgment.
-            hardcoded.detect_bug_class,
-            hardcoded.derive_description_fix,
+            patch_tools.apply_description_fix,
             *OPENHANDS_TOOLS,
             *LOC_TOOLS,
         ]

@@ -3,6 +3,7 @@ import logging
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -22,6 +23,30 @@ def _remove_stale_containers(run_id: str) -> None:
     logger.info("Stale containers removed.")
 
 
+def _purge_stale_reports(run_id: str, report_dir: str | None) -> None:
+    """Delete any existing per-instance `report.json` under
+    `logs/run_evaluation/<run_id>/`. SWE-bench skips instances whose
+    report file already exists (run_evaluation.py:443-456,
+    `exclude_completed=True` is hardcoded), so without this purge a
+    re-invocation with the same run_id reuses the prior result and
+    logs "N instances already run, skipping...". `--report_dir`
+    controls where reports land; default is the current working
+    directory.
+    """
+    base = Path(report_dir or ".") / "logs" / "run_evaluation" / run_id
+    if not base.is_dir():
+        return
+    nuked = 0
+    for p in base.rglob("report.json"):
+        try:
+            p.unlink()
+            nuked += 1
+        except OSError:
+            pass
+    if nuked:
+        logger.info("Purged %d stale report.json files under %s", nuked, base)
+
+
 SUBSET_DATASETS: dict[str, str] = {
     "lite":     "SWE-bench/SWE-bench_Lite",
     "full":     "SWE-bench/SWE-bench",
@@ -36,8 +61,13 @@ def run_evaluation(
     max_workers: int = 8,
     report_dir: str | None = None,
     subset: str = "lite",
+    force: bool = True,
+    cache_level: str = "env",
+    force_rebuild: bool = False,
 ) -> None:
     _remove_stale_containers(run_id)
+    if force:
+        _purge_stale_reports(run_id, report_dir)
     dataset = SUBSET_DATASETS.get(subset, SUBSET_DATASETS["lite"])
     cmd = [
         sys.executable,
@@ -48,12 +78,15 @@ def run_evaluation(
         "--run_id", run_id,
         "--dataset_name", dataset,
         "--split", split,
+        "--cache_level", cache_level,
     ]
+    if force_rebuild:
+        cmd += ["--force_rebuild", "True"]
     if report_dir:
         cmd += ["--report_dir", report_dir]
     logger.info(
-        "Running evaluation with %d workers on %s (run_id=%s, dataset=%s, split=%s)",
-        max_workers, predictions_path, run_id, dataset, split,
+        "Running evaluation with %d workers on %s (run_id=%s, dataset=%s, split=%s, force=%s, cache_level=%s, force_rebuild=%s)",
+        max_workers, predictions_path, run_id, dataset, split, force, cache_level, force_rebuild,
     )
     subprocess.run(cmd, check=False)
 
@@ -88,6 +121,40 @@ def main() -> None:
         default=None,
         help="Directory to write evaluation reports (default: harness default)",
     )
+    parser.add_argument(
+        "--no-force",
+        dest="force",
+        action="store_false",
+        help=(
+            "Disable forced re-evaluation. By default the script deletes any "
+            "existing per-instance report.json under "
+            "<report_dir>/logs/run_evaluation/<run_id>/ so SWE-bench doesn't "
+            "skip the instance with 'already run' (run_evaluation.py:455). "
+            "Pass --no-force to keep the harness default skip-on-cached "
+            "behaviour."
+        ),
+    )
+    parser.set_defaults(force=True)
+    parser.add_argument(
+        "--cache-level",
+        choices=["none", "base", "env", "instance"],
+        default="env",
+        help=(
+            "SWE-bench --cache_level pass-through. 'none' wipes every image "
+            "(slowest, fully clean); 'env' (default) keeps the environment "
+            "image but rebuilds the instance image so the new patch is "
+            "always applied to a fresh container."
+        ),
+    )
+    parser.add_argument(
+        "--force-rebuild",
+        action="store_true",
+        help=(
+            "Pass --force_rebuild True to the harness so every docker image "
+            "(base, env, instance) is rebuilt from scratch. Use when an "
+            "earlier eval left a corrupted image."
+        ),
+    )
     args = parser.parse_args()
 
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -98,6 +165,9 @@ def main() -> None:
     run_evaluation(
         args.predictions, run_id, args.split, args.max_workers,
         args.report_dir, args.subset,
+        force=args.force,
+        cache_level=args.cache_level,
+        force_rebuild=args.force_rebuild,
     )
 
 

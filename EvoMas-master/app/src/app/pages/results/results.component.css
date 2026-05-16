@@ -1,3 +1,4 @@
+/* Page shell holds layout only — sub-components own their visuals. */
 :host { display: flex; flex-direction: column; flex: 1; width: 100%; min-height: 0; overflow: hidden; }
 
 .results-layout {
@@ -9,103 +10,6 @@
   overflow: hidden;
 }
 
-/* ─── Left panel ─────────────────────────────────────────── */
-.left-panel {
-  width: 280px;
-  flex-shrink: 0;
-}
-.instance-search {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--border);
-}
-.group-toggle-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.group-toggle-row:hover { color: var(--text); }
-.group-toggle-label { user-select: none; }
-
-.inst-group { border-bottom: 1px solid var(--border); }
-.inst-group:last-child { border-bottom: none; }
-.inst-group-head {
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 10px;
-  background: var(--bg-2);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  font-size: 10px;
-  letter-spacing: .4px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.inst-group-head.clickable {
-  width: 100%; border-left: none; border-right: none; cursor: pointer;
-  font-family: inherit; text-align: left;
-}
-.inst-group-head.clickable:hover { background: var(--bg-1); color: var(--text); }
-.inst-group-head .caret { color: var(--text-muted); width: 12px; }
-.inst-group-tag {
-  background: rgba(88,166,255,.12);
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 9px;
-  padding: 0 7px;
-  font-weight: 700;
-  font-family: 'Cascadia Code', 'Fira Code', monospace;
-  font-size: 10px;
-}
-.inst-group-count {
-  background: var(--bg-0); border: 1px solid var(--border);
-  border-radius: 8px; padding: 0 5px; font-size: 10px;
-}
-.instance-search-input {
-  width: 100%;
-  background: var(--bg-0);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 5px 7px;
-  font-size: 11px;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-.left-panel ::ng-deep .evo-box-body { padding: 0; display: flex; flex-direction: column; min-height: 0; }
-.instance-list {
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-.inst-item {
-  padding: 8px 10px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.1s;
-}
-.inst-item:hover { background: var(--bg-2); }
-.inst-item.active { background: rgba(88,166,255,.12); border-left: 3px solid var(--accent); padding-left: 7px; }
-.inst-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.inst-meta { display: flex; gap: 4px; margin-top: 4px; }
-.badge {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 8px;
-  font-weight: 600;
-}
-.badge.p { background: rgba(88,166,255,.15); color: var(--accent); }
-.badge.e { background: rgba(86,211,100,.15); color: var(--success); }
-
-/* ─── Center column ──────────────────────────────────────── */
 .center-col {
   flex: 1;
   min-width: 0;
@@ -125,7 +29,6 @@
   color: var(--text-muted);
   font-size: 13px;
 }
-.center-hint .big { font-size: 36px; }
 
 .header-box { flex-shrink: 0; }
 
@@ -134,208 +37,16 @@
 .run-row { display: flex; align-items: center; gap: 6px; }
 .run-row evo-select { flex: 1; min-width: 0; }
 .field-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-.run-select {
-  background: var(--bg-0);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 6px 8px;
-  font-size: 12px;
-  font-family: monospace;
-}
 
-/* ─── Inner grid ─────────────────────────────────────────── */
 .inner-grid {
   flex: 1;
   display: grid;
-  /* `minmax(0, 1fr)` clamps the implicit `auto` min-size so a wide child
-   * (long diff/log line) can't push the column past its 1fr share. Without
-   * this, the prediction panel grows past its 50% allotment and the toggle
-   * row's switch ends up shoved off the right edge of the layout. */
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   min-height: 0;
 }
-.inner-box { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
-.inner-box ::ng-deep .evo-box-body { overflow-y: auto; overflow-x: hidden; min-width: 0; }
 
-.kv {
-  display: flex;
-  gap: 10px;
-  font-size: 12px;
-  padding: 4px 0;
-  align-items: center;
-}
-.kv .k { color: var(--text-muted); width: 70px; flex-shrink: 0; }
-.kv .v { flex: 1; min-width: 0; word-break: break-all; }
-.kv .v.mono { font-family: monospace; }
-.kv .v.small { font-size: 11px; }
-.kv .v .duration { color: var(--text-muted); margin-left: 4px; }
-
-.section-label {
-  margin-top: 10px;
-  margin-bottom: 4px;
-  font-size: 10px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 700;
-}
-
-/* ─── Log line colors (mirrored from the Evaluation page) ────────────────── */
-.log-view .log-line { padding: 1px 0; white-space: pre-wrap; word-break: break-all; }
-.log-view .sl-ts       { color: #6e7681; }
-.log-view .sl-dim      { color: #484f58; }
-.log-view .sl-debug    { color: #58a6ff; }
-.log-view .sl-info     { color: #79c0ff; font-weight: 600; }
-.log-view .sl-warn     { color: #e3b341; font-weight: 600; }
-.log-view .sl-err      { color: #ff7b72; font-weight: 600; }
-.log-view .sl-text     { color: #c9d1d9; }
-.log-view .sl-ok       { color: #56d364; }
-.log-view .sl-warn-msg { color: #e3b341; }
-.log-view .sl-err-msg  { color: #ff7b72; }
-
-/* Diff colors when patch.diff is the active tab. Mirrors styles.css `.diff-*`. */
-.log-view .diff-add { color: #56d364; }
-.log-view .diff-rm  { color: #ff7b72; }
-.log-view .diff-hdr { color: #6e7681; }
-
-.patch-view, .log-view, .diff-view {
-  background: var(--bg-0);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 8px;
-  font-family: 'Cascadia Code', 'Fira Code', monospace;
-  font-size: 11px;
-  line-height: 1.5;
-  white-space: pre;
-  overflow: auto;
-  max-height: 360px;
-  margin: 0;
-  color: var(--text);
-}
-.diff-view span { display: block; }
-/* The colored log view is rendered as <div>s (one per line) so it can wrap
- * gracefully on long messages instead of forcing a horizontal scrollbar. */
-.log-view { white-space: normal; }
-/* Raw NDJSON transcript on the prediction panel — keep one event per line
- * with horizontal scroll instead of wrapping, so the structure stays
- * readable. Cap a bit taller than the standard log view since each event
- * is one densely-packed line. */
-.log-view.raw-log {
-  white-space: pre;
-  max-height: 480px;
-  font-size: 10.5px;
-}
-
-.pill {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--bg-2);
-  color: var(--text-muted);
-}
-.pill.ok  { background: rgba(86,211,100,.15);  color: var(--success); }
-.pill.err { background: rgba(248,81,73,.15);   color: var(--danger); }
-
-.tests-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-.tests-table th, .tests-table td {
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-}
-.tests-table th { color: var(--text-muted); font-weight: 600; }
-.tests-table td.mono { font-family: monospace; }
-.tests-table .passed { color: var(--success); font-weight: 600; }
-.tests-table .failed { color: var(--danger); font-weight: 600; }
-
-/* ─── Logs ───────────────────────────────────────────────── */
-.logs-toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  /* Never grow past the prediction panel's content area. min-width: 0 lets
-   * the flex children shrink so the label can ellipsis-truncate instead of
-   * shoving the switch off the right edge. */
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-/* Label takes the available width and shrinks if necessary; the switch
- * stays pinned at full size on the right so it never disappears off-edge
- * when the inner-box gets narrow. */
-.logs-toggle-row .field-label {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-/* evo-switch's host is display: block, so without an explicit width it
- * happily fills the row even with flex-basis auto. Pin the host to its
- * content width so the toggle sits next to the label instead of being
- * shoved to the right edge of the parent and clipped by overflow. */
-.logs-toggle-row evo-switch {
-  flex: 0 0 auto;
-  display: inline-block;
-  width: max-content;
-}
-.log-tabs {
-  display: flex;
-  gap: 4px;
-  margin-top: 8px;
-  align-items: center;
-}
-.log-tabs .tab {
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 4px 10px;
-  font-size: 11px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: monospace;
-}
-.log-tabs .tab:hover { color: var(--text); }
-.log-tabs .tab.active { background: rgba(88,166,255,.12); color: var(--accent); border-color: var(--accent); }
-.log-tabs .grow { flex: 1; }
-
-.empty-hint {
-  padding: 18px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-.empty-hint.sm { padding: 6px 0; }
-
-.empty-state {
-  padding: 22px 18px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-.empty-state .empty-icon { font-size: 28px; margin-bottom: 8px; }
-.empty-state .empty-title { color: var(--text); font-weight: 600; margin-bottom: 6px; }
-.empty-state code {
-  font-family: 'Cascadia Code', 'Fira Code', monospace;
-  background: var(--bg-0);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 1px 5px;
-  font-size: 11px;
-  color: var(--accent);
-}
+.empty-hint.sm { padding: 6px 0; text-align: center; color: var(--text-muted); font-size: 12px; }
 
 .error-banner {
   padding: 8px 12px;

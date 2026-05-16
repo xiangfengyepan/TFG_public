@@ -12,6 +12,8 @@ dependencies = [
     "langchain",
     "langgraph",
     "langchain-ollama",
+    "langchain-google-genai",
+    "langchain-openai",
     "pydantic",
     "pyyaml",
     "rich",
@@ -39,3 +41,8 @@ evomas = "evomas.cli:main"
 where = ["."]
 include = ["evomas*"]
 exclude = ["app*", "api*", "results*", "SWE-bench*"]
+
+# Pytest config lives in `pytest.ini` at the repo root — pytest reads
+# that one first and ignores this block if it's present here too. Keep
+# this comment as a breadcrumb so future me doesn't add competing
+# settings in two places.

@@ -17,7 +17,7 @@ function Test-Cli($name, $hint) {
     return $true
 }
 
-# ─── 1. Prerequisite checks ───────────────────────────────────────────────────
+# --- 1. Prerequisite checks --------------------------------------------------
 Write-Host "[setup] checking prerequisites" -ForegroundColor Cyan
 $pythonOk = Test-Cli "python" "Install Python 3.12+ from https://www.python.org/downloads/ (Python 3.12.6 is the dev baseline)."
 $ollamaOk = Test-Cli "ollama" "Install Ollama from https://ollama.com/download."
@@ -29,20 +29,20 @@ if (-not $pythonOk) {
     exit 1
 }
 if (-not $ollamaOk) {
-    Write-Host "[setup] continuing without ollama — `evomas ollama *` will fail until you install it."
+    Write-Host "[setup] continuing without ollama -- `evomas ollama *` will fail until you install it."
 }
 if (-not $dockerOk) {
-    Write-Host "[setup] continuing without docker — `evomas run evaluation` will fail until you install it."
+    Write-Host "[setup] continuing without docker -- `evomas run evaluation` will fail until you install it."
 }
 if (-not $npmOk) {
-    Write-Host "[setup] continuing without npm — `evomas web` will fail until you install Node.js."
+    Write-Host "[setup] continuing without npm -- `evomas web` will fail until you install Node.js."
 }
 
-# ─── 2. Ensure the venv exists ───────────────────────────────────────────────
+# --- 2. Ensure the venv exists -----------------------------------------------
 # `setup.ps1` is non-destructive: we never delete an existing venv, since
 # that wipes any in-flight work or manually-installed extras. If something
 # in the venv is broken, the user should remove it themselves and rerun
-# setup — see the troubleshooting section in README.md.
+# setup -- see the troubleshooting section in README.md.
 if (Test-Path $VenvDir) {
     Write-Host "[setup] reusing existing venv at $VenvDir (pass through pip resolves any drift)" -ForegroundColor Cyan
 } else {
@@ -53,12 +53,12 @@ if (Test-Path $VenvDir) {
 Write-Host "[setup] upgrading pip + wheel" -ForegroundColor Cyan
 & $PythonEvomas -m pip install --upgrade pip wheel
 
-# ─── 3. Install the project ──────────────────────────────────────────────────
+# --- 3. Install the project --------------------------------------------------
 # `-e .` reads pyproject.toml; deps are pinned there and an `evomas` console
 # script is registered against `evomas.cli:main`. No more hand-maintained
 # `pip install langchain langgraph ...` list.
 Write-Host "[setup] installing evomas (editable) + dependencies + dev extras" -ForegroundColor Cyan
-& $PythonEvomas -m pip install -e "."
+& $PythonEvomas -m pip install -e ".[dev]"
 
 # Snapshot exact resolved versions to requirements.txt for reproducibility /
 # recovery if a downstream package ships a breaking release. pyproject.toml
@@ -66,7 +66,7 @@ Write-Host "[setup] installing evomas (editable) + dependencies + dev extras" -F
 Write-Host "[setup] freezing pinned versions to requirements.txt" -ForegroundColor Cyan
 & $PythonEvomas -m pip freeze | Out-File -Encoding utf8 (Join-Path $RepoRoot "requirements.txt")
 
-# ─── 4. Install npm deps for the Angular frontend ────────────────────────────
+# --- 4. Install npm deps for the Angular frontend ---------------------------
 # Without this, `npx ng serve` (invoked by `evomas web` / start_frontend.ps1)
 # resolves `ng` against the global npm registry, fetches the wrong package,
 # and exits with "could not determine executable to run". `npm install`
@@ -80,10 +80,10 @@ if ($npmOk) {
         Pop-Location
     }
 } else {
-    Write-Host "[setup] skipping npm install — node/npm not available." -ForegroundColor Yellow
+    Write-Host "[setup] skipping npm install -- node/npm not available." -ForegroundColor Yellow
 }
 
-# ─── 5. PowerShell $PROFILE wrapper ──────────────────────────────────────────
+# --- 5. PowerShell $PROFILE wrapper -----------------------------------------
 # pip install -e . registers `evomas.exe` inside the venv. To call it from
 # anywhere without activating the venv first, append a function to the
 # user's PowerShell profile that delegates to the venv's exe.
@@ -112,7 +112,7 @@ $EndMarker
 Add-Content -Path $ProfilePath -Value $Block -Encoding utf8
 Write-Host "[setup] appended evomas function to $ProfilePath" -ForegroundColor Green
 
-# ─── 6. .env scaffolding hint ────────────────────────────────────────────────
+# --- 6. .env scaffolding hint ------------------------------------------------
 if (-not (Test-Path (Join-Path $RepoRoot "evomas\.env"))) {
     Write-Host "[setup] reminder: copy evomas\.env.example -> evomas\.env and fill in OLLAMA_BASE_URL" -ForegroundColor Yellow
 }

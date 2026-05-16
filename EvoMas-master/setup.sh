@@ -58,7 +58,7 @@ echo "[setup] upgrading pip + wheel"
 # `-e "."` reads pyproject.toml; deps are pinned there and an `evomas`
 # console script is registered against `evomas.cli:main`.
 echo "[setup] installing evomas (editable) + dependencies + dev extras"
-"$PYTHON_EVOMAS" -m pip install -e "."
+"$PYTHON_EVOMAS" -m pip install -e ".[dev]"
 
 # Snapshot exact resolved versions to requirements.txt for reproducibility /
 # recovery if a downstream package ships a breaking release. pyproject.toml

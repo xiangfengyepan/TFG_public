@@ -1,0 +1,34 @@
+{
+  "id": "KGCompass",
+  "source_csv": "KGCompass.csv",
+  "agents": [
+    {
+      "name": "CodeAnalyzer",
+      "agent_type": "Helper/Proxy",
+      "short_description": "analyze the code",
+      "source_url": "https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/fl.py#L44",
+      "prompts": {},
+      "tools": []
+    },
+    {
+      "name": "CodeRepair (Patcher)",
+      "agent_type": "Patcher",
+      "short_description": "localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue.",
+      "source_url": "https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/repair.py#L77",
+      "prompts": {
+        "system": "BASE_PROMPT_TEMPLATE = \"\"\"\r\nWe are currently solving the following issue within our repository. Here is the issue text:\r\n--- BEGIN ISSUE ---\r\n{problem_statement}\r\n--- END ISSUE ---\r\n\r\nBelow are some code segments, each from a relevant file. One or more of these files may contain bugs.\r\n--- BEGIN FILE ---\r\n```\r\n{content}\r\n```\r\n--- END FILE ---\r\n\r\nPlease first localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue.\r\n\r\nEvery *SEARCH/REPLACE* edit must use this format:\r\n1. The file path\r\n2. The start of search block: <<<<<<< SEARCH\r\n3. A contiguous chunk of lines to search for in the existing source code\r\n4. The dividing line: =======\r\n5. The lines to replace into the source code\r\n6. The end of the replace block: >>>>>>> REPLACE\r\n\r\nHere is an example for python:\r\n\r\n```python\r\n### django/core/management/commands/migrate.py\r\n- start_line : 15\r\n- end_line : 17\r\n<<<<<<< SEARCH\r\n    def my_method(self):\r\n        result = 1 + 1\r\n        return result\r\n=======\r\n    def my_method(self):\r\n        result = 1 + 2  # Fixed the calculation\r\n        return result\r\n>>>>>>> REPLACE\r\n```\r\n\r\nIMPORTANT NOTES:\r\n1. Line numbers start from 1 (not 0)\r\n2. The SEARCH block must match the exact content and indentation from the original file\r\n3. The REPLACE block must maintain proper indentation relative to the surrounding code\r\n4. Only include the specific lines that need to be changed\r\n5. If modifying a method, include its entire definition in both blocks if it helps clarity\r\n6. Only generate edits when actual changes are needed\r\n7. Verify that the replacement code is actually different from the original\r\n\r\nPlease note that the *SEARCH/REPLACE* edit REQUIRES PROPER INDENTATION. If you would like to add a line like '        print(x)', you must fully write that out, with all those spaces before the code!\r\nWrap the *SEARCH/REPLACE* edit in blocks ```python...```.\r\n\"\"\""
+      },
+      "tools": []
+    },
+    {
+      "name": "CodeRepair (Locator)",
+      "agent_type": "Locator",
+      "short_description": "localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue.",
+      "source_url": "https://github.com/GLEAM-Lab/KGCompass/blob/e79c97b73c8ab12e52b3e6c20be949f48241e084/kgcompass/repair.py#L77",
+      "prompts": {
+        "system": "BASE_PROMPT_TEMPLATE = \"\"\"\r\nWe are currently solving the following issue within our repository. Here is the issue text:\r\n--- BEGIN ISSUE ---\r\n{problem_statement}\r\n--- END ISSUE ---\r\n\r\nBelow are some code segments, each from a relevant file. One or more of these files may contain bugs.\r\n--- BEGIN FILE ---\r\n```\r\n{content}\r\n```\r\n--- END FILE ---\r\n\r\nPlease first localize the bug based on the issue statement, and then generate *SEARCH/REPLACE* edits to fix the issue.\r\n\r\nEvery *SEARCH/REPLACE* edit must use this format:\r\n1. The file path\r\n2. The start of search block: <<<<<<< SEARCH\r\n3. A contiguous chunk of lines to search for in the existing source code\r\n4. The dividing line: =======\r\n5. The lines to replace into the source code\r\n6. The end of the replace block: >>>>>>> REPLACE\r\n\r\nHere is an example for python:\r\n\r\n```python\r\n### django/core/management/commands/migrate.py\r\n- start_line : 15\r\n- end_line : 17\r\n<<<<<<< SEARCH\r\n    def my_method(self):\r\n        result = 1 + 1\r\n        return result\r\n=======\r\n    def my_method(self):\r\n        result = 1 + 2  # Fixed the calculation\r\n        return result\r\n>>>>>>> REPLACE\r\n```\r\n\r\nIMPORTANT NOTES:\r\n1. Line numbers start from 1 (not 0)\r\n2. The SEARCH block must match the exact content and indentation from the original file\r\n3. The REPLACE block must maintain proper indentation relative to the surrounding code\r\n4. Only include the specific lines that need to be changed\r\n5. If modifying a method, include its entire definition in both blocks if it helps clarity\r\n6. Only generate edits when actual changes are needed\r\n7. Verify that the replacement code is actually different from the original\r\n\r\nPlease note that the *SEARCH/REPLACE* edit REQUIRES PROPER INDENTATION. If you would like to add a line like '        print(x)', you must fully write that out, with all those spaces before the code!\r\nWrap the *SEARCH/REPLACE* edit in blocks ```python...```.\r\n\"\"\""
+      },
+      "tools": []
+    }
+  ]
+}

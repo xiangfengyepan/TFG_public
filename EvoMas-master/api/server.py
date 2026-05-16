@@ -133,16 +133,94 @@ def _ollama_base_url() -> str:
     return os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").strip().strip("\"'")
 
 
-@app.get("/api/models")
-def list_models() -> list[str]:
-    """Return model names available in the configured Ollama instance."""
+# Cache for remote provider model lists. Google/OpenAI APIs both rate-limit
+# `models.list` modestly; refresh once per TTL so the Topology page picker
+# isn't paying a round-trip on every reload.
+_REMOTE_MODELS_TTL_S = 300
+_remote_models_cache: dict[str, tuple[float, list[str]]] = {}
+
+
+def _ollama_models() -> list[str]:
     try:
         url = f"{_ollama_base_url()}/api/tags"
         with _urllib.urlopen(url, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-        return sorted(m["name"] for m in data.get("models", []))
+        return sorted(f"ollama/{m['name']}" for m in data.get("models", []))
     except Exception:
         return []
+
+
+def _cached_remote(provider: str, fetch) -> list[str]:
+    import time
+    now = time.time()
+    hit = _remote_models_cache.get(provider)
+    if hit and (now - hit[0]) < _REMOTE_MODELS_TTL_S:
+        return hit[1]
+    try:
+        models = fetch()
+    except Exception:  # noqa: BLE001
+        models = []
+    _remote_models_cache[provider] = (now, models)
+    return models
+
+
+def _gemini_models() -> list[str]:
+    """Live list from generativelanguage.googleapis.com. Filters to models
+    that support `generateContent` and excludes obvious non-chat shapes
+    (TTS, image-only, audio, robotics, deep-research)."""
+    key = os.environ.get("GOOGLE_API_KEY", "").strip()
+    if not key:
+        return []
+    def fetch() -> list[str]:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
+        with _urllib.urlopen(url, timeout=8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        bad = ("-tts", "-image", "lyria", "robotics", "deep-research", "computer-use", "nano-banana", "gemma")
+        out: list[str] = []
+        for m in data.get("models", []):
+            name = m.get("name", "")
+            if "generateContent" not in (m.get("supportedGenerationMethods") or []):
+                continue
+            bare = name.split("/", 1)[1] if name.startswith("models/") else name
+            if any(b in bare for b in bad):
+                continue
+            out.append(f"gemini/{bare}")
+        return sorted(out)
+    return _cached_remote("gemini", fetch)
+
+
+def _openai_models() -> list[str]:
+    """Live list from OpenAI's `/v1/models` (or the configured proxy via
+    `OPENAI_BASE_URL`). Filters to chat-capable model ids by name pattern
+    since the response doesn't carry a `chat` flag."""
+    key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not key:
+        return []
+    def fetch() -> list[str]:
+        base = (os.environ.get("OPENAI_BASE_URL", "").strip() or "https://api.openai.com/v1").rstrip("/")
+        req = _urllib.Request(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
+        with _urllib.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        good_prefix = ("gpt-", "o1", "o3", "o4", "chatgpt-")
+        bad = ("-tts", "-realtime", "-audio", "whisper", "-embedding", "dall-e", "tts-", "babbage", "davinci", "moderation", "-image")
+        out: list[str] = []
+        for m in data.get("data", []):
+            mid = m.get("id", "")
+            if not mid.startswith(good_prefix):
+                continue
+            if any(b in mid for b in bad):
+                continue
+            out.append(f"openai/{mid}")
+        return sorted(out)
+    return _cached_remote("openai", fetch)
+
+
+@app.get("/api/models")
+def list_models() -> list[str]:
+    """Return prefixed model ids (`<provider>/<model>`) for every configured
+    LLM provider. Ollama is always probed; Gemini and OpenAI lists are only
+    fetched when their API keys are present."""
+    return _ollama_models() + _gemini_models() + _openai_models()
 
 
 # ─── Unified Config Endpoints ────────────────────────────────────────────────
@@ -367,6 +445,120 @@ def refresh_instances(
     return {"count": count, "subset": subset, "split": split, "path": str(INSTANCES_PATH)}
 
 
+class AddCustomInstanceRequest(BaseModel):
+    repo: str
+    problem_statement: str
+    base_commit: str | None = None
+
+
+_CUSTOM_REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+
+
+@app.post("/api/instances/custom")
+def add_custom_instance(req: AddCustomInstanceRequest) -> dict:
+    """Append a user-provided GitHub repo to `swebench_instances.jsonl` so it
+    can be selected on the Inference page just like a SWE-bench row. Marked
+    with `subset="custom"` / `split="custom"` so the evaluation worker can
+    skip it (the SWE-bench harness needs test_patch / FAIL_TO_PASS, which a
+    free-form repo doesn't carry)."""
+    repo = req.repo.strip()
+    # Strip the common URL-flavored prefixes so the user can paste either
+    # `owner/name` or a full https://github.com/owner/name(.git)? link.
+    for prefix in ("https://github.com/", "http://github.com/", "git@github.com:"):
+        if repo.startswith(prefix):
+            repo = repo[len(prefix):]
+    if repo.endswith(".git"):
+        repo = repo[:-4]
+    repo = repo.rstrip("/")
+    if not _CUSTOM_REPO_RE.match(repo):
+        raise HTTPException(400, f"repo must be owner/name (got {req.repo!r})")
+    problem = (req.problem_statement or "").strip()
+    if not problem:
+        raise HTTPException(400, "problem_statement is required")
+
+    # Resolve base_commit. If the user gave one, take it verbatim (no remote
+    # round-trip — `git clone` will still fail at run time if it's bogus).
+    # Otherwise resolve HEAD via `git ls-remote` so the prediction has a
+    # stable SHA to reproduce against later.
+    base_commit = (req.base_commit or "").strip()
+    if not base_commit:
+        # Force git into non-interactive mode -- on Windows, hitting a private
+        # or non-existent repo otherwise opens Git Credential Manager's GUI
+        # prompt, which deadlocks the subprocess (the timeout fires but the
+        # GUI window stays modal until the user closes it manually).
+        env = {**os.environ,
+               "GIT_TERMINAL_PROMPT": "0",
+               "GCM_INTERACTIVE": "Never",
+               "GIT_ASKPASS": "echo"}
+        try:
+            out = subprocess.run(
+                ["git", "ls-remote", f"https://github.com/{repo}", "HEAD"],
+                capture_output=True, text=True, timeout=10, check=True,
+                stdin=subprocess.DEVNULL, env=env,
+            )
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as exc:
+            stderr = getattr(exc, "stderr", "") or str(exc)
+            raise HTTPException(502, f"failed to resolve HEAD for {repo}: {stderr[:300]}") from exc
+        first = (out.stdout or "").split("\n", 1)[0].strip()
+        base_commit = first.split("\t", 1)[0].strip()
+        if not re.match(r"^[0-9a-f]{7,40}$", base_commit):
+            raise HTTPException(502, f"could not parse HEAD SHA from `git ls-remote` output: {out.stdout[:200]!r}")
+    if not re.match(r"^[0-9a-f]{4,40}$", base_commit):
+        raise HTTPException(400, f"base_commit doesn't look like a git SHA: {base_commit!r}")
+
+    owner, name = repo.split("/", 1)
+    instance_id = f"custom-{owner}-{name}-{base_commit[:7]}"
+
+    # Idempotent: if we've already recorded this exact (repo, base_commit)
+    # pair, surface the existing row so the frontend can just select it.
+    if INSTANCES_PATH.exists():
+        with INSTANCES_PATH.open(encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if obj.get("instance_id") == instance_id:
+                    return {
+                        "instance_id": instance_id,
+                        "repo": repo,
+                        "base_commit": base_commit,
+                        "duplicate": True,
+                    }
+
+    # Field order matches the SWE-bench JSONL rows (`repo` first, then
+    # `instance_id`, then `base_commit`, ...) so the file stays uniform when
+    # viewed line-by-line.
+    row = {
+        "repo": repo,
+        "instance_id": instance_id,
+        "base_commit": base_commit,
+        "problem_statement": problem,
+        "hints_text": "",
+        "subset": "custom",
+        "split": "custom",
+    }
+    # Ensure trailing newline on existing content so the append lands on a
+    # fresh line even if the file was hand-edited without one.
+    if INSTANCES_PATH.exists() and INSTANCES_PATH.stat().st_size > 0:
+        existing = INSTANCES_PATH.read_bytes()
+        if not existing.endswith(b"\n"):
+            with INSTANCES_PATH.open("ab") as fh:
+                fh.write(b"\n")
+    with INSTANCES_PATH.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+    return {
+        "instance_id": instance_id,
+        "repo": repo,
+        "base_commit": base_commit,
+        "duplicate": False,
+    }
+
+
 @app.get("/api/instances")
 def list_instances(skip: int = 0, limit: int = 0) -> list[dict]:
     """List instances. `limit=0` means unlimited (return everything past skip)."""
@@ -416,9 +608,34 @@ def list_tools() -> list[dict[str, Any]]:
 # ─── Agent types (read-only) ──────────────────────────────────────────────────
 @app.get("/api/agent-types")
 def list_agent_types_endpoint() -> list[dict[str, Any]]:
-    """Return the SWE-bench agent-type catalog (label, color, description)."""
+    """Return the SWE-bench agent-type catalog (label, color, description).
+
+    Each type also carries a `variants` array: the EvoMas built-in first,
+    then every CSV-derived alternative from `evomas/config/agent_types/`.
+    The Topology page renders one chip+dropdown per type and uses the
+    variants list to populate the dropdown.
+    """
     from evomas.agents.types import list_agent_types
-    return list_agent_types()
+    from evomas.agents.types.variants import list_variants
+    catalog = list_agent_types()
+    variants_by_type = list_variants()
+    for t in catalog:
+        t["variants"] = variants_by_type.get(t["type"], [])
+    return catalog
+
+
+@app.get("/api/agent-variants")
+def list_agent_variants_endpoint() -> dict[str, list[dict[str, Any]]]:
+    """Return agent variants grouped by canonical AGENT_TYPE.
+
+    Same data the `/api/agent-types` response embeds under each type's
+    `variants` field, but flat -- handy for callers that only need the
+    catalog and not the per-type defaults / colors. The built-in EvoMas
+    variant is always FIRST inside each bucket; the Topology page treats
+    that as the default selection for the chip+dropdown widget.
+    """
+    from evomas.agents.types.variants import list_variants
+    return list_variants()
 
 
 # ─── Predictions list ─────────────────────────────────────────────────────────
@@ -426,6 +643,35 @@ def list_agent_types_endpoint() -> list[dict[str, Any]]:
 def list_predictions() -> list[str]:
     files = sorted(PREDICTIONS_DIR.glob("*.jsonl"), key=lambda x: x.stat().st_mtime, reverse=True)
     return [str(p) for p in files]
+
+
+def _load_instance_rows(instance_ids: set[str] | list[str]) -> dict[str, dict]:
+    """Return `instance_id -> full row` for every match in INSTANCES_PATH.
+
+    Used by the evaluation worker to feed `scripts/apply_and_test.py` a
+    sidecar instances file containing only the rows it needs (in particular
+    the `repo` + `base_commit` for each custom prediction). One linear scan
+    of the JSONL is fine -- custom groups are typically tiny (<10 rows).
+    """
+    wanted = set(instance_ids)
+    out: dict[str, dict] = {}
+    if not wanted or not INSTANCES_PATH.exists():
+        return out
+    with INSTANCES_PATH.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            iid = obj.get("instance_id")
+            if iid in wanted:
+                out[iid] = obj
+                if len(out) == len(wanted):
+                    break
+    return out
 
 
 def _instance_origin_lookup() -> dict[str, tuple[str, str]]:
@@ -810,6 +1056,36 @@ def get_prediction_log(path: str) -> dict[str, Any]:
     }
 
 
+@app.get("/api/results/prediction/ndjson")
+def get_prediction_ndjson(path: str) -> dict[str, Any]:
+    """Return the internal NDJSON SSE event log for a completed prediction.
+
+    The inference worker writes every `put()` event to a sibling file under
+    `INFERENCE_INTERNAL_LOGS_DIR` (`evomas/logs/inference_logs/prediction-
+    <run_id>.log`) alongside emitting them on the SSE stream — this lets the
+    Results page modal replay the run as agent cards + hand-off chips with
+    full fidelity (tool result previews, hand-off payloads, final patch).
+
+    `path` is the absolute path of the prediction `.jsonl` — same convention
+    as `/api/results/prediction/log` so callers can derive both endpoints
+    from one row in the predictions table.
+    """
+    p = _safe_under(PREDICTIONS_DIR, path)
+    if not p.is_file():
+        raise HTTPException(404, "prediction file not found")
+    ndjson_path = INFERENCE_INTERNAL_LOGS_DIR / (p.stem + ".log")
+    if not ndjson_path.is_file():
+        # Older predictions written before the NDJSON sink existed — return
+        # exists=False so the modal can render an empty/error state.
+        return {"path": str(ndjson_path), "name": ndjson_path.name, "exists": False, "raw": ""}
+    return {
+        "path": str(ndjson_path),
+        "name": ndjson_path.name,
+        "exists": True,
+        "raw": ndjson_path.read_text(encoding="utf-8", errors="replace"),
+    }
+
+
 @app.get("/api/results/prediction/config")
 def get_prediction_config(path: str) -> dict[str, Any]:
     """Return the snapshot of the unified-config JSON used to produce a
@@ -1048,6 +1324,14 @@ async def run_inference(req: InferenceRequest):
             run_uid = uuid.uuid4().hex[:8]
             run_id = f"{config_name}-{run_uid}"
             stem = f"prediction-{run_id}"
+            # Surface the run_id to the UI immediately so the "Running …" chip
+            # can show the prediction key while the chain is still streaming;
+            # the same key lands on instance_done later for the final record.
+            put({
+                "type": "run_id",
+                "run_id": run_id,
+                "output_path": str(PREDICTIONS_DIR / f"{stem}.jsonl"),
+            })
             # Re-create the dirs at request time — module-level `mkdir` only
             # runs at boot, so a user wiping `results/` between restarts must
             # not break the next inference run.
@@ -1100,6 +1384,15 @@ async def run_inference(req: InferenceRequest):
             def _make_think_cb(agent_name: str) -> Any:
                 def _cb(chunk: str) -> None:
                     put({"type": "thinking_chunk", "agent": agent_name, "chunk": chunk})
+                return _cb
+
+            def _make_response_cb(agent_name: str) -> Any:
+                """Fires once per `_invoke()` call with the full LLM response
+                text. Emitted to the UI as a single `response` SSE event so
+                the chip shows the response as a finished block rather than
+                streaming it token-by-token."""
+                def _cb(text: str) -> None:
+                    put({"type": "response", "agent": agent_name, "content": text})
                 return _cb
 
             def _result_preview(tool: str, result: Any) -> str:
@@ -1170,6 +1463,7 @@ async def run_inference(req: InferenceRequest):
 
                 for agent_name, agent in agents.items():
                     agent._on_think = _make_think_cb(agent_name)
+                    agent._on_response = _make_response_cb(agent_name)
                     agent._on_tool = _make_tool_cb(agent_name)
 
                 state_cls = build_state_class(cfg, agents)
@@ -1187,7 +1481,34 @@ async def run_inference(req: InferenceRequest):
 
                 put({"type": "start", "instance_id": iid, "config": req.config})
 
+                # Pre-compute predecessor map so `agent_input` events on first
+                # observation of each agent can list what state it received from
+                # earlier nodes. Edges are directed `from -> to`.
+                predecessors: dict[str, list[str]] = {}
+                # Mirror of `predecessors` keyed by source — used to emit one
+                # `handoff` SSE event per outgoing edge after an agent runs,
+                # so the inference page can render a chip per (from, to) pair.
+                successors: dict[str, list[str]] = {}
+                for edge in (cfg.get("edges") or []):
+                    if isinstance(edge, dict):
+                        src = str(edge.get("from") or "")
+                        dst = str(edge.get("to") or "")
+                        predecessors.setdefault(dst, []).append(src)
+                        successors.setdefault(src, []).append(dst)
+
+                def _preview(val: Any) -> Any:
+                    """Same 600-char truncation rule as the delta path below."""
+                    if isinstance(val, str):
+                        return val[:600] + "\n…(truncated)" if len(val) > 600 else val
+                    if isinstance(val, list) and val and all(isinstance(x, str) for x in val):
+                        return [
+                            (x[:600] + "\n…(truncated)" if len(x) > 600 else x)
+                            for x in val
+                        ]
+                    return val
+
                 accumulated: dict[str, Any] = {}
+                seen_agents: set[str] = set()
                 for chunk in graph.stream(initial_state, config={"recursion_limit": 75}):
                     if any(_cancel_flags.get(x) for x in ids):
                         put({"type": "cancelled"})
@@ -1195,6 +1516,20 @@ async def run_inference(req: InferenceRequest):
                     for agent_name, delta in chunk.items():
                         if agent_name.startswith("__") or delta is None:
                             continue
+                        if agent_name not in seen_agents:
+                            # First observation of this agent — surface what
+                            # predecessors put into state before its first
+                            # iteration ran.
+                            inputs: dict[str, Any] = {}
+                            for pred in predecessors.get(agent_name, []):
+                                if pred and pred in accumulated:
+                                    inputs[pred] = _safe_serialize(_preview(accumulated[pred]))
+                            put({
+                                "type": "agent_input",
+                                "agent": agent_name,
+                                "inputs": inputs,
+                            })
+                            seen_agents.add(agent_name)
                         accumulated.update(delta)
                         safe_delta = _safe_serialize(delta)
                         # Truncate any long patch strings inside list-valued
@@ -1209,6 +1544,33 @@ async def run_inference(req: InferenceRequest):
                                     for x in v
                                 ]
                         put({"type": "agent_event", "agent": agent_name, "delta": safe_delta})
+                        # One `handoff` event per outgoing edge so the
+                        # inference page can render a chip between this
+                        # agent's card and each downstream agent's card.
+                        # The canonical producer slot is `delta[agent_name]`
+                        # per the edge-driven IO contract; fall back to the
+                        # whole delta when the agent wrote elsewhere.
+                        targets_for_node = successors.get(agent_name, [])
+                        if targets_for_node:
+                            from evomas.utils.handoff import (
+                                preview_payload as _preview_payload,
+                                summarize_payload as _summarize_payload,
+                            )
+                            raw_primary = delta.get(agent_name, delta)
+                            handoff_summary = _summarize_payload(raw_primary)
+                            handoff_preview = _preview_payload(raw_primary)
+                            handoff_keys = sorted(delta.keys())
+                            handoff_ts = datetime.now().isoformat()
+                            for _tgt in targets_for_node:
+                                put({
+                                    "type": "handoff",
+                                    "from": agent_name,
+                                    "to": _tgt,
+                                    "keys": handoff_keys,
+                                    "summary": handoff_summary,
+                                    "preview": handoff_preview,
+                                    "timestamp": handoff_ts,
+                                })
 
                 # Edge-driven output contract: the model_patch is whatever the
                 # `end` node wrote into its producer slot. Fall back to the
@@ -1235,6 +1597,19 @@ async def run_inference(req: InferenceRequest):
                     iid, tokens_in, tokens_out, tokens_total,
                     {n: a._tokens for n, a in agents.items()},
                 )
+                # Surface per-agent token counts so each chip in the UI can
+                # show its own in/out/total footer. The graph stream doesn't
+                # expose per-agent "done" events, so we emit these after the
+                # chain finishes — fine since the values are accumulated
+                # across iterations anyway.
+                for agent_name, agent in agents.items():
+                    put({
+                        "type": "agent_tokens",
+                        "agent": agent_name,
+                        "input":  int(agent._tokens.get("input", 0)),
+                        "output": int(agent._tokens.get("output", 0)),
+                        "total":  int(agent._tokens.get("total", 0)),
+                    })
 
                 pred = {
                     "instance_id": iid,
@@ -1419,6 +1794,10 @@ async def run_evaluation(req: EvaluationRequest):
     # prediction file produced by the inference page is evaluated correctly
     # against every dataset its instances came from.
     groups = _partition_predictions(pred_path)
+    # Custom-repo predictions can't be scored by the SWE-bench harness — they
+    # don't carry `test_patch` / `FAIL_TO_PASS` / `PASS_TO_PASS`. Pull them
+    # out of the groups dict so the harness only sees real SWE-bench rows.
+    skipped_custom = groups.pop(("custom", "custom"), [])
     base = req.run_id or f"evaluation-{_derive_run_id_base(pred_path)}"
 
     def put(data: dict) -> None:
@@ -1434,6 +1813,17 @@ async def run_evaluation(req: EvaluationRequest):
                 f"Detected {len(groups)} (subset, split) group(s) in {pred_path.name}: "
                 + ", ".join(f"{s}/{sp}={len(v)}" for (s, sp), v in groups.items())
             )})
+            if skipped_custom:
+                put({"type": "log", "message": (
+                    f"Detected {len(skipped_custom)} custom-repo prediction(s) -- "
+                    f"will score them by cloning + applying patch + running pytest after "
+                    f"the SWE-bench group(s)."
+                )})
+            if not groups and not skipped_custom:
+                # Nothing to evaluate -- exit cleanly so the frontend
+                # doesn't hang on an empty stream.
+                put({"type": "done", "returncode": 0})
+                return
 
             return_codes: list[int] = []
             for (subset, split), lines in groups.items():
@@ -1475,6 +1865,73 @@ async def run_evaluation(req: EvaluationRequest):
                 return_codes.append(proc.returncode)
                 put({"type": "group_done", "subset": subset, "split": split,
                      "run_id": group_run_id, "returncode": proc.returncode})
+
+            # Custom group: clone + apply patch + pytest, native (no WSL).
+            # Run after the SWE-bench harness groups so the SSE order matches
+            # what the frontend already shows for mixed prediction files.
+            if skipped_custom:
+                custom_run_id = (
+                    f"{base}-custom-custom" if groups else base
+                )
+                # Resolve repo + base_commit for each custom prediction by
+                # looking up the instance row in swebench_instances.jsonl.
+                custom_iids: list[str] = []
+                for raw in skipped_custom:
+                    try:
+                        obj = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    iid = obj.get("instance_id")
+                    if iid:
+                        custom_iids.append(iid)
+                rows = _load_instance_rows(custom_iids)
+
+                model_name = "evomas-custom"
+                try:
+                    first = json.loads(skipped_custom[0])
+                    cand = first.get("model_name_or_path") or first.get("model")
+                    if isinstance(cand, str) and cand.strip():
+                        model_name = cand.strip()
+                except json.JSONDecodeError:
+                    pass
+
+                # Per-group sidecars.
+                custom_pred_path = tmp_dir / f"{pred_path.stem}__custom_custom.jsonl"
+                custom_pred_path.write_text("\n".join(skipped_custom) + "\n", encoding="utf-8")
+                custom_inst_path = tmp_dir / f"{pred_path.stem}__custom_custom_instances.jsonl"
+                custom_inst_path.write_text(
+                    "\n".join(json.dumps(r, ensure_ascii=False) for r in rows.values()) + "\n",
+                    encoding="utf-8",
+                )
+
+                put({"type": "group_start", "subset": "custom", "split": "custom",
+                     "run_id": custom_run_id, "count": len(skipped_custom)})
+
+                cmd = [
+                    sys.executable,
+                    str(BASE_DIR / "scripts" / "apply_and_test.py"),
+                    "--instances",   str(custom_inst_path),
+                    "--predictions", str(custom_pred_path),
+                    "--report-dir",  str(EVALUATION_DIR),
+                    "--run-id",      custom_run_id,
+                    "--model",       model_name,
+                ]
+                proc = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    cwd=str(BASE_DIR),
+                    encoding="utf-8",
+                    errors="replace",
+                )
+                _eval_procs[key] = proc
+                for line in iter(proc.stdout.readline, ""):
+                    put({"type": "log", "message": line.rstrip()})
+                proc.wait()
+                return_codes.append(proc.returncode)
+                put({"type": "group_done", "subset": "custom", "split": "custom",
+                     "run_id": custom_run_id, "returncode": proc.returncode})
 
             put({"type": "done", "returncode": max(return_codes) if return_codes else 0})
         except Exception as exc:

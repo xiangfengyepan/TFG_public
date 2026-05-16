@@ -8,7 +8,7 @@ $AppDir   = Join-Path $RepoRoot "app"
 # wrong `ng` package from npmjs and exit with "could not determine
 # executable to run". Install local deps once if node_modules is absent.
 if (-not (Test-Path (Join-Path $AppDir "node_modules"))) {
-    Write-Host "[start_frontend] app\node_modules missing — running 'npm install' first" -ForegroundColor Yellow
+    Write-Host "[start_frontend] app\node_modules missing -- running 'npm install' first" -ForegroundColor Yellow
     Push-Location $AppDir
     try {
         npm install --no-audit --no-fund

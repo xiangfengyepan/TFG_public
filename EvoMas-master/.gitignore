@@ -2,6 +2,8 @@
 # Leading slash anchors to repo root so `app/src/app/pages/results/`
 # (a frontend page) isn't swept up.
 /results/
+/SWE-bench/
+/evomas/config/loaded/
 swebench_instances.jsonl
 requirements.txt
 

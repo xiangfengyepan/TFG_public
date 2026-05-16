@@ -23,6 +23,7 @@ import { CommonModule } from '@angular/common';
 })
 export class EvoSwitchComponent implements ControlValueAccessor {
   @Input() label = '';
+  @Input() set disabled(v: boolean) { this.isDisabled = !!v; }
 
   value = false;
   isDisabled = false;
