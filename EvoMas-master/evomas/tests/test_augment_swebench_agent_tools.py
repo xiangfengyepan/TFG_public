@@ -15,12 +15,14 @@ from langchain_core.tools import BaseTool
 from evomas.mcp.server import MCPServer
 from evomas.tools.augment_swebench_agent import (
     AUGMENT_SWEBENCH_AGENT_TOOLS,
-    complete_tool,
-    sequential_thinking_tool,
-    str_replace_tool,
+    CompleteTool,
+    SequentialThinkingTool,
 )
 
-_EXPECTED_NAMES = ("sequential_thinking_tool", "complete_tool", "str_replace_tool",)
+# `StrReplaceEditorTool` is re-exported from openhands (canonical) so it
+# is NOT in this bundle to avoid duplicate MCP registration. Behavior is
+# tested via `test_tools.test_mcp_call_search_code`-style coverage.
+_EXPECTED_NAMES = ("SequentialThinkingTool", "CompleteTool",)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:
@@ -46,12 +48,12 @@ def test_mcp_default_registry_exposes_every_tool() -> None:
 
 
 def test_sequential_thinking_tool_records_chain() -> None:
-    s = json.loads(sequential_thinking_tool.invoke({"thought": "a", "step": 1, "total": 3, "agent": "X"}))
+    s = json.loads(SequentialThinkingTool.invoke({"thought": "a", "step": 1, "total": 3, "agent": "X"}))
     assert s == {"agent": "X", "step": 1, "total": 3, "thought": "a"}
 
 
 def test_complete_tool_writes_workspace_marker(buggy_repo: Path) -> None:
-    record = json.loads(complete_tool.invoke({
+    record = json.loads(CompleteTool.invoke({
         "result": "all good",
         "workspace": str(buggy_repo),
         "agent": "X",
@@ -60,16 +62,3 @@ def test_complete_tool_writes_workspace_marker(buggy_repo: Path) -> None:
     marker = buggy_repo / ".evomas" / "state.json"
     assert marker.is_file()
     assert json.loads(marker.read_text())["completed"] is True
-
-
-def test_str_replace_tool_edits_workspace(buggy_repo: Path) -> None:
-    """str_replace_tool delegates to openhands.str_replace_editor; this
-    happy-path covers the existing real impl alongside the new ones."""
-    out = str_replace_tool.invoke({
-        "command": "str_replace",
-        "path": str(buggy_repo / "calc.py"),
-        "old_str": "return a - b",
-        "new_str": "return a + b",
-    })
-    assert "edited" in out.lower() or "successfully" in out.lower()
-    assert "return a + b" in (buggy_repo / "calc.py").read_text()

@@ -24,11 +24,13 @@ the wiring code) raised, so callers get a consistent error type.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any, Callable
 
 from langgraph.graph import END, START, StateGraph
 
 from evomas.agents.base_agent import BaseAgent
+from evomas.agents.types.orchestrator import OrchestratorAgent
 from evomas.exceptions.errors import OllamaMemoryError, TopologyError
 from evomas.utils.handoff import preview_payload, summarize_payload
 
@@ -81,6 +83,36 @@ def _wrap(
         return delta
 
     return node
+
+
+def _make_router(
+    source: str, targets: list[str],
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Conditional-edge router for an OrchestratorAgent hub. Reads the
+    orchestrator's final response text at `state[source]`, scans it for
+    whole-word mentions of each candidate target, and returns the
+    matched names. Falls back to all targets when nothing matches so
+    the run continues — better to over-dispatch than stall on a parser
+    miss (the warning log surfaces these for diagnosis)."""
+    patterns: dict[str, re.Pattern[str]] = {
+        t: re.compile(rf"\b{re.escape(t)}\b", re.IGNORECASE) for t in targets
+    }
+
+    def route(state: dict[str, Any]) -> list[str]:
+        text = state.get(source) or ""
+        if not isinstance(text, str):
+            text = str(text)
+        picked = [t for t in targets if patterns[t].search(text)]
+        if picked:
+            logger.info("[%s] LLM routed to %s (out of %s)", source, picked, targets)
+            return picked
+        logger.warning(
+            "[%s] LLM emitted no parseable target in %r; falling back to all %s",
+            source, text[:200], targets,
+        )
+        return list(targets)
+
+    return route
 
 
 def _normalize_end(raw_end: Any) -> set[str]:
@@ -138,12 +170,23 @@ def build_graph(
 
         graph.add_edge(START, entry)
 
-        # Structural wiring: one static edge per (source, target) pair.
-        # LangGraph fans multi-edge sources out in parallel. No agent
-        # introspection.
+        # Structural wiring. Default = one static edge per (source, target)
+        # pair, fanning multi-edge sources out in parallel. Exception:
+        # OrchestratorAgent nodes with ≥2 outgoing edges get an LLM-driven
+        # conditional edge — the router (`_make_router`) parses
+        # `state[source]` for whole-word target names and routes
+        # accordingly. Other classes keep the static fan-out.
         for source, targets in out_edges.items():
-            for target in targets:
-                graph.add_edge(source, target)
+            agent = agents.get(source)
+            if isinstance(agent, OrchestratorAgent) and len(targets) >= 2:
+                graph.add_conditional_edges(
+                    source,
+                    _make_router(source, targets),
+                    {t: t for t in targets},
+                )
+            else:
+                for target in targets:
+                    graph.add_edge(source, target)
 
         # Static-edge wiring for end nodes that have no outgoing real edges.
         for name in end_set:

@@ -187,6 +187,116 @@ def test_fan_in_with_shared_accumulator_does_not_crash() -> None:
     assert "[b] thought" in final["thinking"]
 
 
+def _stub_orchestrator(name: str, canned_output: str) -> Any:
+    """Build a real OrchestratorAgent-typed stub that bypasses BaseAgent's
+    MCP-server / model-init plumbing. The router's `isinstance` check
+    fires off the class, not on agent behavior, so we just need an
+    instance of the right type with a predictable `run()` return."""
+    from evomas.agents.types.orchestrator import OrchestratorAgent
+
+    class _StubOrchestrator(OrchestratorAgent):  # noqa: N801 — internal test helper
+        def __init__(self, n: str, out: str) -> None:
+            # Skip BaseAgent.__init__ — we don't need an LLM or MCP server,
+            # only an instance that satisfies `isinstance(agent, OrchestratorAgent)`.
+            self.name = n  # type: ignore[misc]
+            self.predecessor_name = None
+            self._out = out
+
+        def run(self, state: dict[str, Any]) -> dict[str, Any]:
+            return {self.name: self._out}
+
+    return _StubOrchestrator(name, canned_output)
+
+
+class _StarState(TypedDict, total=False):
+    """State for the orchestrator-routing tests below. Declares the
+    accumulator reducers (mirrors `state_factory.RUNTIME_INPUTS`) plus
+    one producer slot per node so SimpleNamespace fakes' deltas survive."""
+    thinking: Annotated[str, operator.add]
+    errors: Annotated[list[str], operator.add]
+    hub: str
+    patcher_a: str
+    patcher_b: str
+    downstream: str
+
+
+def test_orchestrator_routes_to_named_target() -> None:
+    """An OrchestratorAgent hub with ≥2 outgoing edges should trigger
+    LLM-driven routing: only the spoke whose name appears in the hub's
+    output runs."""
+    cfg = {
+        "entry": "hub",
+        "end": ["patcher_a", "patcher_b"],
+        "edges": [
+            {"from": "hub", "to": "patcher_a"},
+            {"from": "hub", "to": "patcher_b"},
+        ],
+    }
+    agents: dict[str, Any] = {
+        "hub":       _stub_orchestrator("hub", "go patcher_a"),
+        "patcher_a": _fake_agent("patcher_a"),
+        "patcher_b": _fake_agent("patcher_b"),
+    }
+    agents["patcher_a"].run = lambda s: {"patcher_a": "A ran"}
+    agents["patcher_b"].run = lambda s: {"patcher_b": "B ran"}
+
+    graph = build_graph(cfg, agents, _StarState)
+    final = graph.invoke({"thinking": "", "errors": []})
+
+    assert final.get("patcher_a") == "A ran", "router should have dispatched patcher_a"
+    assert "patcher_b" not in final or not final.get("patcher_b"), (
+        "router should NOT have dispatched patcher_b — hub mentioned only patcher_a"
+    )
+
+
+def test_orchestrator_falls_back_to_all_targets_on_garbage() -> None:
+    """When the orchestrator's reply mentions no spoke name, the router
+    should fall back to dispatching all targets so the run doesn't stall."""
+    cfg = {
+        "entry": "hub",
+        "end": ["patcher_a", "patcher_b"],
+        "edges": [
+            {"from": "hub", "to": "patcher_a"},
+            {"from": "hub", "to": "patcher_b"},
+        ],
+    }
+    agents: dict[str, Any] = {
+        "hub":       _stub_orchestrator("hub", "???"),
+        "patcher_a": _fake_agent("patcher_a"),
+        "patcher_b": _fake_agent("patcher_b"),
+    }
+    agents["patcher_a"].run = lambda s: {"patcher_a": "A ran"}
+    agents["patcher_b"].run = lambda s: {"patcher_b": "B ran"}
+
+    graph = build_graph(cfg, agents, _StarState)
+    final = graph.invoke({"thinking": "", "errors": []})
+
+    assert final.get("patcher_a") == "A ran"
+    assert final.get("patcher_b") == "B ran"
+
+
+def test_orchestrator_with_single_outgoing_edge_uses_static_wire() -> None:
+    """An OrchestratorAgent with exactly ONE outgoing edge should not
+    install a conditional router (nothing to choose between). Proves the
+    `len(targets) >= 2` guard."""
+    cfg = {
+        "entry": "hub",
+        "end": "downstream",
+        "edges": [{"from": "hub", "to": "downstream"}],
+    }
+    agents: dict[str, Any] = {
+        "hub":        _stub_orchestrator("hub", ""),  # empty output — would trip the fallback path
+        "downstream": _fake_agent("downstream"),
+    }
+    agents["downstream"].run = lambda s: {"downstream": "D ran"}
+
+    graph = build_graph(cfg, agents, _StarState)
+    final = graph.invoke({"thinking": "", "errors": []})
+
+    # The static edge always fires regardless of orchestrator output.
+    assert final.get("downstream") == "D ran"
+
+
 def test_cycle_in_topology_compiles() -> None:
     """Cycles are allowed at build time. The runtime cap is enforced by
     the runner's recursion_limit (max_revisits * num_agents super-steps)."""

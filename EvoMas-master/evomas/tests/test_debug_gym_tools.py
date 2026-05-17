@@ -14,9 +14,9 @@ from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
 from evomas.tools.debug_gym import DEBUG_GYM_TOOLS
-from evomas.tools.debug_gym.tool import tool as debug_gym_tool
+from evomas.tools.debug_gym.EnvironmentTool import EnvironmentTool as debug_gym_tool
 
-_EXPECTED_NAMES = ("tool",)
+_EXPECTED_NAMES = ("EnvironmentTool",)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:
@@ -42,7 +42,7 @@ def test_mcp_default_registry_exposes_every_tool() -> None:
 
 
 def test_tool_lists_test_files(buggy_repo: Path) -> None:
-    """`debug_gym.tool` enumerates pytest-discoverable test files."""
+    """`debug_gym.EnvironmentTool` enumerates pytest-discoverable test files."""
     out = json.loads(debug_gym_tool.invoke({"workspace": str(buggy_repo)}))
     assert "test_calc.py" in out["tests"]
     assert out["count"] == len(out["tests"]) >= 1

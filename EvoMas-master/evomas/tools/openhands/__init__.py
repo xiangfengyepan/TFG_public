@@ -1,59 +1,62 @@
-"""OpenHands tool re-implementations.
+"""OpenHands tool re-implementations — one per file under the
+upstream-aligned tool names.
 
-Schemas mirror the upstream OpenHands tool definitions
-(`openhands/agenthub/codeact_agent/tools/*` and
-`openhands/agenthub/readonly_agent/tools/*`); descriptions are kept verbatim
-where possible. Implementations are lightweight Python equivalents that work
-inside the EvoMas workspace (subprocess + filesystem only — no IPython kernel,
-no Playwright, no security_risk plumbing).
+Each module exposes a single `@tool`-decorated function whose name
+matches the upstream OpenHands tool identifier (e.g. `BrowserTool`,
+`CmdRunTool`, …) so prompts referencing those names continue to
+resolve. Implementations are EvoMas-authored Python wrappers — they
+share a small `_helpers` module for output truncation, file viewing,
+edit-undo, and bash dispatch.
 """
 
-from evomas.tools.openhands.tools import (
-    OPENHANDS_TOOLS,
-    bash,
-    condensation_request,
-    edit_file,
-    execute_bash,
-    execute_ipython_cell,
-    finish,
-    glob_,
-    grep,
-    str_replace_editor,
-    think,
-    view,
-)
+from evomas.tools.openhands.BrowserTool import BrowserTool
+from evomas.tools.openhands.CmdRunTool import CmdRunTool
+from evomas.tools.openhands.CondensationRequestTool import CondensationRequestTool
+from evomas.tools.openhands.FinishTool import FinishTool
+from evomas.tools.openhands.GlobTool import GlobTool
+from evomas.tools.openhands.GrepTool import GrepTool
+from evomas.tools.openhands.IPythonTool import IPythonTool
+from evomas.tools.openhands.LLMBasedFileEditTool import LLMBasedFileEditTool
+from evomas.tools.openhands.StrReplaceEditorTool import StrReplaceEditorTool
+from evomas.tools.openhands.ThinkTool import ThinkTool
+from evomas.tools.openhands.ViewTool import ViewTool
+
 from evomas.tools.openhands.loc_tools import (
     LOC_TOOLS,
     explore_tree_structure,
     get_entity_contents,
     search_code_snippets,
 )
-from evomas.tools.openhands.aliases import (
-    OPENHANDS_ALIAS_TOOLS,
-    browser,
-    ipython,
-    llm_based_edit,
+
+OPENHANDS_TOOLS = (
+    BrowserTool,
+    CmdRunTool,
+    CondensationRequestTool,
+    FinishTool,
+    GlobTool,
+    GrepTool,
+    IPythonTool,
+    LLMBasedFileEditTool,
+    StrReplaceEditorTool,
+    ThinkTool,
+    ViewTool,
 )
 
 __all__ = [
     "OPENHANDS_TOOLS",
     "LOC_TOOLS",
-    "OPENHANDS_ALIAS_TOOLS",
-    "browser",
-    "ipython",
-    "llm_based_edit",
-    "think",
-    "str_replace_editor",
-    "execute_ipython_cell",
-    "edit_file",
-    "condensation_request",
-    "finish",
-    "execute_bash",
-    "bash",
-    "grep",
-    "glob_",
-    "view",
+    "BrowserTool",
+    "CmdRunTool",
+    "CondensationRequestTool",
+    "FinishTool",
+    "GlobTool",
+    "GrepTool",
+    "IPythonTool",
+    "LLMBasedFileEditTool",
+    "StrReplaceEditorTool",
+    "ThinkTool",
+    "ViewTool",
+    "explore_tree_structure",
     "get_entity_contents",
     "search_code_snippets",
-    "explore_tree_structure",
 ]

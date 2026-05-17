@@ -1,9 +1,34 @@
 :host {
   display: flex;
-  width: 300px;
+  /* min-width (not width): picker starts at 300px but can grow to fit
+   * long instance ids; the inference center column (flex: 1) shrinks
+   * to make room rather than being overlapped. */
+  min-width: 300px;
+  flex-grow: 0;
   flex-shrink: 0;
   min-height: 0;
+  transition: min-width 0.18s ease, width 0.18s ease;
 }
+:host(.collapsed) { min-width: 0; width: 36px; }
+:host(.collapsed) ::ng-deep .evo-box-title { display: none; }
+:host(.collapsed) ::ng-deep .evo-box-header {
+  padding: 6px 4px;
+  justify-content: center;
+}
+
+.rail-toggle {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 1px 6px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 4px;
+  font-family: inherit;
+}
+.rail-toggle:hover { color: var(--text); background: var(--bg-2); border-color: var(--border); }
+
 .left-box { flex: 1; min-height: 0; }
 .left-box ::ng-deep .evo-box-body {
   display: flex;

@@ -1,13 +1,17 @@
-"""MCP registration + shape assertions for `evomas.tools.lingma_swe_gpt`.
+"""MCP registration + behavioral checks for `evomas.tools.lingma_swe_gpt`.
 
-Mirrors the OpenHands-shaped checks in `evomas/tests/test_tools.py`: every
-`@tool`-decorated callable in `LINGMA_SWE_GPT_TOOLS` must be a LangChain `BaseTool`
-with a non-empty name/description, and MCP must expose each one through
-the default registry.
+After the Lingma replacement, the bundle exposes 8 stateless search +
+patch-handoff tools. This file mirrors the OpenHands-shaped checks in
+`evomas/tests/test_tools.py` (every tool is a LangChain `BaseTool`,
+non-empty name/description, registered with MCP) and adds light
+behavior tests using a tiny ephemeral repo fixture so the
+`search_class*` / `search_method*` / `search_code*` paths get
+exercised end-to-end.
 """
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 from langchain_core.tools import BaseTool
@@ -15,22 +19,31 @@ from langchain_core.tools import BaseTool
 from evomas.mcp.server import MCPServer
 from evomas.tools.lingma_swe_gpt import (
     LINGMA_SWE_GPT_TOOLS,
-    manage,
-    manage_2,
-    manage_3,
-    manage_4,
-    manage_5,
-    manage_6,
-    manage_7,
-    manage_8,
+    search_class,
+    search_class_in_file,
+    search_method_in_file,
+    search_method_in_class,
+    search_method,
+    search_code_in_file,
+    write_patch,
 )
-from evomas.tools.lingma_swe_gpt._state import reset as reset_state
 
-_EXPECTED_NAMES = ("manage", "manage_2", "manage_3", "manage_4", "manage_5", "manage_6", "manage_7", "manage_8",)
+# Lingma's `search_code` is the canonical EvoMas BM25 search tool —
+# re-exported, NOT in LINGMA_SWE_GPT_TOOLS (would duplicate-register
+# with MCP). Its behavior is covered by `test_tools.test_mcp_call_search_code`.
+_EXPECTED_NAMES = (
+    "search_class",
+    "search_class_in_file",
+    "search_method_in_file",
+    "search_method_in_class",
+    "search_method",
+    "search_code_in_file",
+    "write_patch",
+)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:
-    """Each tool exposes the LangChain `BaseTool` contract."""
+    """Every tool satisfies the LangChain `BaseTool` contract."""
     for tool in LINGMA_SWE_GPT_TOOLS:
         assert isinstance(tool, BaseTool), tool
         assert tool.name, f"missing name: {tool}"
@@ -38,8 +51,8 @@ def test_tools_are_basetool_with_name_and_description() -> None:
 
 
 def test_tool_names_match_expected_inventory() -> None:
-    """The package exports exactly the names referenced by the variant
-    catalog at `evomas/config/agent_types/`."""
+    """Exported names match the variant catalog at
+    `evomas/config/agent_types/Lingma_SWE_GPT.json`."""
     got = {t.name for t in LINGMA_SWE_GPT_TOOLS}
     assert got == set(_EXPECTED_NAMES), got
 
@@ -51,52 +64,106 @@ def test_mcp_default_registry_exposes_every_tool() -> None:
         assert name in registered, f"{name!r} not in MCP registry"
 
 
-_AGENT = "lingma-test"
+# ─── Behavior tests on a tiny ephemeral repo ───────────────────────────
 
 
-@pytest.fixture(autouse=True)
-def _reset_lingma_state() -> None:
-    reset_state()
+@pytest.fixture
+def sample_repo(tmp_path: Path) -> Path:
+    """Two-file repo with a Calculator class + a helper module."""
+    (tmp_path / "calc.py").write_text(
+        "class Calculator:\n"
+        "    def add(self, a, b):\n"
+        "        return a + b\n"
+        "\n"
+        "    def subtract(self, a, b):\n"
+        "        return a - b\n"
+        "\n"
+        "\n"
+        "def standalone_helper():\n"
+        "    return 42\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "util.py").write_text(
+        "class Logger:\n"
+        "    def log(self, msg):\n"
+        "        print(msg)\n",
+        encoding="utf-8",
+    )
+    return tmp_path
 
 
-def test_manage_lists_initial_empty_state() -> None:
-    state = json.loads(manage.invoke({"agent": _AGENT}))
-    assert state == {"focus": "", "context_files": [], "history": []}
+def test_search_class_finds_class(sample_repo: Path) -> None:
+    out = json.loads(search_class.invoke({"class_name": "Calculator", "workspace": str(sample_repo)}))
+    assert out["ok"] is True
+    assert "calc.py:1" in out["result"]
+    assert "Calculator" in out["result"]
 
 
-def test_manage_2_adds_file() -> None:
-    state = json.loads(manage_2.invoke({"path": "calc.py", "agent": _AGENT}))
-    assert state["context_files"] == ["calc.py"]
-    assert "add_file:calc.py" in state["history"]
+def test_search_class_misses_unknown(sample_repo: Path) -> None:
+    out = json.loads(search_class.invoke({"class_name": "Nope", "workspace": str(sample_repo)}))
+    assert out["ok"] is False
 
 
-def test_manage_3_removes_file() -> None:
-    manage_2.invoke({"path": "calc.py", "agent": _AGENT})
-    state = json.loads(manage_3.invoke({"path": "calc.py", "agent": _AGENT}))
-    assert state["context_files"] == []
+def test_search_class_in_file_scoped(sample_repo: Path) -> None:
+    out = json.loads(search_class_in_file.invoke({
+        "class_name": "Calculator", "file_name": "calc.py", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is True
+    out2 = json.loads(search_class_in_file.invoke({
+        "class_name": "Calculator", "file_name": "util.py", "workspace": str(sample_repo),
+    }))
+    assert out2["ok"] is False
 
 
-def test_manage_4_returns_history_slice() -> None:
-    manage_2.invoke({"path": "a.py", "agent": _AGENT})
-    manage_2.invoke({"path": "b.py", "agent": _AGENT})
-    out = json.loads(manage_4.invoke({"agent": _AGENT, "n": 5}))
-    assert out == ["add_file:a.py", "add_file:b.py"]
+def test_search_method_in_file(sample_repo: Path) -> None:
+    out = json.loads(search_method_in_file.invoke({
+        "method_name": "add", "file_name": "calc.py", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is True
+    assert "Calculator.add" in out["result"]
 
 
-def test_manage_5_clears_history() -> None:
-    manage_2.invoke({"path": "a.py", "agent": _AGENT})
-    state = json.loads(manage_5.invoke({"agent": _AGENT}))
-    assert state["history"] == []
+def test_search_method_in_class(sample_repo: Path) -> None:
+    out = json.loads(search_method_in_class.invoke({
+        "method_name": "add", "class_name": "Calculator", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is True
+    out2 = json.loads(search_method_in_class.invoke({
+        "method_name": "log", "class_name": "Calculator", "workspace": str(sample_repo),
+    }))
+    # `log` is on Logger, not Calculator → not found
+    assert out2["ok"] is False
 
 
-def test_manage_6_set_and_manage_7_get_focus() -> None:
-    state = json.loads(manage_6.invoke({"path": "calc.py", "agent": _AGENT}))
-    assert state["focus"] == "calc.py"
-    assert manage_7.invoke({"agent": _AGENT}) == "calc.py"
+def test_search_method_workspace_wide(sample_repo: Path) -> None:
+    out = json.loads(search_method.invoke({
+        "method_name": "standalone_helper", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is True
+    assert "calc.py" in out["result"]
 
 
-def test_manage_8_resets_agent_state() -> None:
-    manage_2.invoke({"path": "a.py", "agent": _AGENT})
-    manage_6.invoke({"path": "calc.py", "agent": _AGENT})
-    state = json.loads(manage_8.invoke({"agent": _AGENT}))
-    assert state == {"focus": "", "context_files": [], "history": []}
+def test_search_code_in_file_finds_match(sample_repo: Path) -> None:
+    out = json.loads(search_code_in_file.invoke({
+        "code_str": "a + b", "file_name": "calc.py", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is True
+    assert "calc.py:" in out["result"]
+
+
+def test_search_code_in_file_missing_file(sample_repo: Path) -> None:
+    out = json.loads(search_code_in_file.invoke({
+        "code_str": "anything", "file_name": "nope.py", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is False
+
+
+def test_write_patch_emits_handoff(sample_repo: Path) -> None:
+    out = json.loads(write_patch.invoke({
+        "context_summary": "fix the bug in calc.py", "workspace": str(sample_repo),
+    }))
+    assert out["ok"] is True
+    envelope = json.loads(out["result"])
+    assert envelope["request"] == "write_patch"
+    assert envelope["workspace"] == str(sample_repo)
+    assert envelope["context_summary"] == "fix the bug in calc.py"

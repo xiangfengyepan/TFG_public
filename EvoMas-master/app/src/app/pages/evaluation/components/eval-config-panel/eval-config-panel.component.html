@@ -1,4 +1,13 @@
-<evo-box title="Evaluation Config" class="config-panel">
+<evo-box title="Evaluation Config" class="config-panel" [hasActions]="true">
+  <ng-container box-actions>
+    <button type="button" class="rail-toggle"
+            (click)="toggleCollapsed()"
+            [title]="collapsed() ? 'Expand panel' : 'Collapse panel'"
+            [attr.aria-expanded]="!collapsed()">
+      {{ collapsed() ? '»' : '«' }}
+    </button>
+  </ng-container>
+  @if (!collapsed()) {
   <div class="config-body">
 
     <!-- Predictions file -->
@@ -53,7 +62,7 @@
         <div class="inspection-card">
           <div class="inspection-meta">
             <span class="meta-key">run_id base</span>
-            <span class="meta-val mono">{{ inspection.run_id_base }}</span>
+            <span class="meta-val mono" [title]="inspection.run_id_base">{{ inspection.run_id_base }}</span>
           </div>
           <div class="inspection-meta">
             <span class="meta-key">total</span>
@@ -153,4 +162,5 @@
     }
 
   </div>
+  }
 </evo-box>

@@ -11,7 +11,7 @@ from langchain_core.tools import tool
 logger = logging.getLogger(__name__)
 
 
-from evomas.tools.openhands.tools import grep as _grep
+from evomas.tools.openhands.GrepTool import GrepTool as _grep
 
 
 @tool

@@ -14,9 +14,9 @@ from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
 from evomas.tools.patchwork import PATCHWORK_TOOLS
-from evomas.tools.patchwork.tool import tool as patchwork_tool
+from evomas.tools.patchwork.workspace_manifest import workspace_manifest as patchwork_tool
 
-_EXPECTED_NAMES = ("code_edit_tools", "csvkit_tool", "git_tool", "grep_tool", "tool",)
+_EXPECTED_NAMES = ("code_edit_tools", "csvkit_tool", "git_tool", "grep_tool", "workspace_manifest",)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:
@@ -42,7 +42,7 @@ def test_mcp_default_registry_exposes_every_tool() -> None:
 
 
 def test_tool_manifest_lists_source_files(buggy_repo: Path) -> None:
-    """`patchwork.tool` returns a JSON manifest of .py files."""
+    """`patchwork.workspace_manifest` returns a JSON manifest of .py files."""
     out = json.loads(patchwork_tool.invoke({"workspace": str(buggy_repo)}))
     paths = [f["path"] for f in out["files"]]
     assert "calc.py" in paths

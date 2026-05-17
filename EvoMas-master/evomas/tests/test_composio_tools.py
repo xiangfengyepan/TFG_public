@@ -14,13 +14,18 @@ from langchain_core.tools import BaseTool
 from evomas.mcp.server import MCPServer
 from evomas.tools.composio import (
     COMPOSIO_TOOLS,
-    langchain_agent,
-    mcp as composio_mcp,
-    openai_agents,
-    tool_router_mcp,
+    MultiServerMCPClient_langchain_agent as langchain_agent,
+    MultiServerMCPClient_mcp as composio_mcp,
+    HostedMCPTool_openai_agents as openai_agents,
+    HostedMCPTool_tool_router_mcp as tool_router_mcp,
 )
 
-_EXPECTED_NAMES = ("langchain_agent", "mcp", "openai_agents", "tool_router_mcp",)
+_EXPECTED_NAMES = (
+    "MultiServerMCPClient_langchain_agent",
+    "MultiServerMCPClient_mcp",
+    "HostedMCPTool_openai_agents",
+    "HostedMCPTool_tool_router_mcp",
+)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:

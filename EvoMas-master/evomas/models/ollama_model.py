@@ -7,7 +7,7 @@ import ollama
 from ollama import ChatResponse, Message
 from enum import Enum
 import traceback
-# TODO implement with from langchain_ollama import ChatOllama 
+
 
 class OllamaModelEnum(str, Enum):
     QWEN_35_9B = "qwen3.5:9b"
@@ -29,23 +29,20 @@ class OllamaWrapper:
         messages: List[Dict[str, Any]],
         model: OllamaModelEnum = OllamaModelEnum.QWEN_35_9B,
         think: bool | Literal["low", "medium", "high"] = True,
-        num_ctx: int = 2048,  # Sets the size of the context window used to generate the next token. (Default: 2048)
+        num_ctx: int = 2048,
         tools: Optional[List[Dict[str, Any]]] = None,
         response_format: Optional[Any] = None,
         timeout_seconds: Optional[int] = None,
         stream: bool = True,
-        # --- Modelfile Advanced Options ---
-        temperature: float = 0.8,  # The temperature of the model. Increasing the temperature will make the model answer more creatively. (Default: 0.8)
-        top_k: int = 40,  # Reduces the probability of generating nonsense. (Default: 40)
-        top_p: float = 0.9,  # Works together with top-k. A higher value... will lead to more diverse text. (Default: 0.9)
-        min_p: float = 0.0,  # Alternative to the top_p, and aims to ensure a balance of quality and variety. (Default: 0.0)
-        repeat_penalty: float = 1.1,  # Sets how strongly to penalize repetitions. (Default: 1.1)
-        repeat_last_n: int = 64,  # Sets how far back for the model to look back to prevent repetition. (Default: 64)
-        seed: int = 0,  # Sets the random number seed to use for generation. (Default: 0)
-        stop: Optional[
-            List[str]
-        ] = None,  # Sets the stop sequences to use. (Default: None)
-        num_predict: int = -1,  # Maximum number of tokens to predict when generating text. (Default: -1, infinite generation)
+        temperature: float = 0.8,
+        top_k: int = 40,
+        top_p: float = 0.9,
+        min_p: float = 0.0,
+        repeat_penalty: float = 1.1,
+        repeat_last_n: int = 64,
+        seed: int = 0,
+        stop: Optional[List[str]] = None,
+        num_predict: int = -1,
     ) -> ChatResponse:
 
         self.chat_history.extend(messages)
@@ -77,16 +74,6 @@ class OllamaWrapper:
 
         if response_format and issubclass(response_format, BaseModel):
             kwargs["format"] = response_format.model_json_schema()
-
-        # print("\n\033[93m[DEBUG] Payload being sent to Ollama:\033[0m")
-        # try:
-        #     debug_kwargs = kwargs.copy()
-        #     # if "tools" in debug_kwargs and debug_kwargs["tools"]:
-        #         # debug_kwargs["tools"] = "[Tools List Redacted for Brevity]"
-        #     print(json.dumps(debug_kwargs, indent=2, default=str))
-        # except Exception as json_e:
-        #     print(f"\033[91m[DEBUG] Could not print kwargs: {json_e}\033[0m")
-        # print("\033[93m---------------------------------------\033[0m\n")
 
         try:
             if stream:

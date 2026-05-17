@@ -12,27 +12,27 @@
       },
       "tools": [
         {
-          "name": "bash_tool",
+          "name": "CmdRunTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/bash_tool.py#L19"
         },
         {
-          "name": "ckg_tool",
+          "name": "CKGTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/ckg_tool.py#L14"
         },
         {
-          "name": "edit_tool",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/edit_tool.py#L27"
         },
         {
-          "name": "json_edit_tool",
+          "name": "JSONEditTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/json_edit_tool.py#L17"
         },
         {
-          "name": "sequential_thinking_tool",
+          "name": "SequentialThinkingTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/sequential_thinking_tool.py#L32"
         },
         {
-          "name": "task_done_tool",
+          "name": "TaskDoneTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/task_done_tool.py#L9"
         }
       ]
@@ -47,27 +47,27 @@
       },
       "tools": [
         {
-          "name": "bash_tool",
+          "name": "CmdRunTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/bash_tool.py#L19"
         },
         {
-          "name": "ckg_tool",
+          "name": "CKGTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/ckg_tool.py#L14"
         },
         {
-          "name": "edit_tool",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/edit_tool.py#L27"
         },
         {
-          "name": "json_edit_tool",
+          "name": "JSONEditTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/json_edit_tool.py#L17"
         },
         {
-          "name": "sequential_thinking_tool",
+          "name": "SequentialThinkingTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/sequential_thinking_tool.py#L32"
         },
         {
-          "name": "task_done_tool",
+          "name": "TaskDoneTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/task_done_tool.py#L9"
         }
       ]
@@ -82,27 +82,27 @@
       },
       "tools": [
         {
-          "name": "bash_tool",
+          "name": "CmdRunTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/bash_tool.py#L19"
         },
         {
-          "name": "ckg_tool",
+          "name": "CKGTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/ckg_tool.py#L14"
         },
         {
-          "name": "edit_tool",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/edit_tool.py#L27"
         },
         {
-          "name": "json_edit_tool",
+          "name": "JSONEditTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/json_edit_tool.py#L17"
         },
         {
-          "name": "sequential_thinking_tool",
+          "name": "SequentialThinkingTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/sequential_thinking_tool.py#L32"
         },
         {
-          "name": "task_done_tool",
+          "name": "TaskDoneTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/task_done_tool.py#L9"
         }
       ]
@@ -117,27 +117,27 @@
       },
       "tools": [
         {
-          "name": "bash_tool",
+          "name": "CmdRunTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/bash_tool.py#L19"
         },
         {
-          "name": "ckg_tool",
+          "name": "CKGTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/ckg_tool.py#L14"
         },
         {
-          "name": "edit_tool",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/edit_tool.py#L27"
         },
         {
-          "name": "json_edit_tool",
+          "name": "JSONEditTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/json_edit_tool.py#L17"
         },
         {
-          "name": "sequential_thinking_tool",
+          "name": "SequentialThinkingTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/sequential_thinking_tool.py#L32"
         },
         {
-          "name": "task_done_tool",
+          "name": "TaskDoneTool",
           "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/tools/task_done_tool.py#L9"
         }
       ]

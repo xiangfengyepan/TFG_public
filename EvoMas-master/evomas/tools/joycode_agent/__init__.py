@@ -1,13 +1,24 @@
-"""joycode_agent tool re-implementations.
+"""joycode_agent tool re-exports.
 
-Mirror of `evomas.tools.openhands` for the joycode_agent repo. Each tool is a
-LangChain `@tool`-decorated function exposed via `JOYCODE_AGENT_TOOLS` and registered
-with the MCP server in `evomas.mcp.server.default_registry`.
+joycode-agent's three upstream tools (`CompleteTool`,
+`SequentialThinkingTool`, `StrReplaceEditorTool`) are functionally
+identical to augment-swebench-agent + OpenHands counterparts (verified
+diff: same body modulo docstrings and a default agent-string). Rather
+than duplicate-register them with MCP (and clobber each other under
+last-write-wins), we re-export the canonical symbols. The joycode
+catalog's `tools[].name` resolves to the canonical at runtime.
 """
-from evomas.tools.joycode_agent.sequential_thinking_tool import sequential_thinking_tool
-from evomas.tools.joycode_agent.complete_tool import complete_tool
-from evomas.tools.joycode_agent.str_replace_tool import str_replace_tool
+from evomas.tools.augment_swebench_agent.SequentialThinkingTool import SequentialThinkingTool
+from evomas.tools.augment_swebench_agent.CompleteTool import CompleteTool
+from evomas.tools.openhands.StrReplaceEditorTool import StrReplaceEditorTool
 
-JOYCODE_AGENT_TOOLS = (sequential_thinking_tool, complete_tool, str_replace_tool,)
+# Empty aggregate — every tool is already registered with MCP via its
+# canonical owning bundle (augment_swebench_agent or openhands).
+JOYCODE_AGENT_TOOLS: tuple = ()
 
-__all__ = ["JOYCODE_AGENT_TOOLS", "sequential_thinking_tool", "complete_tool", "str_replace_tool"]
+__all__ = [
+    "JOYCODE_AGENT_TOOLS",
+    "SequentialThinkingTool",
+    "CompleteTool",
+    "StrReplaceEditorTool",
+]

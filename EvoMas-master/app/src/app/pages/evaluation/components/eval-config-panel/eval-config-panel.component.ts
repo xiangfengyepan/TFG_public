@@ -6,7 +6,7 @@
  * `maxWorkers`) use the standard `xChange` output convention so the
  * parent can mirror them back into the service.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -64,4 +64,13 @@ export class EvalConfigPanelComponent {
     this.maxWorkers = v;
     this.maxWorkersChange.emit(v);
   }
+
+  // ─── Collapse toggle (rail-style) ─────────────────────────
+  /** When true the host shrinks to a narrow rail showing only the
+   * expand chevron; the body + title are hidden. State is local — a
+   * page navigation resets it to expanded, which is the sensible
+   * default. */
+  collapsed = signal(false);
+  @HostBinding('class.collapsed') get isCollapsed(): boolean { return this.collapsed(); }
+  toggleCollapsed(): void { this.collapsed.set(!this.collapsed()); }
 }

@@ -59,6 +59,12 @@ export interface ToolDescriptor {
     required?: string[];
     [k: string]: unknown;
   };
+  /** Folder under `evomas/tools/` the tool was registered from, or
+   * `"evomas"` for the top-level helpers in `evomas/tools/*.py`. Used
+   * by the agent-inspector's "Add tool" dropdown to render one
+   * `<optgroup>` per owner. Optional for back-compat with any caller
+   * that doesn't read it. */
+  repo?: string;
 }
 
 export interface UnifiedConfig {

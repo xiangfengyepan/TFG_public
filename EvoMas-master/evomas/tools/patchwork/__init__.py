@@ -18,8 +18,8 @@ from evomas.tools.patchwork.code_edit_tools import code_edit_tools
 from evomas.tools.patchwork.csvkit_tool import csvkit_tool
 from evomas.tools.patchwork.git_tool import git_tool
 from evomas.tools.patchwork.grep_tool import grep_tool
-from evomas.tools.patchwork.tool import tool
+from evomas.tools.patchwork.workspace_manifest import workspace_manifest
 
-PATCHWORK_TOOLS = (code_edit_tools, csvkit_tool, git_tool, grep_tool, tool,)
+PATCHWORK_TOOLS = (code_edit_tools, csvkit_tool, git_tool, grep_tool, workspace_manifest,)
 
-__all__ = ["PATCHWORK_TOOLS", "code_edit_tools", "csvkit_tool", "git_tool", "grep_tool", "tool"]
+__all__ = ["PATCHWORK_TOOLS", "code_edit_tools", "csvkit_tool", "git_tool", "grep_tool", "workspace_manifest"]

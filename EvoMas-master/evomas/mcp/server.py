@@ -13,7 +13,7 @@ from evomas.tools.debug_gym import DEBUG_GYM_TOOLS
 from evomas.tools.joycode_agent import JOYCODE_AGENT_TOOLS
 from evomas.tools.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
 from evomas.tools.lint_tools import run_flake8
-from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_ALIAS_TOOLS, OPENHANDS_TOOLS
+from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_TOOLS
 from evomas.tools.patch_tools import (
     apply_description_fix,
     apply_patch,
@@ -98,20 +98,21 @@ def _extract_schema(tool: BaseTool) -> dict[str, Any]:
 
 def default_registry() -> ToolRegistry:
     registry = ToolRegistry()
+    # Core EvoMas tools — workspace I/O, patch lifecycle, bug-class
+    # diagnostics. Used by every topology regardless of repo variant.
     for tool in (read_file, list_files, search_code, run_flake8, apply_patch,
                  generate_diff, normalize_patch, reset_repo,
                  detect_bug_class, derive_description_fix, apply_description_fix):
         registry.register(tool)
-    # OpenHands-shape tools (used by the openhands.json topology). Registering
-    # them globally keeps the MCP catalog uniform; per-agent allow-lists in the
-    # unified config still gate which tools each agent can call.
-    for tool in (*OPENHANDS_TOOLS, *LOC_TOOLS, *OPENHANDS_ALIAS_TOOLS):
-        registry.register(tool)
-    # Repo-variant tools (one bundle per `evomas/tools/<repo>/` package). Each
-    # bundle is a tuple of LangChain `@tool` callables — see the per-repo
-    # `__init__.py` for the list. Duplicate names across bundles are fine:
-    # last-registered wins, and same name = same intended semantics.
+    # Repo-variant tool bundles (one tuple per `evomas/tools/<repo>/`
+    # package). Iterating the same loop for every repo keeps the
+    # registration order predictable; duplicate names across bundles
+    # follow the last-registered-wins rule but in practice the bundles
+    # avoid collisions by re-exporting canonicals instead of
+    # duplicating (see TOOL_AUDIT.md).
     for bundle in (
+        OPENHANDS_TOOLS,
+        LOC_TOOLS,
         AUTO_CODE_ROVER_TOOLS,
         AUGMENT_SWEBENCH_AGENT_TOOLS,
         CLAUDE_CODER_TOOLS,

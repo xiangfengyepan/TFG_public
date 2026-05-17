@@ -1,16 +1,41 @@
 """trae_agent tool re-implementations.
 
-Mirror of `evomas.tools.openhands` for the trae_agent repo. Each tool is a
-LangChain `@tool`-decorated function exposed via `TRAE_AGENT_TOOLS` and registered
-with the MCP server in `evomas.mcp.server.default_registry`.
+Three trae-specific tools (`CKGTool`, `JSONEditTool`, `TaskDoneTool`)
+are registered locally. The other three upstream trae tools are
+functionally identical to canonicals owned by other bundles, so we
+re-export instead of duplicate-registering:
+
+- `BashTool` (trae) === `CmdRunTool` (OpenHands) — same shell-subprocess
+- `EditTool` / `TextEditorTool` (trae) === `StrReplaceEditorTool` (OpenHands)
+- `SequentialThinkingTool` (trae) === `SequentialThinkingTool` (augment)
+
+`TaskDoneTool` is byte-equivalent to `CompleteTool` but kept as a
+separate MCP registration because trae's upstream uses this distinct
+name (per the project's "upstream-aligned names" policy).
 """
-from evomas.tools.trae_agent.bash_tool import bash_tool
-from evomas.tools.trae_agent.ckg_tool import ckg_tool
-from evomas.tools.trae_agent.edit_tool import edit_tool
-from evomas.tools.trae_agent.json_edit_tool import json_edit_tool
-from evomas.tools.trae_agent.sequential_thinking_tool import sequential_thinking_tool
-from evomas.tools.trae_agent.task_done_tool import task_done_tool
+from evomas.tools.trae_agent.CKGTool import CKGTool
+from evomas.tools.trae_agent.JSONEditTool import JSONEditTool
+from evomas.tools.trae_agent.TaskDoneTool import TaskDoneTool
 
-TRAE_AGENT_TOOLS = (bash_tool, ckg_tool, edit_tool, json_edit_tool, sequential_thinking_tool, task_done_tool,)
+# Re-exports from canonical bundles (no duplicate MCP registration).
+from evomas.tools.openhands.CmdRunTool import CmdRunTool
+from evomas.tools.openhands.StrReplaceEditorTool import StrReplaceEditorTool
+from evomas.tools.augment_swebench_agent.SequentialThinkingTool import SequentialThinkingTool
 
-__all__ = ["TRAE_AGENT_TOOLS", "bash_tool", "ckg_tool", "edit_tool", "json_edit_tool", "sequential_thinking_tool", "task_done_tool"]
+TRAE_AGENT_TOOLS = (
+    CKGTool,
+    JSONEditTool,
+    TaskDoneTool,
+    # The re-exported canonicals are already in MCP via their owning
+    # bundles — listing them here would double-register.
+)
+
+__all__ = [
+    "TRAE_AGENT_TOOLS",
+    "CKGTool",
+    "JSONEditTool",
+    "TaskDoneTool",
+    "CmdRunTool",
+    "StrReplaceEditorTool",
+    "SequentialThinkingTool",
+]

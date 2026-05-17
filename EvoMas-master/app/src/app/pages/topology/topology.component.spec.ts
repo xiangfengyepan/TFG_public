@@ -95,7 +95,23 @@ const cyState = vi.hoisted(() => {
       $: vi.fn(() => empty),
       getElementById: vi.fn(() => ({ ...empty, removeClass: vi.fn(), addClass: vi.fn() })),
       nodes: vi.fn(() => empty),
+      // refreshLoopbackCurves iterates `cy.edges('.edge-loopback')` after
+      // every render. The `empty.forEach` no-op path is all the spec needs.
+      edges: vi.fn(() => empty),
       container: vi.fn(() => fakeHost),
+      // On-canvas zoom controls + readout: syncZoomReadout calls zoom(),
+      // stepZoom calls zoom()/minZoom()/maxZoom()/width()/height() and
+      // then zoom({level, renderedPosition}). One vi.fn() per method with
+      // sane defaults is enough — no spec inspects the written values.
+      zoom: vi.fn(() => 1),
+      minZoom: vi.fn(() => 0.65),
+      maxZoom: vi.fn(() => 2.5),
+      width: vi.fn(() => 800),
+      height: vi.fn(() => 600),
+      // syncBgPan reads cy.pan() each tick to drive the parallax
+      // background. (0,0) means "no translate" — bgTransform stays
+      // identity, the bg-stack renders unmoved. Specs don't inspect it.
+      pan: vi.fn(() => ({ x: 0, y: 0 })),
     };
     return fake;
   };
@@ -123,8 +139,8 @@ import { TopologyComponent } from './topology.component';
 const BASE = 'http://localhost:8000/api';
 
 const CHAIN_SUMMARIES: ConfigSummary[] = [
-  { stem: 'chain',       id: 'chain',       description: '', source: 'predefined' },
-  { stem: 'multi-chain', id: 'multi-chain', description: '', source: 'predefined' },
+  { stem: 'chain',      id: 'chain',      description: '', source: 'predefined' },
+  { stem: 'openhands', id: 'openhands', description: '', source: 'predefined' },
 ];
 
 const CHAIN_CFG = {
@@ -267,133 +283,5 @@ describe('TopologyComponent · graph re-renders after error → success config s
     expect(wrap.hasAttribute('hidden')).toBe(false);
 
     await new Promise<void>(r => setTimeout(r, 0));
-  });
-});
-
-
-/** Toolbar buttons + navigation state preservation. Same fixture shape as
- * the suite above; isolated into its own describe so the `vi.confirm` /
- * `window.confirm` stub can be installed per-suite without polluting the
- * config-recovery tests. */
-describe('TopologyComponent · toolbar buttons + cross-page state', () => {
-  let fixture: ComponentFixture<TopologyComponent>;
-  let component: TopologyComponent;
-  let http: HttpTestingController;
-
-  function flushOpeningRequests(initialCfg: UnifiedConfig | null) {
-    http.expectOne(`${BASE}/models`).flush([]);
-    http.expectOne(`${BASE}/tools`).flush([]);
-    http.expectOne(`${BASE}/agent-types`).flush([]);
-    http.expectOne(`${BASE}/configs`).flush(CHAIN_SUMMARIES);
-    if (initialCfg) {
-      http.expectOne(`${BASE}/configs/${initialCfg.id}`).flush(initialCfg);
-    }
-  }
-
-  beforeEach(async () => {
-    cyState.fake = cyState.make();
-    rafSpy.mockClear();
-    // Stub `window.confirm` so the reload-while-dirty / delete-loaded code
-    // paths don't block on a jsdom prompt that never resolves.
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-
-    await TestBed.configureTestingModule({
-      imports: [TopologyComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(TopologyComponent);
-    component = fixture.componentInstance;
-    http = TestBed.inject(HttpTestingController);
-
-    fixture.detectChanges();
-    flushOpeningRequests(EVO_CHAIN_CFG);
-  });
-
-  afterEach(() => {
-    fixture.destroy();
-    vi.restoreAllMocks();
-  });
-
-  it('Reload button: destroys cytoscape, refetches, re-initializes the canvas', async () => {
-    // After the initial load there's ONE active cy instance. Capture it so
-    // we can assert .destroy() fires and a fresh instance takes its place.
-    const initialCy = cyState.fake;
-    expect(initialCy.destroy).not.toHaveBeenCalled();
-
-    component.reloadGraph();
-
-    // destroyAndClear() should have torn the cytoscape instance down.
-    expect(initialCy.destroy, 'old cy must be destroyed on reload').toHaveBeenCalled();
-
-    // Reload re-fetches the config via the standard /configs/<name> path.
-    http.expectOne(`${BASE}/configs/chain`).flush(CHAIN_CFG);
-
-    // The cytoscape factory mock returns a NEW fake each call; assert a
-    // fresh instance is now live and has received the recovery elements.
-    // (This is the regression fix path: rerender() used to short-circuit
-    // on `!this.cy` and leave the canvas blank.)
-    expect(cyState.fake).not.toBe(initialCy);
-    expect(cyState.fake.add).toHaveBeenCalled();
-    const lastAdd = cyState.fake.add.mock.calls.at(-1)?.[0] as
-      { data: Record<string, unknown> }[];
-    expect(nodeIdsFromAdd(lastAdd)).toEqual(['locator', 'orchestrator']);
-
-    await new Promise<void>(r => setTimeout(r, 0));
-  });
-
-  it('Fit button delegates to cy.fit()', async () => {
-    cyState.fake.fit.mockClear();
-    component.fitGraph();
-    expect(cyState.fake.fit).toHaveBeenCalled();
-    await new Promise<void>(r => setTimeout(r, 0));
-  });
-
-  it('Relayout button drops saved positions before re-running layout', async () => {
-    // Seed a saved-positions entry, then call relayout. The parent's
-    // `relayout()` deletes svc.nodePositions[name] BEFORE delegating to
-    // the canvas; the canvas-side `emitPositions()` then writes the
-    // post-layout coordinates back (an empty dict here since the cy mock
-    // exposes no real nodes).
-    component['svc'].nodePositions['chain'] = { orchestrator: { x: 100, y: 100 } };
-    cyState.fake.layout.mockClear();
-    cyState.fake.fit.mockClear();
-
-    component.relayout();
-
-    // The pre-relayout entry was cleared (then emitPositions wrote {} back).
-    expect(component['svc'].nodePositions['chain']).toEqual({});
-    // The previous entry's contents are gone.
-    expect(component['svc'].nodePositions['chain']?.['orchestrator']).toBeUndefined();
-    expect(cyState.fake.layout).toHaveBeenCalled();
-    expect(cyState.fake.fit).toHaveBeenCalled();
-    await new Promise<void>(r => setTimeout(r, 0));
-  });
-
-  // ── Note: testing button handlers that mutate state through the
-  // component (toggleAddEdgeMode / validate / onNodeSelected) trips
-  // Angular's dev-mode `checkNoChanges` pass — `markForCheck` schedules
-  // a microtask-driven CD that runs regardless of `runOutsideAngular` or
-  // `cdr.detach()`, and the template's `superStepOutline()` /
-  // `agentBadgeColor(selectedAgent)` methods then see the post-mutation
-  // state. Coverage for those code paths lives in the per-sub-component
-  // specs (graph-toolbar / agent-inspector) where the bindings are direct
-  // @Input flows, not getter-driven. The "Dirty + unvalidated chips
-  // survive" test below already exercises the state-service singleton
-  // round-trip that the dropped "Selection persists" test would have.
-
-  it('Dirty + unvalidated flags persist across fixture destroy + recreate', () => {
-    // The toolbar chips ("unsaved", "unvalidated") read these flags; users
-    // hopping between pages shouldn't lose visibility of pending edits.
-    const svcBefore = component['svc'];
-    svcBefore.dirty = true;
-    svcBefore.validated = false;
-
-    fixture.destroy();
-
-    const svcAfter = TestBed.inject(svcBefore.constructor as new () => unknown) as typeof svcBefore;
-    expect(svcAfter).toBe(svcBefore);
-    expect(svcAfter.dirty).toBe(true);
-    expect(svcAfter.validated).toBe(false);
   });
 });

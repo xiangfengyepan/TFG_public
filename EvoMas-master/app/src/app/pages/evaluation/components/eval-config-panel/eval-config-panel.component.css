@@ -1,9 +1,45 @@
 :host {
   display: flex;
-  width: 340px;
+  /* `min-width` (not `width`) so the panel is at least 340px BUT can
+   * grow if a child needs more horizontal space — e.g. a long
+   * prediction filename. The central LOGS column is `flex: 1` and
+   * yields the room. No overflow:hidden — the user prefers shrinking
+   * the central panel over clipping the left. */
+  min-width: 340px;
+  flex-grow: 0;
   flex-shrink: 0;
   min-height: 0;
+  /* Smooth animation when toggling the rail open/closed. */
+  transition: min-width 0.18s ease, width 0.18s ease;
 }
+/* Collapsed state: narrow rail with just the toggle chevron. Override
+ * the default min-width so the rail can actually shrink to 36px; the
+ * body is removed from DOM via @if so width 36px just trims the chrome. */
+:host(.collapsed) {
+  min-width: 0;
+  width: 36px;
+}
+:host(.collapsed) ::ng-deep .evo-box-title { display: none; }
+:host(.collapsed) ::ng-deep .evo-box-header {
+  padding: 6px 4px;
+  justify-content: center;
+}
+
+/* Rail-style chevron button — sits in [box-actions] so it shares the
+ * box header with the title; survives collapse because the header
+ * stays mounted. */
+.rail-toggle {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 1px 6px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 4px;
+  font-family: inherit;
+}
+.rail-toggle:hover { color: var(--text); background: var(--bg-2); border-color: var(--border); }
 
 .config-panel { flex: 1; min-height: 0; }
 .config-body {
@@ -43,10 +79,18 @@
   padding: 8px 10px;
   font-size: 11px;
   color: var(--text);
+  /* Flex children default to min-width:auto (intrinsic content width);
+   * override so a long run_id_base inside .meta-val collapses to its
+   * ellipsis instead of demanding its full character width. */
+  min-width: 0;
 }
 .inspection-meta {
   display: flex; justify-content: space-between; align-items: baseline;
   padding: 2px 0;
+  /* Same min-width:0 pattern — one level down. The flex row holding
+   * key + val must shrink for the truncation rule on .meta-val to
+   * actually have any space to clip into. */
+  min-width: 0;
 }
 .inspection-meta .meta-key { color: var(--text-muted); }
 .inspection-meta .meta-val.mono { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 10.5px; }

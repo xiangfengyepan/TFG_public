@@ -12,8 +12,79 @@
       },
       "tools": [
         {
-          "name": "index",
-          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19"
+          "name": "executeCommandTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "listFilesTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "ExploreRepoFolderTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "searchFilesTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "readFileTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "askFollowupQuestionTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "attemptCompletionTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "webSearchTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "urlScreenshotTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "devServerTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "searchSymbolTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "addInterestedFileTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "fileEditorTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "spawnAgentTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
+        },
+        {
+          "name": "exitAgentTool",
+          "source_url": "https://github.com/kodu-ai/claude-coder/blob/60c1a717992c1a597850d1e3671dc0491eab02ed/extension/src/agent/v1/tools/schema/index.ts#L19",
+          "params": {}
         }
       ]
     }

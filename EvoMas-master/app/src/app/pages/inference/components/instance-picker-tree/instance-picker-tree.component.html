@@ -1,21 +1,30 @@
 <evo-box class="left-box" title="Instances" [hasActions]="true">
   <ng-container box-actions>
-    @if (instancesTotal) {
-      <span class="count-chip">{{ instancesTotal }}</span>
+    @if (!collapsed()) {
+      @if (instancesTotal) {
+        <span class="count-chip">{{ instancesTotal }}</span>
+      }
+      <evo-button size="sm"
+                  [variant]="customFormOpen ? 'active' : 'default'"
+                  (clicked)="toggleCustomForm.emit()"
+                  title="Add a public GitHub repo + problem statement as a custom instance. Inference-only — the SWE-bench evaluation harness can't score these.">
+        + Custom
+      </evo-button>
+      <evo-button size="sm" [disabled]="refreshing"
+                  (clicked)="refreshAll.emit()"
+                  title="Re-pull every SWE-bench subset (Lite + Full + Verified) and split from HuggingFace. Slow — Full alone is thousands of instances.">
+        @if (refreshing) { ↻… } @else { ↻ }
+      </evo-button>
     }
-    <evo-button size="sm"
-                [variant]="customFormOpen ? 'active' : 'default'"
-                (clicked)="toggleCustomForm.emit()"
-                title="Add a public GitHub repo + problem statement as a custom instance. Inference-only — the SWE-bench evaluation harness can't score these.">
-      + Custom
-    </evo-button>
-    <evo-button size="sm" [disabled]="refreshing"
-                (clicked)="refreshAll.emit()"
-                title="Re-pull every SWE-bench subset (Lite + Full + Verified) and split from HuggingFace. Slow — Full alone is thousands of instances.">
-      @if (refreshing) { ↻… } @else { ↻ }
-    </evo-button>
+    <button type="button" class="rail-toggle"
+            (click)="toggleCollapsed()"
+            [title]="collapsed() ? 'Expand panel' : 'Collapse panel'"
+            [attr.aria-expanded]="!collapsed()">
+      {{ collapsed() ? '»' : '«' }}
+    </button>
   </ng-container>
 
+  @if (!collapsed()) {
   <div class="instance-search">
     <input type="text" placeholder="Filter…"
            [ngModel]="search"
@@ -113,5 +122,6 @@
       <div class="empty-hint">No instances loaded</div>
     }
   </div>
+  }
 
 </evo-box>

@@ -5,10 +5,11 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { ApiService } from './services/api.service';
 import { TopologyStateService } from './services/topology-state.service';
 import { UnifiedConfig } from './models/types';
+import { ApragonIconComponent } from './components/index';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, ApragonIconComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -20,7 +21,7 @@ export class App implements OnInit, OnDestroy {
   saveName = '';
   saveError = '';
 
-  apiOnline: boolean | null = null;        // null = unknown (no probe yet)
+  apiOnline: boolean | null = null;
   apiHost = '';
   private healthTimer?: ReturnType<typeof setInterval>;
   /** True after at least one failed probe; used to detect "API came back" so
@@ -33,11 +34,9 @@ export class App implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {}
 
-  // ─── API health polling ────────────────────────────────────────
   ngOnInit(): void {
     this.apiHost = this.api.apiHost;
     this.checkHealth();
-    // Poll every 5s. Cheap GET; no payload.
     this.healthTimer = setInterval(() => this.checkHealth(), 5000);
   }
 
@@ -70,7 +69,6 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-  // ─── Brand dropdown ────────────────────────────────────────────
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
   }
@@ -83,7 +81,6 @@ export class App implements OnInit, OnDestroy {
     this.menuOpen = false;
   }
 
-  // ─── Save flow ─────────────────────────────────────────────────
   openSaveDialog(): void {
     if (!this.state.currentConfig) {
       alert('No configuration loaded to save.');
@@ -135,7 +132,6 @@ export class App implements OnInit, OnDestroy {
     this.saveError = '';
   }
 
-  // ─── Open flow ─────────────────────────────────────────────────
   openFilePicker(): void {
     this.menuOpen = false;
     this.fileInput?.nativeElement.click();

@@ -4,11 +4,22 @@ Mirror of `evomas.tools.openhands` for the composio repo. Each tool is a
 LangChain `@tool`-decorated function exposed via `COMPOSIO_TOOLS` and registered
 with the MCP server in `evomas.mcp.server.default_registry`.
 """
-from evomas.tools.composio.langchain_agent import langchain_agent
-from evomas.tools.composio.mcp import mcp
-from evomas.tools.composio.openai_agents import openai_agents
-from evomas.tools.composio.tool_router_mcp import tool_router_mcp
+from evomas.tools.composio.MultiServerMCPClient_langchain_agent import MultiServerMCPClient_langchain_agent
+from evomas.tools.composio.MultiServerMCPClient_mcp import MultiServerMCPClient_mcp
+from evomas.tools.composio.HostedMCPTool_openai_agents import HostedMCPTool_openai_agents
+from evomas.tools.composio.HostedMCPTool_tool_router_mcp import HostedMCPTool_tool_router_mcp
 
-COMPOSIO_TOOLS = (langchain_agent, mcp, openai_agents, tool_router_mcp,)
+COMPOSIO_TOOLS = (
+    MultiServerMCPClient_langchain_agent,
+    MultiServerMCPClient_mcp,
+    HostedMCPTool_openai_agents,
+    HostedMCPTool_tool_router_mcp,
+)
 
-__all__ = ["COMPOSIO_TOOLS", "langchain_agent", "mcp", "openai_agents", "tool_router_mcp"]
+__all__ = [
+    "COMPOSIO_TOOLS",
+    "MultiServerMCPClient_langchain_agent",
+    "MultiServerMCPClient_mcp",
+    "HostedMCPTool_openai_agents",
+    "HostedMCPTool_tool_router_mcp",
+]

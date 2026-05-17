@@ -13,9 +13,9 @@ from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
 from evomas.tools.swe_agent import SWE_AGENT_TOOLS
-from evomas.tools.swe_agent.tools import tools as swe_tools
+from evomas.tools.swe_agent.list_mcp_tools import list_mcp_tools as swe_tools
 
-_EXPECTED_NAMES = ("tools",)
+_EXPECTED_NAMES = ("list_mcp_tools",)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:

@@ -1,7 +1,16 @@
 <evo-box title="Instances" [hasActions]="true" class="left-box" [noPad]="true">
   <ng-container box-actions>
-    <evo-button size="sm" (clicked)="refresh.emit()" title="Refresh">↺</evo-button>
+    @if (!collapsed()) {
+      <evo-button size="sm" (clicked)="refresh.emit()" title="Refresh">↺</evo-button>
+    }
+    <button type="button" class="rail-toggle"
+            (click)="toggleCollapsed()"
+            [title]="collapsed() ? 'Expand panel' : 'Collapse panel'"
+            [attr.aria-expanded]="!collapsed()">
+      {{ collapsed() ? '»' : '«' }}
+    </button>
   </ng-container>
+  @if (!collapsed()) {
   <div class="instance-search">
     <input type="text"
            class="instance-search-input"
@@ -59,4 +68,5 @@
       }
     }
   </div>
+  }
 </evo-box>
