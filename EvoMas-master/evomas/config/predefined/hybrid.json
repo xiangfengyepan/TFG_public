@@ -1,0 +1,105 @@
+{
+  "id": "hybrid",
+  "description": "Hybrid topology with two LLM routers and a retry cycle: env_setup -> bug_repro -> locator -> hub(Orchestrator) -> {patcher_a, patcher_b} -> reviewer -> router(Orchestrator) -> {hub (retry back-edge) | finalizer}. Exercises (a) star fan-out via LLM-routed hub, (b) review-driven retry cycle via a second Orchestrator, (c) BugReproductionAgent + EnvironmentSetupAgent (unused in chain/tree/star).",
+  "entry": "env_setup",
+  "end": "finalizer",
+  "edges": [
+    {"from": "env_setup", "to": "bug_repro"},
+    {"from": "bug_repro", "to": "locator"},
+    {"from": "locator", "to": "hub"},
+    {"from": "hub", "to": "patcher_a"},
+    {"from": "hub", "to": "patcher_b"},
+    {"from": "patcher_a", "to": "reviewer"},
+    {"from": "patcher_b", "to": "reviewer"},
+    {"from": "reviewer", "to": "router"},
+    {"from": "router", "to": "hub"},
+    {"from": "router", "to": "finalizer"}
+  ],
+  "agents": {
+    "env_setup": {
+      "class": "EnvironmentSetupAgent",
+      "model": "ollama/qwen3.5:9b", "think": false, "num_ctx": 4096, "stream": true,
+      "temperature": 0.0, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 256, "stop": [],
+      "max_iters": 2
+    },
+    "bug_repro": {
+      "class": "BugReproductionAgent",
+      "model": "ollama/qwen3.5:9b", "think": false, "num_ctx": 8192, "stream": true,
+      "temperature": 0.2, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 512, "stop": [],
+      "max_iters": 2,
+      "tools": [
+        {"name": "read_file", "params": {}},
+        {"name": "list_files", "params": {}},
+        {"name": "search_code", "params": {}}
+      ]
+    },
+    "locator": {
+      "class": "LocatorAgent",
+      "model": "ollama/qwen3.5:9b", "think": true, "num_ctx": 8192, "stream": true,
+      "temperature": 0.2, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 512, "stop": ["</files>"],
+      "max_iters": 6
+    },
+    "hub": {
+      "class": "OrchestratorAgent",
+      "model": "ollama/qwen3.5:9b", "think": false, "num_ctx": 2048, "stream": true,
+      "temperature": 0.0, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 64, "stop": [],
+      "max_iters": 1,
+      "prompts": {
+        "user": "## Issue\n{issue}\n\n## Workspace\n{workspace}\n\nThe available next agents are: patcher_a, patcher_b.\n- patcher_a is the deterministic path (temperature 0.0, seed 0); pick it for short description / error-message bugs.\n- patcher_b explores with higher temperature (0.2, seed 42); pick it when the bug seems to need real code-logic changes.\nReply with ONE line containing either 'patcher_a' or 'patcher_b'. No other text."
+      }
+    },
+    "patcher_a": {
+      "class": "PatcherAgent",
+      "model": "ollama/qwen3.5:9b", "think": true, "num_ctx": 16384, "stream": true,
+      "temperature": 0.0, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 2048, "stop": ["</patch>"],
+      "max_iters": 12,
+      "fallback": {"enabled": true, "guarantee_change": true}
+    },
+    "patcher_b": {
+      "class": "PatcherAgent",
+      "model": "ollama/qwen3.5:9b", "think": true, "num_ctx": 16384, "stream": true,
+      "temperature": 0.2, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 42,
+      "num_predict": 2048, "stop": ["</patch>"],
+      "max_iters": 12,
+      "fallback": {"enabled": true, "guarantee_change": true}
+    },
+    "reviewer": {
+      "class": "ReviewerAgent",
+      "model": "ollama/qwen3.5:9b", "think": true, "num_ctx": 4096, "stream": true,
+      "temperature": 0.0, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 1024, "stop": ["</review>"],
+      "max_iters": 6
+    },
+    "router": {
+      "class": "OrchestratorAgent",
+      "model": "ollama/qwen3.5:9b", "think": false, "num_ctx": 2048, "stream": true,
+      "temperature": 0.0, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 32, "stop": [],
+      "max_iters": 1,
+      "prompts": {
+        "user": "The reviewer produced this verdict:\n\n{predecessor}\n\nDecide the next step:\n- If the review indicates the patch is correct / passes / is good / resolves the issue, reply 'finalizer'.\n- If the review indicates the patch is wrong / fails / needs more work, reply 'hub' to retry with a different patcher.\n- When uncertain, default to 'finalizer'.\nReply with EXACTLY ONE word: 'finalizer' or 'hub'. No other text."
+      }
+    },
+    "finalizer": {
+      "class": "HelperProxyAgent",
+      "model": "ollama/qwen3.5:9b", "think": true, "num_ctx": 4096, "stream": true,
+      "temperature": 0.0, "top_k": 40, "top_p": 0.9, "min_p": 0.0,
+      "repeat_penalty": 1.1, "repeat_last_n": 64, "seed": 0,
+      "num_predict": 512, "stop": [],
+      "max_iters": 4
+    }
+  }
+}

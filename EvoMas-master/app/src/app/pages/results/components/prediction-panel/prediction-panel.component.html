@@ -19,7 +19,7 @@
   } @else {
     <div class="kv">
       <div class="k">File</div>
-      <div class="v mono small">{{ prediction.name }}</div>
+      <div class="v mono small" [title]="prediction.name">{{ prediction.name }}</div>
     </div>
     <div class="kv">
       <div class="k">Start of inference</div>
@@ -36,7 +36,7 @@
     </div>
     <div class="kv">
       <div class="k">Config used</div>
-      <div class="v mono small">{{ predictionConfigUsed }}</div>
+      <div class="v mono small" [title]="predictionConfigUsed">{{ predictionConfigUsed }}</div>
     </div>
     @if (prediction.data.tokens && prediction.data.tokens.total > 0) {
       <div class="kv">

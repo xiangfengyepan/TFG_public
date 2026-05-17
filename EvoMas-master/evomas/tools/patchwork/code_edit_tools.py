@@ -11,7 +11,7 @@ from langchain_core.tools import tool
 logger = logging.getLogger(__name__)
 
 
-from evomas.tools.openhands.tools import str_replace_editor as _editor
+from evomas.tools.openhands.StrReplaceEditorTool import StrReplaceEditorTool as _editor
 
 
 @tool

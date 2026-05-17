@@ -12,15 +12,15 @@
       },
       "tools": [
         {
-          "name": "sequential_thinking_tool",
+          "name": "SequentialThinkingTool",
           "source_url": "https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/sequential_thinking_tool.py#L39"
         },
         {
-          "name": "complete_tool",
+          "name": "CompleteTool",
           "source_url": "https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/complete_tool.py#L11"
         },
         {
-          "name": "str_replace_tool",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/augmentcode/augment-swebench-agent/blob/17d813385f50ec59d58fdfe1576f758ed3daaa4e/tools/str_replace_tool.py#L136"
         }
       ]

@@ -1,7 +1,7 @@
 /** Left-panel browser: search input, group-by-instance toggle, and the
  * two list shapes (flat instance list / job-grouped tree). Controlled —
  * parent owns selection state and supplies the filtered groupings. */
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EvoBoxComponent, EvoButtonComponent, EvoSwitchComponent } from '../../../../components/index';
@@ -41,4 +41,9 @@ export class InstanceTreePickerComponent {
   @Output() toggleJob = new EventEmitter<string>();
 
   isJobOpen(runId: string): boolean { return this.openJobs.has(`job/${runId}`); }
+
+  // ─── Collapse toggle ──────────────────────────────────────
+  collapsed = signal(false);
+  @HostBinding('class.collapsed') get isCollapsed(): boolean { return this.collapsed(); }
+  toggleCollapsed(): void { this.collapsed.set(!this.collapsed()); }
 }

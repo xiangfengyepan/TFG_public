@@ -50,7 +50,7 @@
       "prompts": {},
       "tools": [
         {
-          "name": "tools",
+          "name": "filter_mcp_tools",
           "source_url": "https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/tools.py#L63"
         }
       ]
@@ -63,7 +63,7 @@
       "prompts": {},
       "tools": [
         {
-          "name": "tools",
+          "name": "filter_mcp_tools",
           "source_url": "https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/tools.py#L63"
         }
       ]
@@ -76,7 +76,7 @@
       "prompts": {},
       "tools": [
         {
-          "name": "tools",
+          "name": "filter_mcp_tools",
           "source_url": "https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/sdk/kortix/tools.py#L63"
         }
       ]

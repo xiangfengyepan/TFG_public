@@ -13,9 +13,9 @@ from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
 from evomas.tools.suna import SUNA_TOOLS
-from evomas.tools.suna.tools import tools as suna_tools
+from evomas.tools.suna.filter_mcp_tools import filter_mcp_tools as suna_tools
 
-_EXPECTED_NAMES = ("tools",)
+_EXPECTED_NAMES = ("filter_mcp_tools",)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:

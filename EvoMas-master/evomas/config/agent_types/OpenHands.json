@@ -12,35 +12,35 @@
       },
       "tools": [
         {
-          "name": "think",
+          "name": "ThinkTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/think.py#L21"
         },
         {
-          "name": "str_replace_editor",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/str_replace_editor.py#L99"
         },
         {
-          "name": "ipython",
+          "name": "IPythonTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/ipython.py#L20"
         },
         {
-          "name": "llm_based_edit",
+          "name": "LLMBasedFileEditTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/llm_based_edit.py#L129"
         },
         {
-          "name": "condensation_request",
+          "name": "CondensationRequestTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/condensation_request.py#L12"
         },
         {
-          "name": "finish",
+          "name": "FinishTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/finish.py#L25"
         },
         {
-          "name": "bash",
+          "name": "CmdRunTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/bash.py#L49"
         },
         {
-          "name": "browser",
+          "name": "BrowserTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/5f958ab60d564cefce51e10b3ca94bc2994b6673/openhands/agenthub/codeact_agent/tools/browser.py#L154"
         }
       ]
@@ -63,23 +63,23 @@
       },
       "tools": [
         {
-          "name": "think",
+          "name": "ThinkTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/codeact_agent/tools/think.py#L21"
         },
         {
-          "name": "finish",
+          "name": "FinishTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/codeact_agent/tools/finish.py#L25"
         },
         {
-          "name": "grep",
+          "name": "GrepTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/tools/grep.py#L20"
         },
         {
-          "name": "glob",
+          "name": "GlobTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/tools/glob.py#L18"
         },
         {
-          "name": "view",
+          "name": "ViewTool",
           "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/readonly_agent/tools/view.py#L20"
         }
       ]

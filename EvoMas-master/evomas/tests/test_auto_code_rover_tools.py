@@ -1,23 +1,22 @@
 """MCP registration + shape assertions for `evomas.tools.auto_code_rover`.
 
-Mirrors the OpenHands-shaped checks in `evomas/tests/test_tools.py`: every
-`@tool`-decorated callable in `AUTO_CODE_ROVER_TOOLS` must be a LangChain `BaseTool`
-with a non-empty name/description, and MCP must expose each one through
-the default registry.
+After the `common.py` removal, the bundle exposes a single tool —
+`agent_write_patch`. This file mirrors the OpenHands-shaped checks in
+`evomas/tests/test_tools.py`: every `@tool`-decorated callable in
+`AUTO_CODE_ROVER_TOOLS` must be a LangChain `BaseTool` with a non-empty
+name/description, and MCP must expose each one through the default
+registry.
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-import pytest
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
 from evomas.tools.auto_code_rover import AUTO_CODE_ROVER_TOOLS, agent_write_patch
-from evomas.tools.auto_code_rover.common import common, record_tokens, reset
 
-_EXPECTED_NAMES = ("agent_write_patch", "common",)
+_EXPECTED_NAMES = ("agent_write_patch",)
 
 
 def test_tools_are_basetool_with_name_and_description() -> None:
@@ -40,29 +39,6 @@ def test_mcp_default_registry_exposes_every_tool() -> None:
     registered = set(MCPServer().registry.tools.keys())
     for name in _EXPECTED_NAMES:
         assert name in registered, f"{name!r} not in MCP registry"
-
-
-@pytest.fixture(autouse=True)
-def _reset_token_accumulator() -> None:
-    reset()
-
-
-def test_common_reports_zero_when_nothing_recorded() -> None:
-    out = json.loads(common.invoke({}))
-    assert out == {"prompt": 0, "completion": 0, "total": 0, "calls": 0}
-
-
-def test_common_reports_recorded_tokens() -> None:
-    record_tokens(prompt=10, completion=5)
-    record_tokens(prompt=3, completion=2)
-    out = json.loads(common.invoke({}))
-    assert out == {"prompt": 13, "completion": 7, "total": 20, "calls": 2}
-
-
-def test_common_reset_after_zeros_counter() -> None:
-    record_tokens(prompt=10, completion=5)
-    json.loads(common.invoke({"reset_after": True}))
-    assert json.loads(common.invoke({})) == {"prompt": 0, "completion": 0, "total": 0, "calls": 0}
 
 
 def test_agent_write_patch_applies_diff(buggy_repo: Path) -> None:

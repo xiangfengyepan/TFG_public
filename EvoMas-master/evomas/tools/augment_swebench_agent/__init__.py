@@ -1,13 +1,29 @@
 """augment_swebench_agent tool re-implementations.
 
-Mirror of `evomas.tools.openhands` for the augment_swebench_agent repo. Each tool is a
-LangChain `@tool`-decorated function exposed via `AUGMENT_SWEBENCH_AGENT_TOOLS` and registered
-with the MCP server in `evomas.mcp.server.default_registry`.
+Two augment-specific tools (`CompleteTool`, `SequentialThinkingTool`)
+plus a re-export of the canonical OpenHands `StrReplaceEditorTool` —
+augment's upstream `str_replace_tool` is the same exact-match editor;
+re-exporting avoids a duplicate MCP registration.
 """
-from evomas.tools.augment_swebench_agent.sequential_thinking_tool import sequential_thinking_tool
-from evomas.tools.augment_swebench_agent.complete_tool import complete_tool
-from evomas.tools.augment_swebench_agent.str_replace_tool import str_replace_tool
+from evomas.tools.augment_swebench_agent.SequentialThinkingTool import SequentialThinkingTool
+from evomas.tools.augment_swebench_agent.CompleteTool import CompleteTool
+# `StrReplaceEditorTool` is the canonical OpenHands editor — augment's
+# upstream `str_replace_tool` is the same tool under a different name.
+# Re-exporting (not duplicating) avoids the last-write-wins clobber the
+# lingma `search_code` collision exposed earlier.
+from evomas.tools.openhands.StrReplaceEditorTool import StrReplaceEditorTool
 
-AUGMENT_SWEBENCH_AGENT_TOOLS = (sequential_thinking_tool, complete_tool, str_replace_tool,)
+AUGMENT_SWEBENCH_AGENT_TOOLS = (
+    SequentialThinkingTool,
+    CompleteTool,
+    # StrReplaceEditorTool is NOT included here — already registered with
+    # MCP via the OpenHands bundle; the augment catalog's tool whitelist
+    # references it by name and MCP resolves to the canonical.
+)
 
-__all__ = ["AUGMENT_SWEBENCH_AGENT_TOOLS", "sequential_thinking_tool", "complete_tool", "str_replace_tool"]
+__all__ = [
+    "AUGMENT_SWEBENCH_AGENT_TOOLS",
+    "SequentialThinkingTool",
+    "CompleteTool",
+    "StrReplaceEditorTool",
+]

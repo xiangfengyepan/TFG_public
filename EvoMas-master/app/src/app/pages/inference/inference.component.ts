@@ -59,7 +59,6 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   /** True when the log panel is pinned to the bottom edge. */
   stickToBottom = true;
 
-  // ─── Custom-repo modal state ──────────────────────────────────
   customFormOpen = false;
   customRepo = '';
   customProblem = '';
@@ -202,11 +201,7 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   refreshSubset(subset: SwebenchSubset): void {
     if (this.refreshing || subset === 'custom') return;
-    const splits: SwebenchSplit[] = ['dev', 'test', 'train'].filter(
-      // narrow to splits this subset ships; same logic as in SUBSET_SPLITS
-      sp => true,
-    ) as SwebenchSplit[];
-    // Delegate to the per-leaf refresh, sequentially:
+    const splits: SwebenchSplit[] = ['dev', 'test', 'train'] as SwebenchSplit[];
     this.refreshing = true;
     this.refreshError = '';
     this.cdr.markForCheck();

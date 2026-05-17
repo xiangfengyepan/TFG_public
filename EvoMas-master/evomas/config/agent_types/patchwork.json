@@ -10,7 +10,7 @@
       "prompts": {},
       "tools": [
         {
-          "name": "tool",
+          "name": "workspace_manifest",
           "source_url": "https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/tool.py#L12"
         }
       ]
@@ -23,7 +23,7 @@
       "prompts": {},
       "tools": [
         {
-          "name": "tool",
+          "name": "workspace_manifest",
           "source_url": "https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/tool.py#L12"
         }
       ]
@@ -85,7 +85,7 @@
           "source_url": "https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/code_edit_tools.py#L95"
         },
         {
-          "name": "tool",
+          "name": "workspace_manifest",
           "source_url": "https://github.com/patched-codes/patchwork/blob/21948cbec44d3b7aec30715923ac7a0cd3fb1155/patchwork/common/tools/tool.py#L12"
         }
       ]

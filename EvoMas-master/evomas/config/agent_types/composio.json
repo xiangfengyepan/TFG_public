@@ -62,7 +62,7 @@
       },
       "tools": [
         {
-          "name": "openai_agents",
+          "name": "HostedMCPTool_openai_agents",
           "source_url": "https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/openai_agents.py#L12"
         }
       ]
@@ -77,7 +77,7 @@
       },
       "tools": [
         {
-          "name": "tool_router_mcp",
+          "name": "HostedMCPTool_tool_router_mcp",
           "source_url": "https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/tool_router_mcp.py#L35"
         }
       ]
@@ -132,7 +132,7 @@
       },
       "tools": [
         {
-          "name": "mcp",
+          "name": "MultiServerMCPClient_mcp",
           "source_url": "https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/mcp.py#L17"
         }
       ]
@@ -147,7 +147,7 @@
       },
       "tools": [
         {
-          "name": "langchain_agent",
+          "name": "MultiServerMCPClient_langchain_agent",
           "source_url": "https://github.com/ComposioHQ/composio/blob/e726e3c7eef0c8cfe567f1b505573c5049c218e5/python/examples/tool_router/langchain_agent.py#L17"
         }
       ]

@@ -23,8 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel
 
-# Module-level logger. The per-run text log gets attached as an extra
-# handler in worker() below; this logger feeds it.
+# worker() attaches a per-run file handler to this logger.
 logger = logging.getLogger(__name__)
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
@@ -598,11 +597,86 @@ def health() -> dict[str, str]:
 
 
 # ─── MCP tools (read-only) ────────────────────────────────────────────────────
+_TOOL_REPO_OWNER_CACHE: dict[str, str] | None = None
+
+
+def _tool_repo_owner_map() -> dict[str, str]:
+    """Build a `tool_name -> owner` map by importing each
+    `evomas.tools.<repo>/` bundle and recording every `@tool` it
+    exposes. Repeated calls hit a module-level cache so the imports
+    happen once per server boot. Tool names not present in any
+    bundle (the top-level helpers in `evomas/tools/*.py` registered
+    directly by `evomas.mcp.server:default_registry`) fall through
+    to the `"evomas"` owner.
+
+    Read-only against `evomas/` — we import the bundle tuples but
+    don't touch their contents."""
+    global _TOOL_REPO_OWNER_CACHE
+    if _TOOL_REPO_OWNER_CACHE is not None:
+        return _TOOL_REPO_OWNER_CACHE
+    # Owner label -> bundle tuple. Owners use the on-disk folder name
+    # under `evomas/tools/` so the frontend can render them as-is.
+    from evomas.tools.augment_swebench_agent import AUGMENT_SWEBENCH_AGENT_TOOLS
+    from evomas.tools.auto_code_rover import AUTO_CODE_ROVER_TOOLS
+    from evomas.tools.claude_coder import CLAUDE_CODER_TOOLS
+    from evomas.tools.composio import COMPOSIO_TOOLS
+    from evomas.tools.debug_gym import DEBUG_GYM_TOOLS
+    from evomas.tools.joycode_agent import JOYCODE_AGENT_TOOLS
+    from evomas.tools.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
+    from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_TOOLS
+    from evomas.tools.patchwork import PATCHWORK_TOOLS
+    from evomas.tools.suna import SUNA_TOOLS
+    from evomas.tools.swe_agent import SWE_AGENT_TOOLS
+    from evomas.tools.trae_agent import TRAE_AGENT_TOOLS
+    bundles: list[tuple[str, tuple]] = [
+        ("augment_swebench_agent", AUGMENT_SWEBENCH_AGENT_TOOLS),
+        ("auto_code_rover",        AUTO_CODE_ROVER_TOOLS),
+        ("claude_coder",           CLAUDE_CODER_TOOLS),
+        ("composio",               COMPOSIO_TOOLS),
+        ("debug_gym",              DEBUG_GYM_TOOLS),
+        ("joycode_agent",          JOYCODE_AGENT_TOOLS),
+        ("lingma_swe_gpt",         LINGMA_SWE_GPT_TOOLS),
+        # OpenHands ships two bundles under one folder — both get the
+        # same owner so the frontend renders them together.
+        ("openhands",              OPENHANDS_TOOLS),
+        ("openhands",              LOC_TOOLS),
+        ("patchwork",              PATCHWORK_TOOLS),
+        ("suna",                   SUNA_TOOLS),
+        ("swe_agent",              SWE_AGENT_TOOLS),
+        ("trae_agent",             TRAE_AGENT_TOOLS),
+    ]
+    out: dict[str, str] = {}
+    for owner, bundle in bundles:
+        for tool in bundle:
+            name = getattr(tool, "name", None)
+            if not name:
+                continue
+            # First-seen owner wins. Re-exports across bundles (e.g.
+            # augment re-exports StrReplaceEditorTool from openhands)
+            # don't overwrite the original owner since the same `tool`
+            # object's name was already inserted by the owning bundle.
+            out.setdefault(name, owner)
+    _TOOL_REPO_OWNER_CACHE = out
+    return out
+
+
 @app.get("/api/tools")
 def list_tools() -> list[dict[str, Any]]:
-    """Return the registered MCP tool catalog (name, description, inputSchema)."""
+    """Return the registered MCP tool catalog. Each entry is a
+    `{name, description, inputSchema, repo}` dict — `repo` is the
+    `evomas/tools/<repo>/` folder the tool was registered from, or
+    `"evomas"` for the top-level `evomas/tools/*.py` helpers
+    (`run_flake8`, `apply_patch`, `read_file`, etc.).
+
+    The frontend's tool-picker uses `repo` to group the dropdown
+    into one `<optgroup>` per owner — drop the per-repo hardcoded
+    list in the inspector once this endpoint is consumed."""
     from evomas.mcp.server import MCPServer
-    return MCPServer().registry.list()
+    owner_map = _tool_repo_owner_map()
+    catalog = MCPServer().registry.list()
+    for entry in catalog:
+        entry["repo"] = owner_map.get(entry.get("name", ""), "evomas")
+    return catalog
 
 
 # ─── Agent types (read-only) ──────────────────────────────────────────────────

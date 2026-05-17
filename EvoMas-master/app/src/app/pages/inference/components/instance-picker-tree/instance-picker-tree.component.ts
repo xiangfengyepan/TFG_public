@@ -3,7 +3,7 @@
  * "+ Custom" entrypoint. Owns its own derived state (which subset/split
  * is open, filter results) since the parent service holds expanded
  * sets and selected ids; computed helpers stay here. */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -90,4 +90,9 @@ export class InstancePickerTreeComponent {
   }
 
   onSearch(v: string): void { this.search = v; this.searchChange.emit(v); }
+
+  // ─── Collapse toggle ──────────────────────────────────────
+  collapsed = signal(false);
+  @HostBinding('class.collapsed') get isCollapsed(): boolean { return this.collapsed(); }
+  toggleCollapsed(): void { this.collapsed.set(!this.collapsed()); }
 }

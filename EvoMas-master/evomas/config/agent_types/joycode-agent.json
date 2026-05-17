@@ -12,15 +12,15 @@
       },
       "tools": [
         {
-          "name": "sequential_thinking_tool",
+          "name": "SequentialThinkingTool",
           "source_url": "https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/sequential_thinking_tool.py#L52"
         },
         {
-          "name": "complete_tool",
+          "name": "CompleteTool",
           "source_url": "https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/complete_tool.py#L11"
         },
         {
-          "name": "str_replace_tool",
+          "name": "StrReplaceEditorTool",
           "source_url": "https://github.com/jd-opensource/joycode-agent/blob/1bace2ab9f1d6345789cd6bb16aff32cca09b518/tools/str_replace_tool.py#L250"
         }
       ]

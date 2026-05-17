@@ -4,8 +4,8 @@ Mirror of `evomas.tools.openhands` for the debug_gym repo. Each tool is a
 LangChain `@tool`-decorated function exposed via `DEBUG_GYM_TOOLS` and registered
 with the MCP server in `evomas.mcp.server.default_registry`.
 """
-from evomas.tools.debug_gym.tool import tool
+from evomas.tools.debug_gym.EnvironmentTool import EnvironmentTool
 
-DEBUG_GYM_TOOLS = (tool,)
+DEBUG_GYM_TOOLS = (EnvironmentTool,)
 
-__all__ = ["DEBUG_GYM_TOOLS", "tool"]
+__all__ = ["DEBUG_GYM_TOOLS", "EnvironmentTool"]

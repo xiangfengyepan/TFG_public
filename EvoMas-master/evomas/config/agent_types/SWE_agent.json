@@ -14,7 +14,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -31,7 +31,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -48,7 +48,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -65,7 +65,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -82,7 +82,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -99,7 +99,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -116,7 +116,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -133,7 +133,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
@@ -150,7 +150,7 @@
       },
       "tools": [
         {
-          "name": "tools",
+          "name": "list_mcp_tools",
           "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/tools/tools.py#L227"
         }
       ]
