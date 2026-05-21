@@ -1,0 +1,17 @@
+/* Host flows inside the parent's flex column — `display: contents`
+ * keeps the existing layout untouched. */
+:host { display: contents; }
+
+/* ─── Palette ────────────────────────────────────────────── */
+.agent-palette {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.palette-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; margin-right: 4px; }

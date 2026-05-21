@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { AgentBlock, ConfigSummary, UnifiedConfig } from '../models/types';
+import { AgentBlock, ConfigSummary, OllamaModel, UnifiedConfig } from '../models/types';
+import type { SelectOption } from '../components/select/evo-select.component';
 
 /**
  * Single source of truth for the in-memory unified config currently being viewed
@@ -26,9 +27,19 @@ export class TopologyStateService {
   selectedAgent: string | null = null;
   selectedEdgeId: string | null = null;
 
-  // Available LLM models (populated from /api/models)
-  availableModels: string[] = [];
-  modelSelectOptions: string[] = [];
+  // Available LLM models (populated from /api/models). Each entry
+  // carries a `pulled` flag — pulled-locally entries are listed first
+  // by the backend, then unpulled catalog entries. The Inference page
+  // runs `ollama pull` for unpulled entries before a run starts.
+  availableModels: OllamaModel[] = [];
+  // Dropdown options for the inspector's model picker. `value` is the
+  // clean `<provider>/<model>` identifier (so `ngModel` round-trips
+  // cleanly), `label` may carry a `· pull` suffix to flag unpulled
+  // catalog entries. Built by `syncModelOptions()` so the list reflects
+  // both the locally-pulled set AND any model the active block already
+  // references (even if it's been removed from the registry catalog
+  // mid-session).
+  modelSelectOptions: SelectOption[] = [];
 
   // UI flags
   addEdgeMode = false;

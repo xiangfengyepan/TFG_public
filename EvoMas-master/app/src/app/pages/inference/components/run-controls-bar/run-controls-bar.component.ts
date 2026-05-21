@@ -3,6 +3,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ICON } from '../../../../icons';
 import {
   EvoButtonComponent, EvoSelectComponent, EvoSwitchComponent,
 } from '../../../../components/index';
@@ -13,7 +15,9 @@ import {
   imports: [
     CommonModule, FormsModule,
     EvoButtonComponent, EvoSelectComponent, EvoSwitchComponent,
+    NgIcon,
   ],
+  providers: [provideIcons(ICON)],
   templateUrl: './run-controls-bar.component.html',
   styleUrl: './run-controls-bar.component.css',
 })

@@ -3,6 +3,12 @@
     <div class="modal-card modal-card-full" (click)="$event.stopPropagation()">
       <div class="modal-title">
         Run log · <code>{{ title || '(unknown)' }}</code>
+        @if (logFileName) {
+          <span class="log-filename-pill"
+                [title]="'User-facing text log: results/predictions/logs/' + logFileName">
+            {{ logFileName }}
+          </span>
+        }
       </div>
       <div class="modal-body log-view-body">
         @if (loading) {

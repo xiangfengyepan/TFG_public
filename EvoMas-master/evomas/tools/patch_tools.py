@@ -3,7 +3,7 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from langchain_core.tools import tool
 
@@ -374,7 +374,7 @@ def apply_description_fix_impl(issue_text: str, repo_path: str) -> DescriptionFi
     if fix.get("error"):
         return {
             "ok": False, "bug_class": 1, "evidence": evidence,
-            "error": f"derive_description_fix failed: {fix['error']}",
+            "error": f"derive_description_fix failed: {fix.get('error')}",
         }
 
     new_string = str(fix.get("new_string", ""))
@@ -443,7 +443,7 @@ def apply_description_fix_impl(issue_text: str, repo_path: str) -> DescriptionFi
 
 
 @tool
-def apply_description_fix(issue_text: str, repo_path: str) -> dict:
+def apply_description_fix(issue_text: str, repo_path: str) -> dict[str, Any]:
     """Deterministic end-to-end fixer for class-1 description / error-message
     bugs. Detects the bug class, derives the verbatim replacement from the
     source docstring, builds a minimal unified diff, and applies it to the
@@ -464,4 +464,4 @@ def apply_description_fix(issue_text: str, repo_path: str) -> dict:
     Returns: `{ok, bug_class, evidence, ...}` — see `apply_description_fix_impl`
         for the full shape.
     """
-    return apply_description_fix_impl(issue_text, repo_path)
+    return dict(apply_description_fix_impl(issue_text, repo_path))

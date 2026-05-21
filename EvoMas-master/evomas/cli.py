@@ -1,18 +1,10 @@
-"""EvoMas command-line interface.
-
-Wraps every entry point listed in TODO.md's `## CLI` section so users can
-drive instance generation, prediction, evaluation, the FastAPI server, the
-Angular dev server, and a few Ollama-side conveniences from a single
-`evomas <subcommand>` command.
-
-Installed via `pip install -e .` from the repo root; the `[project.scripts]`
-table in `pyproject.toml` registers `evomas` against `evomas.cli:main`. The
-underlying generate_*/run_* scripts and start_*.ps1 scripts are invoked as
-subprocesses with all extra args forwarded verbatim, so adding a new flag
-upstream doesn't require touching this CLI.
-"""
+"""EvoMas CLI — single `evomas <subcommand>` entry covering instance
+generation, prediction, evaluation, dev servers, notebook export, and
+Ollama conveniences. Each subcommand subprocesses a `scripts/` entry
+point with extra args forwarded verbatim."""
 from __future__ import annotations
 
+import json
 import os
 import platform
 import subprocess
@@ -20,28 +12,59 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+import click
 import typer
+from typer.core import TyperGroup
 from dotenv import load_dotenv
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
-# Load the project's two .env files (evomas/ first, then api/ for overrides)
-# so subprocesses inherit OLLAMA_BASE_URL, WANDB_API_KEY, RESULTS_DIR, etc.
-# `override=False` matches the FastAPI server's loader and lets a shell
-# export win over the file value.
+# Two .env files (matches the FastAPI server loader) so subprocesses
+# inherit OLLAMA_BASE_URL, RESULTS_DIR, etc.
 load_dotenv(REPO_ROOT / "evomas" / ".env", override=False)
 load_dotenv(REPO_ROOT / "api" / ".env", override=False)
 
 app = typer.Typer(
     no_args_is_help=True,
     help="EvoMas command-line interface - drives instance generation, "
-         "prediction, evaluation, and the front-/back-end dev servers.",
+         "prediction, evaluation, notebook export, dev servers, and the "
+         "test runner.",
     add_completion=False,
 )
+class _OllamaPassthroughGroup(TyperGroup):
+    """Forwards unrecognised `evomas ollama <args>` to the local
+    `ollama` binary so `evomas ollama -- rm qwen3:8b` works without
+    wrapping every verb."""
+
+    def resolve_command(self, ctx: click.Context, args: list[str]):
+        try:
+            return super().resolve_command(ctx, args)
+        except click.UsageError:
+            # Bare `evomas ollama` still falls through to no_args_is_help.
+            if not args:
+                raise
+            forwarded = list(args)
+
+            def _passthrough() -> None:
+                raise typer.Exit(
+                    subprocess.run(
+                        ["ollama", *forwarded],
+                        env=_ollama_host_env(),
+                    ).returncode,
+                )
+
+            cmd = click.Command(name="<passthrough>", callback=_passthrough, params=[])
+            # `[]` so Click doesn't re-parse args; we already have them.
+            return cmd.name, cmd, []
+
+
 ollama_app = typer.Typer(
     no_args_is_help=True,
-    help="Local LLM lifecycle. All subcommands target the Ollama server "
-         "named by `OLLAMA_BASE_URL` in evomas/.env (default: localhost:11434).",
+    cls=_OllamaPassthroughGroup,
+    help="Local LLM lifecycle. Subcommands target the Ollama server named "
+         "by `OLLAMA_BASE_URL` in evomas/.env (default: localhost:11434)."
+         "\n\nUse `evomas ollama -- <args>` to forward arbitrary args to "
+         "the `ollama` binary, e.g. `evomas ollama -- rm qwen3:8b`.",
     add_completion=False,
 )
 run_app = typer.Typer(
@@ -55,12 +78,8 @@ app.add_typer(run_app, name="run")
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 def _ollama_host_env() -> dict[str, str]:
-    """Return an os.environ copy with `OLLAMA_HOST` set from `OLLAMA_BASE_URL`.
-
-    The Ollama CLI honors `OLLAMA_HOST` for remote targeting; the project's
-    .env exposes the URL form (`http://host:port`) so we strip the scheme
-    here before handing it to the CLI.
-    """
+    """os.environ copy with `OLLAMA_HOST` derived from `OLLAMA_BASE_URL`
+    (the Ollama CLI wants `host:port`, not the full URL)."""
     env = os.environ.copy()
     url = env.get("OLLAMA_BASE_URL", "").strip()
     if url:
@@ -70,7 +89,7 @@ def _ollama_host_env() -> dict[str, str]:
 
 
 def _run_script(script_name: str, extra_args: list[str]) -> int:
-    """Subprocess one of the `scripts/` entry points, forwarding extra args."""
+    """Subprocess a `scripts/<name>.py` entry point."""
     script_path = REPO_ROOT / "scripts" / script_name
     if not script_path.is_file():
         typer.echo(f"script not found: {script_path}", err=True)
@@ -82,11 +101,8 @@ def _run_script(script_name: str, extra_args: list[str]) -> int:
 
 
 def _run_shell_script(script_stem: str, extra_args: list[str]) -> int:
-    """Subprocess a `scripts/` entry point picking the right interpreter
-    for the current OS: `.ps1` via PowerShell on Windows, `.sh` via bash
-    on Linux/macOS. The two variants are kept in sync (same args, same
-    behaviour). `script_stem` is the filename WITHOUT extension, e.g.
-    ``"start_api"``."""
+    """Subprocess `scripts/<stem>.ps1` on Windows, `scripts/<stem>.sh`
+    elsewhere. Both variants are kept in sync."""
     if platform.system() == "Windows":
         script_path = REPO_ROOT / "scripts" / f"{script_stem}.ps1"
         cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
@@ -125,8 +141,7 @@ def ollama_list() -> None:
 def ollama_serve(
     cpu_only: bool = typer.Option(
         False, "--cpu-only",
-        help="Disable GPU acceleration by exporting OLLAMA_NO_CUDA=1 before serving "
-             "- mirrors the legacy `ollama_cpu_only.ps1` behaviour.",
+        help="Disable GPU acceleration by exporting OLLAMA_NO_CUDA=1 before serving.",
     ),
 ) -> None:
     """Start the Ollama server bound to the configured host.
@@ -140,8 +155,6 @@ def ollama_serve(
 
 
 # ─── run subcommands ──────────────────────────────────────────────────────────
-# Each command forwards every extra arg verbatim to the underlying script so
-# adding a new flag upstream doesn't need a corresponding CLI patch.
 _FORWARD_CTX = {"allow_extra_args": True, "ignore_unknown_options": True}
 
 
@@ -149,27 +162,26 @@ _FORWARD_CTX = {"allow_extra_args": True, "ignore_unknown_options": True}
     "instances",
     context_settings=_FORWARD_CTX,
     help=(
-        "Generate the SWE-bench instances JSONL. Wraps "
-        "scripts/generate_swebench_instances.py; pulls a slice of the "
-        "HuggingFace dataset and writes it as JSONL for the prediction step."
-        " Pass --custom-repo + --custom-problem to append one synthetic "
+        "Generate the SWE-bench instances JSONL. Pulls a slice of the "
+        "HuggingFace dataset and writes it as JSONL for the prediction step. "
+        "Pass --custom-repo + --custom-problem to append one synthetic "
         "custom-repo row instead of pulling from HuggingFace."
-        "\n\nExample:  evomas run instances --subset lite --split dev --limit 5"
-        "\nExample:  evomas run instances --custom-repo owner/name --custom-problem \"calc returns difference\""
+        "\n\nExample:  evomas run instances --subset lite --split dev --output swebench_instances.jsonl --limit 5"
+        "\nExample:  evomas run instances --subset lite --split custom --output swebench_instances.jsonl --custom-repo owner/name --custom-problem \"calc returns difference\""
     ),
 )
 def run_instances(
     ctx: typer.Context,
     subset: str = typer.Option(
-        "lite", "--subset",
+        ..., "--subset",
         help="SWE-bench subset to pull: lite | full | verified.",
     ),
     split: str = typer.Option(
-        "dev", "--split",
-        help="Dataset split: dev | test.",
+        ..., "--split",
+        help="Dataset split: dev | test | train.",
     ),
     output: str = typer.Option(
-        "swebench_instances.jsonl", "--output",
+        ..., "--output",
         help="Output JSONL path.",
     ),
     limit: Optional[int] = typer.Option(
@@ -224,29 +236,27 @@ def run_instances(
     "prediction",
     context_settings=_FORWARD_CTX,
     help=(
-        "Generate EvoMas predictions for the instances JSONL. Wraps "
-        "scripts/generate_evomas_predictions.py; runs the configured "
-        "LangGraph topology against each instance and emits one "
-        "model_patch per line into the predictions JSONL."
-        "\n\nExample:  evomas run prediction --instances swebench_instances.jsonl --config chain"
+        "Generate EvoMas predictions for the instances JSONL. Runs the "
+        "configured LangGraph topology against each instance and emits "
+        "one model_patch per line into the predictions JSONL."
+        "\n\nExample:  evomas run prediction --instances swebench_instances.jsonl --output evomas_predictions.jsonl --config chain"
     ),
 )
 def run_prediction(
     ctx: typer.Context,
     instances: str = typer.Option(
-        "swebench_instances.jsonl", "--instances",
+        ..., "--instances",
         help="Path to the JSONL produced by `evomas run instances`.",
     ),
     output: str = typer.Option(
-        "evomas_predictions.jsonl", "--output",
+        ..., "--output",
         help="Output predictions JSONL.",
     ),
     config: str = typer.Option(
-        "", "--config",
+        ..., "--config",
         help=(
-            "Unified config to run. Either a stem resolved against "
-            "evomas/config/<stem>.json (e.g. 'chain', 'openhands') or an "
-            "explicit path to a config JSON. Empty = topology default."
+            "Config name (resolved against evomas/config/predefined/ then "
+            "loaded/) or a path to a JSON file."
         ),
     ),
     limit: Optional[int] = typer.Option(
@@ -255,10 +265,8 @@ def run_prediction(
     ),
 ) -> None:
     forwarded: list[str] = [
-        "--instances", instances, "--output", output,
+        "--instances", instances, "--output", output, "--config", config,
     ]
-    if config:
-        forwarded += ["--config", config]
     if limit is not None:
         forwarded += ["--limit", str(limit)]
     forwarded.extend(ctx.args)
@@ -269,42 +277,63 @@ def run_prediction(
     "evaluation",
     context_settings=_FORWARD_CTX,
     help=(
-        "Run SWE-bench evaluation on a predictions JSONL. Wraps "
-        "scripts/run_swebench_evaluation.py; drives the upstream "
-        "SWE-bench harness via Docker (one container per instance per "
-        "worker). Run from WSL with the SWE-bench venv active. "
-        "Requires Docker Desktop."
-        "\n\nExample:  evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --split dev"
+        "Run SWE-bench evaluation on a predictions JSONL."
+        "\n\n  --local  (default) - runs the SWE-bench harness via Docker "
+        "(one container per instance per worker; requires Docker Desktop)."
+        "\n  --remote - submits to the swebench.com leaderboards via "
+        "sb-cli (requires SWEBENCH_API_KEY)."
+        "\n\nExample (local):   evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --split dev"
+        "\nExample (remote):  evomas run evaluation --remote --predictions evomas_predictions.jsonl --subset lite --split dev"
     ),
 )
 def run_evaluation(
     ctx: typer.Context,
     predictions: str = typer.Option(
-        "evomas_predictions.jsonl", "--predictions",
+        ..., "--predictions",
         help="Path to the predictions JSONL.",
     ),
     split: str = typer.Option(
-        "dev", "--split",
-        help="Dataset split: dev | test | train.",
+        ..., "--split",
+        help="Dataset split: dev | test | train. Remote only supports dev/test.",
     ),
     subset: str = typer.Option(
-        "lite", "--subset",
-        help="SWE-bench subset to score against: lite | full | verified.",
+        ..., "--subset",
+        help=(
+            "SWE-bench subset. Local accepts lite | full | verified. "
+            "Remote accepts lite | verified | multimodal (the hosted "
+            "API has no 'full' subset)."
+        ),
     ),
     max_workers: int = typer.Option(
         8, "--max-workers",
-        help="Parallel harness workers.",
+        help="Parallel harness workers (local only - ignored when --remote).",
     ),
     run_id: Optional[str] = typer.Option(
         None, "--run-id",
-        help="Override the auto-generated `evomas-<split>-<date>` run id.",
+        help="Override the auto-generated `evomas-<split>-<timestamp>` run id.",
     ),
     report_dir: Optional[str] = typer.Option(
         None, "--report-dir",
-        help="Where the harness writes reports (default: harness default).",
+        help="Where reports land. Default: `./sb-cli-reports` for --remote.",
+    ),
+    remote: bool = typer.Option(
+        False, "--remote/--local",
+        help="Run remotely via sb-cli (--remote) or locally via the Docker harness (--local, default).",
     ),
 ) -> None:
-    forwarded: list[str] = [
+    if remote:
+        # Remote only forwards common args; max-workers is local-only.
+        forwarded: list[str] = [
+            "--predictions", predictions, "--split", split, "--subset", subset,
+        ]
+        if run_id:
+            forwarded += ["--run-id", run_id]
+        if report_dir:
+            forwarded += ["--output-dir", report_dir]
+        forwarded.extend(ctx.args)
+        raise typer.Exit(_run_script("run_swebench_evaluation_remote.py", forwarded))
+
+    forwarded = [
         "--predictions", predictions, "--split", split, "--subset", subset,
         "--max-workers", str(max_workers),
     ]
@@ -319,7 +348,7 @@ def run_evaluation(
 # ─── server entry points ──────────────────────────────────────────────────────
 @app.command()
 def web() -> None:
-    """Start the Angular frontend dev server (scripts/start_frontend.{ps1,sh}).
+    """Start the Angular frontend dev server.
 
     Example:  evomas web
     """
@@ -328,7 +357,7 @@ def web() -> None:
 
 @app.command()
 def api() -> None:
-    """Start the FastAPI backend (scripts/start_api.{ps1,sh}).
+    """Start the FastAPI backend.
 
     Example:  evomas api
     """
@@ -340,22 +369,22 @@ def api() -> None:
     "apply",
     context_settings=_FORWARD_CTX,
     help=(
-        "Apply a prediction's patch to its repo and run the project's tests. "
-        "Wraps scripts/apply_and_test.py. With --instance-id, only the matching "
-        "row in both --predictions and --instances is processed."
-        "\n\nExample:  evomas apply --predictions evomas_predictions.jsonl --instance-id sqlfluff__sqlfluff-1625"
-        "\nExample:  evomas apply --instance-id custom-evomas-buggy-1 --report-dir results/evaluations"
+        "Apply a prediction's patch to its repo and run the project's "
+        "tests. With --instance-id, only the matching row in both "
+        "--predictions and --instances is processed."
+        "\n\nExample:  evomas apply --predictions evomas_predictions.jsonl --instances swebench_instances.jsonl --instance-id sqlfluff__sqlfluff-1625"
+        "\nExample:  evomas apply --predictions evomas_predictions.jsonl --instances swebench_instances.jsonl --instance-id custom-<owner>-<name>-<short-sha> --report-dir results/evaluations"
     ),
 )
 def apply(
     ctx: typer.Context,
     predictions: str = typer.Option(
-        "evomas_predictions.jsonl", "--predictions",
-        help="Path to the predictions JSONL.",
+        ..., "--predictions",
+        help="Path to the JSONL produced by `evomas run prediction`.",
     ),
     instances: str = typer.Option(
-        "swebench_instances.jsonl", "--instances",
-        help="Path to the instances metadata JSONL.",
+        ..., "--instances",
+        help="Path to the JSONL produced by `evomas run instances`.",
     ),
     instance_id: Optional[str] = typer.Option(
         None, "--instance-id",
@@ -431,6 +460,46 @@ def test(
         forwarded.append("--integration")
     forwarded.extend(ctx.args)
     raise typer.Exit(_run_script("run_tests.py", forwarded))
+
+
+# ─── notebook export ─────────────────────────────────────────────────────────
+@app.command(
+    "notebook",
+    help=(
+        "Export a reproduce-this-run Jupyter notebook (.ipynb) for a "
+        "prediction JSONL. Mirrors the Results page's 'Notebook' button. "
+        "Best with UI-produced predictions -- they carry a config "
+        "snapshot that fills the notebook's CONFIG cell."
+        "\n\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl"
+        "\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl --output ~/Downloads/reproduce.ipynb"
+    ),
+)
+def notebook(
+    predictions: str = typer.Option(
+        ..., "--predictions",
+        help="Path to the prediction JSONL (the file produced by "
+             "`evomas run prediction` or the Inference page).",
+    ),
+    output: Optional[str] = typer.Option(
+        None, "--output",
+        help="Where to write the .ipynb. Defaults to "
+             "`./<prediction-stem>.ipynb` in the current directory.",
+    ),
+) -> None:
+    # Same builder the API endpoint uses — keeps CLI + UI byte-identical.
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from api.routers.results import build_notebook_for_prediction
+    pred_path = Path(predictions).resolve()
+    try:
+        run_id, nb = build_notebook_for_prediction(pred_path)
+    except FileNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(1)
+    out_path = Path(output) if output else Path.cwd() / f"{pred_path.stem}.ipynb"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(nb, indent=1), encoding="utf-8")
+    typer.echo(f"Wrote reproduce-this-run notebook for {run_id} -> {out_path}")
 
 
 def main() -> None:

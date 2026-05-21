@@ -10,6 +10,8 @@ import { Component, EventEmitter, HostBinding, Input, Output, signal } from '@an
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ICON } from '../../../../icons';
 import { PredictionInspection } from '../../../../models/types';
 import { ResultStats } from '../../../../services/evaluation-run.service';
 import {
@@ -22,7 +24,9 @@ import {
   imports: [
     CommonModule, FormsModule,
     EvoBoxComponent, EvoButtonComponent, EvoSelectComponent, EvoSpinboxComponent,
+    NgIcon,
   ],
+  providers: [provideIcons(ICON)],
   templateUrl: './eval-config-panel.component.html',
   styleUrl: './eval-config-panel.component.css',
 })

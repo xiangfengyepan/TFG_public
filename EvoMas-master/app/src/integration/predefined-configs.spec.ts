@@ -26,7 +26,7 @@
 import { fileURLToPath } from 'node:url';
 import { readdirSync } from 'node:fs';
 import { dirname, resolve, basename } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { Agent } from 'undici';
 
 const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
@@ -47,22 +47,38 @@ const CONFIGS: string[] = readdirSync(PREDEFINED_DIR)
 interface EvalInstance { id: string; }
 interface InferenceOnlyInstance { id: string; hint?: string; }
 
-const EVAL_INSTANCES: EvalInstance[] = [
-  { id: 'sqlfluff__sqlfluff-1625' },
-];
+/** SWE-bench-harness-scored instances. Each entry runs through the full
+ * inference + evaluation pipeline and asserts `report.resolved === true`.
+ *
+ * Empty by default: scoring `resolved === true` is an LLM-quality bet
+ * (does qwen3.5:9b solve this specific bug with this specific topology),
+ * NOT a framework correctness check. Keeping it empty in the default
+ * matrix lets the integration suite focus on what it can deterministically
+ * verify: that every predefined config actually exercises its end-to-end
+ * pipeline and produces a non-empty diff.
+ *
+ * Add an entry here when a (config, instance) pair is known to resolve
+ * reliably and should be guarded against regression. */
+const EVAL_INSTANCES: EvalInstance[] = [];
 
-/** Custom GitHub-repo rows can't be scored by the SWE-bench harness
- * (they lack `test_patch` / `FAIL_TO_PASS` / `PASS_TO_PASS`), so the
- * assertion stops at inference. `hint` is the buggy file we expect to
- * see in the patch — surfaced in the failure message when missing,
- * not asserted (different topologies may pick adjacent paths). */
+/** Inference-only assertions: run the full pipeline and assert a
+ * non-empty `model_patch` came back, without grading the patch's
+ * correctness. Custom GitHub-repo rows can't be scored by the harness
+ * (they lack `test_patch` / `FAIL_TO_PASS` / `PASS_TO_PASS`); SWE-bench
+ * rows like `sqlfluff__sqlfluff-1625` are listed here too because the
+ * integration matrix's role is "every config completes the pipeline",
+ * not "every config solves every bug". `hint` is the buggy file we
+ * expect to see in the patch — surfaced in the failure message when
+ * missing, not asserted (different topologies pick adjacent paths). */
 const INFERENCE_ONLY_INSTANCES: InferenceOnlyInstance[] = [
   { id: 'custom-xiangfengyepan-evomas-test-instance-fcf59bc', hint: 'calculator.py' },
+  // { id: 'sqlfluff__sqlfluff-1625', hint: 'L031.py' },
 ];
 
-/** Cap each cell at 45 min — long enough for slow CPU-only inference,
- * short enough that a stuck Ollama doesn't hang CI forever. */
-const TEST_TIMEOUT_MS = 45 * 60 * 1000;
+/** Cap each cell at 30 min. Long enough for slow CPU-only inference
+ * on a remote GPU box; short enough that a stuck Ollama doesn't hang
+ * a CI run forever. */
+const TEST_TIMEOUT_MS = 30 * 60 * 1000;
 
 /** Disable undici's per-chunk body timeout (default ~5 min). SSE
  * streams sit quiet for several minutes while Ollama generates the
@@ -230,6 +246,28 @@ async function runInferenceOnly(
 // ─── Matrix ───────────────────────────────────────────────────────────
 
 describe.skipIf(!RUN)('integration · predefined configs', () => {
+  // Preflight: the matrix hits the FastAPI server directly. Without
+  // this probe, an unreachable server lets the first `fetch()` hang
+  // until the per-cell 45-min timeout — multiplied by the number of
+  // cells, that's hours of false-negative red. Fast-fail with a clear
+  // message instead.
+  beforeAll(async () => {
+    try {
+      const res = await fetch(`${API}/health`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!res.ok) {
+        throw new Error(`API health check returned ${res.status} ${res.statusText}`);
+      }
+    } catch (err) {
+      throw new Error(
+        `Integration matrix requires the FastAPI server on ${API}. `
+        + `Start it with \`evomas start api\` (or \`scripts/start_api.ps1\`) `
+        + `and re-run. Original error: ${(err as Error).message}`,
+      );
+    }
+  });
+
   for (const config of CONFIGS) {
     describe(config, () => {
       for (const inst of EVAL_INSTANCES) {

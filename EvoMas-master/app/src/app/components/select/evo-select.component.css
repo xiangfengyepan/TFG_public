@@ -27,13 +27,16 @@
 .evo-select-box.disabled .evo-select { opacity: 0.4; cursor: not-allowed; }
 .evo-select-arrow {
   position: absolute;
-  right: 9px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
-  font-size: 10px;
+  font-size: 14px;
+  line-height: 1;
   color: var(--text-muted);
   transition: transform 0.15s ease;
 }
-.evo-select-arrow.open { transform: rotate(180deg); }
+.evo-select-arrow.open { transform: translateY(-50%) rotate(180deg); }
 
 /* ─── Grouped panel (custom popover) ──────────────────────────────────
  * Triggered when `[optgroups]` is provided AND non-empty. Replaces the

@@ -188,16 +188,16 @@ def test_fan_in_with_shared_accumulator_does_not_crash() -> None:
 
 
 def _stub_orchestrator(name: str, canned_output: str) -> Any:
-    """Build a real OrchestratorAgent-typed stub that bypasses BaseAgent's
+    """Build a real Orchestrator-typed stub that bypasses BaseAgent's
     MCP-server / model-init plumbing. The router's `isinstance` check
     fires off the class, not on agent behavior, so we just need an
     instance of the right type with a predictable `run()` return."""
-    from evomas.agents.types.orchestrator import OrchestratorAgent
+    from evomas.agents.types.orchestrator import Orchestrator
 
-    class _StubOrchestrator(OrchestratorAgent):  # noqa: N801 — internal test helper
+    class _StubOrchestrator(Orchestrator):  # noqa: N801 — internal test helper
         def __init__(self, n: str, out: str) -> None:
             # Skip BaseAgent.__init__ — we don't need an LLM or MCP server,
-            # only an instance that satisfies `isinstance(agent, OrchestratorAgent)`.
+            # only an instance that satisfies `isinstance(agent, Orchestrator)`.
             self.name = n  # type: ignore[misc]
             self.predecessor_name = None
             self._out = out
@@ -221,7 +221,7 @@ class _StarState(TypedDict, total=False):
 
 
 def test_orchestrator_routes_to_named_target() -> None:
-    """An OrchestratorAgent hub with ≥2 outgoing edges should trigger
+    """An Orchestrator hub with ≥2 outgoing edges should trigger
     LLM-driven routing: only the spoke whose name appears in the hub's
     output runs."""
     cfg = {
@@ -276,7 +276,7 @@ def test_orchestrator_falls_back_to_all_targets_on_garbage() -> None:
 
 
 def test_orchestrator_with_single_outgoing_edge_uses_static_wire() -> None:
-    """An OrchestratorAgent with exactly ONE outgoing edge should not
+    """An Orchestrator with exactly ONE outgoing edge should not
     install a conditional router (nothing to choose between). Proves the
     `len(targets) >= 2` guard."""
     cfg = {
@@ -427,3 +427,64 @@ def test_multi_fan_out_and_fan_in_propagate_state() -> None:
     for tag in ("[source]", "[a]", "[b]", "[c]", "[sink]"):
         assert tag in final["thinking"], f"thinking missing {tag}: {final['thinking']!r}"
     assert set(final["errors"]) == {"[source]", "[a]", "[b]", "[c]", "[sink]"}
+
+
+# ─── Orchestrator cannot route to END ───────────────────────────────
+
+
+def test_orchestrator_cannot_route_to_end_candidate() -> None:
+    """An Orchestrator's conditional router only dispatches to its
+    declared targets — `END` is NOT added to the candidate set even
+    when the orchestrator is listed in `end`. A topology that wants
+    the orchestrator to terminate the run must route to a terminal
+    worker node (e.g. a `HelperProxyAgent` finalizer) whose own
+    degree-0 end status gives it the static `→ END` wire."""
+    cfg = {
+        "entry": "hub",
+        "end": ["hub"],   # hub IS in end, but has outgoing edges
+        "edges": [
+            {"from": "hub", "to": "patcher_a"},
+            {"from": "hub", "to": "patcher_b"},
+            {"from": "patcher_a", "to": "hub"},
+            {"from": "patcher_b", "to": "hub"},
+        ],
+    }
+    # Hub emits the literal word "END". With the framework rule
+    # removed, this must NOT terminate the run via routing — the
+    # router falls back to all candidates because no declared
+    # target name appears in the reply.
+    agents: dict[str, Any] = {
+        "hub":       _stub_orchestrator("hub", "END"),
+        "patcher_a": _fake_agent("patcher_a"),
+        "patcher_b": _fake_agent("patcher_b"),
+    }
+    agents["patcher_a"].run = lambda s: {"patcher_a": "A ran"}
+    agents["patcher_b"].run = lambda s: {"patcher_b": "B ran"}
+
+    graph = build_graph(cfg, agents, _StarState)
+    # With "END" not in the candidate set the router falls back to
+    # both spokes, they route back to hub, hub repeats — there's no
+    # terminator. The graph must hit LangGraph's recursion-limit cap
+    # rather than terminating via routing. Catching the cap proves
+    # the END candidate was NOT silently injected.
+    from langgraph.errors import GraphRecursionError
+    with pytest.raises(GraphRecursionError):
+        graph.invoke({"thinking": "", "errors": []}, {"recursion_limit": 6})
+
+
+def test_non_orchestrator_in_end_with_outgoing_edges_compiles() -> None:
+    """A non-Orchestrator listed in `end` with outgoing edges
+    cannot terminate via routing (only Orchestrators go through
+    the conditional-edge path, and even they cannot pick `END`).
+    The graph still compiles cleanly; the validator surfaces this
+    as an error pre-flight. Verifies the wiring loop is consistent."""
+    cfg = {
+        "entry": "a",
+        "end": ["a", "b"],   # `a` has outgoing edges, `b` is degree-0
+        "edges": [{"from": "a", "to": "b"}],
+    }
+    agents = _agents("a", "b")
+    # Compiling shouldn't raise. The degree-0 end `b` keeps the run
+    # well-formed; `a`-as-end is a no-op (no router, no extra END wire).
+    graph = build_graph(cfg, agents, _State)
+    assert graph is not None

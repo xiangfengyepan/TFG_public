@@ -27,6 +27,14 @@ if [ -f "$ENV_FILE" ]; then
     done < "$ENV_FILE"
 fi
 
+# Venv installed by setup.sh to `~/.evomas-venv` (in the user's home so
+# the repo stays free of build artefacts).
+VENV_DIR="$HOME/.evomas-venv"
+UVICORN="$VENV_DIR/bin/uvicorn"
+if [ ! -x "$UVICORN" ]; then
+    echo "[start_api] uvicorn not found at $UVICORN -- run ./setup.sh first." >&2
+    exit 1
+fi
 echo "Starting EvoMas API server on http://${API_HOST}:${API_PORT}"
-exec "$REPO_ROOT/evomas/venv/bin/uvicorn" --app-dir "$REPO_ROOT/api" server:app \
+exec "$UVICORN" --app-dir "$REPO_ROOT/api" server:app \
     --host "$API_HOST" --port "$API_PORT" --reload

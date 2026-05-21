@@ -41,7 +41,7 @@ CANONICAL_TYPES: tuple[str, ...] = (
     "Locator",
     "Patcher",
     "Helper/Proxy",
-    "Planner/Orchestrator",
+    "Orchestrator",
     "Base agent",
     "Bug reproduction",
     "Environment setup",
@@ -53,9 +53,9 @@ _TYPE_ALIASES: dict[str, str] = {
     "helper/proxy": "Helper/Proxy",
     "helper": "Helper/Proxy",
     "proxy": "Helper/Proxy",
-    "planner/orchestrator": "Planner/Orchestrator",
-    "planner": "Planner/Orchestrator",
-    "orchestrator": "Planner/Orchestrator",
+    "planner/orchestrator": "Orchestrator",
+    "planner": "Orchestrator",
+    "orchestrator": "Orchestrator",
     "base agent": "Base agent",
     "bug reproduction": "Bug reproduction",
     "environment setup": "Environment setup",
@@ -295,7 +295,7 @@ def _write_tool_stubs(
     repo_label: str,
     csv_name: str,
     json_name: str,
-    tool_names: list[str],
+    tool_names: list[dict[str, str]],
 ) -> None:
     pkg_dir = out_tools_root / repo_snake
     pkg_dir.mkdir(parents=True, exist_ok=True)

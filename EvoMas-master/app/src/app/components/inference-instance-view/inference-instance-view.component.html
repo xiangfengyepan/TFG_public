@@ -14,25 +14,25 @@
   <div class="instance-placeholder" [class]="'placeholder-' + instance.status">
     @switch (instance.status) {
       @case ('queued') {
-        <span class="ph-icon">⏳</span>
+        <span class="ph-icon"><ng-icon name="hourglass" /></span>
         <span class="ph-text">
           Waiting for execution… <code>{{ instance.instance_id }}</code> is queued.
         </span>
       }
       @case ('cancelled') {
-        <span class="ph-icon">■</span>
+        <span class="ph-icon"><ng-icon name="stop" /></span>
         <span class="ph-text">
           Cancelled before <code>{{ instance.instance_id }}</code> started running.
         </span>
       }
       @case ('error') {
-        <span class="ph-icon">!</span>
+        <span class="ph-icon"><ng-icon name="warn" /></span>
         <span class="ph-text">
           <code>{{ instance.instance_id }}</code> errored without producing any logs.
         </span>
       }
       @case ('done') {
-        <span class="ph-icon">✓</span>
+        <span class="ph-icon"><ng-icon name="check" /></span>
         <span class="ph-text">
           <code>{{ instance.instance_id }}</code> completed without per-agent events.
         </span>
@@ -52,7 +52,7 @@
 }
 
 @for (card of cards; track $index) {
-  @for (chip of handoffsFor(card.agent); track $index) {
+  @for (chip of handoffsFor(card); track $index) {
     <button type="button"
             class="handoff-chip"
             (click)="openHandoffPreview(chip)"
@@ -72,7 +72,7 @@
       } @else {
         <evo-badge variant="ok">done</evo-badge>
       }
-      <span class="card-chevron">{{ card.expanded ? '▾' : '▸' }}</span>
+      <ng-icon class="card-chevron" [name]="card.expanded ? 'chevronDown' : 'chevronRight'" />
     </div>
     @if (card.expanded) {
       <div class="card-body">

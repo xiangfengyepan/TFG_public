@@ -29,11 +29,11 @@
                     [disabled]="running"
                     (clicked)="predictionFile.click()"
                     title="Browse to a .jsonl prediction file (must live under results/predictions/)">
-          📁
+          <ng-icon name="folder" />
         </evo-button>
         <evo-button size="sm"
                     (clicked)="refreshPredictions.emit()"
-                    title="Refresh predictions list">↺</evo-button>
+                    title="Refresh predictions list"><ng-icon name="refresh" /></evo-button>
       </div>
       @if (filePickerError) {
         <div class="hint-text err">{{ filePickerError }}</div>
@@ -95,7 +95,7 @@
       </div>
     } @else if (hasCustomMixed) {
       <div class="hint-text" style="margin-bottom:6px; color: var(--warn, #e3b341)">
-        ⚠ This file mixes custom-repo rows with SWE-bench rows. SWE-bench rows
+        <ng-icon name="warn" /> This file mixes custom-repo rows with SWE-bench rows. SWE-bench rows
         go through the harness first; the customs are scored afterwards via
         <code>pytest</code> on the cloned repo.
       </div>
@@ -106,10 +106,10 @@
         <evo-button variant="success"
                     [disabled]="!predictionsPath"
                     (clicked)="run.emit()">
-          ▶ Run Evaluation
+          <ng-icon name="play" /> Run Evaluation
         </evo-button>
       } @else {
-        <evo-button variant="danger" (clicked)="cancel.emit()">■ Cancel</evo-button>
+        <evo-button variant="danger" (clicked)="cancel.emit()"><ng-icon name="stop" /> Cancel</evo-button>
       }
     </div>
 

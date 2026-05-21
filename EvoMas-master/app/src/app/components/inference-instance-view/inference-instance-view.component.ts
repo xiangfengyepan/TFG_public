@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ICON } from '../../icons';
 import { AgentCard, RunInstance } from '../../services/inference-run.service';
 import { HandoffChip } from '../../models/types';
 import { EvoBadgeComponent } from '../badge/evo-badge.component';
@@ -15,7 +17,8 @@ import { EvoBadgeComponent } from '../badge/evo-badge.component';
 @Component({
   selector: 'app-inference-instance-view',
   standalone: true,
-  imports: [CommonModule, EvoBadgeComponent],
+  imports: [CommonModule, EvoBadgeComponent, NgIcon],
+  providers: [provideIcons(ICON)],
   changeDetection: ChangeDetectionStrategy.Default,
   templateUrl: './inference-instance-view.component.html',
   styleUrl: './inference-instance-view.component.css',
@@ -43,10 +46,14 @@ export class InferenceInstanceViewComponent {
   get errorMsg(): string { return this.instance?.errorMsg ?? ''; }
   get errorTraceback(): string { return this.instance?.errorTraceback ?? ''; }
 
-  /** Hand-off chips arriving AT the given agent. Drives the chip loop
-   * rendered immediately before each agent card. */
-  handoffsFor(agent: string): HandoffChip[] {
-    return this.instance?.handoffsByTarget?.[agent] ?? [];
+  /** Hand-off chips that triggered THIS specific card's iteration —
+   * pulled directly off the card now that the service drains the
+   * pending-incoming queue at spawn time. A previous version of this
+   * method indexed a globally-keyed map by agent name, which made
+   * every retry card of a cyclic agent re-render every chip ever
+   * sent to that agent. */
+  handoffsFor(card: AgentCard): HandoffChip[] {
+    return card.incomingChips ?? [];
   }
 
   // ─── Card expand / collapse ─────────────────────────────────────

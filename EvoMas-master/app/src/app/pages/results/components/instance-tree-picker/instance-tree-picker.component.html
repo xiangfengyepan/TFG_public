@@ -1,7 +1,7 @@
 <evo-box title="Instances" [hasActions]="true" class="left-box" [noPad]="true">
   <ng-container box-actions>
     @if (!collapsed()) {
-      <evo-button size="sm" (clicked)="refresh.emit()" title="Refresh">↺</evo-button>
+      <evo-button size="sm" (clicked)="refresh.emit()" title="Refresh"><ng-icon name="refresh" /></evo-button>
     }
     <button type="button" class="rail-toggle"
             (click)="toggleCollapsed()"
@@ -46,7 +46,7 @@
       @for (job of jobGroups; track job.runId) {
         <div class="inst-group">
           <button class="inst-group-head clickable" type="button" (click)="toggleJob.emit(job.runId)">
-            <span class="caret">{{ isJobOpen(job.runId) ? '▾' : '▸' }}</span>
+            <ng-icon class="caret" [name]="isJobOpen(job.runId) ? 'chevronDown' : 'chevronRight'" />
             <span class="inst-group-tag mono">{{ job.runId }}</span>
             <span class="inst-group-count">{{ job.entries.length }}</span>
           </button>

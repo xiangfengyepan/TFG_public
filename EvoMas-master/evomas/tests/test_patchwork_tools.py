@@ -13,8 +13,8 @@ from pathlib import Path
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.patchwork import PATCHWORK_TOOLS
-from evomas.tools.patchwork.workspace_manifest import workspace_manifest as patchwork_tool
+from evomas.tools.repo.patchwork import PATCHWORK_TOOLS
+from evomas.tools.repo.patchwork.workspace_manifest import workspace_manifest as patchwork_tool
 
 _EXPECTED_NAMES = ("code_edit_tools", "csvkit_tool", "git_tool", "grep_tool", "workspace_manifest",)
 

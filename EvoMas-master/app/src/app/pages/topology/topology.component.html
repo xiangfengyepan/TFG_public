@@ -1,256 +1,48 @@
 <div class="topo-layout">
 
   <!-- ─── Left Panel ────────────────────────────────────────── -->
-  <evo-box class="left-box" title="Configurations"
-           [hasActions]="true"
-           [class.collapsed]="leftCollapsed()">
-    <ng-container box-actions>
-      <button type="button" class="rail-toggle"
-              (click)="toggleLeftCollapsed()"
-              [title]="leftCollapsed() ? 'Expand panel' : 'Collapse panel'"
-              [attr.aria-expanded]="!leftCollapsed()">
-        {{ leftCollapsed() ? '»' : '«' }}
-      </button>
-    </ng-container>
-
-    @if (!leftCollapsed()) {
-    <div class="topo-section-label">Predefined</div>
-    <div class="topo-list">
-      @for (cfg of predefinedList; track cfg.stem) {
-        <div class="topo-item"
-             [class.active]="cfg.stem === currentConfigName"
-             (click)="loadPredefined(cfg.stem)"
-             [title]="cfg.description || cfg.stem">
-          {{ cfg.id }}
-        </div>
-      }
-      @if (predefinedList.length === 0) {
-        <div class="empty-hint">No predefined configurations.</div>
-      }
-    </div>
-
-    <hr class="topo-divider" />
-
-    <div class="topo-section-label">Loaded</div>
-    <div class="topo-list">
-      @for (cfg of loadedList; track cfg.stem) {
-        <div class="topo-item loaded"
-             [class.active]="cfg.stem === currentConfigName"
-             (click)="loadPredefined(cfg.stem)"
-             (dblclick)="renameLoaded(cfg.stem)"
-             [title]="cfg.description || cfg.stem + ' — double-click to rename'">
-          <span class="loaded-name">{{ cfg.id }}</span>
-          <button class="loaded-delete"
-                  type="button"
-                  title="Delete this loaded config"
-                  (click)="deleteLoaded(cfg.stem, $event)">×</button>
-        </div>
-      }
-      @if (loadedList.length === 0) {
-        <div class="empty-hint">No loaded configurations. Use the brand menu's <strong>Load config…</strong> to import one.</div>
-      }
-    </div>
-    }
-
-  </evo-box>
+  <app-config-list-panel
+      [predefinedList]="predefinedList"
+      [loadedList]="loadedList"
+      [currentConfigName]="currentConfigName"
+      [collapsed]="leftCollapsed()"
+      (load)="loadPredefined($event)"
+      (rename)="renameLoaded($event)"
+      (delete)="deleteLoaded($event.stem, $event.ev)"
+      (toggleCollapsed)="toggleLeftCollapsed()" />
 
   <!-- ─── Center ────────────────────────────────────────────── -->
   <div class="center-col">
-    <!-- Toolbar -- left to right: page title + state chips, then 4 button
-         groups separated by thin dividers:
-           1. Edit (Add Edge, Delete) -- primary work on the active graph.
-           2. Validate -- pre-Save sanity check.
-           3. Save -- persistence; lit up when there are unsaved edits.
-           4. View  -- Relayout / Reload (less frequent, secondary).
-                       Fit lives in the on-canvas overlay alongside zoom. -->
-    <div class="graph-toolbar">
-      <span class="topo-title">{{ currentConfigName || '-' }}</span>
-      @if (currentConfigName && !isLoadedConfig) {
-        <span class="readonly-chip"
-              title="Predefined configs are read-only. Use the brand menu's Export config… to keep an edited variant.">
-          read-only
-        </span>
-      }
-      @if (currentConfigName && isLoadedConfig && dirty) {
-        <span class="unsaved-chip"
-              title="In-memory edits not yet written to disk. Click Save to persist.">
-          unsaved
-        </span>
-      }
-      @if (currentConfigName && isLoadedConfig && !validated) {
-        <span class="unvalidated-chip"
-              title="Topology edits since the last Validate click haven't been re-checked. Click Validate to clear this — Save is disabled until you do.">
-          unvalidated
-        </span>
-      }
-      <div class="toolbar-sep"></div>
-
-      <!-- 1. Edit (group) -->
-      <evo-button [variant]="addEdgeMode ? 'active' : 'default'"
-                  [disabled]="!isLoadedConfig"
-                  (clicked)="toggleAddEdgeMode()"
-                  title="Click two nodes to connect them. Drag from START to a node to set the entry point; drag from a node to END to toggle that node's membership in the config's `end` list (the nodes allowed to route to END at runtime).">
-        ↗ {{ addEdgeMode ? (edgeSource ? 'Click target…' : 'Click source…') : 'Add Edge' }}
-      </evo-button>
-      <evo-button variant="danger"
-                  [disabled]="!isLoadedConfig || (!selectedAgent && !selectedEdgeId)"
-                  (clicked)="deleteSelected()"
-                  title="Remove the selected node(s) or edge(s) from the in-memory graph. Hit Save to persist.">
-        🗑 Delete
-      </evo-button>
-      <evo-button [disabled]="!isLoadedConfig || !selectedAgent"
-                  (clicked)="renameSelected()"
-                  title="Rename the selected node. The new name must not collide with any other node in this config; all edges, entry, and end references are updated automatically.">
-        ✎ Rename
-      </evo-button>
-
-      <div class="toolbar-group-sep"></div>
-
-      <!-- 2. Validate -->
-      <evo-button [variant]="validateFlash ? 'success' : 'default'"
-                  [disabled]="!currentConfig"
-                  (clicked)="validate()"
-                  title="Check that entry / end / edges are well-formed and every node has degree > 0. Save also runs this and surfaces any issues as a warning.">
-        {{ validateFlash ? 'Valid ✓' : '✓ Validate' }}
-      </evo-button>
-
-      <div class="toolbar-group-sep"></div>
-
-      <!-- 3. Save (loaded configs only). Variant lights up when there are
-           unsaved edits so the button reads as the next-step action. -->
-      @if (isLoadedConfig) {
-        <evo-button [variant]="saveFlash ? 'success' : (dirty ? 'primary' : 'default')"
-                    [disabled]="!currentConfig || !validated"
-                    (clicked)="saveToDisk()"
-                    title="Persist the current edits to evomas/config/loaded/{{ currentConfigName }}.json. Validate must run first — Save is disabled while the topology has unacknowledged edits; the validation panel surfaces issues but does not block Save.">
-          {{ saveFlash ? 'Saved ✓' : '💾 Save' }}
-        </evo-button>
-        @if (saveError) {
-          <span class="save-error" [title]="saveError">⚠ Save failed</span>
-        }
-      }
-
-      <div class="toolbar-group-sep"></div>
-
-      <!-- 4. View controls (Fit moved to the on-canvas overlay). -->
-      <evo-button variant="ghost"
-                  [disabled]="!currentConfig"
-                  (clicked)="relayout()"
-                  title="Discard saved positions and re-run the breadthfirst layout. Useful after lots of palette drops.">
-        ⇄ Relayout
-      </evo-button>
-      <evo-button variant="ghost"
-                  [disabled]="!currentConfig"
-                  (clicked)="reloadGraph()"
-                  title="Re-fetch the active config from the backend and rebuild the canvas. Recovery for a stuck graph after switching configs.">
-        ↻ Reload
-      </evo-button>
-
-      <div class="toolbar-group-sep"></div>
-
-      <!-- 5. Help: topology legend (edge types + execution model). Static
-           content, lives in the toolbar so users can call it up without
-           leaving the page. -->
-      <evo-help-popover title="Topology legend">
-        <div class="edge-legend">
-
-          <div class="legend-section-title">Edge types</div>
-          <div class="legend-rows">
-
-            <div class="legend-row">
-              <svg class="legend-swatch" viewBox="0 0 60 12" width="60" height="12" aria-hidden="true">
-                <line x1="2" y1="6" x2="50" y2="6" stroke="#30363d" stroke-width="2" stroke-linecap="round"></line>
-                <polygon points="50,2 58,6 50,10" fill="#30363d"></polygon>
-              </svg>
-              <div class="legend-text">
-                <div class="legend-name">Unconditional</div>
-                <div class="legend-desc">Always traversed when the source completes — the static <code>graph.add_edge(...)</code> case. <code>state[source]</code> is handed to the target and LangGraph schedules it in the next super-step.</div>
-              </div>
-            </div>
-
-            <div class="legend-row">
-              <svg class="legend-swatch" viewBox="0 0 60 12" width="60" height="12" aria-hidden="true">
-                <line x1="2" y1="6" x2="50" y2="6" stroke="#a371f7" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="6 4"></line>
-                <polygon points="50,2 58,6 50,10" fill="#a371f7"></polygon>
-              </svg>
-              <div class="legend-text">
-                <div class="legend-name">Conditional <span class="legend-tag">LLM-routed</span></div>
-                <div class="legend-desc">Source is an <code>OrchestratorAgent</code> with ≥2 outgoing edges. The LLM emits target name(s); the router whole-word-matches and dispatches only those targets. Falls back to <em>all</em> targets on a parser miss so the run never stalls.</div>
-              </div>
-            </div>
-
-            <div class="legend-row">
-              <svg class="legend-swatch" viewBox="0 0 60 18" width="60" height="18" aria-hidden="true">
-                <path d="M50 14 Q30 -4 6 14" fill="none" stroke="#e3b341" stroke-width="2.2" stroke-linecap="round"></path>
-                <polygon points="10,10 2,14 10,18" fill="#e3b341"></polygon>
-              </svg>
-              <div class="legend-text">
-                <div class="legend-name">Loop-back / cycle</div>
-                <div class="legend-desc">DFS-detected back-edge (target on the recursion stack). Re-executes the cycle until LangGraph's <code>recursion_limit = max_revisits × num_agents</code> budget is reached.</div>
-              </div>
-            </div>
-
-            <div class="legend-row">
-              <svg class="legend-swatch" viewBox="0 0 60 12" width="60" height="12" aria-hidden="true">
-                <line x1="2" y1="6" x2="50" y2="6" stroke="#6e7681" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 2"></line>
-                <polygon points="50,2 58,6 50,10" fill="#6e7681"></polygon>
-              </svg>
-              <div class="legend-text">
-                <div class="legend-name">START / END (virtual)</div>
-                <div class="legend-desc">Connects the virtual <code>START</code> to <code>entry</code> and each <code>end</code> node to virtual <code>END</code>. Edit by dragging from / to the boundary nodes, not by direct manipulation.</div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="legend-section-title">Execution model</div>
-          <div class="legend-block">
-            <div>LangGraph runs the graph in <strong>super-steps</strong>. A node fires once per super-step, and only after <strong>every incoming edge scheduled in the prior super-step has completed</strong> — fan-in is a join.</div>
-            <div>When a node completes, <strong>every outgoing edge dispatches in the next super-step in parallel</strong>. Fan-out targets run concurrently; the super-step ends only when all of them are done.</div>
-          </div>
-
-        </div>
-      </evo-help-popover>
-    </div>
-
-    @if (validationErrors.length > 0) {
-      <div class="validation-panel" role="alert">
-        <div class="validation-head">
-          <strong>Configuration has validation errors</strong>
-          <button type="button" class="validation-dismiss"
-                  (click)="dismissValidationErrors()"
-                  title="Dismiss">×</button>
-        </div>
-        <div class="validation-note">
-          Save will proceed, but the runtime may reject the graph at inference time.
-          Fix the listed issues before running.
-        </div>
-        <ul class="validation-list">
-          @for (msg of validationErrors; track msg) {
-            <li>{{ msg }}</li>
-          }
-        </ul>
-      </div>
-    }
-    @if (validationWarnings.length > 0) {
-      <div class="validation-panel validation-panel-warn" role="status">
-        <div class="validation-head">
-          <strong>Configuration warnings</strong>
-          <button type="button" class="validation-dismiss"
-                  (click)="dismissValidationWarnings()"
-                  title="Dismiss">×</button>
-        </div>
-        <div class="validation-note">
-          The graph still compiles, but the listed nodes / settings will
-          waste inference cost or produce noisy runs.
-        </div>
-        <ul class="validation-list">
-          @for (msg of validationWarnings; track msg) {
-            <li>{{ msg }}</li>
-          }
-        </ul>
-      </div>
-    }
+    <app-topology-toolbar
+        [currentConfig]="currentConfig"
+        [currentConfigName]="currentConfigName"
+        [isLoadedConfig]="isLoadedConfig"
+        [dirty]="dirty"
+        [validated]="validated"
+        [saveError]="saveError"
+        [addEdgeMode]="addEdgeMode"
+        [edgeSource]="edgeSource"
+        [selectedAgent]="selectedAgent"
+        [selectedEdgeId]="selectedEdgeId"
+        [saveFlash]="saveFlash"
+        [validateFlash]="validateFlash"
+        [agentCount]="agentCount"
+        [edgeCount]="edgeCount"
+        [cycleCount]="cycleCount"
+        [topoStatsTooltip]="topoStatsTooltip"
+        [cramped]="!leftCollapsed() && !!selectedAgent"
+        [validationErrors]="validationErrors"
+        [validationWarnings]="validationWarnings"
+        (toggleAddEdge)="toggleAddEdgeMode()"
+        (deleteSelected)="deleteSelected()"
+        (renameSelected)="renameSelected()"
+        (relayout)="relayout()"
+        (reloadGraph)="reloadGraph()"
+        (validate)="validate()"
+        (saveToDisk)="saveToDisk()"
+        (openHistoryPanel)="openHistoryPanel()"
+        (dismissValidationErrors)="dismissValidationErrors()"
+        (dismissValidationWarnings)="dismissValidationWarnings()" />
 
     <!-- Graph canvas. The cytoscape host stays in the DOM AND visible at
          all times so it always has measurable dimensions; the error panel
@@ -372,320 +164,60 @@
       }
     </div>
 
-    <!-- Bottom palette: 8 agent-type chips, each with a dropdown listing the
-         EvoMas built-in plus every CSV-derived alternative for that role.
-         Dragging a chip drops a node seeded with the picked variant's
-         prompts + tools (see onGraphDrop in topology.component.ts). -->
-    <div class="agent-palette">
-      <span class="palette-label">Drag a type →</span>
-      @for (t of agentTypes; track t.type) {
-        <evo-agent-type-picker
-          [agentType]="t.type"
-          [color]="t.color"
-          [variants]="variantsFor(t.type)"
-          [selectedVariantKey]="selectedVariantKey(t.type)"
-          [draggable]="isLoadedConfig"
-          (variantChange)="onVariantChange(t.type, $event)" />
-      }
-      @if (agentTypes.length === 0) {
-        <span class="palette-label" style="opacity:.6">Loading types…</span>
-      }
-    </div>
+    <app-topology-palette
+        [agentTypes]="agentTypes"
+        [selectedVariantByType]="selectedVariantByType"
+        [isLoadedConfig]="isLoadedConfig"
+        (variantChange)="onVariantChange($event.type, $event.key)" />
   </div>
 
   <!-- ─── Right Panel ───────────────────────────────────────── -->
-  <evo-box class="right-box"
-           [class.collapsed]="!selectedAgent"
-           [title]="selectedAgent ? '' : 'Agent Config'"
-           [hasActions]="!!selectedAgent">
-
-    <ng-container box-actions>
-      @if (selectedAgent) {
-        <div class="agent-badge" [style.background]="getAgentColorStyle(selectedAgent)">
-          {{ labelOrId(selectedAgent) }}
-        </div>
-      }
-    </ng-container>
-
-    @if (selectedAgent && agentBlock) {
-
-      <!-- Header with parameter help. Caret button toggles the
-           section open/closed; state persists across node selections
-           because TopologyComponent owns the field. -->
-      <div class="cfg-header-row">
-        <button type="button" class="section-toggle"
-                (click)="paramsOpen = !paramsOpen"
-                [attr.aria-expanded]="paramsOpen">
-          <span class="section-caret" [class.open]="paramsOpen">▸</span>
-          <span class="cfg-section-title">Parameters</span>
-        </button>
-        <evo-help-popover title="Parameter reference">
-          <dl>
-            <dt>Model</dt>      <dd>Ollama model name pulled from <code>ollama list</code>.</dd>
-            <dt>Router</dt>     <dd>How the node picks its next edge: <code>python</code> calls the agent's <code>route(state)</code>, <code>llm</code> asks an LLM, blank → static single edge.</dd>
-            <dt>Think</dt>      <dd>Enable the model's chain-of-thought / hidden reasoning channel (Qwen3, gpt-oss, …).</dd>
-            <dt>Stream</dt>     <dd>Stream tokens incrementally rather than wait for the full response.</dd>
-            <dt>Temperature</dt><dd>Sampling randomness. <code>0</code> = greedy, higher = more creative. Typical 0.2–0.8.</dd>
-            <dt>top_p</dt>      <dd>Nucleus sampling: keep tokens until their cumulative probability ≥ p.</dd>
-            <dt>min_p</dt>      <dd>Drop tokens below this probability (relative to the top token). 0 disables.</dd>
-            <dt>Repeat Penalty</dt><dd>Penalty applied to recent tokens to discourage loops. 1.0 = off.</dd>
-            <dt>top_k</dt>      <dd>Cap the candidate set to the k most likely tokens. 0 disables.</dd>
-            <dt>num_ctx</dt>    <dd>Context window in tokens. Higher = more memory but more VRAM.</dd>
-            <dt>num_predict</dt><dd>Max tokens to generate. <code>-1</code> = until the model stops itself.</dd>
-            <dt>repeat_last_n</dt><dd>How many recent tokens the repeat penalty looks back at. <code>-1</code> uses num_ctx.</dd>
-            <dt>seed</dt>       <dd>RNG seed for reproducibility. <code>0</code> picks a random one.</dd>
-          </dl>
-        </evo-help-popover>
-      </div>
-
-      @if (paramsOpen) {
-      <div class="config-fields">
-
-        <!-- Model -->
-        <div class="cfg-full">
-          <label class="cfg-label">Model</label>
-          <evo-select [options]="modelSelectOptions"
-                      [disabled]="!isLoadedConfig"
-                      [ngModel]="agentBlock.model"
-                      (ngModelChange)="onAgentField('model', $event)" />
-        </div>
-
-        <!-- think (Ollama only) -->
-        @if (supportsKnob('think')) {
-          <div class="cfg-row">
-            <label class="cfg-label">Think</label>
-            <evo-switch [disabled]="!isLoadedConfig"
-                        [ngModel]="!!agentBlock.think"
-                        (ngModelChange)="onAgentField('think', $event)" />
-          </div>
-        }
-
-        <!-- stream -->
-        @if (supportsKnob('stream')) {
-          <div class="cfg-row">
-            <label class="cfg-label">Stream</label>
-            <evo-switch [disabled]="!isLoadedConfig"
-                        [ngModel]="!!agentBlock.stream"
-                        (ngModelChange)="onAgentField('stream', $event)" />
-          </div>
-        }
-
-        <!-- temperature -->
-        @if (supportsKnob('temperature')) {
-          <evo-slider label="Temperature" [min]="0" [max]="2" [step]="0.05"
-                      [disabled]="!isLoadedConfig"
-                      [ngModel]="agentBlock.temperature"
-                      (ngModelChange)="onAgentField('temperature', $event)" />
-        }
-
-        <!-- top_p -->
-        @if (supportsKnob('top_p')) {
-          <evo-slider label="top_p" [min]="0" [max]="1" [step]="0.01"
-                      [disabled]="!isLoadedConfig"
-                      [ngModel]="agentBlock.top_p"
-                      (ngModelChange)="onAgentField('top_p', $event)" />
-        }
-
-        <!-- min_p (Ollama only) -->
-        @if (supportsKnob('min_p')) {
-          <evo-slider label="min_p" [min]="0" [max]="1" [step]="0.01"
-                      [disabled]="!isLoadedConfig"
-                      [ngModel]="agentBlock.min_p"
-                      (ngModelChange)="onAgentField('min_p', $event)" />
-        }
-
-        <!-- repeat_penalty (Ollama only) -->
-        @if (supportsKnob('repeat_penalty')) {
-          <evo-slider label="Repeat Penalty" [min]="0" [max]="2" [step]="0.01"
-                      [disabled]="!isLoadedConfig"
-                      [ngModel]="agentBlock.repeat_penalty"
-                      (ngModelChange)="onAgentField('repeat_penalty', $event)" />
-        }
-
-        <!-- top_k (Ollama, Gemini) -->
-        @if (supportsKnob('top_k')) {
-          <div class="cfg-row">
-            <label class="cfg-label">top_k</label>
-            <evo-spinbox [min]="0" [max]="200" [step]="1"
-                         [disabled]="!isLoadedConfig"
-                         [ngModel]="agentBlock.top_k"
-                         (ngModelChange)="onAgentField('top_k', $event)" />
-          </div>
-        }
-
-        <!-- num_ctx (Ollama only) -->
-        @if (supportsKnob('num_ctx')) {
-          <div class="cfg-row">
-            <label class="cfg-label">num_ctx</label>
-            <evo-spinbox [min]="512" [max]="131072" [step]="512"
-                         [disabled]="!isLoadedConfig"
-                         [ngModel]="agentBlock.num_ctx"
-                         (ngModelChange)="onAgentField('num_ctx', $event)" />
-          </div>
-        }
-
-        <!-- num_predict -->
-        @if (supportsKnob('num_predict')) {
-          <div class="cfg-row">
-            <label class="cfg-label">num_predict</label>
-            <evo-spinbox [min]="-1" [max]="4096" [step]="1"
-                         [disabled]="!isLoadedConfig"
-                         [ngModel]="agentBlock.num_predict"
-                         (ngModelChange)="onAgentField('num_predict', $event)" />
-          </div>
-        }
-
-        <!-- repeat_last_n (Ollama only) -->
-        @if (supportsKnob('repeat_last_n')) {
-          <div class="cfg-row">
-            <label class="cfg-label">repeat_last_n</label>
-            <evo-spinbox [min]="-1" [max]="512" [step]="1"
-                         [disabled]="!isLoadedConfig"
-                         [ngModel]="agentBlock.repeat_last_n"
-                         (ngModelChange)="onAgentField('repeat_last_n', $event)" />
-          </div>
-        }
-
-        <!-- seed (Ollama, OpenAI — Gemini API has no seed knob) -->
-        @if (supportsKnob('seed')) {
-          <div class="cfg-row">
-            <label class="cfg-label">seed</label>
-            <evo-spinbox [min]="-1" [max]="999999" [step]="1"
-                         [disabled]="!isLoadedConfig"
-                         [ngModel]="agentBlock.seed"
-                         (ngModelChange)="onAgentField('seed', $event)" />
-          </div>
-        }
-
-      </div>
-      }
-
-      <!-- ─── Tools ───────────────────────────────────────────── -->
-      <div class="tools-section">
-        <div class="cfg-header-row">
-          <button type="button" class="section-toggle"
-                  (click)="toolsOpen = !toolsOpen"
-                  [attr.aria-expanded]="toolsOpen">
-            <span class="section-caret" [class.open]="toolsOpen">▸</span>
-            <span class="cfg-section-title">Tools</span>
-          </button>
-          <evo-help-popover title="Tool whitelist & defaults">
-            <p>Restrict which MCP tools this agent may call, and pin default arguments that the agent code can still override at the call site.</p>
-            <p>An empty list disables tools entirely. Removing the section makes every registered tool callable (legacy/permissive mode).</p>
-            <dl>
-              @for (t of availableTools; track t.name) {
-                <dt>{{ t.name }}</dt><dd>{{ t.description || '—' }}</dd>
-              }
-            </dl>
-          </evo-help-popover>
-        </div>
-
-        @if (toolsOpen) {
-        <!-- Grouped Add-a-tool dropdown lives at the TOP of the section
-             so the user sees the picker before scrolling the existing
-             tool cards. Uses the custom popover panel (one row per repo)
-             via [optgroups]; [clearOnPick] makes the trigger revert to
-             the placeholder after a pick so it's reusable for the next
-             tool. The single flat option is the empty-sentinel — picking
-             it dismisses the panel without adding anything. -->
-        @if (unusedToolNames.length > 0 && isLoadedConfig) {
-          <div class="add-tool-row add-tool-row-top">
-            <evo-select [options]="emptyToolOption"
-                        [optgroups]="unusedToolOptionGroups"
-                        placeholder="+ Add a tool…"
-                        [clearOnPick]="true"
-                        [ngModel]="''"
-                        (ngModelChange)="$event && addTool($event)" />
-          </div>
-        }
-        @if (currentTools.length === 0) {
-          <div class="empty-hint sm">No tools allowed for this agent.</div>
-        }
-
-        @for (tool of currentTools; track tool.name; let i = $index) {
-          <div class="tool-card">
-            <div class="tool-head">
-              <span class="tool-name">{{ tool.name }}</span>
-              <button type="button" class="tool-remove"
-                      [disabled]="!isLoadedConfig"
-                      (click)="removeTool(i)" title="Remove">x</button>
-            </div>
-            @if (toolDescription(tool.name)) {
-              <div class="tool-desc">{{ toolDescription(tool.name) }}</div>
-            }
-            <label class="cfg-label tool-params-label">Default params (JSON object)</label>
-            <input class="tool-params"
-                   type="text"
-                   spellcheck="false"
-                   [disabled]="!isLoadedConfig"
-                   [ngModel]="paramsJson(i)"
-                   (ngModelChange)="onParamsInput(i, $event)"
-                   placeholder="{}" />
-            @if (toolParamsError[i]) {
-              <div class="tool-error">Invalid JSON: {{ toolParamsError[i] }}</div>
-            }
-          </div>
-        }
-        }
-      </div>
-
-      <!-- ─── Prompts ─────────────────────────────────────────── -->
-      <div class="prompts-section">
-        <div class="cfg-header-row">
-          <button type="button" class="section-toggle"
-                  (click)="promptsOpen = !promptsOpen"
-                  [attr.aria-expanded]="promptsOpen">
-            <span class="section-caret" [class.open]="promptsOpen">▸</span>
-            <span class="cfg-section-title">Prompts</span>
-          </button>
-          <evo-help-popover title="Prompt slots">
-            <dl>
-              <dt>system</dt><dd>Instruction sent as the model's system role. Sets the agent's persona, rules, and output format.</dd>
-              <dt>user</dt>  <dd>Template for the user-role message. Supports Python <code>str.format(...)</code> placeholders like <code>{{ '{' }}issue{{ '}' }}</code>.</dd>
-              <dt>proxy</dt> <dd>Template injected when this agent answers another agent (proxy hop in the topology).</dd>
-              <dt>route</dt> <dd>Reserved for future LLM-driven routing experiments; currently unused (every multi-edge node is software-routed).</dd>
-            </dl>
-          </evo-help-popover>
-        </div>
-
-        @if (promptsOpen) {
-        <div class="prompt-tabs">
-          @for (slot of ['system', 'user', 'proxy', 'route']; track slot) {
-            <button type="button"
-                    class="prompt-tab"
-                    [class.active]="promptTab === slot"
-                    [class.has-content]="!!getPrompt($any(slot))"
-                    (click)="togglePromptTab($any(slot))">
-              {{ slot }}
-            </button>
-          }
-        </div>
-
-        @if (promptTab) {
-          <textarea class="prompt-editor"
-                    [disabled]="!isLoadedConfig"
-                    [ngModel]="getPrompt(promptTab)"
-                    (ngModelChange)="onPromptChange(promptTab, $event)"
-                    spellcheck="false"
-                    placeholder="(empty)"></textarea>
-          <div class="prompt-hint">
-            @if (isLoadedConfig) {
-              Edits are in memory until you press <strong>Save</strong>.
-            } @else {
-              Predefined configs are read-only — use the brand menu's <strong>Export config…</strong> to keep an edited variant.
-            }
-          </div>
-        }
-        }
-      </div>
-
-    } @else {
-      <div class="empty-hint center-hint">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-muted);opacity:.4"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
-        <span>Click a node to<br>edit its config</span>
-      </div>
-    }
-
-  </evo-box>
+  <app-agent-inspector
+      [selectedAgent]="selectedAgent"
+      [agentBlock]="agentBlock"
+      [agentBadgeColor]="selectedAgent ? getAgentColorStyle(selectedAgent) : '#888'"
+      [agentBadgeLabel]="selectedAgent ? labelOrId(selectedAgent) : ''"
+      [availableTools]="availableTools"
+      [currentAgentType]="currentAgentType"
+      [modelSelectOptions]="modelSelectOptions"
+      [modelFilter]="modelFilter"
+      [currentModelStatus]="currentModelStatus"
+      [currentTools]="currentTools"
+      [unusedToolOptionGroups]="unusedToolOptionGroups"
+      [unusedToolNamesCount]="unusedToolNames.length"
+      [toolParamsDraft]="toolParamsDraft"
+      [toolParamsError]="toolParamsError"
+      [isLoadedConfig]="isLoadedConfig"
+      [paramsOpen]="paramsOpen"
+      [toolsOpen]="toolsOpen"
+      [promptsOpen]="promptsOpen"
+      [promptTab]="promptTab"
+      (agentFieldChange)="onAgentField($any($event.key), $any($event.value))"
+      (modelFilterChange)="onModelFilterChange($event)"
+      (addTool)="addTool($event)"
+      (removeTool)="removeTool($event)"
+      (toolParamsInput)="onParamsInput($event.idx, $event.value)"
+      (promptChange)="onPromptChange($event.slot, $event.value)"
+      (togglePromptTabIntent)="togglePromptTab($event)"
+      (resetParams)="resetParams()"
+      (resetTools)="resetTools()"
+      (resetPrompts)="resetPrompts()"
+      (paramsOpenChange)="paramsOpen = $event"
+      (toolsOpenChange)="toolsOpen = $event"
+      (promptsOpenChange)="promptsOpen = $event" />
 
 </div>
+
+<!-- GitPython-backed version-history panel. Lives at the topology page
+     root so the slide-in covers the canvas + inspector at once. Hidden
+     for predefined configs (the History button is disabled there too).
+     `currentContentJson` + `agentTypes` enable the diff and graph
+     preview modes respectively — without them the panel falls back to
+     raw-JSON / no-diff behaviour. -->
+<app-config-history-panel
+    [open]="historyPanelOpen"
+    [configName]="currentConfigName"
+    [currentContent]="currentConfigJson"
+    [agentTypes]="agentTypes"
+    (restore)="onHistoryRestore($event)"
+    (close)="historyPanelOpen = false" />

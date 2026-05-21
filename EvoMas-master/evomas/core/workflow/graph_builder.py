@@ -1,26 +1,16 @@
 """Generic LangGraph builder driven by a unified config dict.
 
-The config shape is the one produced by `evomas.config.loader.load_config`:
-- `entry`: name of the start node
-- `end`: name (string) or list of names of the node(s) that route to END.
-- `edges`: list of `{"from": ..., "to": ...}` records
+Wiring rules:
+- `end` nodes with no outgoing edges get a static edge to END.
+- Orchestrator nodes with ≥2 outgoing edges get an LLM-driven conditional
+  router. Orchestrators cannot route to END directly (the candidate set
+  is exactly the declared targets) — terminal logic must run in a worker
+  node whose static `→ END` wire ends the graph.
+- All other multi-edge sources get static fan-out (every successor runs
+  in parallel on the same super-step).
 
-Wiring rules (purely structural — no agent introspection):
-- A node listed in `end` with no outgoing edges gets a static edge to END.
-- Any node with one or more outgoing edges gets a *static* edge to every
-  one of its targets. LangGraph fans the targets out in parallel using
-  its super-step scheduler; multi-edge sources do not consult any agent
-  router — every successor runs.
-
-Cycles are allowed; the runner caps per-node revisits via `recursion_limit`
-(see `evomas/core/workflow/runner.py:_max_revisits`).
-
-Pre-flight validation (orphan dead-ends, unreachable nodes, etc.) lives
-on the frontend Topology page's Validate button. This module just
-constructs + compiles the graph — any structural problem the frontend
-missed surfaces as a `TopologyError` wrapping whatever LangGraph (or
-the wiring code) raised, so callers get a consistent error type.
-"""
+Pre-flight validation lives on the frontend's Topology page; any
+structural problem reaching here surfaces as a `TopologyError`."""
 from __future__ import annotations
 
 import logging
@@ -30,22 +20,25 @@ from typing import Any, Callable
 from langgraph.graph import END, START, StateGraph
 
 from evomas.agents.base_agent import BaseAgent
-from evomas.agents.types.orchestrator import OrchestratorAgent
+from evomas.agents.types.orchestrator import Orchestrator
 from evomas.exceptions.errors import OllamaMemoryError, TopologyError
 from evomas.utils.handoff import preview_payload, summarize_payload
 
-# Cap on the inline content embedded in each hand-off log line. The full
-# producer-slot value still rides on the SSE `handoff.preview` event
-# (capped at 16 KB) for the chip modal; this tighter cap keeps the
-# human-readable `.log` scannable for runs with multi-KB diffs.
+# Tighter cap than the SSE `handoff.preview` (16 KB) so `.log` stays
+# scannable on runs with multi-KB diffs.
 _HANDOFF_LOG_PREVIEW_CHARS: int = 1000
 
 logger = logging.getLogger(__name__)
 
 
 def _wrap(
-    agent: BaseAgent, targets: list[str]
+    agent: BaseAgent, targets: list[str], *, conditional: bool = False,
 ) -> Callable[[dict[str, Any]], dict[str, Any]]:
+    """Wrap an agent's `run()` so the node emits per-handoff log lines.
+
+    `conditional=True` suppresses per-target logging here for orchestrator
+    sources — the router emits its own log lines for the targets actually
+    picked, otherwise we'd over-count every potential successor."""
     def node(state: dict[str, Any]) -> dict[str, Any]:
         try:
             delta = agent.run(dict(state))
@@ -57,43 +50,38 @@ def _wrap(
             errors.append(f"{agent.name}: {exc}")
             return {"errors": errors}
 
-        # Hand-off log: per outgoing edge we emit a summary line plus an
-        # "offered" content line. The canonical producer slot is
-        # `delta[agent.name]` (edge-driven IO contract); fall back to the
-        # whole delta when the agent wrote to other keys. The receiver
-        # side logs the matching "received" line from `LLMToolAgent._run_llm_loop`
-        # so the `.log` is self-sufficient — no need to cross-reference
-        # NDJSON or stitch together the source's `|resp` stream.
-        if targets and isinstance(delta, dict):
+        # Canonical producer slot is `delta[agent.name]` (edge-driven IO);
+        # fall back to the whole delta when the agent wrote to other keys.
+        if targets and not conditional and isinstance(delta, dict):
             primary = delta.get(agent.name, delta)
-            payload_summary = summarize_payload(primary)
-            offered_preview = preview_payload(
-                primary, max_chars=_HANDOFF_LOG_PREVIEW_CHARS,
-            ).replace("\n", "\\n")
-            for target in targets:
-                logger.info(
-                    "[%s] -> [%s] payload=%s",
-                    agent.name, target, payload_summary,
-                )
-                if offered_preview.strip():
-                    logger.info(
-                        "[%s] offered to [%s]: %s",
-                        agent.name, target, offered_preview,
-                    )
+            _emit_handoff_log(agent.name, targets, primary)
         return delta
 
     return node
 
 
+def _emit_handoff_log(source: str, picked: list[str], primary: Any) -> None:
+    """Per-target log emitter shared by static fan-out (`_wrap`) and the
+    conditional router so the log format stays identical."""
+    payload_summary = summarize_payload(primary)
+    offered_preview = preview_payload(
+        primary, max_chars=_HANDOFF_LOG_PREVIEW_CHARS,
+    ).replace("\n", "\\n")
+    for target in picked:
+        logger.info("[%s] -> [%s] payload=%s", source, target, payload_summary)
+        if offered_preview.strip():
+            logger.info(
+                "[%s] offered to [%s]: %s",
+                source, target, offered_preview,
+            )
+
+
 def _make_router(
     source: str, targets: list[str],
 ) -> Callable[[dict[str, Any]], list[str]]:
-    """Conditional-edge router for an OrchestratorAgent hub. Reads the
-    orchestrator's final response text at `state[source]`, scans it for
-    whole-word mentions of each candidate target, and returns the
-    matched names. Falls back to all targets when nothing matches so
-    the run continues — better to over-dispatch than stall on a parser
-    miss (the warning log surfaces these for diagnosis)."""
+    """Conditional-edge router for an Orchestrator hub. Reads
+    `state[source]` and returns target names mentioned as whole words.
+    Falls back to all targets on parser miss (over-dispatch beats stall)."""
     patterns: dict[str, re.Pattern[str]] = {
         t: re.compile(rf"\b{re.escape(t)}\b", re.IGNORECASE) for t in targets
     }
@@ -105,19 +93,23 @@ def _make_router(
         picked = [t for t in targets if patterns[t].search(text)]
         if picked:
             logger.info("[%s] LLM routed to %s (out of %s)", source, picked, targets)
-            return picked
-        logger.warning(
-            "[%s] LLM emitted no parseable target in %r; falling back to all %s",
-            source, text[:200], targets,
-        )
-        return list(targets)
+        else:
+            logger.warning(
+                "[%s] LLM emitted no parseable target in %r; falling back to all %s",
+                source, text[:200], targets,
+            )
+            picked = list(targets)
+        # Emit handoff lines only for the targets actually dispatched.
+        primary = state.get(source)
+        if primary is not None and picked:
+            _emit_handoff_log(source, picked, primary)
+        return picked
 
     return route
 
 
 def _normalize_end(raw_end: Any) -> set[str]:
-    """Coerce the JSON's `end` field into a set of node names. Accepts a
-    single string ("manager_agent") or a list (["a", "b"])."""
+    """Coerce the JSON `end` field (string or list) into a set of names."""
     if isinstance(raw_end, str):
         return {raw_end} if raw_end else set()
     if isinstance(raw_end, list):
@@ -132,19 +124,8 @@ def build_graph(
     agents: dict[str, BaseAgent],
     state_cls: type,
 ) -> Any:
-    """Compile a graph from a unified config dict.
-
-    `state_cls` is produced by `state_factory.build_state_class(config)`.
-    `agents` maps node name → instantiated agent (already configured with its block).
-
-    Pre-flight validation lives on the frontend's Topology page (the
-    Validate toolbar button calls `validateConfig()` and surfaces every
-    well-formedness check before the user kicks off a run). This
-    function therefore just constructs the graph — any structural
-    problem the frontend missed surfaces as a `TopologyError` wrapping
-    whatever LangGraph or the wiring code raised, so the runtime still
-    gives a useful message instead of an opaque traceback.
-    """
+    """Compile a graph from a unified config dict. Any LangGraph/wiring
+    failure surfaces as a `TopologyError` for consistent error rendering."""
     try:
         entry = config.get("entry")
         end_set = _normalize_end(config.get("end", []))
@@ -157,52 +138,54 @@ def build_graph(
             out_edges.setdefault(src, []).append(tgt)
             in_edges.setdefault(tgt, []).append(src)
 
-        # Edge-driven IO: tell each agent who feeds it so its `run()` can
-        # read `state[self.predecessor_name]` without hardcoding upstream
-        # node ids. Multi-upstream nodes see the first incoming edge.
+        # Edge-driven IO: agents read `state[self.predecessor_name]` to
+        # avoid hardcoding upstream node ids. Multi-upstream nodes see
+        # the first incoming edge.
         for node_name, agent in agents.items():
             upstream = in_edges.get(node_name) or []
             agent.predecessor_name = upstream[0] if upstream else None
 
+        # Sources that will use conditional routing — must match the
+        # `add_conditional_edges` condition below so `_wrap` skips its
+        # static-fan-out log to avoid double-emission.
+        conditional_sources: set[str] = {
+            source for source, declared in out_edges.items()
+            if isinstance(agents.get(source), Orchestrator) and len(declared) >= 2
+        }
+
         graph = StateGraph(state_cls)
         for name, agent in agents.items():
-            graph.add_node(name, _wrap(agent, list(out_edges.get(name, []))))
+            graph.add_node(name, _wrap(  # pyright: ignore[reportArgumentType]
+                agent,
+                list(out_edges.get(name, [])),
+                conditional=name in conditional_sources,
+            ))
 
-        graph.add_edge(START, entry)
+        graph.add_edge(START, entry)  # pyright: ignore[reportArgumentType]
 
-        # Structural wiring. Default = one static edge per (source, target)
-        # pair, fanning multi-edge sources out in parallel. Exception:
-        # OrchestratorAgent nodes with ≥2 outgoing edges get an LLM-driven
-        # conditional edge — the router (`_make_router`) parses
-        # `state[source]` for whole-word target names and routes
-        # accordingly. Other classes keep the static fan-out.
+        # Static fan-out by default; Orchestrators with ≥2 outgoing
+        # edges get an LLM-driven conditional router instead.
         for source, targets in out_edges.items():
             agent = agents.get(source)
-            if isinstance(agent, OrchestratorAgent) and len(targets) >= 2:
+            if isinstance(agent, Orchestrator) and len(targets) >= 2:
                 graph.add_conditional_edges(
                     source,
-                    _make_router(source, targets),
+                    _make_router(source, list(targets)),
                     {t: t for t in targets},
                 )
             else:
                 for target in targets:
                     graph.add_edge(source, target)
 
-        # Static-edge wiring for end nodes that have no outgoing real edges.
+        # END wires for terminal nodes (those with no outgoing edges).
         for name in end_set:
             if name not in out_edges:
                 graph.add_edge(name, END)
 
         return graph.compile()
     except TopologyError:
-        # Let our own well-formedness errors propagate as-is (e.g. from
-        # `_normalize_end` rejecting a non-string `end` field).
         raise
     except Exception as exc:
-        # Anything LangGraph or the wiring code raised — wrong agent id
-        # in `entry`/`end`/an edge, duplicate node add, etc. — surface
-        # as a `TopologyError` so callers (runner, api/server) get a
-        # consistent error type to render in the UI.
         raise TopologyError(
             f"failed to compile graph from config: {type(exc).__name__}: {exc}"
         ) from exc

@@ -20,14 +20,16 @@
 .bp-done .bp-dot    { background: var(--success); }
 .bp-error .bp-dot   { background: var(--danger);  }
 .bp-id,
-.bp-runid {
+.bp-runid,
+.bp-logname {
   font-family: monospace;
   -webkit-user-select: text;
   -moz-user-select: text;
   user-select: text;
   cursor: text;
 }
-.bp-runid {
+.bp-runid,
+.bp-logname {
   font-size: 10px;
   color: var(--text-muted);
   opacity: 0.75;
@@ -35,5 +37,12 @@
   padding: 1px 5px;
   border: 1px solid var(--border);
   border-radius: 3px;
+}
+/* The log-file pill sits to the right of the run-id chip and uses
+ * a very slightly recessed background so the two adjacent pills
+ * don't blur into one wide blob. */
+.bp-logname {
+  background: var(--bg-0);
+  opacity: 0.65;
 }
 @keyframes pulse { 50% { opacity: 0.4; } }

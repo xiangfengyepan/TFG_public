@@ -98,12 +98,37 @@ class LLMToolAgent(BaseAgent):
 
         system = self.prompts.get("system") or ""
         user_template = (self.prompts.get("user") or "").strip() or _DEFAULT_USER_PROMPT
-        user_msg = user_template.format(
+        # Build the template substitution map. Start with every
+        # string-valued state slot so prompts can reference upstream
+        # producer values by name (e.g. `{locator}`, `{patcher}`,
+        # `{reviewer}`) — useful for hubs in bidirectional / cyclic
+        # topologies where the single `{predecessor}` only ever
+        # resolves to the first incoming edge's slot and goes stale
+        # for subsequent iterations. The explicit named args below
+        # override any collision (e.g. a node literally named `issue`
+        # would shadow the issue text without this).
+        fmt_kwargs: dict[str, Any] = {
+            k: str(v)[:8000] for k, v in state.items()
+            if isinstance(v, str)
+        }
+        fmt_kwargs.update(
             issue=issue[:8000],
             workspace=workspace,
             instance_id=instance.get("instance_id", ""),
             predecessor=predecessor_value,
         )
+        try:
+            user_msg = user_template.format(**fmt_kwargs)
+        except KeyError as exc:
+            # The template references a placeholder neither in the
+            # explicit-args list nor in `state`. Render the literal
+            # `{name}` rather than crashing the run — the prompt
+            # author can fix the typo without taking down the agent.
+            self.logger.warning(
+                "user prompt references unknown placeholder %s; "
+                "rendering literal", exc,
+            )
+            user_msg = user_template
 
         tools = self._bound_tools()
         llm = self.make_llm()
@@ -113,7 +138,7 @@ class LLMToolAgent(BaseAgent):
         messages: list[Any] = [SystemMessage(content=system), HumanMessage(content=user_msg)]
         for step in range(self.max_iters):
             self.logger.info("[%s] iter %d/%d", self.name, step + 1, self.max_iters)
-            response = self._invoke(llm, messages)
+            response = self._invoke(llm, messages)  # pyright: ignore[reportArgumentType]
             messages.append(response)
             # Capture the final response text. We overwrite each iteration so
             # the LAST non-empty content wins; iterations that emit only tool
@@ -280,7 +305,7 @@ class LLMToolAgent(BaseAgent):
             else list(self.mcp.registry.tools.keys())
         )
         from evomas.tools import lint_tools, patch_tools, repo_tools, search_tools
-        from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_TOOLS
+        from evomas.tools.repo.openhands import LOC_TOOLS, OPENHANDS_TOOLS
 
         builtin = [
             repo_tools.read_file,
@@ -303,7 +328,7 @@ class LLMToolAgent(BaseAgent):
     @staticmethod
     def _extract_tool_calls(response: Any) -> list[dict[str, Any]]:
         if isinstance(response, AIMessage) and getattr(response, "tool_calls", None):
-            return list(response.tool_calls)
+            return [dict(c) for c in response.tool_calls]
         kw = getattr(response, "additional_kwargs", None) or {}
         raw = kw.get("tool_calls") or []
         out: list[dict[str, Any]] = []

@@ -109,3 +109,10 @@ cython_debug/
 
 # Ruff
 .ruff_cache/
+
+# External tooling clones + their venvs / report artefacts. Fetched
+# into the repo root for the SWE-bench leaderboards flow; not part
+# of the EvoMas source tree.
+/sb-cli/
+/sb-cli-reports/
+/experiments/

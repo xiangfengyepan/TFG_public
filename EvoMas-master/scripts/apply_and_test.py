@@ -50,25 +50,16 @@ try:
 except Exception:  # pragma: no cover -- script must still work without evomas installed
     _HAS_EVOMAS_PATCH_TOOLS = False
 
-try:
-    from rich.console import Console
-    from rich.table import Table
-    from rich.panel import Panel
-    from rich.markup import escape as esc
-    _console = Console(force_terminal=True, highlight=False)
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.markup import escape as esc
 
-    def _print(msg: str) -> None:
-        _console.print(msg)
+_console = Console(force_terminal=True, highlight=False)
 
-    def _rich() -> bool:
-        return True
 
-except ImportError:
-    def _print(msg: str) -> None:  # type: ignore[misc]
-        print(msg)
-
-    def _rich() -> bool:  # type: ignore[misc]
-        return False
+def _print(msg: str) -> None:
+    _console.print(msg)
 
 
 # -- I/O helpers --------------------------------------------------------------
@@ -242,8 +233,8 @@ def apply_patch(patch: str, workspace: Path) -> tuple[bool, str]:
     if _HAS_EVOMAS_PATCH_TOOLS:
         # normalize_patch_impl repairs blank-context lines + recomputes hunk
         # counts; apply_patch_impl tries git apply first, then patch --fuzz=5.
-        normalized = normalize_patch_impl(patch)
-        res = apply_patch_impl(normalized or patch, str(workspace), dry_run=False)
+        normalized = normalize_patch_impl(patch)  # pyright: ignore[reportPossiblyUnboundVariable]
+        res = apply_patch_impl(normalized or patch, str(workspace), dry_run=False)  # pyright: ignore[reportPossiblyUnboundVariable]
         if res["applied"]:
             return True, res.get("output") or "patch applied"
         return False, (res.get("output") or "patch did not apply").strip()
@@ -348,20 +339,6 @@ def _status_icon(val: str) -> str:
 
 def print_result(instance_id: str, apply_ok: bool, apply_msg: str,
                  test: dict[str, Any]) -> None:
-    if not _rich():
-        verdict = "RESOLVED" if test["resolved"] else "FAIL"
-        print(f"\n{'='*60}")
-        print(f"{instance_id}  ->  {verdict}   ({test.get('resolved_rule', '?')})")
-        if not apply_ok:
-            print(f"  patch did not apply: {apply_msg}")
-        for tid, s in test["ftp_results"].items():
-            print(f"  [FAIL->PASS] {_status_icon(s)} {tid}: {s}")
-        for tid, s in test["ptp_results"].items():
-            print(f"  [REGRESSION] {_status_icon(s)} {tid}: {s}")
-        if not test["ftp_results"] and not test["ptp_results"]:
-            print(f"  pytest returncode={test['returncode']}  (rule: {test['resolved_rule']})")
-        return
-
     resolved = test["resolved"]
     color = "green" if resolved else "red"
     verdict = "[bold green]RESOLVED[/bold green]" if resolved else "[bold red]NOT RESOLVED[/bold red]"
@@ -395,10 +372,7 @@ def print_summary(results: list[dict[str, Any]]) -> None:
     total = len(results)
     color = "green" if resolved == total else "yellow" if resolved > 0 else "red"
     msg = f"Resolved {resolved}/{total} instances"
-    if _rich():
-        _console.print(Panel(f"[bold]{msg}[/bold]", border_style=color))
-    else:
-        print(f"\n{'='*60}\n{msg}\n{'='*60}")
+    _console.print(Panel(f"[bold]{msg}[/bold]", border_style=color))
 
 
 # -- SWE-bench-compatible report writers --------------------------------------
@@ -642,6 +616,7 @@ def main() -> None:
                     repo=repo, base_commit=base_commit, workspace=None,
                 )
             continue
+        assert workspace is not None  # clone succeeded above
 
         # Apply patch
         apply_ok, apply_msg = apply_patch(patch, workspace)

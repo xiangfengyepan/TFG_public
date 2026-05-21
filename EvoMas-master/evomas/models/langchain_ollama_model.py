@@ -3,6 +3,7 @@ import os
 from collections.abc import Callable
 from typing import Any
 
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from langchain_ollama import ChatOllama
 
@@ -101,7 +102,7 @@ def _extract_token_usage(message: Any) -> TokenUsage:
 
 
 def llm_invoke(
-    llm: ChatOllama,
+    llm: BaseChatModel,
     messages: list[BaseMessage],
     *,
     agent_name: str = "llm",
@@ -131,7 +132,7 @@ def llm_invoke(
         logger.info(
             "[%s] --> %s  messages=%d  prompt_chars=%d",
             agent_name,
-            llm.model,
+            getattr(llm, "model", llm.__class__.__name__),
             len(messages),
             sum(len(str(getattr(m, "content", ""))) for m in messages),
         )

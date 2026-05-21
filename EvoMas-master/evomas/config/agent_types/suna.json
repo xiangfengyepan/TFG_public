@@ -19,8 +19,8 @@
       "tools": []
     },
     {
-      "name": "AgentService (Planner/Orchestrator)",
-      "agent_type": "Planner/Orchestrator",
+      "name": "AgentService (Orchestrator)",
+      "agent_type": "Orchestrator",
       "short_description": "Takes Filter and Loader",
       "source_url": "https://github.com/kortix-ai/suna/blob/1a38b29f67f67152ea913ba213e32afe33d03e2b/backend/core/agents/agent_service.py#L30",
       "prompts": {},

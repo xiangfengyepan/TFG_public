@@ -13,8 +13,8 @@ from pathlib import Path
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.debug_gym import DEBUG_GYM_TOOLS
-from evomas.tools.debug_gym.EnvironmentTool import EnvironmentTool as debug_gym_tool
+from evomas.tools.repo.debug_gym import DEBUG_GYM_TOOLS
+from evomas.tools.repo.debug_gym.EnvironmentTool import EnvironmentTool as debug_gym_tool
 
 _EXPECTED_NAMES = ("EnvironmentTool",)
 

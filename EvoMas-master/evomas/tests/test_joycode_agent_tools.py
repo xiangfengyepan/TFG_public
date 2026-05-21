@@ -9,7 +9,7 @@ bundle's aggregate is therefore intentionally empty; the catalog's
 from __future__ import annotations
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.joycode_agent import (
+from evomas.tools.repo.joycode_agent import (
     JOYCODE_AGENT_TOOLS,
     CompleteTool,
     SequentialThinkingTool,

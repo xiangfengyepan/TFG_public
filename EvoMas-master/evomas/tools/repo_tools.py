@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Iterable, TypedDict
+from typing import Any, Iterable, TypedDict
 
 from langchain_core.tools import tool
 
@@ -247,7 +247,7 @@ def derive_description_fix_impl(repo_path: str, file: str, old_string: str) -> D
 
 
 @tool
-def derive_description_fix(repo_path: str, file: str, old_string: str) -> dict:
+def derive_description_fix(repo_path: str, file: str, old_string: str) -> dict[str, Any]:
     """For a class-1 description/error-message bug, deterministically
     derive the new wording from the enclosing class/function's docstring.
     Drops the common single-word fillers (`table ` before `aliases`,
@@ -266,4 +266,4 @@ def derive_description_fix(repo_path: str, file: str, old_string: str) -> dict:
         `file`) as the `path` argument to `str_replace_editor`. On failure
         returns `{error: <reason>}`.
     """
-    return derive_description_fix_impl(repo_path, file, old_string)
+    return dict(derive_description_fix_impl(repo_path, file, old_string))

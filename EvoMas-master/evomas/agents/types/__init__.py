@@ -23,7 +23,7 @@ from evomas.agents.types.bug_reproduction import BugReproductionAgent
 from evomas.agents.types.environment_setup import EnvironmentSetupAgent
 from evomas.agents.types.helper_proxy import HelperProxyAgent
 from evomas.agents.types.locator import LocatorAgent
-from evomas.agents.types.orchestrator import OrchestratorAgent
+from evomas.agents.types.orchestrator import Orchestrator
 from evomas.agents.types.patcher import PatcherAgent
 from evomas.agents.types.reviewer import ReviewerAgent
 
@@ -37,7 +37,7 @@ _TYPES: tuple[type[BaseAgent], ...] = (
     LocatorAgent,
     PatcherAgent,
     HelperProxyAgent,
-    OrchestratorAgent,
+    Orchestrator,
     BaseAgentType,
     BugReproductionAgent,
     EnvironmentSetupAgent,
@@ -53,7 +53,7 @@ TYPE_COLORS: dict[str, str] = {
     "Locator":              "#388bfd",  # blue
     "Patcher":              "#56d364",  # green
     "Helper/Proxy":         "#a371f7",  # purple
-    "Planner/Orchestrator": "#e3b341",  # amber
+    "Orchestrator": "#e3b341",  # amber
     "Base agent":           "#8b949e",  # neutral gray
     "Bug reproduction":     "#f78166",  # coral
     "Environment setup":    "#39c5cf",  # teal
@@ -98,7 +98,7 @@ __all__ = [
     "EnvironmentSetupAgent",
     "HelperProxyAgent",
     "LocatorAgent",
-    "OrchestratorAgent",
+    "Orchestrator",
     "PatcherAgent",
     "ReviewerAgent",
 ]

@@ -1,0 +1,137 @@
+{
+  "id": "star_centralized",
+  "description": "True centralized star: hub (Orchestrator) at the center with bidirectional edges to locator, patcher, reviewer for iteration, plus a one-way edge to finalizer for termination. The hub's conditional router picks a spoke to continue iterating, or `finalizer` to terminate. The finalizer (HelperProxyAgent) emits the canonical workspace diff as the run's final patch.",
+  "entry": "hub",
+  "end": "finalizer",
+  "edges": [
+    {
+      "from": "hub",
+      "to": "locator"
+    },
+    {
+      "from": "locator",
+      "to": "hub"
+    },
+    {
+      "from": "hub",
+      "to": "patcher"
+    },
+    {
+      "from": "patcher",
+      "to": "hub"
+    },
+    {
+      "from": "hub",
+      "to": "reviewer"
+    },
+    {
+      "from": "reviewer",
+      "to": "hub"
+    },
+    {
+      "from": "hub",
+      "to": "finalizer"
+    }
+  ],
+  "agents": {
+    "hub": {
+      "class": "Orchestrator",
+      "model": "ollama/qwen3.5:9b",
+      "think": false,
+      "num_ctx": 4096,
+      "stream": true,
+      "temperature": 0,
+      "top_k": 40,
+      "top_p": 0.9,
+      "min_p": 0,
+      "repeat_penalty": 1.1,
+      "repeat_last_n": 64,
+      "seed": 0,
+      "num_predict": 16,
+      "stop": [],
+      "max_iters": 1,
+      "prompts": {
+        "system": "You are the dispatch hub of a centralized-star multi-agent pipeline. Your only output is the name of the single next node to run. Never write code, never explain \u2014 emit ONE word and nothing else.",
+        "user": "## Issue\n{issue}\n\n## Locator output\n{locator}\n\n## Patcher output\n{patcher}\n\n## Reviewer output\n{reviewer}\n\nAvailable next nodes: locator, patcher, reviewer, finalizer.\n\nDecision rules (apply the FIRST matching rule \u2014 each section above carries the latest output from that worker, or is empty if it hasn't run yet):\n1. If Locator output is empty -> emit `locator`.\n2. If Patcher output is empty -> emit `patcher`.\n3. If Reviewer output is empty -> emit `reviewer`.\n4. Otherwise (all three have run at least once) -> emit `finalizer`. Do NOT loop back to patcher even on a review FAIL; ship the best-effort patch and let the downstream evaluator score it. Looping risks exhausting the recursion budget on a single instance.\n\nReply with EXACTLY ONE of: locator, patcher, reviewer, finalizer. No quotes, no explanation, no other words."
+      }
+    },
+    "locator": {
+      "class": "LocatorAgent",
+      "model": "ollama/qwen3.5:9b",
+      "think": true,
+      "num_ctx": 8192,
+      "stream": true,
+      "temperature": 0.2,
+      "top_k": 40,
+      "top_p": 0.9,
+      "min_p": 0,
+      "repeat_penalty": 1.1,
+      "repeat_last_n": 64,
+      "seed": 0,
+      "num_predict": 512,
+      "stop": [
+        "</files>"
+      ],
+      "max_iters": 6
+    },
+    "patcher": {
+      "class": "PatcherAgent",
+      "model": "ollama/qwen3.5:9b",
+      "think": true,
+      "num_ctx": 16384,
+      "stream": true,
+      "temperature": 0,
+      "top_k": 40,
+      "top_p": 0.9,
+      "min_p": 0,
+      "repeat_penalty": 1.1,
+      "repeat_last_n": 64,
+      "seed": 0,
+      "num_predict": 2048,
+      "stop": [
+        "</patch>"
+      ],
+      "max_iters": 12,
+      "fallback": {
+        "enabled": true,
+        "guarantee_change": true
+      }
+    },
+    "reviewer": {
+      "class": "ReviewerAgent",
+      "model": "ollama/qwen3.5:9b",
+      "think": true,
+      "num_ctx": 4096,
+      "stream": true,
+      "temperature": 0,
+      "top_k": 40,
+      "top_p": 0.9,
+      "min_p": 0,
+      "repeat_penalty": 1.1,
+      "repeat_last_n": 64,
+      "seed": 0,
+      "num_predict": 1024,
+      "stop": [
+        "</review>"
+      ],
+      "max_iters": 6
+    },
+    "finalizer": {
+      "class": "HelperProxyAgent",
+      "model": "ollama/qwen3.5:9b",
+      "think": true,
+      "num_ctx": 4096,
+      "stream": true,
+      "temperature": 0,
+      "top_k": 40,
+      "top_p": 0.9,
+      "min_p": 0,
+      "repeat_penalty": 1.1,
+      "repeat_last_n": 64,
+      "seed": 0,
+      "num_predict": 512,
+      "stop": [],
+      "max_iters": 4
+    }
+  }
+}

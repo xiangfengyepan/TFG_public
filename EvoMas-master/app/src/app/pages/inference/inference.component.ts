@@ -1,9 +1,6 @@
-/** Inference page shell. Owns cross-cutting state (instance list,
- * refresh status, agent-types catalog, custom-repo form) and composes
- * four sub-components plus the shared `<app-inference-instance-view>`
- * stream area. Sub-components project slices via @Input; intents bubble
- * back via @Output and translate into `InferenceRunService` /
- * `InferenceStateService` calls here. */
+/** Inference page shell — owns instance list, refresh status, and the
+ * custom-repo form. Sub-components project slices via @Input and
+ * bubble intents via @Output into `InferenceRunService`. */
 import {
   AfterViewChecked, ChangeDetectorRef, Component, ElementRef,
   OnDestroy, OnInit, ViewChild,
@@ -19,6 +16,8 @@ import { InferenceStateService } from '../../services/inference-state.service';
 import {
   AgentType, Instance, SwebenchSubset, SwebenchSplit,
 } from '../../models/types';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ICON } from '../../icons';
 import { InferenceInstanceViewComponent } from '../../components/index';
 import {
   InstancePickerTreeComponent, RunControlsBarComponent,
@@ -32,7 +31,9 @@ import {
     CommonModule, InferenceInstanceViewComponent,
     InstancePickerTreeComponent, RunControlsBarComponent,
     BatchProgressStripComponent, CustomRepoModalComponent,
+    NgIcon,
   ],
+  providers: [provideIcons(ICON)],
   templateUrl: './inference.component.html',
   styleUrl: './inference.component.css',
 })
@@ -42,8 +43,7 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   // ─── Instances ─────────────────────────────────────────────────
   instances: Instance[] = [];
   instancesTotal = 0;
-  /** 0 = unlimited. The grouped picker handles thousands of rows fine since
-   * each subset/split expander is collapsed by default. */
+  /** 0 = unlimited. The picker collapses subsets so scale isn't an issue. */
   instancesPageSize = 0;
   loadingInstances = false;
   refreshing = false;
@@ -51,8 +51,7 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   configs: string[] = [];
   showThinking = true;
-  /** Live catalog from /api/agent-types — drives the per-node color map
-   * the central log panel renders chips with. */
+  /** `/api/agent-types` catalog; feeds the per-node colour map. */
   private agentTypes: AgentType[] = [];
   private changeSub?: Subscription;
   shouldScroll = false;
@@ -77,6 +76,8 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   get running(): boolean { return this.inferSvc.running; }
   get cancelled(): boolean { return this.inferSvc.cancelled; }
   get statusMsg(): string { return this.inferSvc.statusMsg; }
+  get pullingModels(): InferenceRunService['pullingModels'] { return this.inferSvc.pullingModels; }
+  get hasActivePulls(): boolean { return this.pullingModels.length > 0; }
   get runInstances(): RunInstance[] { return this.inferSvc.instances; }
   get currentInstance(): RunInstance | null { return this.inferSvc.currentInstance; }
 
@@ -226,8 +227,7 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   toggleSplitSelection(payload: { subset: SwebenchSubset; split: SwebenchSplit }): void {
-    // Use the picker's filter via the page's own search state; rebuild ids list
-    // from cached instances + active filter so we honor what's actually visible.
+    // Honour the picker's filter — operate on visible ids only.
     const q = this.state.instanceSearch.toLowerCase();
     const ids = this.instances
       .filter(i => i.subset === payload.subset && i.split === payload.split &&
@@ -262,7 +262,6 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
     const visible: string[] = [];
     for (const inst of this.instances) {
       if (q && !inst.instance_id.toLowerCase().includes(q) && !inst.repo.toLowerCase().includes(q)) continue;
-      // Only ids whose subset+split expander is open
       if (this.state.isSubsetOpen(inst.subset) && this.state.isSplitOpen(inst.subset, inst.split)) {
         visible.push(inst.instance_id);
       }

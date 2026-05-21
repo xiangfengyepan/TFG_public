@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { ApiService } from './services/api.service';
 import { TopologyStateService } from './services/topology-state.service';
-import { UnifiedConfig } from './models/types';
-import { ApragonIconComponent } from './components/index';
+import { UnifiedConfig, ConfigSummary } from './models/types';
+import { ApragonIconComponent, EvoSelectComponent } from './components/index';
+import type { SelectOption, SelectOptionGroup } from './components/select/evo-select.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, ApragonIconComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, ApragonIconComponent, EvoSelectComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -21,11 +22,38 @@ export class App implements OnInit, OnDestroy {
   saveName = '';
   saveError = '';
 
+  // "Create from template" dialog — predefined + loaded both eligible.
+  templateDialogOpen = false;
+  templateOptions: ConfigSummary[] = [];
+  templateChoice = '';
+  templateNewName = '';
+  templateError = '';
+  templateBusy = false;
+
+  /** `templateOptions` shaped for `<evo-select [optgroups]>` — Predefined then Loaded. */
+  get templateSelectGroups(): SelectOptionGroup[] {
+    const groups: SelectOptionGroup[] = [];
+    const predefined = this.templateOptions.filter(c => c.source === 'predefined');
+    const loaded = this.templateOptions.filter(c => c.source === 'loaded');
+    if (predefined.length > 0) {
+      groups.push({
+        label: 'Predefined',
+        items: predefined.map(t => ({ value: t.stem, label: t.id || t.stem })),
+      });
+    }
+    if (loaded.length > 0) {
+      groups.push({
+        label: 'Loaded',
+        items: loaded.map(t => ({ value: t.stem, label: t.id || t.stem })),
+      });
+    }
+    return groups;
+  }
+
   apiOnline: boolean | null = null;
   apiHost = '';
   private healthTimer?: ReturnType<typeof setInterval>;
-  /** True after at least one failed probe; used to detect "API came back" so
-   * we can hard-reload and pick up any backend changes. */
+  /** True after at least one failed probe — triggers a hard-reload on recovery. */
   private wasOffline = false;
 
   constructor(
@@ -48,9 +76,7 @@ export class App implements OnInit, OnDestroy {
     this.api.getHealth().subscribe({
       next: () => {
         if (this.wasOffline) {
-          // API was down and is now back. Hard-reload so we pick up any backend
-          // changes (uvicorn --reload, schema migrations, restarted processes,
-          // …) without leaving the UI sitting on stale data.
+          // API recovered — reload to pick up any backend changes.
           window.location.reload();
           return;
         }
@@ -111,10 +137,8 @@ export class App implements OnInit, OnDestroy {
       return;
     }
 
-    // Sync the exported JSON's `id` to the chosen filename so the file
-    // round-trips cleanly through Load config… (which validates that
-    // id == filename stem). Clone first so the in-memory config the user
-    // is editing isn't renamed under their feet.
+    // Sync `id` to the chosen filename — loader enforces id == stem.
+    // Clone first so the editing session isn't mutated.
     const cloned = { ...this.state.currentConfig, id: name } as UnifiedConfig;
     const json = JSON.stringify(cloned, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -135,6 +159,73 @@ export class App implements OnInit, OnDestroy {
   openFilePicker(): void {
     this.menuOpen = false;
     this.fileInput?.nativeElement.click();
+  }
+
+  /** Open the "Create from template" modal. Snapshots the config list
+   * to avoid mid-flight reactivity. */
+  openCreateFromTemplate(): void {
+    this.templateOptions = this.state.predefinedConfigs.slice();
+    if (this.templateOptions.length === 0) {
+      alert('No templates available.');
+      this.menuOpen = false;
+      return;
+    }
+    // Default to the active config (fork-current is the common intent).
+    const active = this.state.currentConfigName;
+    const matchingTemplate = active
+      ? this.templateOptions.find(t => t.stem === active)
+      : undefined;
+    const firstPredefined = this.templateOptions.find(c => c.source === 'predefined');
+    this.templateChoice = (matchingTemplate ?? firstPredefined ?? this.templateOptions[0]).stem;
+    this.templateNewName = '';
+    this.templateError = '';
+    this.templateBusy = false;
+    this.templateDialogOpen = true;
+    this.menuOpen = false;
+  }
+
+  cancelCreateFromTemplate(): void {
+    this.templateDialogOpen = false;
+    this.templateChoice = '';
+    this.templateNewName = '';
+    this.templateError = '';
+    this.templateBusy = false;
+  }
+
+  /** Fetch the template, rewrite `id` to the new stem, persist. */
+  confirmCreateFromTemplate(): void {
+    const name = this.templateNewName.trim();
+    if (!name) { this.templateError = 'Name cannot be empty.'; return; }
+    if (/[\\/:*?"<>|]/.test(name)) {
+      this.templateError = 'Name contains invalid characters.';
+      return;
+    }
+    if (this.state.predefinedConfigs.some(c => (c.stem === name || c.id === name) && c.source === 'predefined')) {
+      this.templateError = `"${name}" collides with a predefined config. Pick a different name.`;
+      return;
+    }
+    if (!this.templateChoice) {
+      this.templateError = 'Pick a template first.';
+      return;
+    }
+
+    this.templateBusy = true;
+    this.api.getConfig(this.templateChoice).subscribe({
+      next: tpl => {
+        const cloned = { ...tpl, id: name } as unknown as Record<string, unknown>;
+        this.persistLoadedConfig(name, cloned);
+        this.templateDialogOpen = false;
+        this.templateChoice = '';
+        this.templateNewName = '';
+        this.templateError = '';
+        this.templateBusy = false;
+      },
+      error: err => {
+        this.templateError = `Failed to fetch template: ${err?.error?.detail ?? err?.message ?? 'unknown error'}`;
+        this.templateBusy = false;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   onFileChosen(event: Event): void {
@@ -164,11 +255,7 @@ export class App implements OnInit, OnDestroy {
     reader.readAsText(file);
   }
 
-  /** Validate a JSON object as a config that can be loaded. The four required
-   * top-level keys must exist (their values may be empty: `""`, `[]`, `{}`,
-   * `null`) and the JSON's `id` must equal the filename stem.
-   *
-   * Returns a human-readable reason on failure, or null when valid. */
+  /** Reason string on failure, null when valid. */
   private validateLoadedConfig(obj: Record<string, unknown>, stem: string): string | null {
     const required = ['id', 'entry', 'edges', 'agents'];
     const missing = required.filter(k => !(k in obj));
@@ -179,10 +266,7 @@ export class App implements OnInit, OnDestroy {
     return null;
   }
 
-  /** POST the loaded config to the backend. Handles the same-id collision
-   * case by re-asking the user to confirm replacement, then retrying with
-   * `replace=true`. On success, drops the in-memory current config so the
-   * Topology page reflects the freshly-saved file via its config list. */
+  /** POST the config; on 409 prompt for replacement and retry. */
   private persistLoadedConfig(stem: string, data: Record<string, unknown>, replace = false): void {
     this.api.saveLoadedConfig(stem, data, replace).subscribe({
       next: () => this.refreshConfigsAfterImport(stem, data as unknown as UnifiedConfig),
@@ -201,8 +285,6 @@ export class App implements OnInit, OnDestroy {
   }
 
   private refreshConfigsAfterImport(stem: string, data: UnifiedConfig): void {
-    // Re-pull the config list so the Topology page's left panel shows the
-    // newly-saved entry under "Loaded".
     this.api.getConfigs().subscribe({
       next: list => {
         this.state.predefinedConfigs = list;

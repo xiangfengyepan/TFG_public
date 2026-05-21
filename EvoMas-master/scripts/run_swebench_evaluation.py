@@ -1,5 +1,7 @@
 import argparse
+import importlib.util
 import logging
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -7,6 +9,38 @@ from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SWEBENCH_VENV = REPO_ROOT / "SWE-bench" / "venv"
+
+
+def _swebench_python() -> str:
+    """Locate a Python interpreter that can import `swebench.harness`.
+
+    Resolution order (mirrors `_sb_cli_executable` in the remote-eval
+    script — same shape, same caveats):
+      1. The current interpreter (`sys.executable`) if `swebench` is
+         already importable in it. This is what an end-user gets when
+         they `pip install swebench` into their active evomas venv —
+         no second venv needed.
+      2. The Windows-native venv shipped under `<repo>/SWE-bench/venv/
+         Scripts/python.exe` (if you set up SWE-bench from PowerShell).
+      3. The POSIX venv under `<repo>/SWE-bench/venv/bin/python` (the
+         common case after cloning SWE-bench + setting up its venv from
+         WSL). Skipped on Windows because CreateProcess cannot run a
+         Linux ELF binary (WinError 193).
+      4. Bare `sys.executable` as a last resort so the failure surfaces
+         as "ModuleNotFoundError: No module named 'swebench'" rather
+         than a silent fall-through."""
+    if importlib.util.find_spec("swebench") is not None:
+        return sys.executable
+    win_py = SWEBENCH_VENV / "Scripts" / "python.exe"
+    if win_py.exists():
+        return str(win_py)
+    posix_py = SWEBENCH_VENV / "bin" / "python"
+    if posix_py.exists() and os.name != "nt":
+        return str(posix_py)
+    return sys.executable
 
 
 def _remove_stale_containers(run_id: str) -> None:
@@ -69,8 +103,9 @@ def run_evaluation(
     if force:
         _purge_stale_reports(run_id, report_dir)
     dataset = SUBSET_DATASETS.get(subset, SUBSET_DATASETS["lite"])
+    python_bin = _swebench_python()
     cmd = [
-        sys.executable,
+        python_bin,
         "-m",
         "swebench.harness.run_evaluation",
         "--predictions_path", predictions_path,
@@ -85,10 +120,23 @@ def run_evaluation(
     if report_dir:
         cmd += ["--report_dir", report_dir]
     logger.info(
-        "Running evaluation with %d workers on %s (run_id=%s, dataset=%s, split=%s, force=%s, cache_level=%s, force_rebuild=%s)",
-        max_workers, predictions_path, run_id, dataset, split, force, cache_level, force_rebuild,
+        "Running evaluation with %d workers on %s (run_id=%s, dataset=%s, split=%s, force=%s, cache_level=%s, force_rebuild=%s, python=%s)",
+        max_workers, predictions_path, run_id, dataset, split, force, cache_level, force_rebuild, python_bin,
     )
-    subprocess.run(cmd, check=False)
+    try:
+        subprocess.run(cmd, check=False)
+    except OSError as e:
+        # WinError 193 = "%1 is not a valid Win32 application", fires if
+        # the resolved python is a POSIX ELF binary (the case when the
+        # project-local `SWE-bench/venv` was built under WSL and we're
+        # invoking from Windows-side Python). Same remedy as the sb-cli
+        # script: install the package into the active venv natively.
+        logger.error(
+            "Failed to execute the SWE-bench harness (%s). Install "
+            "swebench into the active evomas venv so a host-native "
+            "interpreter is used:\n  pip install swebench",
+            e,
+        )
 
 
 def main() -> None:
