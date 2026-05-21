@@ -37,7 +37,11 @@
                 <evo-button size="sm"
                             [disabled]="!predictionConfigJson"
                             title="Download the unified-config JSON used to produce this run"
-                            (clicked)="downloadPredictionConfig()">⬇ Config</evo-button>
+                            (clicked)="downloadPredictionConfig()"><ng-icon name="download" /> Config</evo-button>
+                <evo-button size="sm"
+                            [disabled]="!selectedPredFile"
+                            title="Download a Jupyter notebook that reproduces this run end-to-end (inference + evaluation), with the exact config + instance ids inlined."
+                            (clicked)="downloadNotebook()"><ng-icon name="download" /> Notebook</evo-button>
               </div>
             }
           </div>
@@ -96,5 +100,6 @@
     [loading]="logViewLoading"
     [error]="logViewError"
     [title]="logViewTitle"
+    [logFileName]="logViewFileName"
     [instance]="logViewInstance"
     (close)="closeLogViewer()" />

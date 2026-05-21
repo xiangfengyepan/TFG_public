@@ -1,3 +1,10 @@
+/** `GET /api/models` row. `pulled: false` triggers an `ollama pull`
+ * preflight before the Inference run starts. */
+export interface OllamaModel {
+  name: string;
+  pulled: boolean;
+}
+
 export interface AgentConfig {
   model: string;
   think: boolean | string;
@@ -30,7 +37,6 @@ export interface PromptBlock {
   system?: string;
   user?: string;
   proxy?: string;
-  route?: string;
   [key: string]: string | undefined;
 }
 
@@ -41,9 +47,7 @@ export interface AgentTool {
 
 export interface AgentBlock extends AgentConfig {
   class: string;
-  /** Variant key (e.g. "evomas:Locator" or "OpenHands:CodeActAgent")
-   * recording which palette dropdown choice seeded this block. Optional,
-   * for traceability only -- the runtime reads `prompts` + `tools` directly. */
+  /** Palette key (e.g. `"evomas:Locator"`). Traceability only. */
   variant?: string;
   state?: StateField[];
   tools?: AgentTool[];
@@ -59,11 +63,7 @@ export interface ToolDescriptor {
     required?: string[];
     [k: string]: unknown;
   };
-  /** Folder under `evomas/tools/` the tool was registered from, or
-   * `"evomas"` for the top-level helpers in `evomas/tools/*.py`. Used
-   * by the agent-inspector's "Add tool" dropdown to render one
-   * `<optgroup>` per owner. Optional for back-compat with any caller
-   * that doesn't read it. */
+  /** Bundle folder under `evomas/tools/`, or `"evomas"` for top-level. */
   repo?: string;
 }
 
@@ -71,22 +71,17 @@ export interface UnifiedConfig {
   id: string;
   description: string;
   entry: string;
-  /** Node(s) that route to langgraph END. May be a single node name or a
-   * list. Required in the canonical schema; legacy configs without it fall
-   * back to leaf detection on the backend (with a deprecation warning). */
+  /** Node(s) routing to langgraph END. Legacy configs without it fall
+   * back to leaf detection with a deprecation warning. */
   end?: string | string[];
   edges: TopoEdge[];
   agents: Record<string, AgentBlock>;
 }
 
 export interface ConfigSummary {
-  /** Filename stem (URL routing key, --config arg). */
   stem: string;
-  /** Human-facing identifier from the JSON's `id` field. */
   id: string;
   description: string;
-  /** Where on disk the config lives: predefined (read-only) or loaded
-   * (user-imported, renameable / deletable). */
   source: 'predefined' | 'loaded';
 }
 
@@ -94,9 +89,7 @@ export type SwebenchSubset = 'lite' | 'full' | 'verified' | 'custom';
 export type SwebenchSplit = 'dev' | 'test' | 'train' | 'custom';
 
 /** Splits actually shipped per subset on HuggingFace.
- * (Confirmed against the dataset cards as of 2026-05.) The synthetic
- * `custom/custom` group hosts user-added GitHub repos from the Inference
- * page's "Add custom GitHub repo" form. */
+ * `custom/custom` hosts user-added GitHub repos. */
 export const SUBSET_SPLITS: Record<SwebenchSubset, SwebenchSplit[]> = {
   lite:     ['dev', 'test'],
   full:     ['dev', 'test', 'train'],
@@ -117,13 +110,19 @@ export interface InferenceEvent {
     | 'status' | 'start' | 'agent_event' | 'thinking_chunk' | 'response'
     | 'tool_call' | 'agent_input' | 'agent_tokens' | 'run_id'
     | 'instance_start' | 'instance_done' | 'done' | 'error' | 'cancelled'
-    | 'handoff';
+    | 'handoff'
+    // `ollama pull` preflight: per-model start, one stdout line per
+    // `preflight_log`, then `preflight_pull_done` with the exit code.
+    | 'preflight_pull_start' | 'preflight_log' | 'preflight_pull_done';
+  model?: string;
+  code?: number;
+  line?: string;
   message?: string;
   instance_id?: string;
   instance_ids?: string[];
-  index?: number;        // 0-based position in the per-run instance queue
-  total?: number;        // total instances in this run
-  run_id?: string;       // <instance_id>-<timestamp>, links prediction ↔ evaluation
+  index?: number;
+  total?: number;
+  run_id?: string;
   config?: string;
   agent?: string;
   delta?: Record<string, unknown>;
@@ -131,21 +130,15 @@ export interface InferenceEvent {
   output_path?: string;
   traceback?: string;
   chunk?: string;
-  // response event payload — full LLM response after streaming completes.
   content?: string;
   tool?: string;
   args_preview?: string;
   result_preview?: string;
-  // agent_input event payload — predecessor outputs the agent received.
   inputs?: Record<string, unknown>;
-  // agent_tokens event payload — per-agent cumulative LLM usage.
   input?: number;
   output?: number;
-  // handoff event payload — one per outgoing edge after an agent runs.
-  // `from`/`to` are agent node ids; `summary` is a short type+size string
-  // for the chip face; `preview` is the truncated full payload for a
-  // click-to-expand modal. `keys` lists every state-slot the producer
-  // wrote on this step (usually just `[agent_name]`).
+  // handoff payload: one per outgoing edge. `summary` is the chip face;
+  // `preview` is the truncated full payload for the click-to-expand modal.
   from?: string;
   to?: string;
   summary?: string;
@@ -154,13 +147,12 @@ export interface InferenceEvent {
   timestamp?: string;
 }
 
-/** Hand-off chip rendered between two agent cards on the inference page.
- * Built from a `handoff` InferenceEvent; one chip per outgoing edge. */
+/** Hand-off chip between two agent cards; one per outgoing edge. */
 export interface HandoffChip {
   from: string;
   to: string;
-  summary: string;   // 'list(2 items, ~25 B)'
-  preview: string;   // full payload (16KB cap on the server)
+  summary: string;
+  preview: string;
   keys: string[];
   timestamp: string;
 }
@@ -212,26 +204,18 @@ export interface ResultRun {
 
 export interface ResultInstance {
   instance_id: string;
-  /** Canonical (first) source subset / split, derived from the local
-   * swebench_instances cache. Defaults to lite/dev when the id isn't in
-   * the cache. */
+  /** Canonical (first) subset/split, falling back to lite/dev. */
   subset: SwebenchSubset;
   split: SwebenchSplit;
-  /** Every (subset, split) the instance belongs to, expanded through the
-   * SWE-bench dataset hierarchy (Lite/Verified rows imply a matching Full
-   * row). Drives the Results page's subset-grouped left panel. */
+  /** Every (subset, split) the instance belongs to, expanded through
+   * the SWE-bench dataset hierarchy. */
   memberships: { subset: SwebenchSubset; split: SwebenchSplit }[];
   predictions: ResultPredictionFile[];
   evaluations: ResultEvaluationDir[];
   runs: ResultRun[];
 }
 
-/** LLM token usage for one prediction, written by the API worker.
- *   input  = prompt + context tokens sent to the model
- *   output = generated (response) tokens
- *   total  = input + output
- * The fields are optional because legacy predictions (pre-feature) don't
- * carry them. */
+/** LLM token usage. `input` = prompt+context, `output` = generated. */
 export interface PredictionTokens {
   input: number;
   output: number;
@@ -256,48 +240,36 @@ export interface ResultEvaluation {
   report: Record<string, unknown>;
   patch: string;
   files: string[];
-  /** Per-run folder (parent of the per-instance evaluation dir). Useful for
-   * the Results page's "reveal in explorer" button. */
+  /** Parent of the per-instance evaluation dir; reveal-in-explorer target. */
   run_dir: string;
-  /** Top-level cross-model summary file (`<model>.<run_id>.json`). Empty
-   * string when no summary has been written yet. */
+  /** Cross-model summary file; empty until written. */
   summary_path: string;
 }
 
 // ─── Agent types (live catalog from /api/agent-types) ──────────────
 export interface AgentType {
-  type: string;          // e.g. "Locator", "Patcher"
-  color: string;         // hex
+  type: string;
+  color: string;
   description: string;
-  class: string;         // backing Python class name (e.g. "LocatorAgent")
-  /** Per-type defaults the frontend uses to seed a freshly-dropped node. */
+  class: string;
   default_system: string;
   default_user: string;
   default_tools: string[];
   default_config: Record<string, unknown>;
-  /** Variants for this canonical AGENT_TYPE: the EvoMas built-in first,
-   * then every CSV-derived alternative from open-source SWE-bench solver
-   * repos. Populated by the same `/api/agent-types` response. */
+  /** EvoMas built-in first, then CSV-derived alternatives. */
   variants?: AgentVariant[];
 }
 
-/** One row in an AGENT_TYPE bucket -- either the EvoMas built-in or a
- * CSV-derived alternative from `evomas/config/agent_types/*.json`. */
+/** One variant of an AGENT_TYPE — EvoMas built-in or CSV-derived. */
 export interface AgentVariant {
-  /** Stable id used as the drag payload; e.g. "evomas:Locator" or
-   * "OpenHands:CodeActAgent". */
+  /** Drag payload (e.g. `"evomas:Locator"`). */
   key: string;
-  /** Display string, e.g. "EvoMas · default" or "OpenHands · CodeActAgent". */
   label: string;
-  /** Originating repo (`"evomas"` for the built-in; CSV stem otherwise). */
+  /** `"evomas"` for built-ins; CSV stem otherwise. */
   repo: string;
-  /** Upstream agent name within the repo, e.g. "CodeActAgent" or "Coder".
-   * For built-ins this equals the AGENT_TYPE so the dropped-node id can
-   * fall back to a stable `evomas_<type>` pattern. */
+  /** Upstream agent name. Equals AGENT_TYPE for built-ins. */
   name: string;
-  /** Canonical AGENT_TYPE this variant belongs to. */
   agent_type: string;
-  /** Source-code anchor in the upstream repo (empty for built-ins). */
   source_url: string;
   description: string;
   default_system: string;
@@ -307,9 +279,7 @@ export interface AgentVariant {
   default_config: Record<string, unknown>;
 }
 
-/** Lower-snake-case a free-form label (AGENT_TYPE, variant name, ...) into
- * a safe node id base. Used by `suggestNodeId` for collision suffixing and
- * by the Topology drop handler to derive a fresh id directly. */
+/** Lower-snake-case a free-form label into a safe node id base. */
 export function normalizeNodeBase(label: string): string {
   return label
     .toLowerCase()
@@ -319,7 +289,6 @@ export function normalizeNodeBase(label: string): string {
     .replace(/^_+|_+$/g, '');
 }
 
-// Snake-case fallback ID generator used when dropping a type chip onto the graph.
 export function suggestNodeId(typeLabel: string, takenIds: Set<string>): string {
   const base = normalizeNodeBase(typeLabel) || 'agent';
   let i = 1;
@@ -327,8 +296,7 @@ export function suggestNodeId(typeLabel: string, takenIds: Set<string>): string 
   return `${base}_${i}`;
 }
 
-// Legacy keyed-by-node-id colors. Kept as a fallback while the topology JSON
-// transitions from concrete classes to type-driven palette decisions.
+// Legacy per-node-id palette; fallback for configs without type-driven colors.
 export const AGENT_COLORS: Record<string, string> = {
   manager_agent:   '#e3b341',
   localize_agent:  '#388bfd',
@@ -346,3 +314,21 @@ export const AGENT_LABELS: Record<string, string> = {
 };
 
 export const ALL_AGENTS = Object.keys(AGENT_COLORS);
+
+/** One commit in the loaded-config history. */
+export interface ConfigHistoryEntry {
+  sha: string;
+  /** ISO-8601 UTC. */
+  ts: string;
+  message: string;
+  /** First-parent SHA, or null for the root. */
+  parent_sha: string | null;
+}
+
+/** Run pinned to a historical `config_sha` — drives the "N runs" pill. */
+export interface ConfigRunMatch {
+  runId: string;
+  instanceIds: string[];
+  /** ISO-8601 from inference start. */
+  ts: string;
+}

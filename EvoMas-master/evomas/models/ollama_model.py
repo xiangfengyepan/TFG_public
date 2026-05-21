@@ -2,7 +2,7 @@
 import json
 from pydantic import BaseModel
 import sys
-from typing import Optional, List, Any, Dict, Sequence, Literal
+from typing import Optional, List, Any, Dict, Literal
 import ollama
 from ollama import ChatResponse, Message
 from enum import Enum
@@ -164,7 +164,7 @@ class OllamaWrapper:
             traceback.print_exc()
 
             return ChatResponse(
-                message={"role": MessageRoleEnum.assistant, "content": error_message},
+                message=Message(role="assistant", content=error_message),
                 done=True,
             )
 
@@ -175,7 +175,7 @@ class OllamaWrapper:
             traceback.print_exc()
 
             return ChatResponse(
-                message={"role": MessageRoleEnum.assistant, "content": error_message},
+                message=Message(role="assistant", content=error_message),
                 done=True,
             )
 
@@ -209,6 +209,7 @@ class OllamaWrapper:
             )
             print(safe_content)
 
+    @staticmethod
     def print_metrics(response: ChatResponse) -> None:
         if not response:
             return

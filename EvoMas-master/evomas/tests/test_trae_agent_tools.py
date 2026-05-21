@@ -15,8 +15,8 @@ from pathlib import Path
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.trae_agent import (
-    TRAE_AGENT_TOOLS,
+from evomas.tools.repo.trae_agent import TRAE_AGENT_TOOLS
+from evomas.tools.repo.trae_agent import (
     CKGTool,
     JSONEditTool,
     TaskDoneTool,

@@ -71,12 +71,9 @@ def clone_workspace(instance_id: str, repo: str, base_commit: str) -> Workspace:
     url: str = f"https://github.com/{repo}.git"
 
     if path.exists():
-        # Prefer bringing an existing clone to the right commit in place — it
-        # avoids the Windows rmtree-then-reclone dance where a locked .git
-        # subdir can leave the directory partially intact and break the
-        # subsequent `git clone` with "File exists" (rc=128). Reset → clean →
-        # checkout; fall through to fetch+checkout if the commit isn't local;
-        # only nuke + reclone if even that fails.
+        # Prefer in-place reset over rmtree-then-reclone: on Windows a
+        # locked .git subdir can leave the dir partially intact and break
+        # the subsequent `git clone` with "File exists" (rc=128).
         try:
             _run(["git", "reset", "--hard", "HEAD"], cwd=path)
             _run(["git", "clean", "-fdx"], cwd=path)
@@ -92,19 +89,17 @@ def clone_workspace(instance_id: str, repo: str, base_commit: str) -> Workspace:
             logger.warning(
                 "workspace exists but in-place checkout failed (%s); recloning", exc,
             )
-        # Cleanup retry loop. On Windows the first pass often hits Defender /
-        # OneDrive scan locks and leaves stale `.git/hooks/*.sample` behind;
-        # a brief pause is usually enough for handles to drop.
+        # Retry loop: on Windows the first pass often hits Defender /
+        # OneDrive scan locks leaving stale `.git/hooks/*.sample` behind.
         for _ in range(3):
             _force_rmtree(path)
             if not path.exists():
                 break
             time.sleep(0.5)
 
-        # Even if the top-level directory is gone, `git clone` may still fail
-        # with `cannot copy ... applypatch-msg.sample: File exists` when AV
-        # rehydrates template files faster than git can write them. Fall back
-        # to a unique sibling path so the clone always lands somewhere fresh.
+        # AV can rehydrate template files faster than git writes them
+        # (`cannot copy ... applypatch-msg.sample: File exists`). Fall
+        # back to a unique sibling path so the clone lands somewhere fresh.
         if path.exists():
             new_path = path.parent / f"{path.name}-{uuid.uuid4().hex[:8]}"
             logger.warning(
@@ -113,20 +108,14 @@ def clone_workspace(instance_id: str, repo: str, base_commit: str) -> Workspace:
             )
             path = new_path
 
-    # Always wipe the destination immediately before `git clone`, even when
-    # the prior in-place reset thought it left the dir gone. `_force_rmtree`
-    # silently no-ops on a non-existent path, so this is a cheap belt-and-
-    # braces guard against the destination-not-empty failure mode (rc=3 or
-    # "File exists") we keep seeing on Windows.
+    # Belt-and-braces wipe before clone — guards the recurring Windows
+    # destination-not-empty failure (rc=3 / "File exists").
     logger.info("cloning %s @ %s into %s", url, base_commit, path)
     _force_rmtree(path)
     try:
         _run(["git", "clone", url, str(path)], timeout=900)
     except RepoCloneError as exc:
-        # Last-resort retry on a fresh uuid-suffixed path when git itself
-        # complains about a pre-existing file inside the brand-new clone dir
-        # (the AV-rehydrates-templates race described above). Wipe the
-        # fallback path first too -- same reason.
+        # Retry on fresh uuid path when git hits the AV-rehydrates-templates race.
         if "File exists" in str(exc):
             fallback = path.parent / f"{path.name}-{uuid.uuid4().hex[:8]}"
             logger.warning(

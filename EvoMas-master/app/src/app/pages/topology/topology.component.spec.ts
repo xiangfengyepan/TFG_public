@@ -135,6 +135,7 @@ const rafSpy = vi.fn((cb: FrameRequestCallback) => {
 vi.stubGlobal('requestAnimationFrame', rafSpy);
 
 import { TopologyComponent } from './topology.component';
+import { TopologyStateService } from '../../services/topology-state.service';
 
 const BASE = 'http://localhost:8000/api';
 
@@ -150,7 +151,7 @@ const CHAIN_CFG = {
   end: 'orchestrator',
   edges: [{ from: 'orchestrator', to: 'locator' }],
   agents: {
-    orchestrator: { class: 'OrchestratorAgent' },
+    orchestrator: { class: 'Orchestrator' },
     locator:  { class: 'LocatorAgent' },
   },
 } as unknown as UnifiedConfig;
@@ -162,7 +163,7 @@ const EVO_CHAIN_CFG = {
   end: 'orchestrator',
   edges: [{ from: 'orchestrator', to: 'locator' }],
   agents: {
-    orchestrator: { class: 'Planner/Orchestrator' },
+    orchestrator: { class: 'Orchestrator' },
     locator:  { class: 'Locator' },
   },
 } as unknown as UnifiedConfig;
@@ -264,6 +265,119 @@ describe('TopologyComponent · graph re-renders after error → success config s
     // checkNoChanges pass runs while the test's error suppressor is still
     // attached.
     await new Promise<void>(r => setTimeout(r, 0));
+  });
+
+  // ── Reset-to-defaults helpers + prompt-tab default-vs-custom chip ──
+  // These exercise the three per-section reset buttons (TODO 2) plus the
+  // `isCustomPrompt` getter used by the prompt-tab chip (TODO 3). The
+  // setup pivots the freshly-loaded `chain` config into a "loaded" (i.e.
+  // writable) config and prepopulates an `AgentType` catalog so the
+  // class → type lookup can resolve the active block.
+  function makeWritable(): TopologyStateService {
+    // Tear down the live DOM-attached fixture BEFORE mutating block fields.
+    // The parent beforeEach loaded EVO_CHAIN_CFG and rendered it; any
+    // synchronous mutation (resetParams overwriting num_predict from 10
+    // back to the catalog default) would otherwise trip dev-mode
+    // checkNoChanges (NG0100) on the next CD pass. We don't need the DOM
+    // for these tests — we exercise the methods directly.
+    fixture.destroy();
+    const svc = TestBed.inject(TopologyStateService);
+    svc.predefinedConfigs = [
+      { stem: 'chain', id: 'chain', description: '', source: 'loaded' },
+    ];
+    svc.currentConfigName = 'chain';
+    svc.selectedAgent = 'orchestrator';
+    // Inject an agent-type catalog entry that matches the orchestrator
+    // block's class so resetParams/resetTools/resetPrompts can find their
+    // defaults. Bypasses the private classToType via `as any` since we
+    // don't want the public API surface to grow just for the test.
+    component.agentTypes = [{
+      type: 'Orchestrator',
+      color: '#abc',
+      description: '',
+      class: 'Orchestrator',
+      default_system: 'default-system',
+      default_user: 'default-user',
+      default_tools: ['read_file', 'finish'],
+      default_config: {
+        model: 'qwen3.5:9b',
+        think: true,
+        temperature: 0.0,
+        num_ctx: 2048,
+      },
+    }];
+    (component as unknown as { classToType: Record<string, string> }).classToType = {
+      'Orchestrator': 'Orchestrator',
+    };
+    return svc;
+  }
+
+  it('resetParams overwrites only Ollama knobs and leaves prompts/tools intact', () => {
+    const svc = makeWritable();
+    const block = svc.selectedAgentBlock()!;
+    block.temperature = 0.99;
+    block.tools = [{ name: 'apply_patch', params: { foo: 'bar' } }];
+    block.prompts = { system: 'custom-sys', user: 'custom-usr' };
+
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    component.resetParams();
+    confirmSpy.mockRestore();
+
+    expect(block.temperature).toBe(0.0);
+    expect(block.num_ctx).toBe(2048);
+    expect(block.tools).toEqual([{ name: 'apply_patch', params: { foo: 'bar' } }]);
+    expect(block.prompts).toEqual({ system: 'custom-sys', user: 'custom-usr' });
+    expect(svc.dirty).toBe(true);
+  });
+
+  it('resetTools re-applies type default_tools and leaves params/prompts intact', () => {
+    const svc = makeWritable();
+    const block = svc.selectedAgentBlock()!;
+    block.tools = [{ name: 'apply_patch', params: { foo: 'bar' } }];
+    block.temperature = 0.99;
+    block.prompts = { system: 'custom-sys' };
+
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    component.resetTools();
+    confirmSpy.mockRestore();
+
+    expect(block.tools).toEqual([
+      { name: 'read_file', params: {} },
+      { name: 'finish',    params: {} },
+    ]);
+    expect(block.temperature).toBe(0.99);
+    expect(block.prompts).toEqual({ system: 'custom-sys' });
+    expect(svc.dirty).toBe(true);
+  });
+
+  it('resetPrompts clears block.prompts and leaves params/tools intact', () => {
+    const svc = makeWritable();
+    const block = svc.selectedAgentBlock()!;
+    block.prompts = { system: 'custom-sys', user: 'custom-usr', proxy: 'p' };
+    block.tools = [{ name: 'apply_patch', params: { foo: 'bar' } }];
+    block.temperature = 0.99;
+
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    component.resetPrompts();
+    confirmSpy.mockRestore();
+
+    expect(block.prompts).toEqual({});
+    expect(block.tools).toEqual([{ name: 'apply_patch', params: { foo: 'bar' } }]);
+    expect(block.temperature).toBe(0.99);
+    expect(svc.dirty).toBe(true);
+  });
+
+  it('reset methods short-circuit when confirm() is dismissed', () => {
+    const svc = makeWritable();
+    const block = svc.selectedAgentBlock()!;
+    block.temperature = 0.99;
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    svc.dirty = false;
+    component.resetParams();
+    confirmSpy.mockRestore();
+
+    expect(block.temperature).toBe(0.99);
+    expect(svc.dirty).toBe(false);
   });
 
   it('graph host is always mounted (no [hidden] on .graph-wrap)', async () => {

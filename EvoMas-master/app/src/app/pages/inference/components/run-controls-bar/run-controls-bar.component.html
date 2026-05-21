@@ -27,15 +27,15 @@
   <evo-button variant="success"
               [disabled]="selectionCount === 0 || running"
               (clicked)="run.emit()">
-    ▶ Run @if (selectionCount > 1) { ({{ selectionCount }}) } @else if (selectionCount === 1) { (1) }
+    <ng-icon name="play" /> Run @if (selectionCount > 1) { ({{ selectionCount }}) } @else if (selectionCount === 1) { (1) }
   </evo-button>
   @if (running) {
     <evo-button variant="danger" (clicked)="cancel.emit()" title="Cancel the active run">
-      ■ Cancel
+      <ng-icon name="stop" /> Cancel
     </evo-button>
   } @else if (runInstancesCount > 0) {
     <evo-button variant="ghost" (clicked)="clearRun.emit()" title="Clear the previous run">
-      ✕ Clear
+      <ng-icon name="close" /> Clear
     </evo-button>
   }
 </div>

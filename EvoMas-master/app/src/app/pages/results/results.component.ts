@@ -1,12 +1,10 @@
-/** Results page shell. Owns cross-cutting state (instance tree, selection,
- * loaded artefacts, log-viewer modal) and the async fetch pipeline; composes
- * four sub-components plus the shared `<app-inference-instance-view>` via
- * `<app-log-viewer-modal>`. Sub-components are pure presentation — every
- * intent bubbles back here via @Output. */
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+/** Results page shell — owns selection / fetch pipeline / log-viewer
+ * modal and composes the four sub-panels. Sub-components are pure
+ * presentation; intents bubble back here via @Output. */
+import { Component, ChangeDetectorRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
@@ -18,7 +16,9 @@ import {
   ResultPredictionFile, ResultEvaluationDir, ResultRun,
   UnifiedConfig,
 } from '../../models/types';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { EvoBoxComponent, EvoButtonComponent, EvoSelectComponent } from '../../components/index';
+import { ICON } from '../../icons';
 import { RunInstance, buildNodeColors, parseNdjsonToRunInstance } from '../../services/inference-run.service';
 
 import {
@@ -34,12 +34,16 @@ type LogName = 'run_instance.log' | 'test_output.txt' | 'eval.sh' | 'patch.diff'
   imports: [
     CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent, EvoSelectComponent,
     InstanceTreePickerComponent, PredictionPanelComponent,
-    EvaluationPanelComponent, LogViewerModalComponent,
+    EvaluationPanelComponent, LogViewerModalComponent, NgIcon,
   ],
+  providers: [provideIcons(ICON)],
   templateUrl: './results.component.html',
   styleUrl: './results.component.css',
 })
 export class ResultsComponent implements OnInit {
+  /** Used to scroll the deep-linked row into view. */
+  @ViewChild(InstanceTreePickerComponent) treePicker?: InstanceTreePickerComponent;
+
   instances: ResultInstance[] = [];
 
   // ─── Selection (persisted across navigation) ───────────────────
@@ -66,6 +70,8 @@ export class ResultsComponent implements OnInit {
   logViewLoading = false;
   logViewError = '';
   logViewTitle = '';
+  /** Text-log filename shown in the modal title. */
+  logViewFileName = '';
   private agentTypesCache: AgentType[] | null = null;
 
   loading = false;
@@ -76,8 +82,12 @@ export class ResultsComponent implements OnInit {
     private state: ResultsStateService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private route: ActivatedRoute,
     private evalSvc: EvaluationRunService,
   ) {}
+
+  /** Deep-link from `?runId=…&instanceId=…`; applied after `refresh()`. */
+  private pendingDeepLink: { runId?: string; instanceId?: string } | null = null;
 
   // ─── State proxies ─────────────────────────────────────────────
   get filter(): string { return this.state.filter; }
@@ -110,8 +120,6 @@ export class ResultsComponent implements OnInit {
     });
   }
 
-  /** Set of `job/<runId>` keys carried by the state service so the open
-   * state survives navigation. */
   get openJobs(): Set<string> { return this.state.openJobs; }
 
   get filteredInstances(): ResultInstance[] {
@@ -198,7 +206,70 @@ export class ResultsComponent implements OnInit {
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────
-  ngOnInit(): void { this.refresh(); }
+  ngOnInit(): void {
+    // Subscribe (not snapshot) so deep-links land when the user is
+    // already on this page — query-only nav keeps the component mounted.
+    this.route.queryParamMap.subscribe(q => {
+      const runId = q.get('runId') ?? '';
+      const instanceId = q.get('instanceId') ?? '';
+      this.pendingDeepLink = (runId || instanceId)
+        ? {
+            ...(runId ? { runId } : {}),
+            ...(instanceId ? { instanceId } : {}),
+          }
+        : null;
+      this.refresh();
+    });
+  }
+
+  /** Apply the queued deep-link. Precise (instance+run) pairs require
+   * both to exist; partial matches clear selection instead of latching
+   * onto a different run on the same instance. */
+  private applyPendingDeepLink(): void {
+    const link = this.pendingDeepLink;
+    if (!link) return;
+    this.pendingDeepLink = null;
+    if (link.instanceId && link.runId) {
+      const inst = this.instances.find(i => i.instance_id === link.instanceId);
+      const run = inst?.runs.find(r => r.run_id === link.runId);
+      if (inst && run) {
+        this.selectInstance(inst.instance_id);
+        this.selectRun(run.run_id);
+      } else {
+        this.clearSelection();
+      }
+      return;
+    }
+    if (link.instanceId) {
+      const inst = this.instances.find(i => i.instance_id === link.instanceId);
+      if (inst) {
+        this.selectInstance(inst.instance_id);
+      } else {
+        this.clearSelection();
+      }
+      return;
+    }
+    if (link.runId) {
+      for (const inst of this.instances) {
+        const run = inst.runs.find(r => r.run_id === link.runId);
+        if (run) {
+          this.selectInstance(inst.instance_id);
+          this.selectRun(run.run_id);
+          return;
+        }
+      }
+      this.clearSelection();
+    }
+  }
+
+  /** Force grouped-by-run mode, open the run's group, scroll into view.
+   * The new Set is required so `[openJobs]` re-checks (Object.is). */
+  private _revealRunInLeftPanel(runId: string): void {
+    this.state.groupByInstance = false;
+    this.state.openJobs = new Set<string>([...this.state.openJobs, `job/${runId}`]);
+    this.cdr.markForCheck();
+    setTimeout(() => this.treePicker?.revealSelected(), 0);
+  }
 
   private restoreSelection(): void {
     if (!this.selectedRunId) return;
@@ -214,7 +285,10 @@ export class ResultsComponent implements OnInit {
     this.api.getResultInstances().subscribe({
       next: (list) => {
         this.instances = list;
-        if (this.selectedId && !list.find(i => i.instance_id === this.selectedId)) {
+        // Deep-link wins over the last-viewed selection.
+        if (this.pendingDeepLink) {
+          this.applyPendingDeepLink();
+        } else if (this.selectedId && !list.find(i => i.instance_id === this.selectedId)) {
           this.clearSelection();
         } else {
           this.restoreSelection();
@@ -278,6 +352,7 @@ export class ResultsComponent implements OnInit {
       this.loadPredictionConfig(this.selectedPredFile);
     }
     if (this.selectedEvalDir) this.loadEvaluation(this.selectedEvalDir);
+    if (runId) this._revealRunInLeftPanel(runId);
     this.cdr.markForCheck();
   }
 
@@ -373,6 +448,28 @@ export class ResultsComponent implements OnInit {
     this.downloadText(this.predictionConfigJson, `${stem}.json`, 'application/json');
   }
 
+  /** Reproduce-this-run notebook (built server-side, streamed as blob). */
+  downloadNotebook(): void {
+    if (!this.selectedPredFile) return;
+    this.api.getResultPredictionNotebook(this.selectedPredFile.path).subscribe({
+      next: blob => {
+        const stem = this.selectedPredFile?.name?.replace(/\.jsonl$/i, '') || 'prediction';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${stem}.ipynb`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+      error: err => {
+        this.error = err?.error?.detail ?? err?.message ?? 'Failed to generate notebook';
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   reveal(path: string | null | undefined): void {
     if (!path) return;
     this.api.revealInExplorer(path).subscribe({ error: () => { /* swallow */ } });
@@ -417,6 +514,8 @@ export class ResultsComponent implements OnInit {
     this.logViewError = '';
     this.logViewInstance = null;
     this.logViewTitle = this.prediction?.data?.instance_id ?? this.selectedId ?? '';
+    this.logViewFileName = this.selectedRunId
+      ? `prediction-${this.selectedRunId}.log` : '';
     this.cdr.markForCheck();
 
     const agentTypes$ = this.agentTypesCache
@@ -432,8 +531,7 @@ export class ResultsComponent implements OnInit {
         this.logViewLoading = false;
         if (types && !this.agentTypesCache) this.agentTypesCache = types;
         if (!ndjson.exists) {
-          this.logViewError =
-            'NDJSON event log not found for this run. Older runs predate the SSE event sink — re-run inference to capture one.';
+          this.logViewError = 'NDJSON event log not found for this run — re-run inference to capture one.';
           this.cdr.markForCheck();
           return;
         }
@@ -462,6 +560,7 @@ export class ResultsComponent implements OnInit {
     this.logViewInstance = null;
     this.logViewError = '';
     this.logViewTitle = '';
+    this.logViewFileName = '';
     this.cdr.markForCheck();
   }
 

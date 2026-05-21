@@ -12,8 +12,8 @@ import json
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.swe_agent import SWE_AGENT_TOOLS
-from evomas.tools.swe_agent.list_mcp_tools import list_mcp_tools as swe_tools
+from evomas.tools.repo.swe_agent import SWE_AGENT_TOOLS
+from evomas.tools.repo.swe_agent.list_mcp_tools import list_mcp_tools as swe_tools
 
 _EXPECTED_NAMES = ("list_mcp_tools",)
 

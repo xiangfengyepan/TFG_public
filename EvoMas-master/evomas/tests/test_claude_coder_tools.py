@@ -13,8 +13,7 @@ from pathlib import Path
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.claude_coder import (
-    CLAUDE_CODER_TOOLS,
+from evomas.tools.repo.claude_coder import (
     ExploreRepoFolderTool,
     addInterestedFileTool,
     askFollowupQuestionTool,
@@ -31,6 +30,7 @@ from evomas.tools.claude_coder import (
     webSearchTool,
     executeCommandTool,
 )
+from evomas.tools.repo.claude_coder import CLAUDE_CODER_TOOLS
 
 _EXPECTED_NAMES = (
     "executeCommandTool",

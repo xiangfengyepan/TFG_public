@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import {
   UnifiedConfig, ConfigSummary, Instance, InferenceEvent, EvalEvent,
   ResultInstance, ResultPrediction, ResultEvaluation, ToolDescriptor,
-  AgentType, AgentVariant, PredictionInspection,
+  AgentType, AgentVariant, PredictionInspection, OllamaModel,
+  ConfigHistoryEntry, ConfigRunMatch,
 } from '../models/types';
 
 const BASE = 'http://localhost:8000/api';
@@ -13,19 +14,19 @@ const BASE = 'http://localhost:8000/api';
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  // ─── Health (used by the navbar's API indicator) ──────────────────
+  // ─── Health ───────────────────────────────────────────────────────
   getHealth(): Observable<{ status: string }> {
     return this.http.get<{ status: string }>(`${BASE}/health`);
   }
 
-  /** Hostname:port portion of BASE (without the `/api` suffix). */
+  /** `host:port` portion of BASE. */
   get apiHost(): string {
     return BASE.replace(/\/?api\/?$/, '').replace(/^https?:\/\//, '');
   }
 
   // ─── Models ───────────────────────────────────────────────────────
-  getModels(): Observable<string[]> {
-    return this.http.get<string[]>(`${BASE}/models`);
+  getModels(): Observable<OllamaModel[]> {
+    return this.http.get<OllamaModel[]>(`${BASE}/models`);
   }
 
   // ─── MCP tools ────────────────────────────────────────────────────
@@ -38,10 +39,8 @@ export class ApiService {
     return this.http.get<AgentType[]>(`${BASE}/agent-types`);
   }
 
-  /** Same data the `variants` field of `getAgentTypes()` already carries,
-   * but flat / keyed by AGENT_TYPE -- convenient for callers that only
-   * need the variants list. The first entry in each bucket is the EvoMas
-   * built-in (the default selection for the Topology dropdown). */
+  /** Variants flat-keyed by AGENT_TYPE. First entry per bucket is the
+   * EvoMas built-in (Topology dropdown default). */
   getAgentVariants(): Observable<Record<string, AgentVariant[]>> {
     return this.http.get<Record<string, AgentVariant[]>>(`${BASE}/agent-variants`);
   }
@@ -55,10 +54,8 @@ export class ApiService {
     return this.http.get<UnifiedConfig>(`${BASE}/configs/${name}`);
   }
 
-  /** Persist a user-loaded config under evomas/config/loaded/<name>.json.
-   * Returns 409 when the name collides — the caller can retry with
-   * `replace: true` to confirm overwrite. Predefined-config collisions
-   * always fail (predefined are read-only). */
+  /** 409 on name collision — retry with `replace: true` to overwrite.
+   * Predefined-stem collisions always fail. */
   saveLoadedConfig(name: string, data: unknown, replace = false): Observable<{ ok: boolean; stem: string; path: string }> {
     return this.http.post<{ ok: boolean; stem: string; path: string }>(
       `${BASE}/configs/loaded`, { name, data, replace },
@@ -77,11 +74,51 @@ export class ApiService {
     );
   }
 
-  /** NDJSON SSE-event transcript saved alongside the prediction file by the
-   * inference worker. Returns `exists: false` for older runs that have no log. */
+  /** Newest-first commit log for a loaded config. */
+  getConfigHistory(name: string): Observable<{ entries: ConfigHistoryEntry[] }> {
+    return this.http.get<{ entries: ConfigHistoryEntry[] }>(
+      `${BASE}/configs/loaded/${encodeURIComponent(name)}/history`,
+    );
+  }
+
+  /** Raw `<name>.json` contents at `sha`. */
+  getConfigAtSha(name: string, sha: string): Observable<{ sha: string; content: string }> {
+    return this.http.get<{ sha: string; content: string }>(
+      `${BASE}/configs/loaded/${encodeURIComponent(name)}/history/${encodeURIComponent(sha)}`,
+    );
+  }
+
+  /** Runs whose recorded `config_sha` matches — drives the "N runs" pill. */
+  getRunsForConfigSha(name: string, sha: string): Observable<{ matches: ConfigRunMatch[] }> {
+    return this.http.get<{ matches: ConfigRunMatch[] }>(
+      `${BASE}/configs/loaded/${encodeURIComponent(name)}/history/${encodeURIComponent(sha)}/runs`,
+    );
+  }
+
+  /** Drop one commit; descendants get rewritten SHAs. */
+  deleteConfigHistoryEntry(name: string, sha: string): Observable<{ ok: boolean; new_head: string }> {
+    return this.http.delete<{ ok: boolean; new_head: string }>(
+      `${BASE}/configs/loaded/${encodeURIComponent(name)}/history/${encodeURIComponent(sha)}`,
+    );
+  }
+
+  /** Wipe history across every loaded config. JSON files are preserved. */
+  clearAllConfigHistory(): Observable<{ ok: boolean }> {
+    return this.http.delete<{ ok: boolean }>(`${BASE}/configs/loaded/history`);
+  }
+
+  /** Config snapshot saved alongside the run. `exists: false` for legacy runs. */
   getResultPredictionConfig(path: string): Observable<{ path: string; name: string; exists: boolean; raw: string }> {
     return this.http.get<{ path: string; name: string; exists: boolean; raw: string }>(
       `${BASE}/results/prediction/config?path=${encodeURIComponent(path)}`,
+    );
+  }
+
+  /** Reproduce-this-run notebook as a Blob (attachment-headered). */
+  getResultPredictionNotebook(path: string): Observable<Blob> {
+    return this.http.get(
+      `${BASE}/results/prediction/notebook?path=${encodeURIComponent(path)}`,
+      { responseType: 'blob' },
     );
   }
 
@@ -116,18 +153,15 @@ export class ApiService {
     return this.http.get<ResultPrediction>(url);
   }
 
-  /** NDJSON SSE-event transcript saved alongside the prediction file by the
-   * inference worker. Returns `exists: false` for older runs that have no log. */
+  /** Text-format `.log` for a run. `exists: false` for legacy runs. */
   getResultPredictionLog(path: string): Observable<{ path: string; name: string; exists: boolean; raw: string }> {
     return this.http.get<{ path: string; name: string; exists: boolean; raw: string }>(
       `${BASE}/results/prediction/log?path=${encodeURIComponent(path)}`,
     );
   }
 
-  /** Internal NDJSON SSE-event log saved under `evomas/logs/inference_logs/`
-   * by the inference worker — same stream the Inference page consumes live.
-   * Returned for completed runs so the Results-page modal can replay them
-   * as agent cards + hand-off chips with full fidelity. */
+  /** Internal NDJSON SSE log — same stream the Inference page consumes
+   * live, replayed for completed runs in the Results modal. */
   getResultPredictionNdjson(path: string): Observable<{ path: string; name: string; exists: boolean; raw: string }> {
     return this.http.get<{ path: string; name: string; exists: boolean; raw: string }>(
       `${BASE}/results/prediction/ndjson?path=${encodeURIComponent(path)}`,
@@ -165,9 +199,7 @@ export class ApiService {
     );
   }
 
-  /** Append a user-provided GitHub repo as an instance. The backend writes a
-   * subset=custom row to swebench_instances.jsonl; the Evaluation page
-   * filters those rows out before invoking the SWE-bench harness. */
+  /** Append a user-provided GitHub repo as a custom-subset row. */
   addCustomInstance(repo: string, problem_statement: string, base_commit?: string): Observable<{
     instance_id: string; repo: string; base_commit: string; duplicate: boolean;
   }> {
@@ -177,9 +209,7 @@ export class ApiService {
     );
   }
 
-  /** Pull every (subset, split) pair from HuggingFace in one server-side
-   * call. Slow (Full alone is huge); the caller should disable the refresh
-   * button while this is in flight. */
+  /** Pull every (subset, split) pair from HuggingFace. Slow. */
   refreshAllInstances(limit?: number): Observable<{
     total: number;
     results: Record<string, { count?: number; error?: string }>;
@@ -234,6 +264,42 @@ export class ApiService {
     return this.http.post<{ ok: boolean }>(`${BASE}/inference/cancel/${instanceId}`, {});
   }
 
+  /** Stream `ollama pull <model>` as SSE: `{type:'log',line}` per stdout
+   * line, then a terminal `{type:'done',code}` (0 = success). */
+  streamModelPull(model: string): Observable<{ type: 'log'; line: string } | { type: 'done'; code: number }> {
+    return new Observable(observer => {
+      const controller = new AbortController();
+      fetch(`${BASE}/models/pull`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model }),
+        signal: controller.signal,
+      }).then(async res => {
+        if (!res.body) { observer.error(new Error('no response body')); return; }
+        const reader = res.body.getReader();
+        const dec = new TextDecoder();
+        let buf = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) { observer.complete(); break; }
+          buf += dec.decode(value, { stream: true });
+          const lines = buf.split('\n');
+          buf = lines.pop() ?? '';
+          for (const line of lines) {
+            const t = line.trim();
+            if (t.startsWith('data: ')) {
+              try { observer.next(JSON.parse(t.slice(6))); } catch {}
+            }
+          }
+        }
+      }).catch(err => {
+        if (err.name !== 'AbortError') observer.error(err);
+        else observer.complete();
+      });
+      return () => controller.abort();
+    });
+  }
+
   getActiveInference(): Observable<{
     active: boolean;
     run_id?: string;
@@ -252,9 +318,7 @@ export class ApiService {
     }>(`${BASE}/inference/active`);
   }
 
-  /** Return the slice of `path` after `offset` bytes, plus the new offset and
-   * whether the run is still in flight. The Inference page polls this on
-   * reload to recover live state without an SSE re-attach. */
+  /** Tail bytes of the internal NDJSON log past `offset`. */
   getInferenceLogTail(path: string, offset: number): Observable<{ raw: string; offset: number; is_running: boolean }> {
     return this.http.get<{ raw: string; offset: number; is_running: boolean }>(
       `${BASE}/inference/log-tail?path=${encodeURIComponent(path)}&offset=${offset}`,
@@ -269,8 +333,7 @@ export class ApiService {
   streamEvaluation(predictionsPath: string, split: string, maxWorkers: number, runId: string): Observable<EvalEvent> {
     return new Observable<EvalEvent>(observer => {
       const controller = new AbortController();
-      // Omit `split` and `run_id` when blank so the backend auto-detects from
-      // the prediction file (per-line `subset`/`split`).
+      // Omit blanks so the backend auto-detects from the prediction file.
       const body: Record<string, unknown> = {
         predictions_path: predictionsPath,
         max_workers: maxWorkers,

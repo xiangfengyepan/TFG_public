@@ -13,11 +13,11 @@ from pathlib import Path
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.augment_swebench_agent import (
-    AUGMENT_SWEBENCH_AGENT_TOOLS,
+from evomas.tools.repo.augment_swebench_agent import (
     CompleteTool,
     SequentialThinkingTool,
 )
+from evomas.tools.repo.augment_swebench_agent import AUGMENT_SWEBENCH_AGENT_TOOLS
 
 # `StrReplaceEditorTool` is re-exported from openhands (canonical) so it
 # is NOT in this bundle to avoid duplicate MCP registration. Behavior is

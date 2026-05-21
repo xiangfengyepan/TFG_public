@@ -1,4 +1,4 @@
-"""Planner / Orchestrator — pure LLM-driven gateway that decides the next step."""
+"""Orchestrator — pure LLM-driven gateway that decides the next step."""
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -6,24 +6,24 @@ from typing import Any, ClassVar
 from evomas.agents.llm_tool_agent import LLMToolAgent
 
 
-class OrchestratorAgent(LLMToolAgent):
-    """Planner / Orchestrator agent.
+class Orchestrator(LLMToolAgent):
+    """Orchestrator agent.
 
-    Shape mirrors the upstream Planner/Orchestrator agents catalogued at
+    Shape mirrors the upstream Orchestrator agents catalogued at
     `evomas/config/agent_types/*.json` (OpenHands AgentController, HyperAgent
     planner, trae_agent TraeAgent, …): a thin LLM gateway with no tools.
     The graph builder routes the chain; this agent's job is to emit a short
     plan / dispatch acknowledgement that downstream agents can read.
     """
 
-    AGENT_TYPE: ClassVar[str] = "Planner/Orchestrator"
+    AGENT_TYPE: ClassVar[str] = "Orchestrator"
     name = "orchestrator"
 
     OUTPUT_TYPE: ClassVar[Any] = str
     OUTPUT_DEFAULT: ClassVar[str] = ""
 
     DEFAULT_SYSTEM: ClassVar[str] = (
-        "You are the Planner/Orchestrator of a multi-agent automated "
+        "You are the Orchestrator of a multi-agent automated "
         "software-repair pipeline. You do not edit code yourself; you "
         "decide which worker agent(s) should run next.\n\n"
         "Respond with a SINGLE line containing the names of the next "

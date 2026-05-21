@@ -12,13 +12,13 @@ import json
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.composio import (
-    COMPOSIO_TOOLS,
+from evomas.tools.repo.composio import (
     MultiServerMCPClient_langchain_agent as langchain_agent,
     MultiServerMCPClient_mcp as composio_mcp,
     HostedMCPTool_openai_agents as openai_agents,
     HostedMCPTool_tool_router_mcp as tool_router_mcp,
 )
+from evomas.tools.repo.composio import COMPOSIO_TOOLS
 
 _EXPECTED_NAMES = (
     "MultiServerMCPClient_langchain_agent",

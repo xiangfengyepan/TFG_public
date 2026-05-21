@@ -17,8 +17,7 @@ import pytest
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.lingma_swe_gpt import (
-    LINGMA_SWE_GPT_TOOLS,
+from evomas.tools.repo.lingma_swe_gpt import (
     search_class,
     search_class_in_file,
     search_method_in_file,
@@ -27,6 +26,7 @@ from evomas.tools.lingma_swe_gpt import (
     search_code_in_file,
     write_patch,
 )
+from evomas.tools.repo.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
 
 # Lingma's `search_code` is the canonical EvoMas BM25 search tool —
 # re-exported, NOT in LINGMA_SWE_GPT_TOOLS (would duplicate-register

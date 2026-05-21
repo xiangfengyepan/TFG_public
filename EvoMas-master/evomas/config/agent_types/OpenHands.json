@@ -86,7 +86,7 @@
     },
     {
       "name": "AgentController",
-      "agent_type": "Planner/Orchestrator",
+      "agent_type": "Orchestrator",
       "short_description": "Controls the agents",
       "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/controller/agent_controller.py#L112",
       "prompts": {},
@@ -98,7 +98,7 @@
       "short_description": "Inherite from agent",
       "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/agenthub/browsing_agent/browsing_agent.py#L101",
       "prompts": {
-        "proxy": "\"\"\"\\\r\n{error_prefix}\r\n\r\n# Current Page URL:\r\n{cur_url}\r\n\r\n# Current Accessibility Tree:\r\n{cur_axtree_txt}\r\n\r\n# Previous Actions\r\n{prev_action_str}\r\n\r\nHere is an example with chain of thought of a valid action when clicking on a button:\r\n\"\r\nIn order to accomplish my goal I need to click on the button with bid 12\r\n```click(\"12\")```\r\n\"\r\n\"\"\""
+        "proxy": "{error_prefix}\n\n# Current Page URL:\n{cur_url}\n\n# Current Accessibility Tree:\n{cur_axtree_txt}\n\n# Previous Actions\n{prev_action_str}\n\nHere is an example with chain of thought of a valid action when clicking on a button:\n\nIn order to accomplish my goal I need to click on the button with bid 12\n```click(\"12\")```"
       },
       "tools": []
     },

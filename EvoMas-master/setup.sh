@@ -6,7 +6,11 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-VENV_DIR="$REPO_ROOT/evomas/venv"
+# Venv lives in the user's home (`~/.evomas-venv`) so the repo stays
+# free of build artefacts and the same env can be shared across multiple
+# checkouts of the repo. start_api.sh + the rc-function appended below
+# both reference the same path.
+VENV_DIR="$HOME/.evomas-venv"
 PYTHON_EVOMAS="$VENV_DIR/bin/python"
 EVOMAS_EXE="$VENV_DIR/bin/evomas"
 
@@ -42,7 +46,7 @@ npm_ok=0;    test_cli npm    "Install Node.js 18+ from https://nodejs.org/ (need
 
 # ── 2. Ensure the venv exists ────────────────────────────────────────────────
 # Non-destructive: never delete an existing venv. If something is broken,
-# remove it yourself (`rm -rf evomas/venv`) and re-run setup -- see the
+# remove it yourself (`rm -rf "$VENV_DIR"`) and re-run setup -- see the
 # troubleshooting section in README.md.
 if [ -d "$VENV_DIR" ]; then
     echo "[setup] reusing existing venv at $VENV_DIR (pass through pip resolves any drift)"
@@ -65,6 +69,18 @@ echo "[setup] installing evomas (editable) + dependencies + dev extras"
 # stays the canonical input; this file is a regenerated lockfile.
 echo "[setup] freezing pinned versions to requirements.txt"
 "$PYTHON_EVOMAS" -m pip freeze > "$REPO_ROOT/requirements.txt"
+
+# ── 3b. Register the venv as a Jupyter kernel ────────────────────────────────
+# The "reproduce-this-run" notebook exported from the Results page sets
+# `kernelspec.name = "evomas"` so opening it in Jupyter / VSCode auto-picks
+# this interpreter without the user having to hunt through the kernel
+# dropdown. `ipykernel` itself ships via the pip install above; this
+# step just publishes the kernelspec under the user's Jupyter data dir
+# (idempotent -- safe to re-run).
+echo "[setup] registering 'evomas' Jupyter kernel"
+"$PYTHON_EVOMAS" -m ipykernel install --user --name evomas \
+    --display-name "Python 3 (EvoMas)" >/dev/null 2>&1 || \
+    echo "[setup] warning: ipykernel registration failed (notebooks will fall back to a generic Python 3 kernel)"
 
 # ── 4. Install npm deps for the Angular frontend ─────────────────────────────
 # Without this, `npx ng serve` (invoked by `evomas web` / start_frontend.sh)

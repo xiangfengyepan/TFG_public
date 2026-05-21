@@ -14,7 +14,8 @@ from pathlib import Path
 from langchain_core.tools import BaseTool
 
 from evomas.mcp.server import MCPServer
-from evomas.tools.auto_code_rover import AUTO_CODE_ROVER_TOOLS, agent_write_patch
+from evomas.tools.repo.auto_code_rover import agent_write_patch
+from evomas.tools.repo.auto_code_rover import AUTO_CODE_ROVER_TOOLS
 
 _EXPECTED_NAMES = ("agent_write_patch",)
 

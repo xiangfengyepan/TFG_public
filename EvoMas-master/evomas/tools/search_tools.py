@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from langchain_core.tools import tool
 
@@ -210,7 +210,7 @@ def detect_bug_class_impl(issue_text: str, repo_path: str) -> BugClassResult:
 
 
 @tool
-def detect_bug_class(issue_text: str, repo_path: str) -> dict:
+def detect_bug_class(issue_text: str, repo_path: str) -> dict[str, Any]:
     """Heuristically classify the SWE-bench-style issue as one of:
       * `bug_class=1` - description / error-message bug. The issue quotes
         a specific emitted string (e.g. a `description=\"...\"` argument,
@@ -234,4 +234,4 @@ def detect_bug_class(issue_text: str, repo_path: str) -> dict:
         `matched_quoted_string`, `matched_file` (relative),
         `matched_file_absolute`, `matched_line`.
     """
-    return detect_bug_class_impl(issue_text, repo_path)
+    return dict(detect_bug_class_impl(issue_text, repo_path))

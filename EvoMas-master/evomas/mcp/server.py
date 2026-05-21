@@ -5,15 +5,15 @@ from typing import Any, Callable
 
 from langchain_core.tools import BaseTool
 
-from evomas.tools.augment_swebench_agent import AUGMENT_SWEBENCH_AGENT_TOOLS
-from evomas.tools.auto_code_rover import AUTO_CODE_ROVER_TOOLS
-from evomas.tools.claude_coder import CLAUDE_CODER_TOOLS
-from evomas.tools.composio import COMPOSIO_TOOLS
-from evomas.tools.debug_gym import DEBUG_GYM_TOOLS
-from evomas.tools.joycode_agent import JOYCODE_AGENT_TOOLS
-from evomas.tools.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
+from evomas.tools.repo.augment_swebench_agent import AUGMENT_SWEBENCH_AGENT_TOOLS
+from evomas.tools.repo.auto_code_rover import AUTO_CODE_ROVER_TOOLS
+from evomas.tools.repo.claude_coder import CLAUDE_CODER_TOOLS
+from evomas.tools.repo.composio import COMPOSIO_TOOLS
+from evomas.tools.repo.debug_gym import DEBUG_GYM_TOOLS
+from evomas.tools.repo.joycode_agent import JOYCODE_AGENT_TOOLS
+from evomas.tools.repo.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
 from evomas.tools.lint_tools import run_flake8
-from evomas.tools.openhands import LOC_TOOLS, OPENHANDS_TOOLS
+from evomas.tools.repo.openhands import LOC_TOOLS, OPENHANDS_TOOLS
 from evomas.tools.patch_tools import (
     apply_description_fix,
     apply_patch,
@@ -21,12 +21,12 @@ from evomas.tools.patch_tools import (
     normalize_patch,
     reset_repo,
 )
-from evomas.tools.patchwork import PATCHWORK_TOOLS
+from evomas.tools.repo.patchwork import PATCHWORK_TOOLS
 from evomas.tools.repo_tools import derive_description_fix, list_files, read_file
 from evomas.tools.search_tools import detect_bug_class, search_code
-from evomas.tools.suna import SUNA_TOOLS
-from evomas.tools.swe_agent import SWE_AGENT_TOOLS
-from evomas.tools.trae_agent import TRAE_AGENT_TOOLS
+from evomas.tools.repo.suna import SUNA_TOOLS
+from evomas.tools.repo.swe_agent import SWE_AGENT_TOOLS
+from evomas.tools.repo.trae_agent import TRAE_AGENT_TOOLS
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +48,7 @@ class ToolRegistry:
         self.tools[descriptor.name] = descriptor
 
     def unregister(self, name: str) -> None:
-        """Remove a tool by name; no-op when the name isn't registered.
-        Used by the per-inference runtime tool fetcher to clean up tools it
-        added at the start of an inference run."""
+        """Remove a tool by name; no-op when not registered."""
         self.tools.pop(name, None)
 
     def list(self) -> list[dict[str, Any]]:
@@ -84,7 +82,7 @@ def _extract_schema(tool: BaseTool) -> dict[str, Any]:
             return args_schema.model_json_schema()
     except Exception as exc:
         logger.debug("could not extract pydantic schema for %s: %s", tool.name, exc)
-    sig = inspect.signature(getattr(tool, "func", tool))
+    sig = inspect.signature(getattr(tool, "func", tool))  # pyright: ignore[reportArgumentType]
     properties: dict[str, Any] = {}
     required: list[str] = []
     for param in sig.parameters.values():
@@ -98,18 +96,14 @@ def _extract_schema(tool: BaseTool) -> dict[str, Any]:
 
 def default_registry() -> ToolRegistry:
     registry = ToolRegistry()
-    # Core EvoMas tools — workspace I/O, patch lifecycle, bug-class
-    # diagnostics. Used by every topology regardless of repo variant.
+    # Core tools used by every topology.
     for tool in (read_file, list_files, search_code, run_flake8, apply_patch,
                  generate_diff, normalize_patch, reset_repo,
                  detect_bug_class, derive_description_fix, apply_description_fix):
         registry.register(tool)
-    # Repo-variant tool bundles (one tuple per `evomas/tools/<repo>/`
-    # package). Iterating the same loop for every repo keeps the
-    # registration order predictable; duplicate names across bundles
-    # follow the last-registered-wins rule but in practice the bundles
-    # avoid collisions by re-exporting canonicals instead of
-    # duplicating (see TOOL_AUDIT.md).
+    # Repo-variant bundles. Duplicate names across bundles are
+    # last-registered-wins; bundles avoid collisions by re-exporting
+    # canonicals instead of duplicating (see TOOL_AUDIT.md).
     for bundle in (
         OPENHANDS_TOOLS,
         LOC_TOOLS,

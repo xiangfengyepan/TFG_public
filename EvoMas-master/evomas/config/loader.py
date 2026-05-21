@@ -40,7 +40,7 @@ def _resolve_path(name_or_path: str) -> Path:
     p = Path(name_or_path)
     if p.is_file():
         return p
-    # Look in predefined/ first, then loaded/, then the legacy flat root.
+    # predefined/ → loaded/ → legacy flat root.
     for base in (PREDEFINED_DIR, LOADED_DIR, _THIS_DIR):
         candidate = base / f"{name_or_path}.json"
         if candidate.is_file():
@@ -58,11 +58,9 @@ def load_config(name_or_path: str) -> dict[str, Any]:
 
 
 def list_configs() -> list[str]:
-    """Return the stems of every *.json file shipped under evomas/config/.
-
-    Scans predefined/, loaded/, and the legacy flat root (for backwards
-    compatibility with on-disk runs that pre-date the split). Stems must be
-    unique across the three roots — the loader assumes one config per name."""
+    """Return stems of every *.json under evomas/config/ (predefined/,
+    loaded/, and the legacy flat root). Stems must be unique across the
+    three roots — the loader assumes one config per name."""
     stems: set[str] = set()
     for base in (PREDEFINED_DIR, LOADED_DIR, _THIS_DIR):
         if base.is_dir():
@@ -76,30 +74,24 @@ def agent_config_from_block(block: dict[str, Any]) -> AgentConfig:
 
 
 # ─── Variant resolution ─────────────────────────────────────────────────────
-# Agent blocks may set `variant: "<RepoId>:<AgentName>"` to pull `prompts` and
-# `tools` from `evomas/config/agent_types/<RepoId>.json` instead of inlining
-# them. Inline `prompts` / `tools` on the block always take precedence; the
-# catalog only fills in what's missing.
+# `variant: "<RepoId>:<AgentName>"` pulls prompts/tools from
+# `agent_types/<RepoId>.json`. Inline values on the block always win;
+# the catalog only fills in what's missing.
 _JINJA_INCLUDE_RE: re.Pattern[str] = re.compile(
     r"<\s*\w+\s*>\s*\{%[^%]+%\}\s*<\s*/\s*\w+\s*>",
 )
 
 
 def _strip_jinja_includes(text: str) -> str:
-    """Drop Jinja `{% include ... %}` blocks wrapped in XML-style tags (e.g.
-    the OpenHands catalog's `<SECURITY_RISK_ASSESSMENT>{% include … %}
-    </SECURITY_RISK_ASSESSMENT>`). EvoMas doesn't run a Jinja preprocessor,
-    so these would otherwise reach the LLM verbatim."""
+    """Drop XML-wrapped Jinja `{% include %}` blocks from catalog prompts —
+    EvoMas has no Jinja preprocessor so they'd otherwise reach the LLM verbatim."""
     if not isinstance(text, str):
         return text
     return _JINJA_INCLUDE_RE.sub("", text)
 
 
 def _load_variant_catalog(repo_id: str) -> dict[str, Any] | None:
-    """Read `evomas/config/agent_types/<repo_id>.json` and return the parsed
-    dict. Returns None when the file doesn't exist (caller decides what to
-    do with the miss). Catalog files use the repo id verbatim as the filename
-    stem — see `scripts/import_agent_types.py`."""
+    """Read `agent_types/<repo_id>.json` or return None on miss."""
     path = AGENT_TYPES_DIR / f"{repo_id}.json"
     if not path.is_file():
         return None
@@ -110,14 +102,9 @@ def _load_variant_catalog(repo_id: str) -> dict[str, Any] | None:
 
 
 def resolve_variant_block(block: dict[str, Any]) -> dict[str, Any]:
-    """Return a copy of `block` with `prompts` and `tools` filled from the
-    variant catalog when missing. Pass-through if `block.variant` isn't set,
-    can't be parsed, or the catalog lookup misses.
-
-    Precedence: inline `block["prompts"]` / `block["tools"]` win. The catalog
-    only fills keys that the block omitted entirely (an empty inline value
-    like `"tools": []` is honored — the block explicitly opted out).
-    """
+    """Return a copy of `block` with `prompts`/`tools` filled from the variant
+    catalog when missing. Inline values win; an empty inline value like
+    `"tools": []` is honored as an explicit opt-out."""
     variant = block.get("variant")
     if not variant or ":" not in str(variant):
         return block
@@ -144,8 +131,7 @@ def resolve_variant_block(block: dict[str, Any]) -> dict[str, Any]:
     if "tools" not in resolved:
         cat_tools = target.get("tools") or []
         if cat_tools:
-            # Catalog entries carry `{name, source_url}`; the block shape
-            # expects `{name, params}`. Drop source_url, default params={}.
+            # Catalog entries are `{name, source_url}`; the block needs `{name, params}`.
             resolved["tools"] = [
                 {"name": str(t["name"]), "params": {}}
                 for t in cat_tools if t.get("name")

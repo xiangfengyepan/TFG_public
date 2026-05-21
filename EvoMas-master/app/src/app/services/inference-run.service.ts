@@ -3,29 +3,21 @@ import { Subject, Subscription, timer } from 'rxjs';
 import { ApiService } from './api.service';
 import { AgentType, InferenceEvent, AGENT_COLORS, AGENT_LABELS, HandoffChip, UnifiedConfig } from '../models/types';
 
-/** Build the per-node colour map for one run from the active config plus
- * the /api/agent-types catalog. Used by:
- *   - the live Inference page (`refreshNodeColors`),
- *   - the Results-page modal (`parseNdjsonToRunInstance` callers),
- * so the card-dot colour matches the agent's `class` field regardless
- * of which page is rendering. Extracted from `InferenceComponent` so it
- * doesn't drift across the two consumers. */
+/** Per-node colour map from agent config + `/api/agent-types`. Shared
+ * by the live Inference page and the Results-page modal so the card
+ * palette is identical across renderers. */
 export function buildNodeColors(
   cfg: Pick<UnifiedConfig, 'agents'>,
   agentTypes: AgentType[],
 ): Record<string, string> {
-  // Two lookups off the agent-types catalog so the JSON's `class` field
-  // can be either the human-readable AGENT_TYPE label ("Locator",
-  // "Helper/Proxy", …) OR the Python class name ("LocatorAgent",
-  // "HelperProxyAgent", …) — the backend registers both and topology
-  // JSONs in this repo use a mix.
+  // Two lookups: the JSON's `class` field can be the AGENT_TYPE label
+  // ("Locator") or the Python class name ("LocatorAgent").
   const byClass: Record<string, string> = {};
   const byType:  Record<string, string> = {};
   for (const t of agentTypes) {
     byClass[t.class] = t.color;
     byType[t.type]   = t.color;
   }
-  // LLMToolAgent is the generic config-driven base — colour it as a Base agent.
   const aliasToType: Record<string, string> = { LLMToolAgent: 'Base agent' };
   const out: Record<string, string> = {};
   for (const [node, block] of Object.entries(cfg.agents ?? {})) {
@@ -65,11 +57,13 @@ export interface AgentCard {
   toolCalls: ToolCallEntry[];
   inputs: Record<string, unknown>;
   tokens: AgentTokenUsage | null;
+  /** Chips that triggered THIS card iteration (drained from the
+   * run-level pending queue at spawn time). One chip → one card. */
+  incomingChips: HandoffChip[];
 }
 
-/** Per-instance state inside the active run. The cards/finalPatch buffer here
- * so the user can switch between instances inside the run (chip click) and
- * see each one's full execution log without losing the others. */
+/** Per-instance buffer so the user can switch between instances in a
+ * multi-instance run without losing each one's execution log. */
 export interface RunInstance {
   instance_id: string;
   status: 'queued' | 'running' | 'done' | 'error' | 'cancelled';
@@ -79,11 +73,9 @@ export interface RunInstance {
   runId: string;
   errorMsg: string;
   errorTraceback: string;
-  /** Hand-off chips keyed by their *target* agent. Used by the inference
-   * page to render chips immediately BEFORE the target's card. One entry
-   * per outgoing edge — a fan-out source produces multiple chips, each
-   * with its own target. */
-  handoffsByTarget: Record<string, HandoffChip[]>;
+  /** Hand-off chips waiting for their target's next card to spawn.
+   * Drained at `_spawnCard` so each chip lands on exactly one card. */
+  pendingIncomingByTarget: Record<string, HandoffChip[]>;
 }
 
 export type RunStatus = 'idle' | 'running' | 'done' | 'cancelled' | 'error';
@@ -92,10 +84,7 @@ function newCard(agent: string, nodeColors: Record<string, string>): AgentCard {
   return {
     agent,
     label: AGENT_LABELS[agent] ?? agent,
-    // Per-run color map (built from the resolved config's `agents.<n>.class`
-    // looked up against /api/agent-types) wins; fall back to the legacy
-    // node-id-keyed AGENT_COLORS so evo-star nodes keep their colors when
-    // the inference page hasn't loaded a config yet.
+    // Per-run config-driven map wins; legacy node-id palette is the fallback.
     color: nodeColors[agent] ?? AGENT_COLORS[agent] ?? '#888',
     status: 'running',
     delta: {},
@@ -105,12 +94,11 @@ function newCard(agent: string, nodeColors: Record<string, string>): AgentCard {
     toolCalls: [],
     inputs: {},
     tokens: null,
+    incomingChips: [],
   };
 }
 
-/** Factory for a fresh RunInstance — shared by the live service init and
- * by `parseNdjsonToRunInstance` so the snapshot the Results-page modal
- * renders matches the live-page shape byte-for-byte. */
+/** Fresh RunInstance — shared by the live service and the NDJSON replay. */
 export function newRunInstance(
   instanceId: string,
   status: RunInstance['status'] = 'queued',
@@ -125,13 +113,11 @@ export function newRunInstance(
     runId,
     errorMsg: '',
     errorTraceback: '',
-    handoffsByTarget: {},
+    pendingIncomingByTarget: {},
   };
 }
 
-/** Most-recent still-running card for `agent`, used so a thinking chunk
- * / tool call lands on the in-flight attempt rather than retrofitting a
- * previous, completed retry. Mirrors `InferenceRunService.openCard`. */
+/** Most-recent still-running card for `agent`. */
 function _openCard(inst: RunInstance, agent: string): AgentCard | null {
   for (let i = inst.cards.length - 1; i >= 0; i--) {
     if (inst.cards[i].agent === agent && inst.cards[i].status === 'running') {
@@ -141,8 +127,8 @@ function _openCard(inst: RunInstance, agent: string): AgentCard | null {
   return null;
 }
 
-/** Append a fresh card for `agent` to `inst.cards`. The label gets a
- * "(retry N)" suffix on the 2nd+ visit so the panel reads as a sequence. */
+/** Append a new card; labels 2nd+ visits with "(retry N)". Drains
+ * pending hand-off chips for this agent onto the new card. */
 function _spawnCard(
   inst: RunInstance,
   agent: string,
@@ -151,19 +137,17 @@ function _spawnCard(
   const previous = inst.cards.filter(c => c.agent === agent).length;
   const card = newCard(agent, nodeColors);
   if (previous > 0) card.label = `${card.label} (retry ${previous + 1})`;
+  const pending = inst.pendingIncomingByTarget[agent];
+  if (pending && pending.length > 0) {
+    card.incomingChips = pending;
+    inst.pendingIncomingByTarget[agent] = [];
+  }
   inst.cards.push(card);
   return card;
 }
 
-/** Pure reducer: apply a single SSE/NDJSON event to one RunInstance.
- *
- * Only per-instance mutations live here (cards, hand-off chips, status
- * flags, error message). Service-level state (statusMsg, this.status,
- * selectedInstanceId, run-level `done`/`cancelled` semantics) stays in
- * `InferenceRunService.handleEvent` because the Results-page modal
- * replays a *completed* run — there's no live `status` to track.
- *
- * Used by both the live `handleEvent` and the static `parseNdjsonToRunInstance`. */
+/** Pure reducer: SSE/NDJSON event → RunInstance mutation. Per-instance
+ * mutations only; run-level status stays in `InferenceRunService`. */
 export function applyEventToInstance(
   inst: RunInstance,
   ev: InferenceEvent,
@@ -173,7 +157,7 @@ export function applyEventToInstance(
     case 'instance_start':
       inst.status = 'running';
       inst.cards = [];
-      inst.handoffsByTarget = {};
+      inst.pendingIncomingByTarget = {};
       break;
 
     case 'instance_done':
@@ -203,7 +187,8 @@ export function applyEventToInstance(
         keys: ev.keys ?? [],
         timestamp: ev.timestamp ?? '',
       };
-      (inst.handoffsByTarget[target] ||= []).push(chip);
+      // Queue until the target's next card spawns and drains it.
+      (inst.pendingIncomingByTarget[target] ||= []).push(chip);
       break;
     }
 
@@ -300,15 +285,12 @@ export function parseNdjsonToRunInstance(
     let ev: InferenceEvent;
     try { ev = JSON.parse(t) as InferenceEvent; } catch { continue; }
 
-    // Track which instance the worker is currently in: `instance_start`
-    // opens a scope; `instance_done` closes it. Unscoped events between
-    // them belong to that instance.
+    // `instance_start`/`instance_done` scope unscoped events between them.
     if (ev.type === 'instance_start' && ev.instance_id) {
       activeInstanceId = ev.instance_id;
       sawInstanceStart = true;
     }
 
-    // Skip events scoped to a different instance.
     if (instanceId) {
       if (ev.instance_id && ev.instance_id !== instanceId) {
         if (ev.type === 'instance_done' && ev.instance_id === activeInstanceId) {
@@ -316,8 +298,7 @@ export function parseNdjsonToRunInstance(
         }
         continue;
       }
-      // Unscoped event (no instance_id field): apply only if the active
-      // worker scope matches our target instance.
+      // Unscoped event: apply only if the active scope is our target.
       if (!ev.instance_id && activeInstanceId && activeInstanceId !== instanceId) {
         continue;
       }
@@ -330,17 +311,15 @@ export function parseNdjsonToRunInstance(
     }
   }
 
-  // If the file never emitted instance_start, the snapshot defaults to
-  // 'queued' which reads wrong on a completed run. Flip to 'done'.
+  // Completed runs without an instance_start still belong on 'done'.
   if (!sawInstanceStart && inst.status === 'queued') {
     inst.status = 'done';
   }
   return inst;
 }
 
-/** Single-run inference. One run at a time — a run is an SSE stream that
- * processes N instances sequentially server-side. While a run is in flight,
- * `run()` is a no-op until the user cancels or it completes naturally. */
+/** Single-run inference. One run at a time; overlapping `run()` calls
+ * are ignored until cancel or completion. */
 @Injectable({ providedIn: 'root' })
 export class InferenceRunService {
   status: RunStatus = 'idle';
@@ -352,20 +331,22 @@ export class InferenceRunService {
   errorMsg = '';
   statusMsg = '';
 
-  /** Per-run map from node name → hex color, derived by the inference page
-   * from the resolved config's `agents.<n>.class` looked up against the
-   * /api/agent-types catalog. Cards consult this when first created so the
-   * agent dot picks up the type's color (works for any config, not just
-   * the legacy evo-star nodes baked into AGENT_COLORS). */
+  /** Preflight `ollama pull` progress per model — drives the inference
+   * page's preflight panel. `code === 0` is success. */
+  pullingModels: Array<{
+    model: string;
+    lastLine: string;
+    done: boolean;
+    code?: number;
+  }> = [];
+
+  /** Per-run node → hex colour map (built by `buildNodeColors`). */
   nodeColors: Record<string, string> = {};
 
   readonly changed = new Subject<void>();
   private sub?: Subscription;
 
-  // Resume-from-log state. When the page loads with a run still in flight on
-  // the backend (e.g. browser reloaded mid-run), we replay the on-disk
-  // transcript and switch to polling the .log for new events instead of
-  // attaching an SSE stream.
+  // Resume-from-log state for mid-run page reloads.
   private logPath: string | null = null;
   private logOffset = 0;
   private pollSub?: Subscription;
@@ -404,28 +385,14 @@ export class InferenceRunService {
     this.selectedInstanceId = null;
     this.errorMsg = '';
     this.statusMsg = '';
+    this.pullingModels = [];
     this.notify();
   }
 
   // ─── Live-stream lifecycle (attach on inference page enter, ──
   //                              detach on leave) ──────────────────
-  /** Bring the service in sync with the backend's `_active_run` snapshot
-   * and start polling the .log so the Inference page sees live events.
-   *
-   * Called from:
-   *   1. The constructor — once at app boot, handles the page-reload case.
-   *   2. `InferenceComponent.ngOnInit` — every time the user re-enters the
-   *      Inference page after a previous `detach()`.
-   *
-   * If we're already streaming SSE for this run (the user kicked off a
-   * `run()` and never left the page), this is a no-op — the SSE is faster
-   * than the 1.5 s polling tick, so we don't downgrade.
-   *
-   * If the backend's active run matches our locally-held one (same
-   * `run_id`), we preserve the existing `logOffset` and just resume the
-   * polling timer — events that arrived during the gap are picked up on
-   * the next tick. Otherwise we reset the local replay state and start
-   * from offset 0 (full transcript replay rebuilds cards from scratch). */
+  /** Sync to the backend's `_active_run` and start log-polling. No-op
+   * when an SSE stream for the same run is already attached. */
   attach(): void {
     if (this.sub && this.status === 'running') return;
     this.api.getActiveInference().subscribe({
@@ -457,12 +424,7 @@ export class InferenceRunService {
     });
   }
 
-  /** Tear down the live SSE subscription + log polling without touching
-   * instance state. Called from `InferenceComponent.ngOnDestroy` when the
-   * user navigates away from the Inference page so the SSE microtask
-   * stream stops saturating the main thread (which was blocking the
-   * Topology page's cytoscape layout from measuring its host correctly).
-   * The frozen instances/cards stay visible if the user comes back. */
+  /** Stop SSE + polling without dropping instance state. */
   detach(): void {
     this.sub?.unsubscribe();
     this.sub = undefined;
@@ -485,8 +447,7 @@ export class InferenceRunService {
     this.api.getInferenceLogTail(this.logPath, this.logOffset).subscribe({
       next: chunk => {
         this.logOffset = chunk.offset;
-        // Buffer + split on newlines so we don't try to JSON.parse a partial
-        // line at the end of the chunk.
+        // Buffer + newline split so partial-line tails don't break JSON.parse.
         this.logBuffer += chunk.raw;
         const lines = this.logBuffer.split('\n');
         this.logBuffer = lines.pop() ?? '';
@@ -496,7 +457,6 @@ export class InferenceRunService {
           try { this.handleEvent(JSON.parse(t) as InferenceEvent); } catch { /* skip malformed */ }
         }
         if (!chunk.is_running) {
-          // Final flush on any trailing line, then stop polling.
           if (this.logBuffer.trim()) {
             try { this.handleEvent(JSON.parse(this.logBuffer.trim()) as InferenceEvent); } catch {}
             this.logBuffer = '';
@@ -513,7 +473,7 @@ export class InferenceRunService {
 
   // ─── Run / cancel ─────────────────────────────────────────────
   run(instanceIds: string | string[], config: string | UnifiedConfig): void {
-    if (this.status === 'running') return;            // ignore overlapping clicks
+    if (this.status === 'running') return;
     const ids = Array.isArray(instanceIds) ? instanceIds : [instanceIds];
     if (ids.length === 0) return;
 
@@ -526,6 +486,7 @@ export class InferenceRunService {
     this.errorMsg = '';
     this.instances = ids.map(id => newRunInstance(id));
     this.selectedInstanceId = ids[0] ?? null;
+    this.pullingModels = [];
     this.statusMsg = `Running ${this.configLabel} (${ids.length} instance${ids.length > 1 ? 's' : ''})`;
     this.notify();
 
@@ -567,23 +528,62 @@ export class InferenceRunService {
     return this.instances.find(i => i.status === 'running') ?? null;
   }
 
-  /** Dispatch a live SSE / log-tail event:
-   *  - Service-level mutations (statusMsg, this.status, selectedInstanceId,
-   *    cross-instance run_id propagation) stay here.
-   *  - Per-instance mutations delegate to `applyEventToInstance` so the
-   *    Results-page replay path uses the exact same reducer. */
+  /** Service-level mutations stay here; per-instance mutations delegate. */
   private handleEvent(ev: InferenceEvent): void {
     switch (ev.type) {
       case 'status':
         this.statusMsg = ev.message ?? '';
         break;
 
+      // Preflight `ollama pull` → preflight panel + status-bar line.
+      case 'preflight_pull_start': {
+        if (ev.model) {
+          const existing = this.pullingModels.find(p => p.model === ev.model);
+          if (existing) {
+            existing.lastLine = '';
+            existing.done = false;
+            existing.code = undefined;
+          } else {
+            this.pullingModels = [
+              ...this.pullingModels,
+              { model: ev.model, lastLine: '', done: false },
+            ];
+          }
+          this.statusMsg = `Pulling ${ev.model}…`;
+        }
+        break;
+      }
+      case 'preflight_log': {
+        if (ev.model && ev.line) {
+          // Strip ANSI cursor controls that Ollama embeds in progress lines.
+          const clean = ev.line.replace(/\x1B\[[0-9;?]*[A-Za-z]/g, '').trim();
+          if (clean) {
+            const entry = this.pullingModels.find(p => p.model === ev.model);
+            if (entry) entry.lastLine = clean;
+            this.statusMsg = `${ev.model}: ${clean}`;
+          }
+        }
+        break;
+      }
+      case 'preflight_pull_done': {
+        if (ev.model) {
+          const entry = this.pullingModels.find(p => p.model === ev.model);
+          if (entry) {
+            entry.done = true;
+            entry.code = ev.code ?? 0;
+          }
+          this.statusMsg = (ev.code ?? 0) === 0
+            ? `Pulled ${ev.model}.`
+            : `Failed to pull ${ev.model} (exit ${ev.code}).`;
+        }
+        break;
+      }
+
       case 'instance_start': {
         const inst = this.getInstance(ev.instance_id);
         if (inst) {
           applyEventToInstance(inst, ev, this.nodeColors);
-          // Auto-focus the running instance unless the user has already
-          // clicked into another one.
+          // Auto-focus unless the user has already clicked into another instance.
           if (!this.selectedInstanceId || this.selectedInstanceId === inst.instance_id) {
             this.selectedInstanceId = inst.instance_id;
           }
@@ -618,10 +618,7 @@ export class InferenceRunService {
 
       case 'run_id': {
         if (!ev.run_id) break;
-        // Mark every queued / running instance with the run_id immediately
-        // so the .bp-item chip can display it during execution. instance_done
-        // later overwrites with the same value (idempotent). Cross-instance
-        // fan-out, so this stays at the service layer rather than per-instance.
+        // Cross-instance fan-out — sets run_id on every queued/running card.
         for (const inst of this.instances) {
           if (inst.status === 'queued' || inst.status === 'running') {
             inst.runId = String(ev.run_id);

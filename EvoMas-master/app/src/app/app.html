@@ -8,6 +8,9 @@
       </button>
       @if (menuOpen) {
         <div class="brand-menu">
+          <button class="brand-menu-item" (click)="openCreateFromTemplate()" type="button">
+            <span>+ Create from template…</span>
+          </button>
           <button class="brand-menu-item" (click)="openSaveDialog()" type="button">
             <span>Export config…</span>
           </button>
@@ -63,6 +66,39 @@
         <div class="modal-actions">
           <button class="modal-btn" (click)="cancelSave()" type="button">Cancel</button>
           <button class="modal-btn primary" (click)="confirmSave()" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (templateDialogOpen) {
+    <div class="modal-backdrop" (click)="cancelCreateFromTemplate()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-title">Create from template</div>
+        <div class="modal-body">
+          <label class="modal-label">Template</label>
+          <!-- Grouped dropdown: shipped Predefined topologies first,
+               then user-saved Loaded configs underneath. The visual
+               group headers make the source obvious so the user
+               doesn't fork an in-progress draft thinking it's the
+               canonical template (or vice versa). -->
+          <evo-select class="modal-select"
+                      [optgroups]="templateSelectGroups"
+                      [(ngModel)]="templateChoice" />
+          <label class="modal-label">New config name</label>
+          <input type="text" class="modal-input" [(ngModel)]="templateNewName"
+                 placeholder="my-config" (keyup.enter)="confirmCreateFromTemplate()" autofocus />
+          <div class="modal-hint">Saved to evomas/config/loaded/&lt;name&gt;.json</div>
+          @if (templateError) {
+            <div class="modal-error">{{ templateError }}</div>
+          }
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn" (click)="cancelCreateFromTemplate()" type="button">Cancel</button>
+          <button class="modal-btn primary" (click)="confirmCreateFromTemplate()"
+                  type="button" [disabled]="templateBusy">
+            {{ templateBusy ? 'Creating…' : 'Create' }}
+          </button>
         </div>
       </div>
     </div>

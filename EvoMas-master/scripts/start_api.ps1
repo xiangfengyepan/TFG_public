@@ -22,5 +22,13 @@ if (Test-Path $envFile) {
     }
 }
 
+# Venv installed by setup.ps1 to `~\.evomas-venv` (in the user's home so
+# the repo stays free of build artefacts).
+$VenvDir = Join-Path $HOME ".evomas-venv"
+$Uvicorn = Join-Path $VenvDir "Scripts\uvicorn.exe"
+if (-not (Test-Path $Uvicorn)) {
+    Write-Host "[start_api] uvicorn not found at $Uvicorn -- run setup.ps1 first." -ForegroundColor Red
+    exit 1
+}
 Write-Host "Starting EvoMas API server on http://$($apiHost):$($apiPort)"
-& "$RepoRoot\evomas\venv\Scripts\uvicorn.exe" --app-dir "$RepoRoot\api" server:app --host $apiHost --port $apiPort --reload
+& $Uvicorn --app-dir "$RepoRoot\api" server:app --host $apiHost --port $apiPort --reload

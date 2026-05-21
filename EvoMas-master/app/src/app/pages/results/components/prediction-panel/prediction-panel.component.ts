@@ -4,13 +4,16 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { EvoBoxComponent, EvoButtonComponent, EvoSwitchComponent } from '../../../../components/index';
+import { ICON } from '../../../../icons';
 import { ResultPrediction, ResultPredictionFile } from '../../../../models/types';
 
 @Component({
   selector: 'app-prediction-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent, EvoSwitchComponent],
+  imports: [CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent, EvoSwitchComponent, NgIcon],
+  providers: [provideIcons(ICON)],
   templateUrl: './prediction-panel.component.html',
   styleUrl: './prediction-panel.component.css',
 })

@@ -1,12 +1,12 @@
 <evo-box title="Evaluation" [hasActions]="true" class="inner-box">
   <ng-container box-actions>
-    <evo-button size="sm" [disabled]="!evaluation" (clicked)="downloadZip.emit()">⬇ Download (zip)</evo-button>
+    <evo-button size="sm" [disabled]="!evaluation" (clicked)="downloadZip.emit()"><ng-icon name="download" /> Download (zip)</evo-button>
     <evo-button size="sm" [disabled]="!evaluation?.summary_path"
                 title="Reveal the cross-model summary JSON in the OS file explorer"
-                (clicked)="reveal.emit(evaluation?.summary_path)">📁 summary.json</evo-button>
+                (clicked)="reveal.emit(evaluation?.summary_path)"><ng-icon name="folder" /> summary.json</evo-button>
     <evo-button size="sm" [disabled]="!evaluation?.run_dir"
                 title="Reveal the run's logs/run_evaluation/<run_id> folder in the OS file explorer"
-                (clicked)="reveal.emit(evaluation?.run_dir)">📁 run dir</evo-button>
+                (clicked)="reveal.emit(evaluation?.run_dir)"><ng-icon name="folder" /> run dir</evo-button>
   </ng-container>
   @if (!selectedEvalDir) {
     <div class="empty-state">
@@ -61,7 +61,7 @@
         <button class="tab" [class.active]="activeLog === 'patch.diff'"       (click)="setActiveLog.emit('patch.diff')">patch.diff</button>
         <button class="tab" [class.active]="activeLog === 'report.json'"      (click)="setActiveLog.emit('report.json')">report.json</button>
         <span class="grow"></span>
-        <evo-button size="sm" [disabled]="!logContent" (clicked)="downloadLog.emit()">⬇</evo-button>
+        <evo-button size="sm" [disabled]="!logContent" (clicked)="downloadLog.emit()"><ng-icon name="download" /></evo-button>
       </div>
       <div class="log-view">
         @if (isCustomInstance && activeLog === 'eval.sh') {

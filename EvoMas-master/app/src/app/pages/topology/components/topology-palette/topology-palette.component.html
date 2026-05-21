@@ -1,0 +1,19 @@
+<!-- Bottom palette: 8 agent-type chips, each with a dropdown listing the
+     EvoMas built-in plus every CSV-derived alternative for that role.
+     Dragging a chip drops a node seeded with the picked variant's
+     prompts + tools (see onGraphDrop in topology.component.ts). -->
+<div class="agent-palette">
+  <span class="palette-label">Drag a type →</span>
+  @for (t of agentTypes; track t.type) {
+    <evo-agent-type-picker
+      [agentType]="t.type"
+      [color]="t.color"
+      [variants]="variantsFor(t.type)"
+      [selectedVariantKey]="selectedVariantKey(t.type)"
+      [draggable]="isLoadedConfig"
+      (variantChange)="onVariantChange(t.type, $event)" />
+  }
+  @if (agentTypes.length === 0) {
+    <span class="palette-label" style="opacity:.6">Loading types…</span>
+  }
+</div>

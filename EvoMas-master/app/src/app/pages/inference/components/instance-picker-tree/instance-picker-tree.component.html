@@ -13,7 +13,7 @@
       <evo-button size="sm" [disabled]="refreshing"
                   (clicked)="refreshAll.emit()"
                   title="Re-pull every SWE-bench subset (Lite + Full + Verified) and split from HuggingFace. Slow — Full alone is thousands of instances.">
-        @if (refreshing) { ↻… } @else { ↻ }
+        @if (refreshing) { <ng-icon name="refresh" />… } @else { <ng-icon name="refresh" /> }
       </evo-button>
     }
     <button type="button" class="rail-toggle"
@@ -49,7 +49,7 @@
     @for (subset of subsets; track subset) {
       <div class="subset-group">
         <button class="group-header subset-header" type="button" (click)="toggleSubset.emit(subset)">
-          <span class="caret">{{ isSubsetOpen(subset) ? '▾' : '▸' }}</span>
+          <ng-icon class="caret" [name]="isSubsetOpen(subset) ? 'chevronDown' : 'chevronRight'" />
           <span class="group-name">{{ subsetLabel(subset) }}</span>
           <span class="group-count">{{ countIn(subset) }}</span>
           <span class="grow"></span>
@@ -57,13 +57,13 @@
                   [class.checked]="isSubsetAllSelected(subset)"
                   [title]="(isSubsetAllSelected(subset) ? 'Deselect ' : 'Select ') + 'every ' + subsetLabel(subset) + ' instance'"
                   (click)="$event.stopPropagation(); toggleSubsetSelect.emit(subset)">
-            {{ isSubsetAllSelected(subset) ? '☑' : '☐' }}
+            <ng-icon [name]="isSubsetAllSelected(subset) ? 'squareChecked' : 'square'" />
           </button>
           @if (canRefreshSubset(subset)) {
             <button class="leaf-refresh" type="button"
                     [disabled]="refreshing"
                     [title]="'Pull every ' + subsetLabel(subset) + ' split from HuggingFace'"
-                    (click)="$event.stopPropagation(); refreshSubset.emit(subset)">↻</button>
+                    (click)="$event.stopPropagation(); refreshSubset.emit(subset)"><ng-icon name="refresh" /></button>
           }
         </button>
 
@@ -73,7 +73,7 @@
             <div class="split-group">
               <button class="group-header split-header" type="button"
                       (click)="toggleSplit.emit({ subset, split })">
-                <span class="caret">{{ isSplitOpen(subset, split) ? '▾' : '▸' }}</span>
+                <ng-icon class="caret" [name]="isSplitOpen(subset, split) ? 'chevronDown' : 'chevronRight'" />
                 <span class="group-name">{{ split }}</span>
                 <span class="group-count">{{ leaf.length }}</span>
                 <span class="grow"></span>
@@ -82,13 +82,13 @@
                         [class.checked]="isSplitAllSelected(subset, split)"
                         [title]="(isSplitAllSelected(subset, split) ? 'Deselect ' : 'Select ') + 'every ' + subsetLabel(subset) + '/' + split + ' instance'"
                         (click)="$event.stopPropagation(); toggleSplitSelect.emit({ subset, split })">
-                  {{ isSplitAllSelected(subset, split) ? '☑' : '☐' }}
+                  <ng-icon [name]="isSplitAllSelected(subset, split) ? 'squareChecked' : 'square'" />
                 </button>
                 @if (canRefreshSubset(subset)) {
                   <button class="leaf-refresh" type="button"
                           [disabled]="refreshing"
                           [title]="'Pull SWE-bench ' + subsetLabel(subset) + ' / ' + split + ' from HuggingFace'"
-                          (click)="$event.stopPropagation(); refreshLeaf.emit({ subset, split })">↻</button>
+                          (click)="$event.stopPropagation(); refreshLeaf.emit({ subset, split })"><ng-icon name="refresh" /></button>
                 }
               </button>
 

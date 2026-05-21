@@ -2,7 +2,11 @@ $ErrorActionPreference = "Stop"
 Set-Location -Path $PSScriptRoot
 
 $RepoRoot = $PSScriptRoot
-$VenvDir  = Join-Path $RepoRoot "evomas\venv"
+# Venv lives in the user's home (`~\.evomas-venv`) so the repo stays
+# free of build artefacts and the same env can be shared across multiple
+# checkouts of the repo. start_api.ps1 + the $PROFILE wrapper appended
+# at the end of this script both reference the same path.
+$VenvDir  = Join-Path $HOME ".evomas-venv"
 $PythonEvomas = Join-Path $VenvDir "Scripts\python.exe"
 $EvomasExe    = Join-Path $VenvDir "Scripts\evomas.exe"
 
@@ -65,6 +69,17 @@ Write-Host "[setup] installing evomas (editable) + dependencies + dev extras" -F
 # stays the canonical input; this file is a regenerated lockfile.
 Write-Host "[setup] freezing pinned versions to requirements.txt" -ForegroundColor Cyan
 & $PythonEvomas -m pip freeze | Out-File -Encoding utf8 (Join-Path $RepoRoot "requirements.txt")
+
+# --- 3b. Register the venv as a Jupyter kernel ------------------------------
+# The "reproduce-this-run" notebook exported from the Results page sets
+# `kernelspec.name = "evomas"` so opening it in Jupyter / VSCode auto-picks
+# this interpreter without the user having to hunt through the kernel
+# dropdown. `ipykernel` itself ships via the pip install above; this
+# step just publishes the kernelspec under the user's Jupyter data dir
+# (idempotent -- safe to re-run).
+Write-Host "[setup] registering 'evomas' Jupyter kernel" -ForegroundColor Cyan
+& $PythonEvomas -m ipykernel install --user --name evomas `
+    --display-name "Python 3 (EvoMas)" 2>&1 | Out-Null
 
 # --- 4. Install npm deps for the Angular frontend ---------------------------
 # Without this, `npx ng serve` (invoked by `evomas web` / start_frontend.ps1)
@@ -129,5 +144,5 @@ Write-Host ""
 Write-Host "        For interactive dev work (running pytest, importing evomas modules, etc.)"
 Write-Host "        activate the venv directly:"
 Write-Host ""
-Write-Host "          .\evomas\venv\Scripts\Activate.ps1             # then `python`, `pytest`, `pip` target the venv"
+Write-Host "          & `"$VenvDir\Scripts\Activate.ps1`"             # then `python`, `pytest`, `pip` target the venv"
 Write-Host "          deactivate                                     # leaves the venv"

@@ -26,6 +26,8 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "typer",
+    "gitpython",
+    "ipykernel<7",
 ]
 
 [project.optional-dependencies]

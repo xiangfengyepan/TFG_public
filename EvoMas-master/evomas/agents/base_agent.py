@@ -16,6 +16,11 @@ if TYPE_CHECKING:
 class BaseAgent(ABC):
     name: ClassVar[str] = "base_agent"
 
+    # Canonical type label. Subclasses set this to the AGENT_TYPE catalog
+    # entry (e.g. "Locator"); kept empty on the base so `cls.AGENT_TYPE`
+    # always resolves type-statically.
+    AGENT_TYPE: ClassVar[str] = ""
+
     # Per-type defaults consulted when the JSON block omits the matching field.
     # Subclasses (the SWE-bench taxonomy bases under `agents/types/`) set these
     # so an agent can be declared with just `class: <type>` and inherit a
@@ -115,18 +120,14 @@ class BaseAgent(ABC):
         # inference-page tooling to show what the receiver actually
         # consumed from the source on a hand-off chip.
         self._last_predecessor_value: str = ""
-        self._on_think: Callable[[str], None] | None = None
-        # Fires ONCE per `_invoke()` call with the full LLM response text,
-        # after the streaming loop closes. Per-chunk streaming is intentional
-        # for thinking (so the trajectory shows live reasoning) but not for
-        # the response (the UI shows it as a single block when finished).
-        self._on_response: Callable[[str], None] | None = None
-        self._on_tool: Callable[[str, dict, Any], None] | None = None
-        # Cumulative LLM token usage across every `_invoke()` call this
-        # agent makes during a single graph run. The runner / API worker
-        # reads it after the graph completes to surface per-instance
-        # totals in the prediction JSONL and the Results page.
-        self._tokens: dict[str, int] = {"input": 0, "output": 0, "total": 0}
+        # Observation surface read externally by the API worker / CLI runner.
+        # `on_response` fires once per `_invoke()` with the full response;
+        # per-chunk streaming is intentional only for thinking tokens.
+        self.on_think: Callable[[str], None] | None = None
+        self.on_response: Callable[[str], None] | None = None
+        self.on_tool: Callable[[str, dict[str, Any], Any], None] | None = None
+        # Cumulative LLM token usage across this agent's `_invoke()` calls.
+        self.tokens: dict[str, int] = {"input": 0, "output": 0, "total": 0}
 
     def _call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         if self.tool_policy is not None and name not in self.tool_policy:
@@ -141,8 +142,8 @@ class BaseAgent(ABC):
             merged.update(self.tool_policy.get(name) or {})
         merged.update(arguments or {})
         result = self.mcp.call(name, merged)
-        if self._on_tool:
-            self._on_tool(name, merged, result)
+        if self.on_tool:
+            self.on_tool(name, merged, result)
         return result
 
     def make_llm(self, **overrides: Any) -> BaseChatModel:
@@ -155,17 +156,13 @@ class BaseAgent(ABC):
         """Stream the LLM response, logging thinking tokens in real-time."""
         response, self._thinking, usage = llm_invoke(
             llm, messages, agent_name=self.name,
-            on_think=self._on_think,
+            on_think=self.on_think,
         )
-        # Accumulate cumulative token counts so the runner / API worker
-        # can report a single in/out/total for the instance.
-        self._tokens["input"]  += int(usage.get("input", 0))
-        self._tokens["output"] += int(usage.get("output", 0))
-        self._tokens["total"]  += int(usage.get("total", 0))
-        # Surface the full response text after streaming completes (single
-        # event, not per-chunk). LangChain message `content` may be a string
-        # or list of content blocks; coerce to a plain string for the UI.
-        if self._on_response is not None:
+        self.tokens["input"]  += int(usage.get("input", 0))
+        self.tokens["output"] += int(usage.get("output", 0))
+        self.tokens["total"]  += int(usage.get("total", 0))
+        # `content` may be a string or content-block list; coerce to text.
+        if self.on_response is not None:
             raw = getattr(response, "content", "")
             if isinstance(raw, list):
                 text = "".join(
@@ -175,7 +172,7 @@ class BaseAgent(ABC):
             else:
                 text = str(raw or "")
             if text:
-                self._on_response(text)
+                self.on_response(text)
         return response
 
     def _producer_value(self) -> Any:

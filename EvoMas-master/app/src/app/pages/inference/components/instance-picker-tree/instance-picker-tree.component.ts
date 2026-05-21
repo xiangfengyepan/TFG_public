@@ -6,6 +6,8 @@
 import { Component, EventEmitter, HostBinding, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ICON } from '../../../../icons';
 import {
   Instance, SUBSET_SPLITS, SwebenchSplit, SwebenchSubset,
 } from '../../../../models/types';
@@ -16,7 +18,8 @@ import {
 @Component({
   selector: 'app-instance-picker-tree',
   standalone: true,
-  imports: [CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent],
+  imports: [CommonModule, FormsModule, EvoBoxComponent, EvoButtonComponent, NgIcon],
+  providers: [provideIcons(ICON)],
   templateUrl: './instance-picker-tree.component.html',
   styleUrl: './instance-picker-tree.component.css',
 })

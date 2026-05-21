@@ -11,6 +11,23 @@ import { RunInstance } from '../../../../services/inference-run.service';
   standalone: true,
   imports: [CommonModule, InferenceInstanceViewComponent],
   templateUrl: './log-viewer-modal.component.html',
+  styles: [`
+    .log-filename-pill {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-0);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-left: 8px;
+      opacity: 0.75;
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      user-select: text;
+      cursor: text;
+    }
+  `],
 })
 export class LogViewerModalComponent {
   @Input() open = false;
@@ -18,6 +35,10 @@ export class LogViewerModalComponent {
   @Input() error = '';
   @Input() title = '';
   @Input() instance: RunInstance | null = null;
+  /** Filename of the user-facing text log that mirrors this NDJSON
+   * event log (e.g. `prediction-<runId>.log`). Rendered as a pill next
+   * to the modal title so users can locate it on disk. */
+  @Input() logFileName = '';
 
   @Output() close = new EventEmitter<void>();
 
