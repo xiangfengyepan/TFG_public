@@ -1,18 +1,4 @@
-"""Per-type agent base classes.
-
-The SWE-bench agent-type taxonomy lists eight broad roles an agent can play
-inside a multi-agent topology. Each row maps to a thin base class here that
-documents the role's expected state contract and slots cleanly under
-`LLMToolAgent` (so concrete subclasses inherit the function-calling loop +
-fallback machinery for free).
-
-Topology JSON blocks reference these types by their `AGENT_TYPE` label
-(e.g. `"class": "Locator"`) -- the runtime registry resolves the name
-to the matching base class without any bespoke per-agent Python.
-
-Color palette is defined here so `/api/agent-types` can serve it to the
-frontend (single source of truth — UI palette + node coloring).
-"""
+"""Per-type agent base classes for the SWE-bench AGENT_TYPE taxonomy, plus the color palette `/api/agent-types` serves to the frontend (single source of truth for UI palette + node coloring)."""
 from __future__ import annotations
 
 from typing import Any
@@ -28,11 +14,9 @@ from evomas.agents.types.patcher import PatcherAgent
 from evomas.agents.types.reviewer import ReviewerAgent
 
 # Ordered as in the SWE-bench AgentType.csv so the frontend palette renders
-# them in a consistent, intentional order. Each type is registered TWICE so a
-# config block can spell its `class` either as the human-readable AGENT_TYPE
-# (e.g. "Locator", "Helper/Proxy") OR the Python class name from
-# evomas/agents/types/ (e.g. "LocatorAgent", "HelperProxyAgent"). Both
-# resolve to the same class via the AGENT_REGISTRY in runner.py.
+# them consistently. Each type is registered TWICE so a config block can spell
+# `class` as either the AGENT_TYPE label ("Locator") or the Python class name
+# ("LocatorAgent") -- both resolve via AGENT_REGISTRY in runner.py.
 _TYPES: tuple[type[BaseAgent], ...] = (
     LocatorAgent,
     PatcherAgent,
@@ -62,18 +46,10 @@ TYPE_COLORS: dict[str, str] = {
 
 
 def list_agent_types() -> list[dict[str, Any]]:
-    """Return the agent-type catalog the frontend renders.
-
-    Each entry now carries the type's full default agent block — system /
-    user prompts, tool whitelist, and Ollama hyperparameter map — so the
-    topology page can seed a freshly-dropped node with the correct config
-    without re-deriving anything client-side.
-    """
+    """Return the agent-type catalog the frontend renders, each entry carrying the type's full default block (prompts + tools + config) so the topology page can seed a dropped node without re-deriving anything client-side."""
     out: list[dict[str, Any]] = []
-    # Iterate `_TYPES` (one entry per class) — TYPE_REGISTRY now keys each
-    # class twice (AGENT_TYPE label + Python class name) so its `.values()`
-    # would emit duplicates and the topology palette would render two chips
-    # per type.
+    # Iterate `_TYPES` (one entry per class), not TYPE_REGISTRY -- the
+    # registry double-keys each class so `.values()` would emit duplicates.
     for cls in _TYPES:
         doc = (cls.__doc__ or "").strip().splitlines()
         out.append({

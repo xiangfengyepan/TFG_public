@@ -9,8 +9,6 @@ import json
 import re
 import subprocess
 import threading
-import urllib.request as _urllib
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -23,114 +21,20 @@ from api.common import (
     PREDEFINED_CONFIG_DIR,
     logger,
 )
+from evomas.config.loader import (
+    resolve_config_path,
+    scan_config_dir,
+    validate_loaded_config,
+)
+from evomas.exceptions.errors import ConfigError
+from evomas.mcp.server import tool_repo_owner_map
+from evomas.utils.ollama_preflight import pulled_ollama_models_with_catalog
 
 router = APIRouter()
 
 
-# ─── Ollama helpers ───────────────────────────────────────────────────────────
-def _ollama_base_url() -> str:
-    import os
-    return os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").strip().strip("\"'")
-
-
-# TTL cache for remote provider model lists — avoid round-tripping the
-# Google/OpenAI `models.list` API on every Topology-page reload.
-_REMOTE_MODELS_TTL_S = 300
-_remote_models_cache: dict[str, tuple[float, list[str]]] = {}
-
-
-def _ollama_models() -> list[str]:
-    """Locally-pulled Ollama models as `["ollama/<name>", ...]`."""
-    try:
-        url = f"{_ollama_base_url()}/api/tags"
-        with _urllib.urlopen(url, timeout=5) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        return sorted(f"ollama/{m['name']}" for m in data.get("models", []))
-    except Exception:
-        return []
-
-
-def _ollama_models_with_pulled() -> list[dict[str, Any]]:
-    """Merge locally-pulled Ollama models with the curated catalog so
-    the topology dropdown shows every model the user can pick. Pulled
-    entries come first (alphabetical), then unpulled catalog entries
-    in declared order. The Inference page runs `ollama pull <name>`
-    for `pulled: False` entries before the run starts."""
-    from api.ollama_catalog import OLLAMA_CATALOG
-    pulled = set(_ollama_models())
-    out: list[dict[str, Any]] = []
-    for name in sorted(pulled):
-        out.append({"name": name, "pulled": True})
-    seen = set(pulled)
-    for name in OLLAMA_CATALOG:
-        if name in seen:
-            continue
-        out.append({"name": name, "pulled": False})
-        seen.add(name)
-    return out
-
-
-def _cached_remote(provider: str, fetch) -> list[str]:
-    import time
-    now = time.time()
-    hit = _remote_models_cache.get(provider)
-    if hit and (now - hit[0]) < _REMOTE_MODELS_TTL_S:
-        return hit[1]
-    try:
-        models = fetch()
-    except Exception:  # noqa: BLE001
-        models = []
-    _remote_models_cache[provider] = (now, models)
-    return models
-
-
-def _gemini_models() -> list[str]:
-    """Live `generateContent`-capable Gemini models, minus non-chat shapes."""
-    import os
-    key = os.environ.get("GOOGLE_API_KEY", "").strip()
-    if not key:
-        return []
-    def fetch() -> list[str]:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
-        with _urllib.urlopen(url, timeout=8) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        bad = ("-tts", "-image", "lyria", "robotics", "deep-research", "computer-use", "nano-banana", "gemma")
-        out: list[str] = []
-        for m in data.get("models", []):
-            name = m.get("name", "")
-            if "generateContent" not in (m.get("supportedGenerationMethods") or []):
-                continue
-            bare = name.split("/", 1)[1] if name.startswith("models/") else name
-            if any(b in bare for b in bad):
-                continue
-            out.append(f"gemini/{bare}")
-        return sorted(out)
-    return _cached_remote("gemini", fetch)
-
-
-def _openai_models() -> list[str]:
-    """Chat-capable OpenAI models from `/v1/models` (filtered by name)."""
-    import os
-    key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not key:
-        return []
-    def fetch() -> list[str]:
-        base = (os.environ.get("OPENAI_BASE_URL", "").strip() or "https://api.openai.com/v1").rstrip("/")
-        req = _urllib.Request(f"{base}/models", headers={"Authorization": f"Bearer {key}"})
-        with _urllib.urlopen(req, timeout=8) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        good_prefix = ("gpt-", "o1", "o3", "o4", "chatgpt-")
-        bad = ("-tts", "-realtime", "-audio", "whisper", "-embedding", "dall-e", "tts-", "babbage", "davinci", "moderation", "-image")
-        out: list[str] = []
-        for m in data.get("data", []):
-            mid = m.get("id", "")
-            if not mid.startswith(good_prefix):
-                continue
-            if any(b in mid for b in bad):
-                continue
-            out.append(f"openai/{mid}")
-        return sorted(out)
-    return _cached_remote("openai", fetch)
+# Ollama + remote-provider model probes live in evomas.* now so the CLI
+# can reuse them; the topology dropdown is the only HTTP consumer.
 
 
 class PullModelRequest(BaseModel):
@@ -200,65 +104,27 @@ async def pull_model(req: PullModelRequest):
 def list_models() -> list[dict[str, Any]]:
     """`[{name, pulled}]` — pulled-locally + curated catalog. Pulled
     first (alphabetical), then unpulled in declared order."""
-    return _ollama_models_with_pulled()
+    return pulled_ollama_models_with_catalog()
 
 
 # ─── Unified Config Endpoints ────────────────────────────────────────────────
 # Configs live in two roots — `predefined/` (read-only, shipped) and
 # `loaded/` (writable, user-imported). The loader searches both.
 
-_REQUIRED_CONFIG_KEYS = ("id", "entry", "end", "edges", "agents")
-
-
-def _scan_config_dir(base: Path, source: str) -> list[dict[str, str]]:
-    out: list[dict[str, str]] = []
-    if not base.is_dir():
-        return out
-    for p in sorted(base.glob("*.json")):
-        try:
-            data = json.loads(p.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            data = {}
-        out.append({
-            "stem": p.stem,
-            "id": str(data.get("id") or p.stem),
-            "description": str(data.get("description") or ""),
-            "source": source,
-        })
-    return out
-
-
-def _resolve_config_path(name: str) -> Path | None:
-    """On-disk path of a config by stem — predefined first, then loaded."""
-    for base in (PREDEFINED_CONFIG_DIR, LOADED_CONFIG_DIR):
-        p = base / f"{name}.json"
-        if p.is_file():
-            return p
-    return None
-
-
-def _validate_loaded_config(data: dict, expected_stem: str) -> None:
-    """Required keys present + `id` matches the filename stem."""
-    missing = [k for k in _REQUIRED_CONFIG_KEYS if k not in data]
-    if missing:
-        raise HTTPException(400, f"config is missing required keys: {missing}")
-    if str(data.get("id") or "") != expected_stem:
-        raise HTTPException(
-            400,
-            f"config 'id' must match filename stem (id={data.get('id')!r}, "
-            f"stem={expected_stem!r})",
-        )
-
-
 @router.get("/api/configs")
 def list_configs() -> list[dict[str, str]]:
     """`[{stem, id, description, source}]` from both config roots."""
-    return _scan_config_dir(PREDEFINED_CONFIG_DIR, "predefined") + _scan_config_dir(LOADED_CONFIG_DIR, "loaded")
+    return (
+        scan_config_dir(PREDEFINED_CONFIG_DIR, "predefined")
+        + scan_config_dir(LOADED_CONFIG_DIR, "loaded")
+    )
 
 
 @router.get("/api/configs/{name}")
 def get_config(name: str) -> dict:
-    path = _resolve_config_path(name)
+    path = resolve_config_path(
+        name, predefined_dir=PREDEFINED_CONFIG_DIR, loaded_dir=LOADED_CONFIG_DIR,
+    )
     if path is None:
         raise HTTPException(404, f"Config '{name}' not found")
     try:
@@ -279,7 +145,10 @@ def save_loaded_config(payload: LoadedConfigPayload) -> dict[str, Any]:
     stem; requires `replace=True` to overwrite an existing loaded stem."""
     if "/" in payload.name or "\\" in payload.name or not payload.name:
         raise HTTPException(400, "invalid config name")
-    _validate_loaded_config(payload.data, payload.name)
+    try:
+        validate_loaded_config(payload.data, payload.name)
+    except ConfigError as exc:
+        raise HTTPException(400, str(exc)) from exc
 
     target = LOADED_CONFIG_DIR / f"{payload.name}.json"
     predefined = PREDEFINED_CONFIG_DIR / f"{payload.name}.json"
@@ -462,63 +331,12 @@ def list_runs_for_config_sha(name: str, sha: str) -> dict[str, Any]:
 
 
 # ─── MCP tools (read-only) ────────────────────────────────────────────────────
-_TOOL_REPO_OWNER_CACHE: dict[str, str] | None = None
-
-
-def _tool_repo_owner_map() -> dict[str, str]:
-    """`tool_name -> owner` map built by importing each tool bundle once.
-    Tools not in any bundle (top-level `evomas/tools/*.py`) get `"evomas"`."""
-    global _TOOL_REPO_OWNER_CACHE
-    if _TOOL_REPO_OWNER_CACHE is not None:
-        return _TOOL_REPO_OWNER_CACHE
-    from evomas.tools.repo.augment_swebench_agent import AUGMENT_SWEBENCH_AGENT_TOOLS
-    from evomas.tools.repo.auto_code_rover import AUTO_CODE_ROVER_TOOLS
-    from evomas.tools.repo.claude_coder import CLAUDE_CODER_TOOLS
-    from evomas.tools.repo.composio import COMPOSIO_TOOLS
-    from evomas.tools.repo.debug_gym import DEBUG_GYM_TOOLS
-    from evomas.tools.repo.joycode_agent import JOYCODE_AGENT_TOOLS
-    from evomas.tools.repo.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
-    from evomas.tools.repo.openhands import LOC_TOOLS, OPENHANDS_TOOLS
-    from evomas.tools.repo.patchwork import PATCHWORK_TOOLS
-    from evomas.tools.repo.suna import SUNA_TOOLS
-    from evomas.tools.repo.swe_agent import SWE_AGENT_TOOLS
-    from evomas.tools.repo.trae_agent import TRAE_AGENT_TOOLS
-    # Heterogeneous bundle tuples (each repo declares its own Tool subtype);
-    # annotation widens to `tuple[Any, ...]` to unify the union.
-    bundles: list[tuple[str, Any]] = [
-        ("augment_swebench_agent", AUGMENT_SWEBENCH_AGENT_TOOLS),
-        ("auto_code_rover",        AUTO_CODE_ROVER_TOOLS),
-        ("claude_coder",           CLAUDE_CODER_TOOLS),
-        ("composio",               COMPOSIO_TOOLS),
-        ("debug_gym",              DEBUG_GYM_TOOLS),
-        ("joycode_agent",          JOYCODE_AGENT_TOOLS),
-        ("lingma_swe_gpt",         LINGMA_SWE_GPT_TOOLS),
-        # OpenHands ships two bundles under one folder; share the owner.
-        ("openhands",              OPENHANDS_TOOLS),
-        ("openhands",              LOC_TOOLS),
-        ("patchwork",              PATCHWORK_TOOLS),
-        ("suna",                   SUNA_TOOLS),
-        ("swe_agent",              SWE_AGENT_TOOLS),
-        ("trae_agent",             TRAE_AGENT_TOOLS),
-    ]
-    out: dict[str, str] = {}
-    for owner, bundle in bundles:
-        for tool in bundle:
-            name = getattr(tool, "name", None)
-            if not name:
-                continue
-            # First-seen owner wins (handles cross-bundle re-exports).
-            out.setdefault(name, owner)
-    _TOOL_REPO_OWNER_CACHE = out
-    return out
-
-
 @router.get("/api/tools")
 def list_tools() -> list[dict[str, Any]]:
     """MCP tool catalog: `[{name, description, inputSchema, repo}]`.
     `repo` is the bundle folder or `"evomas"` for top-level helpers."""
     from evomas.mcp.server import MCPServer
-    owner_map = _tool_repo_owner_map()
+    owner_map = tool_repo_owner_map()
     catalog = MCPServer().registry.list()
     for entry in catalog:
         entry["repo"] = owner_map.get(entry.get("name", ""), "evomas")

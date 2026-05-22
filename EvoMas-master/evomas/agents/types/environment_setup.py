@@ -7,12 +7,7 @@ from evomas.agents.llm_tool_agent import LLMToolAgent
 
 
 class EnvironmentSetupAgent(LLMToolAgent):
-    """Automatically sets up and configures the development environment for
-    testing and building (resolve requirements files, run the project's
-    bootstrap script, prepare a venv, …).
-
-    State contract: writes `environment_ready: bool` and optionally `setup_log: str`.
-    """
+    """Set up the dev environment for testing / building (requirements, bootstrap scripts, venv); writes `environment_ready: bool` and optionally `setup_log: str`."""
 
     AGENT_TYPE: ClassVar[str] = "Environment setup"
     name = "environment_setup"

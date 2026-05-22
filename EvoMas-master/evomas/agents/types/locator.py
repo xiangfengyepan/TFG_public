@@ -7,13 +7,7 @@ from evomas.agents.llm_tool_agent import LLMToolAgent
 
 
 class LocatorAgent(LLMToolAgent):
-    """Locate the issue. Reads the issue text + repository signal and emits a
-    short list of candidate file paths most likely to contain the bug.
-
-    State contract: writes `list[str]` of candidate file paths into its own
-    producer slot (`state[self.name]`), consumed by the next agent in the
-    chain via `state[successor.predecessor_name]`.
-    """
+    """Locate the issue -- writes `list[str]` of candidate file paths into `state[self.name]` for the next agent in the chain."""
 
     AGENT_TYPE: ClassVar[str] = "Locator"
     name = "locator"
@@ -60,9 +54,6 @@ class LocatorAgent(LLMToolAgent):
     DEFAULT_TOOLS: ClassVar[tuple[str, ...]] = (
         "search_code", "list_files", "read_file",
     )
-    # Tuned for code-localization: low temperature for focused output, small
-    # num_predict because the answer is a tiny <files> block, hard max_iters
-    # cap so the loop can't ramble past ~2 tool calls + answer + retries.
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {
         "temperature":  0.2,
         "num_ctx":      8192,

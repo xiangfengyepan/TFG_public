@@ -1,21 +1,4 @@
-"""Cross-platform runner for the EvoMas test suites.
-
-Wires up the two test runners we already use ad-hoc into one entry point so
-`evomas test` (from `evomas/cli.py`) and direct invocations both work the same:
-
-    python scripts/run_tests.py                            # both halves, no extras
-    python scripts/run_tests.py --backend-only             # pytest only
-    python scripts/run_tests.py --frontend-only            # ng test only
-    python scripts/run_tests.py --integration              # EVOMAS_RUN_INTEGRATION=1
-    python scripts/run_tests.py --backend-only -- -k name  # forward -k to pytest
-    python scripts/run_tests.py --frontend-only -- --include "src/integration/**"
-
-Extras after `--` are forwarded VERBATIM to the inner runner. Mixing
-`--backend-only` and `--frontend-only` with extras when BOTH halves run is
-rejected — the extra would go to the wrong runner and confuse the dev loop.
-
-Exit code: `max(backend_rc, frontend_rc)` so CI / `evomas test` propagates failure.
-"""
+"""Cross-platform runner for the EvoMas backend (pytest) + frontend (ng test) suites; extras after `--` forward verbatim to the inner runner."""
 from __future__ import annotations
 
 import argparse
@@ -28,21 +11,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _venv_python() -> Path:
-    """Cross-platform venv-python locator. Windows venv puts the executable in
-    `Scripts\\`; POSIX uses `bin/`."""
     if os.name == "nt":
         return REPO_ROOT / "evomas" / "venv" / "Scripts" / "python.exe"
     return REPO_ROOT / "evomas" / "venv" / "bin" / "python"
 
 
 def _banner(title: str) -> None:
-    # Plain ASCII so Windows' default cp1252 console doesn't choke on
-    # unicode box-drawing chars.
+    # Plain ASCII -- Windows' default cp1252 console chokes on box-drawing.
     print(f"\n>>> {title}\n" + "-" * (len(title) + 4), flush=True)
 
 
 def _run_backend(extra: list[str], integration: bool) -> int:
-    """Spawn pytest from the evomas venv. Extras are forwarded verbatim."""
     venv_py = _venv_python()
     if not venv_py.is_file():
         print(
@@ -62,9 +41,7 @@ def _run_backend(extra: list[str], integration: bool) -> int:
 
 
 def _run_frontend(extra: list[str], integration: bool) -> int:
-    """Spawn `ng test` from the `app/` directory. On Windows we need
-    `shell=True` because `npx` is a `.cmd` shim — without it, Python's
-    subprocess can't locate the executable. POSIX runs `npx` directly."""
+    """Spawn `ng test` from `app/`; `shell=True` on Windows because `npx` is a `.cmd` shim that subprocess can't locate directly."""
     app_dir = REPO_ROOT / "app"
     if not app_dir.is_dir():
         print(f"frontend directory not found: {app_dir}", file=sys.stderr)
@@ -84,11 +61,9 @@ def _run_frontend(extra: list[str], integration: bool) -> int:
 
 
 def main() -> int:
-    # Manual `--` split first (when invoked directly): any args after `--`
-    # are protected even if they collide with our own flag names. When the
-    # caller is Typer (`evomas test`), Typer strips `--` before forwarding
-    # to us — but `parse_known_args` below handles that case naturally by
-    # absorbing unknown flags into `extras` regardless of `--`.
+    # Manual `--` split protects args even if they collide with our own flag
+    # names. Typer strips `--` when forwarding from `evomas test`, but
+    # parse_known_args below absorbs unknown flags into extras either way.
     argv = list(sys.argv[1:])
     explicit_extras: list[str] = []
     if "--" in argv:
@@ -112,8 +87,6 @@ def main() -> int:
                        help="skip pytest; extra args go to ng test.")
     parser.add_argument("--integration", action="store_true",
                         help="set EVOMAS_RUN_INTEGRATION=1 before running.")
-    # parse_known_args lets us absorb arbitrary pytest / ng-test flags
-    # without enumerating them — anything we don't recognise flows through.
     args, unknown = parser.parse_known_args(argv)
     extras = unknown + explicit_extras
 

@@ -1,21 +1,4 @@
-"""Convert the SWE-bench agent-type analysis CSVs into EvoMas catalog data.
-
-Run once after the source CSVs change. Reads every `*.csv` under `--csv-dir`
-(one CSV = one open-source SWE-bench solver repo) and emits:
-
-  * `evomas/config/agent_types/<RepoStem>.json`  -- agents + prompts + tool URLs.
-  * `evomas/tools/<repo_snake>/__init__.py` + one stub `.py` per `URL Tool` --
-    every stub function carries the source URL in its docstring and raises
-    `NotImplementedError`. Discoverable / documented; port the real impl when
-    a real agent needs the tool.
-
-Usage:
-    python scripts/import_agent_types.py
-    python scripts/import_agent_types.py --csv-dir /path/to/agents_csv \\
-                                         --overview /path/to/AgentType.csv \\
-                                         --out-config evomas/config/agent_types \\
-                                         --out-tools  evomas/tools
-"""
+"""Convert the SWE-bench agent-type analysis CSVs into EvoMas catalog JSON + NotImplementedError tool stubs under `evomas/tools/<repo_snake>/`."""
 from __future__ import annotations
 
 import argparse
@@ -30,13 +13,11 @@ from typing import Any
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-# Repos with hand-maintained tool packages (do not regenerate stubs that
-# would clobber the working implementations).
+# Repos with hand-maintained tool packages -- regenerating would clobber the
+# working implementations.
 _SKIP_REPOS = {"OpenHands"}
 
-# Canonical AGENT_TYPE taxonomy (mirrors evomas.agents.types). The overview
-# Match the canonical EvoMas taxonomy (formerly "Localizator" -- corrected
-# to the typo-free "Locator" 2026-05-13).
+# Canonical AGENT_TYPE taxonomy (mirrors evomas.agents.types).
 CANONICAL_TYPES: tuple[str, ...] = (
     "Locator",
     "Patcher",
@@ -63,8 +44,7 @@ _TYPE_ALIASES: dict[str, str] = {
     "reviewer": "Reviewer",
 }
 
-# Prompt-Type column values that map to each canonical slot. Case-insensitive
-# comparison; values not in any list are ignored with a warning.
+# Prompt-Type column values mapped to each canonical slot (case-insensitive).
 _PROMPT_SLOTS: dict[str, tuple[str, ...]] = {
     "system":  ("system",),
     "user":    ("user", "human", "instance", "task"),
@@ -73,10 +53,8 @@ _PROMPT_SLOTS: dict[str, tuple[str, ...]] = {
 
 
 def _slugify_repo(name: str) -> str:
-    """Normalize a CSV stem ("SWE_agent", "auto_code_rover", "OpenHands") into
-    a Python-package-safe snake_case identifier for `evomas/tools/<...>/`."""
+    """Normalize a CSV stem into a Python-package-safe snake_case identifier."""
     s = name.strip()
-    # Insert _ between lower-upper and upper-upper-lower transitions
     s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", s)
     s = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", "_", s)
     s = s.lower()
@@ -86,22 +64,12 @@ def _slugify_repo(name: str) -> str:
 
 
 def _tool_name_from_url(url: str) -> str:
-    """Derive a Python-identifier-safe function name from a source URL.
-
-    Examples:
-        .../tools/edit_file.py#L12  -> edit_file
-        .../tools/finish-tool.py    -> finish_tool
-        .../path/to/                -> tool   (fallback)
-    """
+    """Derive a Python-identifier-safe function name from a source URL."""
     if not url:
         return "tool"
-    # Drop fragment and trailing slash
     path = url.split("#", 1)[0].rstrip("/")
-    # Last path segment
     seg = path.rsplit("/", 1)[-1] or "tool"
-    # Drop extension
     seg = re.sub(r"\.(py|js|ts|md|rs|go|java|cpp|c|h)$", "", seg, flags=re.IGNORECASE)
-    # Sanitize to a valid Python identifier
     seg = re.sub(r"[^A-Za-z0-9_]+", "_", seg).strip("_") or "tool"
     if seg[0].isdigit():
         seg = f"t_{seg}"
@@ -109,18 +77,10 @@ def _tool_name_from_url(url: str) -> str:
 
 
 def _canon_types(raw: str | None) -> list[str]:
-    """Return every canonical AGENT_TYPE the raw cell mentions.
-
-    The CSV's `Agent Type` column sometimes holds a comma-separated list
-    (e.g. "Patcher, Locator" for agents that span multiple roles) and
-    sometimes accidentally holds a description (a CSV parsing artefact
-    when the previous row's prompt cell ate part of the line). We split
-    on comma + bullets, resolve each token through `_TYPE_ALIASES`, and
-    drop anything that isn't in the canonical 8."""
+    """Return every canonical AGENT_TYPE the raw cell mentions; the `Agent Type` column can be a comma/semicolon/slash-separated list."""
     if not raw:
         return []
     out: list[str] = []
-    # Allow "; " and " / " as separators too; some rows use those.
     for token in re.split(r"[,;]+|\s+/\s+", raw):
         key = token.strip().lower()
         if not key:
@@ -130,7 +90,6 @@ def _canon_types(raw: str | None) -> list[str]:
             if canon not in out:
                 out.append(canon)
             continue
-        # exact match against canonical (covers case differences only)
         for c in CANONICAL_TYPES:
             if c.lower() == key:
                 if c not in out:
@@ -150,11 +109,8 @@ def _slot_for_prompt_type(raw: str | None) -> str | None:
 
 
 def _extract_prompts(row: dict[str, str]) -> dict[str, str]:
-    """Aggregate `Prompt N Type` / `Prompt N` columns into the 3 EvoMas slots
-    (system / user / proxy). Multiple prompts of the same type get joined with
-    a blank line so no content is lost."""
+    """Aggregate `Prompt N Type` / `Prompt N` columns into the 3 EvoMas slots, joining same-type prompts with a blank line so no content is lost."""
     buckets: dict[str, list[str]] = {"system": [], "user": [], "proxy": []}
-    # Find every "Prompt N Type" column the CSV row carries.
     type_keys = [k for k in row.keys() if k and re.match(r"^Prompt\s+\d+\s+Type$", k.strip())]
     for type_key in type_keys:
         n_match = re.match(r"^Prompt\s+(\d+)\s+Type$", type_key.strip())
@@ -187,8 +143,7 @@ def _extract_tool_urls(row: dict[str, str]) -> list[str]:
 
 
 def _disambiguate_tool_names(urls: list[str]) -> list[dict[str, str]]:
-    """Pair each URL with a Python-safe name, suffixing _2, _3, ... on
-    duplicates so the generated `def` names stay unique inside one repo."""
+    """Pair each URL with a Python-safe name, suffixing _2, _3, ... on duplicates so `def` names stay unique inside one repo."""
     used: dict[str, int] = {}
     out: list[dict[str, str]] = []
     for u in urls:
@@ -204,8 +159,7 @@ def _disambiguate_tool_names(urls: list[str]) -> list[dict[str, str]]:
 
 
 def _read_csv_rows(path: Path) -> list[dict[str, str]]:
-    """Robust CSV read -- prompts contain embedded newlines, so we need the
-    standard csv module rather than splitting lines manually."""
+    # Prompts contain embedded newlines -- use the csv module, not manual splitting.
     with path.open("r", encoding="utf-8", newline="") as fh:
         reader = csv.DictReader(fh)
         return [dict(r) for r in reader]
@@ -218,9 +172,7 @@ def _convert_repo_csv(csv_path: Path) -> dict[str, Any]:
         name = (row.get("Name") or "").strip()
         if not name:
             continue
-        # Skip rows that are actually description / definition rows leaking
-        # through from the source spreadsheet (their `Name` is something like
-        # "Description"; their `Agent Type` is a sentence not a label).
+        # Skip description / definition rows leaking from the source spreadsheet.
         if name.lower() in ("description", "definition", "header"):
             continue
         agent_types = _canon_types(row.get("Agent Type"))
@@ -234,8 +186,8 @@ def _convert_repo_csv(csv_path: Path) -> dict[str, Any]:
         tools = _disambiguate_tool_names(_extract_tool_urls(row))
         short_desc = (row.get("Short Description") or "").strip()
         source_url = (row.get("Agent in the repo") or "").strip()
-        # Multi-type agents (e.g. "Patcher, Locator") get one entry per type --
-        # the Topology dropdown lists the same agent under each role it fills.
+        # Multi-type agents get one entry per type so the Topology dropdown
+        # lists the same agent under each role it fills.
         for at in agent_types:
             agents.append({
                 "name":              name if len(agent_types) == 1 else f"{name} ({at})",
@@ -300,14 +252,13 @@ def _write_tool_stubs(
     pkg_dir = out_tools_root / repo_snake
     pkg_dir.mkdir(parents=True, exist_ok=True)
 
-    # Even when the CSV has no URL Tool columns we still create the package
-    # (empty TOOLS tuple) so it's discoverable.
+    # Always create the package (empty TOOLS tuple if no URLs) so it's discoverable.
     written: list[str] = []
     for spec in tool_names:
         name = spec["name"]
         url  = spec["source_url"]
         if name in written:
-            continue  # already disambiguated upstream, but belt-and-braces
+            continue
         (pkg_dir / f"{name}.py").write_text(
             _STUB_FILE_TEMPLATE.format(
                 url=url, csv_name=csv_name, repo=repo_label, func_name=name,
@@ -370,10 +321,9 @@ def main() -> None:
 
     written_jsons: list[Path] = []
     for csv_path in csv_files:
-        # OpenHands has a hand-written tool package + alias module in
-        # `evomas/tools/openhands/`; regenerating its stubs would overwrite
-        # those with NotImplementedError shells. The JSON catalog is also
-        # tuned by hand to reference EvoMas tool names directly. Skip both.
+        # OpenHands has hand-written tools + a hand-tuned JSON catalog that
+        # references EvoMas tool names directly -- regenerating would overwrite
+        # both with NotImplementedError shells.
         if csv_path.stem in _SKIP_REPOS:
             logger.info("skipping %s (hand-maintained, not regenerated)", csv_path.stem)
             continue
@@ -390,9 +340,9 @@ def main() -> None:
         )
         written_jsons.append(json_path)
 
-        # Aggregate every tool URL across agents in this repo into a single
-        # package. Disambiguation is per-repo (already applied per-agent;
-        # we re-run across the union to dodge cross-agent collisions).
+        # Aggregate every tool URL across agents in this repo into one
+        # package. Re-run disambiguation across the union to dodge
+        # cross-agent collisions.
         all_urls: list[str] = []
         for ag in data["agents"]:
             for t in ag.get("tools", []):

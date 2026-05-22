@@ -8,12 +8,7 @@ from evomas.tools.patch_tools import generate_diff_impl
 
 
 class PatcherAgent(LLMToolAgent):
-    """Write the patch / select the best patch among multiple candidates / apply it.
-
-    State contract: writes the workspace `git diff` into `state[self.name]` at
-    end-of-run via `_producer_value()` — the patch is the real artifact for a
-    Patcher; the LLM response text is usually just an `ok` / one-line ack.
-    """
+    """Write / select / apply the patch; writes the workspace `git diff` into `state[self.name]` (the patch is the real artifact, not the LLM ack text)."""
 
     AGENT_TYPE: ClassVar[str] = "Patcher"
     name = "patcher"
@@ -22,11 +17,7 @@ class PatcherAgent(LLMToolAgent):
     OUTPUT_DEFAULT: ClassVar[str] = ""
 
     def _producer_value(self) -> str:
-        """Surface the unified diff applied to the workspace so the chip
-        carries the actual patch and downstream agents (e.g. Reviewer reading
-        `state[self.predecessor_name]`) get the diff text directly without
-        having to shell out again. Falls back to the LLM response text if the
-        workspace path wasn't pinned or `git diff` came back empty."""
+        """Surface the workspace `git diff` so the chip and downstream agents get the patch text directly; falls back to the LLM response if no workspace was pinned or the diff was empty."""
         workspace = (self._last_workspace_path or "").strip()
         if workspace:
             diff = generate_diff_impl(workspace) or ""
@@ -92,19 +83,14 @@ class PatcherAgent(LLMToolAgent):
         "general workflow in the system prompt. Do NOT modify test files."
     )
     DEFAULT_TOOLS: ClassVar[tuple[str, ...]] = (
-        # Step-0 deterministic class-1 fixer (combines detect_bug_class +
-        # derive_description_fix + apply_patch into a single call).
+        # Step-0 deterministic class-1 fixer (detect + derive + apply_patch).
         "apply_description_fix",
-        # Lower-level deterministic helpers — kept available so the agent
-        # can still call them separately for diagnostics.
+        # Lower-level helpers, kept callable for diagnostics.
         "detect_bug_class", "derive_description_fix",
-        # General-purpose tools from the 4 stand-alone modules under
-        # evomas/tools/ only — no openhands-sourced names.
+        # General-purpose tools from evomas/tools/ only -- no openhands names.
         "read_file", "list_files", "search_code",
         "apply_patch", "normalize_patch", "generate_diff", "run_flake8",
     )
-    # Patches need maximum determinism + a long context for the file body
-    # plus the agent's own bug-class taxonomy in the system prompt.
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {
         "temperature":  0.2,
         "num_ctx":      16384,

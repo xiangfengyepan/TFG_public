@@ -9,7 +9,6 @@ import re
 import subprocess
 import sys
 import threading
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -20,13 +19,14 @@ from pydantic import BaseModel
 from api.common import (
     BASE_DIR,
     EVALUATION_DIR,
+    INSTANCES_PATH,
     PREDICTIONS_DIR,
     SWEBENCH_VENV_PYTHON,
-    instance_origin_lookup,
-    load_instance_rows,
     safe_under,
-    to_wsl,
 )
+from evomas.utils.instances import instance_origin_lookup, load_instance_rows
+from evomas.utils.paths import to_wsl
+from evomas.utils.predictions import derive_run_id_base, partition_predictions
 
 router = APIRouter()
 
@@ -58,7 +58,7 @@ def inspect_prediction(path: str) -> dict[str, Any]:
     if not p.is_file():
         raise HTTPException(404, "prediction file not found")
 
-    origin = instance_origin_lookup()
+    origin = instance_origin_lookup(INSTANCES_PATH)
     text = p.read_text(encoding="utf-8")
 
     groups: dict[tuple[str, str], list[str]] = {}
@@ -107,42 +107,6 @@ def inspect_prediction(path: str) -> dict[str, Any]:
 _eval_procs: dict[str, Any] = {}
 
 
-def _partition_predictions(path: Path) -> dict[tuple[str, str], list[str]]:
-    """Group JSONL lines by (subset, split). Same resolution order as
-    `/api/predictions/inspect` — row's own fields, then instances cache,
-    then `("lite", "dev")`."""
-    origin = instance_origin_lookup()
-    out: dict[tuple[str, str], list[str]] = {}
-    text = path.read_text(encoding="utf-8")
-    for raw in text.splitlines():
-        raw = raw.strip()
-        if not raw:
-            continue
-        try:
-            obj = json.loads(raw)
-        except json.JSONDecodeError:
-            continue
-        subset = obj.get("subset")
-        split = obj.get("split")
-        if not subset or not split:
-            cached = origin.get(obj.get("instance_id") or "")
-            if cached:
-                subset = subset or cached[0]
-                split = split or cached[1]
-        subset = subset or "lite"
-        split = split or "dev"
-        out.setdefault((subset, split), []).append(raw)
-    return out
-
-
-def _derive_run_id_base(pred_path: Path) -> str:
-    """`<config>-<UID>` from a prediction filename, else a timestamp."""
-    m = re.match(r"^prediction-(.+)\.jsonl$", pred_path.name)
-    if m:
-        return m.group(1)
-    return f"adhoc-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-
-
 @router.post("/api/evaluation/run")
 async def run_evaluation(req: EvaluationRequest):
     pred_path = Path(req.predictions_path)
@@ -156,9 +120,9 @@ async def run_evaluation(req: EvaluationRequest):
     # Partition by (subset, split) so a multi-instance file is scored
     # against every dataset its rows came from. Custom-repo rows go to
     # `apply_and_test.py` since the SWE-bench harness needs test_patch.
-    groups = _partition_predictions(pred_path)
+    groups = partition_predictions(pred_path, INSTANCES_PATH)
     skipped_custom = groups.pop(("custom", "custom"), [])
-    base = req.run_id or f"evaluation-{_derive_run_id_base(pred_path)}"
+    base = req.run_id or f"evaluation-{derive_run_id_base(pred_path)}"
 
     def put(data: dict) -> None:
         loop.call_soon_threadsafe(q.put_nowait, data)
@@ -237,7 +201,7 @@ async def run_evaluation(req: EvaluationRequest):
                     iid = obj.get("instance_id")
                     if iid:
                         custom_iids.append(iid)
-                rows = load_instance_rows(custom_iids)
+                rows = load_instance_rows(custom_iids, INSTANCES_PATH)
 
                 model_name = "evomas-custom"
                 try:

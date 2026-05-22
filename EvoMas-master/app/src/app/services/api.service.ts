@@ -222,6 +222,19 @@ export class ApiService {
     );
   }
 
+  /** Reproduce-this-run notebook for (instance_ids, config) — built
+   * BEFORE any prediction exists, so the comparative section is omitted.
+   * Mirror of `getResultPredictionNotebook` for the Inference page. */
+  buildInferenceNotebook(
+    instanceIds: string[], config: string | UnifiedConfig,
+  ): Observable<Blob> {
+    return this.http.post(
+      `${BASE}/inference/notebook`,
+      { instance_ids: instanceIds, config },
+      { responseType: 'blob' },
+    );
+  }
+
   // ─── Inference SSE (POST + ReadableStream) ────────────────────────
   streamInference(
     instanceIds: string | string[],

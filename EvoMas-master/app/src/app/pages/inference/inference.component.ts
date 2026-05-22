@@ -278,6 +278,32 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
   cancel(): void { this.inferSvc.cancel(); }
 
+  /** POST /api/inference/notebook with the current (instance_ids, config)
+   * and hand the returned `.ipynb` to a download anchor. Lets the user
+   * generate a reproduce-this-run notebook BEFORE running anything, so
+   * they can take it to a different machine and run it there. */
+  downloadNotebook(): void {
+    const ids = this.state.selectedList;
+    if (ids.length === 0 || !this.config) return;
+    this.api.buildInferenceNotebook(ids, this.config).subscribe({
+      next: blob => {
+        const stem = `notebook-${this.config}-${Date.now()}`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${stem}.ipynb`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+      error: err => {
+        const msg = err?.error?.detail ?? err?.message ?? 'Failed to build notebook';
+        alert(`Notebook download failed: ${msg}`);
+      },
+    });
+  }
+
   // ─── Custom-repo modal handlers ────────────────────────────────
   toggleCustomForm(): void {
     this.customFormOpen = !this.customFormOpen;

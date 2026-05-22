@@ -15,18 +15,23 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel
 
 from api.common import (
     INFERENCE_INTERNAL_LOGS_DIR,
     INSTANCES_PATH,
+    LOADED_CONFIG_DIR,
+    PREDEFINED_CONFIG_DIR,
     PREDICTION_CONFIGS_DIR,
     PREDICTION_TEXT_LOGS_DIR,
     PREDICTIONS_DIR,
     safe_under,
     logger,
 )
+from evomas.config.loader import resolve_config_path
+from evomas.utils.json_safe import safe_serialize
+from evomas.utils.notebook import build_notebook_for_inputs
 
 router = APIRouter()
 
@@ -48,18 +53,6 @@ _cancel_flags: dict[str, bool] = {}
 # Set on worker start, cleared on done/error/cancel. The Inference page
 # polls `/api/inference/active` to rebuild its UI from the .log transcript.
 _active_run: dict[str, Any] | None = None
-
-
-def _safe_serialize(obj: Any) -> Any:
-    if isinstance(obj, dict):
-        return {k: _safe_serialize(v) for k, v in obj.items() if k not in ("instance",)}
-    if isinstance(obj, list):
-        return [_safe_serialize(i) for i in obj]
-    try:
-        json.dumps(obj)
-        return obj
-    except (TypeError, ValueError):
-        return str(obj)
 
 
 @router.post("/api/inference/run")
@@ -341,7 +334,7 @@ async def run_inference(req: InferenceRequest):
                             inputs: dict[str, Any] = {}
                             for pred in predecessors.get(agent_name, []):
                                 if pred and pred in accumulated:
-                                    inputs[pred] = _safe_serialize(_preview(accumulated[pred]))
+                                    inputs[pred] = safe_serialize(_preview(accumulated[pred]))
                             put({
                                 "type": "agent_input",
                                 "agent": agent_name,
@@ -349,7 +342,7 @@ async def run_inference(req: InferenceRequest):
                             })
                             seen_agents.add(agent_name)
                         accumulated.update(delta)
-                        safe_delta = _safe_serialize(delta)
+                        safe_delta = safe_serialize(delta)
                         # Truncate long patch strings in list-valued slots;
                         # producer-keyed slots make the field name vary.
                         for k, v in list(safe_delta.items()):
@@ -504,6 +497,59 @@ def inference_active() -> dict[str, Any]:
     if _active_run is None:
         return {"active": False}
     return {"active": True, **_active_run}
+
+
+class NotebookRequest(BaseModel):
+    """Payload for `/api/inference/notebook` — same shape as
+    `InferenceRequest` (so the frontend can reuse its config-and-ids
+    state) minus the SSE-only run knobs."""
+    instance_ids: list[str]
+    config: str | dict[str, Any] = ""
+
+
+@router.post("/api/inference/notebook")
+def build_inference_notebook(req: NotebookRequest) -> Response:
+    """Reproduce-this-run notebook built from the Inference page's
+    current (config, instance_ids) selection. No baseline patches yet —
+    the notebook omits the compare-with-original section.
+
+    Accepts either a config name (resolved against
+    `evomas/config/predefined|loaded/`) or an inline unified-config dict
+    (the topology page's "Save to session" payload)."""
+    if not req.instance_ids:
+        raise HTTPException(400, "instance_ids must be non-empty")
+
+    if isinstance(req.config, dict):
+        cfg_data = req.config
+    else:
+        name = (req.config or "").strip()
+        if not name:
+            raise HTTPException(400, "config name or inline dict required")
+        cfg_path = resolve_config_path(
+            name,
+            predefined_dir=PREDEFINED_CONFIG_DIR,
+            loaded_dir=LOADED_CONFIG_DIR,
+        )
+        if cfg_path is None:
+            raise HTTPException(404, f"config '{name}' not found")
+        try:
+            cfg_data = json.loads(cfg_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise HTTPException(500, f"failed to parse {cfg_path.name}: {exc}") from exc
+
+    run_id, notebook = build_notebook_for_inputs(
+        instance_ids=list(req.instance_ids),
+        config_data=cfg_data,
+        instances_path=INSTANCES_PATH,
+    )
+    body = json.dumps(notebook, indent=1)
+    return Response(
+        content=body,
+        media_type="application/x-ipynb+json",
+        headers={
+            "Content-Disposition": f'attachment; filename="notebook-{run_id}.ipynb"',
+        },
+    )
 
 
 @router.get("/api/inference/log-tail")

@@ -7,12 +7,7 @@ from evomas.agents.llm_tool_agent import LLMToolAgent
 
 
 class BugReproductionAgent(LLMToolAgent):
-    """Attempts to reproduce reported bugs by writing and executing minimal
-    reproduction tests / snippets.
-
-    State contract: writes `reproduction_result: dict` with at least
-    `{"reproduced": bool, "trace": str}`.
-    """
+    """Reproduce reported bugs by writing and executing minimal repros; writes `reproduction_result: dict` with at least `{reproduced: bool, trace: str}`."""
 
     AGENT_TYPE: ClassVar[str] = "Bug reproduction"
     name = "bug_reproduction"

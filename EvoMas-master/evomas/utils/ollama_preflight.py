@@ -17,9 +17,10 @@ from evomas.exceptions.errors import EvomasError
 logger = logging.getLogger(__name__)
 
 
-def _ollama_base_url() -> str:
-    # Must match `api/server.py:_ollama_base_url` so preflight talks to
-    # the same Ollama instance the agents will use at runtime.
+def ollama_base_url() -> str:
+    """`OLLAMA_BASE_URL` env override, defaulting to the local daemon.
+    Single source of truth — preflight + topology dropdown + pull-progress
+    SSE all read through here."""
     return os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").strip().strip("\"'")
 
 
@@ -29,13 +30,38 @@ def _list_pulled() -> set[str]:
     Returns empty set on probe error so the preflight will attempt every
     required pull (safer than skipping one)."""
     try:
-        url = f"{_ollama_base_url()}/api/tags"
+        url = f"{ollama_base_url()}/api/tags"
         with urllib.request.urlopen(url, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return {f"ollama/{m['name']}" for m in (data.get("models") or [])}
     except Exception as exc:
         logger.info("ollama /api/tags probe failed (%s); preflight will attempt every config model", exc)
         return set()
+
+
+def pulled_ollama_models() -> list[str]:
+    """Sorted list of locally-pulled Ollama model ids (`ollama/<name>`).
+    Same probe as `_list_pulled`, returned as a list so the topology
+    dropdown can render them deterministically."""
+    return sorted(_list_pulled())
+
+
+def pulled_ollama_models_with_catalog() -> list[dict[str, Any]]:
+    """Pulled models first (alphabetical), then unpulled catalog entries
+    in declared registry order. Drives the topology dropdown — `pulled:
+    False` entries trigger an `ollama pull` preflight at run start."""
+    from evomas.models.ollama_catalog import OLLAMA_CATALOG
+    pulled = _list_pulled()
+    out: list[dict[str, Any]] = []
+    for name in sorted(pulled):
+        out.append({"name": name, "pulled": True})
+    seen = set(pulled)
+    for name in OLLAMA_CATALOG:
+        if name in seen:
+            continue
+        out.append({"name": name, "pulled": False})
+        seen.add(name)
+    return out
 
 
 def collect_required_ollama_models(cfg: dict[str, Any]) -> list[str]:
@@ -87,7 +113,7 @@ def preflight_models(
     # (e.g. a LAN GPU server) the CLI pulls into the LOCAL daemon and
     # the run still 404s after 5GB downloaded.
     env = os.environ.copy()
-    base_url = _ollama_base_url()
+    base_url = ollama_base_url()
     env["OLLAMA_HOST"] = base_url
 
     for model in missing:

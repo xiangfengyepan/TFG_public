@@ -1,18 +1,4 @@
-"""Generic config-driven agent.
-
-Runs a LangChain function-calling loop driven entirely from the unified-config
-block (system/user prompts + tool whitelist + Ollama hyperparameters). The
-loop emits the agent's `_thinking` buffer back into LangGraph state and
-optionally falls back to a single-shot diff prompt when the run produced no
-workspace changes — useful for SWE-bench-style runners that capture the
-patch via `git diff` after the graph completes.
-
-Specialized behaviors live in subclasses under `evomas/agents/types/`:
-the Orchestrator type overrides `run`/`route` to drive plan-based routing,
-the Locator/Patcher/etc. types contribute role-specific defaults, and
-hand-coded agents that need bespoke Python (BM25, scoring loops, …) still
-subclass `BaseAgent` directly.
-"""
+"""Generic config-driven agent that runs a LangChain function-calling loop from the unified-config block, with an optional single-shot diff fallback when the run produced no workspace changes."""
 from __future__ import annotations
 
 import json
@@ -27,14 +13,30 @@ from evomas.agents.base_agent import BaseAgent
 from evomas.tools.patch_tools import generate_diff_impl
 from evomas.utils.handoff import preview_payload
 
-# Same cap as `graph_builder._wrap`'s offered-line cap. The full
-# predecessor value is still in `state[<predecessor>]` and on the
-# receiver's SSE `agent_input` event for the chip modal; this is the
-# log-only inline preview.
+# Must match `graph_builder._wrap`'s offered-line cap. Log-only inline
+# preview; the full value lives in `state[<predecessor>]` and on the SSE
+# `agent_input` event for the chip modal.
 _HANDOFF_LOG_PREVIEW_CHARS: int = 1000
 
 _PATCH_RE = re.compile(r"<patch>(.*?)</patch>", re.DOTALL | re.IGNORECASE)
 _FINISH_NAMES = {"finish"}
+
+
+def _coerce_slot_for_prompt(value: Any, max_chars: int = 8000) -> str:
+    """Render a state-slot value as a string for `{name}` substitution.
+
+    Empty OUTPUT_DEFAULTs (`""`, `[]`, `{}`, `None`) collapse to "" so hub
+    prompts with "if X is empty" rules see them as truly empty (rendering
+    `[]` as literal `"[]"` would misread as non-empty content). Lists of
+    strings join on newlines so the model sees a readable list, not `repr`.
+    """
+    if value is None or value == "" or value == [] or value == {}:
+        return ""
+    if isinstance(value, str):
+        return value[:max_chars]
+    if isinstance(value, list) and all(isinstance(x, str) for x in value):
+        return "\n".join(value)[:max_chars]
+    return str(value)[:max_chars]
 
 
 class LLMToolAgent(BaseAgent):
@@ -47,10 +49,8 @@ class LLMToolAgent(BaseAgent):
     ) -> None:
         super().__init__(config_block, node_name=node_name)
         block = config_block or {}
-        # Honor the type's DEFAULT_CONFIG floor for `max_iters` the same way
-        # base_agent.py:63 already does for the other hyperparameters, so a
-        # type that declares max_iters in its DEFAULT_CONFIG drives runtime
-        # behaviour even when the JSON block omits the key.
+        # Layer type DEFAULT_CONFIG under the JSON block for `max_iters` the
+        # same way BaseAgent.__init__ already does for the other hyperparams.
         merged = {**type(self).DEFAULT_CONFIG, **block}
         self.max_iters: int = int(merged.get("max_iters") or 10)
 
@@ -59,34 +59,26 @@ class LLMToolAgent(BaseAgent):
         self.guarantee_change: bool = bool(fb.get("guarantee_change"))
         self.fallback_system: str = fb.get("system") or _DEFAULT_FALLBACK_SYSTEM
 
-    # ─── Node body ───────────────────────────────────────────────────────
     def run(self, state: dict[str, Any]) -> dict[str, Any]:
         return self._run_llm_loop(state)
 
-    # ─── LLM tool loop ───────────────────────────────────────────────────
     def _run_llm_loop(self, state: dict[str, Any]) -> dict[str, Any]:
         workspace: str = state.get("workspace_path") or ""
         issue: str = state.get("issue_text") or ""
         instance: dict[str, Any] = state.get("instance") or {}
-        # Pin the workspace path so `_producer_value()` overrides (e.g.
-        # PatcherAgent) can snapshot the diff without re-plumbing it.
         self._last_workspace_path = workspace
 
-        # Pull the upstream producer's slot value so the user prompt can
-        # opt into the predecessor's output via `{predecessor}`. Capped at
-        # 8000 chars so a runaway thinking buffer can't blow the context;
-        # the full value still lives in state for programmatic readers
-        # (e.g. HelperProxyAgent's score-and-pick branch) that need it.
+        # Capped at 8000 chars so a runaway thinking buffer can't blow the
+        # context window; the full value still lives in state for programmatic
+        # readers (e.g. HelperProxyAgent's score-and-pick branch).
         predecessor_value = ""
         if self.predecessor_name:
             raw = state.get(self.predecessor_name)
             predecessor_value = str(raw or "")[:8000]
         self._last_predecessor_value = predecessor_value
 
-        # Mirror of `graph_builder._wrap`'s "[X] offered to [Y]: …" line.
-        # Emitted from the RECEIVER side so the .log captures both halves
-        # of every hand-off in order. Skips when there's no predecessor
-        # (entry node) or when the upstream slot was empty.
+        # Receiver-side mirror of `graph_builder._wrap`'s "[X] offered to [Y]"
+        # line so the .log captures both halves of every hand-off in order.
         if self.predecessor_name and predecessor_value.strip():
             received_preview = preview_payload(
                 predecessor_value, max_chars=_HANDOFF_LOG_PREVIEW_CHARS,
@@ -98,37 +90,37 @@ class LLMToolAgent(BaseAgent):
 
         system = self.prompts.get("system") or ""
         user_template = (self.prompts.get("user") or "").strip() or _DEFAULT_USER_PROMPT
-        # Build the template substitution map. Start with every
-        # string-valued state slot so prompts can reference upstream
-        # producer values by name (e.g. `{locator}`, `{patcher}`,
-        # `{reviewer}`) — useful for hubs in bidirectional / cyclic
-        # topologies where the single `{predecessor}` only ever
-        # resolves to the first incoming edge's slot and goes stale
-        # for subsequent iterations. The explicit named args below
-        # override any collision (e.g. a node literally named `issue`
-        # would shadow the issue text without this).
-        fmt_kwargs: dict[str, Any] = {
-            k: str(v)[:8000] for k, v in state.items()
-            if isinstance(v, str)
+        # Include every state slot so prompts can reference upstream producers
+        # by name (e.g. `{locator}`, `{patcher}`) -- needed for hubs in
+        # bidirectional / cyclic topologies where `{predecessor}` only resolves
+        # to the first incoming edge's slot and goes stale on later iterations.
+        fmt_kwargs: dict[str, str] = {
+            k: _coerce_slot_for_prompt(v) for k, v in state.items()
         }
+        # Explicit args win over state-slot collisions (a node literally named
+        # `issue` would otherwise shadow the issue text).
         fmt_kwargs.update(
             issue=issue[:8000],
             workspace=workspace,
             instance_id=instance.get("instance_id", ""),
             predecessor=predecessor_value,
         )
-        try:
-            user_msg = user_template.format(**fmt_kwargs)
-        except KeyError as exc:
-            # The template references a placeholder neither in the
-            # explicit-args list nor in `state`. Render the literal
-            # `{name}` rather than crashing the run — the prompt
-            # author can fix the typo without taking down the agent.
+        # `format_map` with a missing-key fallback so a typo renders one
+        # `{name}` as empty rather than nuking ALL substitutions (the previous
+        # KeyError fallback kept the literal template, hiding `{issue}` etc).
+        warned_keys: list[str] = []
+
+        class _FmtKwargs(dict[str, str]):
+            def __missing__(self, key: str) -> str:
+                warned_keys.append(key)
+                return ""
+
+        user_msg = user_template.format_map(_FmtKwargs(fmt_kwargs))
+        if warned_keys:
             self.logger.warning(
-                "user prompt references unknown placeholder %s; "
-                "rendering literal", exc,
+                "user prompt references unknown placeholder(s) %s; rendered as empty",
+                sorted(set(warned_keys)),
             )
-            user_msg = user_template
 
         tools = self._bound_tools()
         llm = self.make_llm()
@@ -140,10 +132,8 @@ class LLMToolAgent(BaseAgent):
             self.logger.info("[%s] iter %d/%d", self.name, step + 1, self.max_iters)
             response = self._invoke(llm, messages)  # pyright: ignore[reportArgumentType]
             messages.append(response)
-            # Capture the final response text. We overwrite each iteration so
-            # the LAST non-empty content wins; iterations that emit only tool
-            # calls keep the previously-captured text. The producer slot is
-            # populated from this at end-of-run (see `_producer_value`).
+            # Overwrite each iteration so the LAST non-empty content wins;
+            # tool-call-only iterations keep the previously-captured text.
             self._capture_response_text(response)
 
             tool_calls = self._extract_tool_calls(response)
@@ -175,13 +165,10 @@ class LLMToolAgent(BaseAgent):
                 self.logger.info("[%s] finish() called — exiting loop", self.name)
                 break
 
-        # If the loop exhausted max_iters without the LLM ever producing
-        # a final assistant message (every iteration ended with another
-        # tool call), `self._final_response_text` is still empty and the
-        # producer slot would hand off `str(0 B)`. Fire ONE summarization
-        # call with no tools bound so the agent can emit its canonical
-        # output (e.g. locator's `<files>…</files>`) based on what it
-        # already found. Cheap insurance against runaway tool cycles.
+        # If max_iters exhausted without any final assistant message,
+        # `_final_response_text` is still empty and the producer slot would
+        # hand off "0 B". Fire one no-tools summarization so the agent emits
+        # its canonical output (e.g. locator's `<files>...</files>`).
         if not self._final_response_text.strip():
             self.logger.info("[%s] max_iters reached without response — running summary fallback", self.name)
             try:
@@ -207,10 +194,7 @@ class LLMToolAgent(BaseAgent):
         }
 
     def _capture_response_text(self, response: Any) -> None:
-        """Extract the final assistant message text from a LangChain response
-        and stash it on `self._final_response_text`. Handles both the plain
-        string `content` shape and the list-of-content-parts shape that some
-        providers (Claude tool-calls, Gemini structured output) return."""
+        """Extract final assistant text from a LangChain response onto `self._final_response_text`, handling both plain-string and list-of-content-parts shapes (Claude tool-calls, Gemini structured output)."""
         content = getattr(response, "content", None)
         if isinstance(content, str):
             text = content.strip()
@@ -228,7 +212,6 @@ class LLMToolAgent(BaseAgent):
             if joined:
                 self._final_response_text = "".join(parts)
 
-    # ─── Diff fallback ───────────────────────────────────────────────────
     def _fallback_singleshot_patch(self, issue: str, workspace: str) -> None:
         prompt = (
             "Produce a unified diff that fixes the issue. Wrap it in <patch>...</patch>.\n\n"
@@ -297,7 +280,6 @@ class LLMToolAgent(BaseAgent):
             self.logger.warning("[%s] last-resort: could not modify %s: %s",
                                 self.name, target_name, exc)
 
-    # ─── Helpers ─────────────────────────────────────────────────────────
     def _bound_tools(self) -> list[Any]:
         names = (
             list(self.tool_policy.keys())

@@ -15,14 +15,12 @@ from typing import Optional
 import click
 import typer
 from typer.core import TyperGroup
-from dotenv import load_dotenv
 
-REPO_ROOT: Path = Path(__file__).resolve().parent.parent
+from evomas.paths import BASE_DIR as REPO_ROOT, bootstrap
 
-# Two .env files (matches the FastAPI server loader) so subprocesses
-# inherit OLLAMA_BASE_URL, RESULTS_DIR, etc.
-load_dotenv(REPO_ROOT / "evomas" / ".env", override=False)
-load_dotenv(REPO_ROOT / "api" / ".env", override=False)
+# sys.path push + .env load + writable-folder mkdir — same setup the
+# api server runs at import time.
+bootstrap()
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -466,37 +464,81 @@ def test(
 @app.command(
     "notebook",
     help=(
-        "Export a reproduce-this-run Jupyter notebook (.ipynb) for a "
-        "prediction JSONL. Mirrors the Results page's 'Notebook' button. "
-        "Best with UI-produced predictions -- they carry a config "
-        "snapshot that fills the notebook's CONFIG cell."
+        "Export a reproduce-this-run Jupyter notebook (.ipynb). Two modes:"
+        "\n  - From an existing prediction JSONL (--predictions): includes"
+        " the compare-with-original section that diffs the re-run against"
+        " the original model_patch. Mirrors the Results page button."
+        "\n  - From inputs (--config + optional --instance-ids): no"
+        " baseline to diff against, so the comparative section is omitted."
+        " Mirrors the Inference page download button."
         "\n\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl"
-        "\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl --output ~/Downloads/reproduce.ipynb"
+        "\nExample:  evomas notebook --config chain --instance-ids sqlfluff__sqlfluff-1625"
     ),
 )
 def notebook(
-    predictions: str = typer.Option(
-        ..., "--predictions",
-        help="Path to the prediction JSONL (the file produced by "
-             "`evomas run prediction` or the Inference page).",
+    predictions: Optional[str] = typer.Option(
+        None, "--predictions",
+        help="Path to the prediction JSONL. Mutually exclusive with --config.",
+    ),
+    config: Optional[str] = typer.Option(
+        None, "--config",
+        help="Config name (stem) to bake into the notebook. Resolved against "
+             "evomas/config/predefined/ then loaded/. Mutually exclusive with --predictions.",
+    ),
+    instance_ids: Optional[str] = typer.Option(
+        None, "--instance-ids",
+        help="Comma-separated instance ids. Required with --config; ignored with --predictions "
+             "(which already carries them in the JSONL).",
     ),
     output: Optional[str] = typer.Option(
         None, "--output",
-        help="Where to write the .ipynb. Defaults to "
-             "`./<prediction-stem>.ipynb` in the current directory.",
+        help="Where to write the .ipynb. Defaults to a sensible stem in the cwd.",
     ),
 ) -> None:
-    # Same builder the API endpoint uses — keeps CLI + UI byte-identical.
-    if str(REPO_ROOT) not in sys.path:
-        sys.path.insert(0, str(REPO_ROOT))
-    from api.routers.results import build_notebook_for_prediction
-    pred_path = Path(predictions).resolve()
-    try:
-        run_id, nb = build_notebook_for_prediction(pred_path)
-    except FileNotFoundError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(1)
-    out_path = Path(output) if output else Path.cwd() / f"{pred_path.stem}.ipynb"
+    from evomas.utils.notebook import (
+        build_notebook_for_inputs, build_notebook_for_prediction,
+    )
+
+    if bool(predictions) == bool(config):
+        typer.echo(
+            "Pass exactly one of --predictions or --config.", err=True,
+        )
+        raise typer.Exit(2)
+
+    if predictions:
+        pred_path = Path(predictions).resolve()
+        try:
+            run_id, nb = build_notebook_for_prediction(pred_path)
+        except FileNotFoundError as exc:
+            typer.echo(str(exc), err=True)
+            raise typer.Exit(1)
+        default_stem = pred_path.stem
+    else:
+        assert config is not None
+        ids = [i.strip() for i in (instance_ids or "").split(",") if i.strip()]
+        if not ids:
+            typer.echo("--instance-ids is required with --config.", err=True)
+            raise typer.Exit(2)
+        # Resolve config via the same loader the topology page uses.
+        from evomas.config.loader import resolve_config_path
+        from evomas.paths import LOADED_CONFIG_DIR, PREDEFINED_CONFIG_DIR
+        cfg_path = resolve_config_path(
+            config, predefined_dir=PREDEFINED_CONFIG_DIR, loaded_dir=LOADED_CONFIG_DIR,
+        )
+        if cfg_path is None:
+            typer.echo(f"Config '{config}' not found.", err=True)
+            raise typer.Exit(1)
+        try:
+            cfg_data = json.loads(cfg_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            typer.echo(f"Failed to parse {cfg_path}: {exc}", err=True)
+            raise typer.Exit(1)
+        run_id, nb = build_notebook_for_inputs(
+            instance_ids=ids, config_data=cfg_data,
+        )
+        default_stem = f"notebook-{run_id}"
+
+    out_path = Path(output) if output else Path.cwd() / f"{default_stem}.ipynb"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(nb, indent=1), encoding="utf-8")
     typer.echo(f"Wrote reproduce-this-run notebook for {run_id} -> {out_path}")

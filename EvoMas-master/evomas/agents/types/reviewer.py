@@ -7,28 +7,13 @@ from evomas.agents.llm_tool_agent import LLMToolAgent
 
 
 class ReviewerAgent(LLMToolAgent):
-    """Reviews the patcher's workspace edits: checks that they apply, lint
-    cleanly, and semantically address the issue.
-
-    State contract: writes `validation_results: list[dict]` when used in a
-    score-and-pick chain; under the simpler pure-LLM linear topology it
-    runs the diff inspection inline and contributes a PASS/FAIL signal via
-    its slot.
-
-    The patch text is NOT injected into the prompt as a template placeholder
-    (the LLMToolAgent loop only fills `{issue}`, `{workspace}`, and
-    `{instance_id}`). Instead the reviewer is told to fetch the current
-    workspace diff via the `generate_diff` MCP tool -- that diff is what
-    the upstream patcher already applied to disk.
-    """
+    """Reviews the patcher's workspace edits (apply / lint / semantic match) via the `generate_diff` MCP tool, since the diff isn't a template placeholder."""
 
     AGENT_TYPE: ClassVar[str] = "Reviewer"
     name = "reviewer"
 
-    # Under the linear-chain model, reviewer's predecessor is the patcher.
-    # Reviewer's output bundles `{patches, validations}` so the downstream
-    # ensembler can read both via a single predecessor slot -- no implicit
-    # multi-upstream lookups needed.
+    # Output bundles `{patches, validations}` so the downstream ensembler
+    # can read both via a single predecessor slot -- no multi-upstream lookup.
     OUTPUT_TYPE: ClassVar[Any] = dict[str, Any]
     OUTPUT_DEFAULT: ClassVar[dict[str, Any]] = {}
 
@@ -71,7 +56,6 @@ class ReviewerAgent(LLMToolAgent):
         "normalize_patch", "reset_repo",
         "read_file",
     )
-    # Short, deterministic verdict — wraps the answer in <review>…</review>.
     DEFAULT_CONFIG: ClassVar[dict[str, Any]] = {
         "temperature":  0.2,
         "num_ctx":      4096,

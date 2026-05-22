@@ -171,3 +171,47 @@ def get_server() -> MCPServer:
     if _server is None:
         _server = MCPServer()
     return _server
+
+
+_TOOL_REPO_OWNER_CACHE: dict[str, str] | None = None
+
+
+def tool_repo_owner_map() -> dict[str, str]:
+    """`tool_name -> owner` map. The owner is the `evomas/tools/<repo>/`
+    folder the tool was registered from, or `"evomas"` for the top-level
+    `evomas/tools/*.py` helpers (apply_patch, read_file, search_code, …).
+
+    Cached at module level so repeated calls don't re-walk the bundles.
+    Used by the topology page's `/api/tools` endpoint to group the
+    Add-tool dropdown by owner; could just as well be used by a CLI
+    `evomas tools list --owner X` in the future.
+    """
+    global _TOOL_REPO_OWNER_CACHE
+    if _TOOL_REPO_OWNER_CACHE is not None:
+        return _TOOL_REPO_OWNER_CACHE
+    bundles: list[tuple[str, Any]] = [
+        ("augment_swebench_agent", AUGMENT_SWEBENCH_AGENT_TOOLS),
+        ("auto_code_rover",        AUTO_CODE_ROVER_TOOLS),
+        ("claude_coder",           CLAUDE_CODER_TOOLS),
+        ("composio",               COMPOSIO_TOOLS),
+        ("debug_gym",              DEBUG_GYM_TOOLS),
+        ("joycode_agent",          JOYCODE_AGENT_TOOLS),
+        ("lingma_swe_gpt",         LINGMA_SWE_GPT_TOOLS),
+        # OpenHands ships two bundles under one folder; share the owner.
+        ("openhands",              OPENHANDS_TOOLS),
+        ("openhands",              LOC_TOOLS),
+        ("patchwork",              PATCHWORK_TOOLS),
+        ("suna",                   SUNA_TOOLS),
+        ("swe_agent",              SWE_AGENT_TOOLS),
+        ("trae_agent",             TRAE_AGENT_TOOLS),
+    ]
+    out: dict[str, str] = {}
+    for owner, bundle in bundles:
+        for tool in bundle:
+            name = getattr(tool, "name", None)
+            if not name:
+                continue
+            # First-seen owner wins (handles cross-bundle re-exports).
+            out.setdefault(name, owner)
+    _TOOL_REPO_OWNER_CACHE = out
+    return out
