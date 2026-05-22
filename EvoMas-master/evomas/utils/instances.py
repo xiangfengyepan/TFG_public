@@ -83,3 +83,47 @@ def load_instance_rows(
                 if len(out) == len(wanted):
                     break
     return out
+
+
+SUBSET_DATASETS: dict[str, str] = {
+    "lite":     "SWE-bench/SWE-bench_Lite",
+    "full":     "SWE-bench/SWE-bench",
+    "verified": "SWE-bench/SWE-bench_Verified",
+}
+
+
+def fetch_swebench_instances(
+    subset: str,
+    split: str,
+    instance_ids: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Pull a SWE-bench (subset, split) fresh from HuggingFace. With
+    `instance_ids` set, filter to just those — keeps a single-instance
+    notebook from materialising the whole ~2000-row split.
+
+    Rows come annotated with `subset` + `split` so the runner / eval
+    worker can partition them the same way the local cache would.
+
+    `datasets` is imported lazily so a CLI that never calls this
+    function (e.g. the custom-repo branch) doesn't pay the HF startup
+    cost or require the package to be installed."""
+    if subset not in SUBSET_DATASETS:
+        raise ValueError(
+            f"unknown subset {subset!r}; expected one of {sorted(SUBSET_DATASETS)}"
+        )
+    from datasets import load_dataset  # type: ignore[import-untyped]
+    ds = load_dataset(SUBSET_DATASETS[subset])
+    if split not in ds:
+        raise ValueError(f"split {split!r} not in dataset {SUBSET_DATASETS[subset]!r}")
+    wanted = set(instance_ids) if instance_ids else None
+    rows: list[dict[str, Any]] = []
+    for item in ds[split]:
+        obj = dict(item)
+        if wanted is not None and obj.get("instance_id") not in wanted:
+            continue
+        obj["subset"] = subset
+        obj["split"] = split
+        rows.append(obj)
+        if wanted is not None and len(rows) == len(wanted):
+            break
+    return rows

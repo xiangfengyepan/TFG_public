@@ -582,3 +582,85 @@ def test_test_command_forwards_extra_args(
     assert result.exit_code == 0
     _, args = _last_forward(stub_runners)
     assert "-k" in args and "apply_description_fix" in args
+
+
+# ─── help-text examples ──────────────────────────────────────────────────────
+
+
+def _extract_help_examples() -> list[str]:
+    """Scan `evomas/cli.py` for every `Example:  evomas <body>` line and
+    return the bodies (without the leading `evomas `). The bodies live
+    inside Python str literals — we walk literal-by-literal so escape
+    sequences like `\\"` decode back to real quotes the way they will
+    appear on the user's terminal."""
+    import re
+    from pathlib import Path
+
+    src = (Path(cli_mod.__file__)).read_text(encoding="utf-8")
+    out: list[str] = []
+    literal_re = re.compile(r'"((?:\\.|[^"\\])*Example:\s+evomas\s+(?:\\.|[^"\\])+?)"')
+    for m in literal_re.finditer(src):
+        try:
+            literal = bytes(m.group(1), "utf-8").decode("unicode_escape")
+        except UnicodeDecodeError:
+            continue
+        for line in literal.splitlines():
+            line = line.strip()
+            if line.startswith("Example:"):
+                body = line[len("Example:"):].strip()
+                if body.startswith("evomas "):
+                    body = body[len("evomas "):].rstrip()
+                if body:
+                    out.append(body)
+    # Triple-quoted docstring form: `Example:  evomas …` followed by newline.
+    # Skip bodies still carrying raw `\"` (the literal-pass above already
+    # produced the decoded version; these would be duplicates with broken quoting).
+    for m in re.finditer(r"Example:\s+evomas\s+([^\n]+)", src):
+        body = m.group(1).rstrip().rstrip('"').rstrip()
+        if r'\"' in body:
+            continue
+        if body and body not in out:
+            out.append(body)
+    return list(dict.fromkeys(out))
+
+
+_HELP_EXAMPLES = _extract_help_examples()
+
+
+def test_help_examples_are_discoverable() -> None:
+    """Sanity: the extractor finds the expected number of examples. Acts
+    as an early warning if the help text gets reformatted in a way that
+    breaks the regex."""
+    assert len(_HELP_EXAMPLES) >= 10, (
+        f"expected ≥10 examples, extractor found {len(_HELP_EXAMPLES)}. "
+        f"Help text or regex likely out of sync."
+    )
+
+
+@pytest.mark.parametrize("example", _HELP_EXAMPLES, ids=lambda ex: ex[:60])
+def test_help_example_parses_cleanly(
+    runner: CliRunner,
+    stub_runners: dict[str, list],
+    stub_subprocess: list[tuple],
+    example: str,
+) -> None:
+    """Every `Example: evomas …` line in the help text must parse
+    without a usage error (typer exit code 2 = parser failure: missing
+    option, unknown option, bad value). Downstream exit codes are
+    tolerated — a placeholder like `prediction-<run-id>.jsonl` is
+    expected to fail a file-existence check, but that's a runtime
+    concern, not a CLI-surface bug. The stubs neuter subprocess +
+    `_run_script` / `_run_shell_script`."""
+    import shlex
+    argv = shlex.split(example, posix=True)
+    result = runner.invoke(cli_mod.app, argv, catch_exceptions=False)
+    out = result.output or ""
+    assert result.exit_code != 2, (
+        f"`evomas {example}` failed CLI parsing (exit 2):\n{out[:600]}"
+    )
+    assert "Missing option" not in out, (
+        f"`evomas {example}` claims a required option is missing:\n{out[:600]}"
+    )
+    assert "No such option" not in out, (
+        f"`evomas {example}` references an unknown option:\n{out[:600]}"
+    )

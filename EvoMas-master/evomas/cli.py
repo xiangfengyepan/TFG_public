@@ -468,11 +468,10 @@ def test(
         "\n  - From an existing prediction JSONL (--predictions): includes"
         " the compare-with-original section that diffs the re-run against"
         " the original model_patch. Mirrors the Results page button."
-        "\n  - From inputs (--config + optional --instance-ids): no"
-        " baseline to diff against, so the comparative section is omitted."
-        " Mirrors the Inference page download button."
+        "\n  - From inputs (--config + --instances): no baseline to diff"
+        " against, so the comparative section is omitted. Mirrors the"
+        " Inference page download button."
         "\n\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl"
-        "\nExample:  evomas notebook --config chain --instance-ids sqlfluff__sqlfluff-1625"
     ),
 )
 def notebook(
@@ -485,10 +484,12 @@ def notebook(
         help="Config name (stem) to bake into the notebook. Resolved against "
              "evomas/config/predefined/ then loaded/. Mutually exclusive with --predictions.",
     ),
-    instance_ids: Optional[str] = typer.Option(
-        None, "--instance-ids",
-        help="Comma-separated instance ids. Required with --config; ignored with --predictions "
-             "(which already carries them in the JSONL).",
+    instances: Optional[str] = typer.Option(
+        None, "--instances",
+        help="Path to a JSONL file whose lines carry `instance_id` (the same "
+             "shape `evomas run instances` writes). Each row's `instance_id` "
+             "is fed to the builder. Required with --config; ignored with "
+             "--predictions (which already carries the ids).",
     ),
     output: Optional[str] = typer.Option(
         None, "--output",
@@ -515,10 +516,28 @@ def notebook(
         default_stem = pred_path.stem
     else:
         assert config is not None
-        ids = [i.strip() for i in (instance_ids or "").split(",") if i.strip()]
-        if not ids:
-            typer.echo("--instance-ids is required with --config.", err=True)
+        if not instances:
+            typer.echo("--instances is required with --config.", err=True)
             raise typer.Exit(2)
+        inst_path = Path(instances).resolve()
+        if not inst_path.is_file():
+            typer.echo(f"Instances file not found: {inst_path}", err=True)
+            raise typer.Exit(1)
+        ids: list[str] = []
+        for raw_line in inst_path.read_text(encoding="utf-8").splitlines():
+            raw_line = raw_line.strip()
+            if not raw_line:
+                continue
+            try:
+                row = json.loads(raw_line)
+            except json.JSONDecodeError:
+                continue
+            iid = row.get("instance_id")
+            if isinstance(iid, str) and iid:
+                ids.append(iid)
+        if not ids:
+            typer.echo(f"No instance_id rows in {inst_path}.", err=True)
+            raise typer.Exit(1)
         # Resolve config via the same loader the topology page uses.
         from evomas.config.loader import resolve_config_path
         from evomas.paths import LOADED_CONFIG_DIR, PREDEFINED_CONFIG_DIR
@@ -533,8 +552,12 @@ def notebook(
         except json.JSONDecodeError as exc:
             typer.echo(f"Failed to parse {cfg_path}: {exc}", err=True)
             raise typer.Exit(1)
+        # Pass the user-supplied JSONL as the cache the row lookup
+        # reads — that's where the (subset, split) per id and the
+        # custom-row inputs live.
         run_id, nb = build_notebook_for_inputs(
             instance_ids=ids, config_data=cfg_data,
+            instances_path=inst_path,
         )
         default_stem = f"notebook-{run_id}"
 
