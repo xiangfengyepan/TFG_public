@@ -28,6 +28,73 @@ from evomas.paths import INSTANCES_PATH as _DEFAULT_INSTANCES_PATH
 from evomas.paths import PREDICTION_CONFIGS_DIR as _DEFAULT_CONFIGS_DIR
 
 
+def _resolve_instance_plan(
+    instance_ids: list[str], instances_path: Path,
+) -> tuple[dict[tuple[str, str], list[str]], list[dict[str, Any]]]:
+    """Build the data the notebook needs to regenerate its instances
+    from zero at runtime.
+
+    Returns a `(swebench_groups, custom_rows)` pair:
+
+    - `swebench_groups`: `{(subset, split): [instance_ids]}` — the
+      notebook will call `fetch_swebench_instances` once per group at
+      runtime to re-pull just those rows fresh from HuggingFace.
+    - `custom_rows`: full row dicts for IDs starting with `custom-`
+      (their upstream doesn't exist — the user added them locally via
+      the `+ Custom` modal; the notebook embeds the minimal inputs so
+      it can reconstruct the row without any cache lookup at runtime).
+
+    The on-disk cache is consulted ONCE at notebook-gen time to figure
+    out the (subset, split) pair for each SWE-bench id + to grab the
+    inline data for custom ones. The generated notebook never reads
+    the cache.
+    """
+    swebench_groups: dict[tuple[str, str], list[str]] = {}
+    custom_rows: list[dict[str, Any]] = []
+
+    # Default each SWE-bench id to (lite, dev) so IDs missing from the
+    # cache still produce a plan the notebook can attempt.
+    by_id: dict[str, dict[str, Any]] = {}
+    if instances_path.is_file():
+        wanted = set(instance_ids)
+        with instances_path.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                iid = rec.get("instance_id")
+                if iid in wanted:
+                    by_id[iid] = rec
+
+    for iid in instance_ids:
+        if iid.startswith("custom-"):
+            row = by_id.get(iid)
+            if row is not None:
+                # Keep only the minimal inputs needed to drive a run.
+                # `patch`/`test_patch` etc. (when present) are stripped
+                # — they're huge and unused on the custom-eval path.
+                custom_rows.append({
+                    "instance_id":       row.get("instance_id"),
+                    "repo":              row.get("repo", ""),
+                    "base_commit":       row.get("base_commit", ""),
+                    "problem_statement": row.get("problem_statement", ""),
+                    "hints_text":        row.get("hints_text", ""),
+                    "subset":            row.get("subset", "custom"),
+                    "split":             row.get("split", "custom"),
+                })
+            continue
+        row = by_id.get(iid)
+        subset = (row or {}).get("subset") or "lite"
+        split = (row or {}).get("split") or "dev"
+        swebench_groups.setdefault((subset, split), []).append(iid)
+
+    return swebench_groups, custom_rows
+
+
 def build_notebook_for_prediction(
     path: Path,
     *,
@@ -81,15 +148,15 @@ def build_notebook_for_prediction(
     if run_id.startswith("prediction-"):
         run_id = run_id[len("prediction-"):]
 
+    swebench_groups, custom_rows = _resolve_instance_plan(instance_ids, inst_path)
     notebook = _build_reproduction_notebook(
         run_id=run_id,
         source_jsonl=str(path),
         config_data=config_data,
         instance_ids=instance_ids,
         baseline_patches=baseline_patches,
-        # Server-side absolute path so the notebook works from ~/Downloads;
-        # the cell falls back to env override + cwd-relative defaults.
-        default_instances_path=str(inst_path),
+        swebench_groups=swebench_groups,
+        custom_rows=custom_rows,
     )
     return run_id, notebook
 
@@ -114,13 +181,15 @@ def build_notebook_for_inputs(
     cfg_id = str(config_data.get("id") or "session")
     run_id = run_id_label or f"{cfg_id}-pending"
 
+    swebench_groups, custom_rows = _resolve_instance_plan(instance_ids, inst_path)
     notebook = _build_reproduction_notebook(
         run_id=run_id,
         source_jsonl=f"<inference page: {cfg_id} x {len(instance_ids)} instance(s)>",
         config_data=config_data,
         instance_ids=instance_ids,
         baseline_patches=None,
-        default_instances_path=str(inst_path),
+        swebench_groups=swebench_groups,
+        custom_rows=custom_rows,
     )
     return run_id, notebook
 
@@ -132,7 +201,8 @@ def _build_reproduction_notebook(
     config_data: dict[str, Any],
     instance_ids: list[str],
     baseline_patches: dict[str, str] | None,
-    default_instances_path: str = "swebench_instances.jsonl",
+    swebench_groups: dict[tuple[str, str], list[str]],
+    custom_rows: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Build the nbformat-v4 dict reproducing one run. Kept as a plain
     dict (no `nbformat` import) — structure is small enough to maintain
@@ -226,7 +296,7 @@ def _build_reproduction_notebook(
             "            sys.path.insert(0, str(_sp))\n"
             "\n"
             "from evomas.core.workflow.runner import run as run_evomas\n"
-            "from evomas.utils.instances import load_instances\n"
+            "from evomas.utils.instances import fetch_swebench_instances\n"
             "\n"
             "# Route Python `logging` records to the notebook output so\n"
             "# every `logger.info(...)` call from the agent loop (handoffs,\n"
@@ -343,41 +413,49 @@ def _build_reproduction_notebook(
             "display(Markdown('```mermaid\\n' + _topology_mermaid(CONFIG) + '\\n```'))\n"
         ),
         md(
-            "## 3. Instance ids\n"
+            "## 3. Instances\n"
             "\n"
-            "Looked up against the local `swebench_instances.jsonl` cache "
-            "(generated by `evomas instances`). For custom (non-SWE-bench) "
-            "instances the dataset row is loaded from disk; for stock ones it "
-            "comes from the HuggingFace cache populated by `instances refresh`."
+            "Self-contained: the notebook regenerates its own instances "
+            "from zero each run. SWE-bench rows get pulled fresh from "
+            "HuggingFace (cached under `~/.cache/huggingface`); custom "
+            "rows are reconstructed from the minimal inputs the user "
+            "added via the Inference page's `+ Custom` modal."
         ),
         code(f"INSTANCE_IDS = {ids_repr}\n"),
         code(
-            "# Locate the SWE-bench instance cache. Priority:\n"
-            "#   1. $EVOMAS_INSTANCES (explicit override, takes precedence)\n"
-            "#   2. The absolute path the API server saw at notebook-gen time\n"
-            "#      (works when the user opens the notebook on the same\n"
-            "#      machine, even from ~/Downloads / outside the repo)\n"
-            "#   3. ./swebench_instances.jsonl  (cwd-relative — works when\n"
-            "#      the notebook is opened from the repo root directly)\n"
-            "# If none exist, surface a clear hint to regenerate.\n"
-            f"_default_instances = r'{default_instances_path}'\n"
-            "_candidates = [\n"
-            "    os.environ.get('EVOMAS_INSTANCES', ''),\n"
-            "    _default_instances,\n"
-            "    'swebench_instances.jsonl',\n"
-            "]\n"
-            "INSTANCES_PATH = next(\n"
-            "    (c for c in _candidates if c and Path(c).is_file()),\n"
-            "    _default_instances,\n"
-            ")\n"
-            "print(f'Loading instances from {INSTANCES_PATH}')\n"
-            "all_instances = load_instances(INSTANCES_PATH)\n"
-            "by_id = {i['instance_id']: i for i in all_instances}\n"
-            "missing = [iid for iid in INSTANCE_IDS if iid not in by_id]\n"
+            f"# Pull plan for SWE-bench rows: `{{(subset, split): [ids]}}`.\n"
+            f"# At runtime the cell below calls `fetch_swebench_instances`\n"
+            f"# per group and filters down to just these IDs.\n"
+            f"SWEBENCH_GROUPS = {pprint.pformat(dict(swebench_groups), indent=4, width=100)}\n"
+        ),
+        code(
+            f"# Custom-instance inputs (no upstream — added locally via the\n"
+            f"# Inference page's `+ Custom` modal). Notebook reconstructs the\n"
+            f"# row dict from these fields; nothing else is needed.\n"
+            f"CUSTOM_ROWS = {pprint.pformat(custom_rows, indent=4, width=100, sort_dicts=False)}\n"
+        ),
+        code(
+            f"# Materialise SWE-bench rows from HuggingFace + custom rows\n"
+            f"# from the inline inputs into one JSONL the runner consumes.\n"
+            f"output_dir = Path('notebook-{run_id}')\n"
+            f"output_dir.mkdir(parents=True, exist_ok=True)\n"
+            "INSTANCES_PATH = output_dir / 'instances.jsonl'\n"
+            "\n"
+            "selected = []\n"
+            "for (subset, split), ids in SWEBENCH_GROUPS.items():\n"
+            "    print(f'Fetching {len(ids)} {subset}/{split} row(s) from HuggingFace…')\n"
+            "    selected.extend(fetch_swebench_instances(subset, split, instance_ids=ids))\n"
+            "selected.extend(CUSTOM_ROWS)\n"
+            "\n"
+            "with INSTANCES_PATH.open('w', encoding='utf-8') as _fh:\n"
+            "    for _row in selected:\n"
+            "        _fh.write(json.dumps(_row, ensure_ascii=False) + '\\n')\n"
+            "print(f'Wrote {len(selected)} instance row(s) -> {INSTANCES_PATH}')\n"
+            "\n"
+            "_have = {i['instance_id'] for i in selected}\n"
+            "missing = [iid for iid in INSTANCE_IDS if iid not in _have]\n"
             "if missing:\n"
-            "    print('Missing from local cache:', missing)\n"
-            "    print('Hint: regenerate with `evomas instances refresh`.')\n"
-            "selected = [by_id[i] for i in INSTANCE_IDS if i in by_id]\n"
+            "    print('Missing rows (id not found in HF or in CUSTOM_ROWS):', missing)\n"
             "print(f'Ready to run {len(selected)} instance(s).')\n"
         ),
         md(
@@ -393,8 +471,7 @@ def _build_reproduction_notebook(
         code(
             "from evomas.exceptions.errors import OllamaMemoryError\n"
             "\n"
-            f"output_dir = Path('notebook-{run_id}')\n"
-            "output_dir.mkdir(parents=True, exist_ok=True)\n"
+            f"# `output_dir` was created in the instances cell above.\n"
             f"output_path = output_dir / 'prediction-{run_id}.jsonl'\n"
             "\n"
             "predictions = []\n"
