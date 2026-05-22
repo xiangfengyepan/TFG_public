@@ -29,6 +29,12 @@
               (clicked)="run.emit()">
     <ng-icon name="play" /> Run @if (selectionCount > 1) { ({{ selectionCount }}) } @else if (selectionCount === 1) { (1) }
   </evo-button>
+  <evo-button variant="ghost"
+              [disabled]="selectionCount === 0 || running"
+              (clicked)="downloadNotebook.emit()"
+              title="Download a reproduce-this-run Jupyter notebook for the current selection (run it elsewhere)">
+    <ng-icon name="download" /> Notebook
+  </evo-button>
   @if (running) {
     <evo-button variant="danger" (clicked)="cancel.emit()" title="Cancel the active run">
       <ng-icon name="stop" /> Cancel

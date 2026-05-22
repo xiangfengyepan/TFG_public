@@ -116,3 +116,4 @@ cython_debug/
 /sb-cli/
 /sb-cli-reports/
 /experiments/
+RENAME_PLAN.md

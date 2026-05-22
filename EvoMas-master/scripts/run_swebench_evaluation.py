@@ -15,23 +15,7 @@ SWEBENCH_VENV = REPO_ROOT / "SWE-bench" / "venv"
 
 
 def _swebench_python() -> str:
-    """Locate a Python interpreter that can import `swebench.harness`.
-
-    Resolution order (mirrors `_sb_cli_executable` in the remote-eval
-    script — same shape, same caveats):
-      1. The current interpreter (`sys.executable`) if `swebench` is
-         already importable in it. This is what an end-user gets when
-         they `pip install swebench` into their active evomas venv —
-         no second venv needed.
-      2. The Windows-native venv shipped under `<repo>/SWE-bench/venv/
-         Scripts/python.exe` (if you set up SWE-bench from PowerShell).
-      3. The POSIX venv under `<repo>/SWE-bench/venv/bin/python` (the
-         common case after cloning SWE-bench + setting up its venv from
-         WSL). Skipped on Windows because CreateProcess cannot run a
-         Linux ELF binary (WinError 193).
-      4. Bare `sys.executable` as a last resort so the failure surfaces
-         as "ModuleNotFoundError: No module named 'swebench'" rather
-         than a silent fall-through."""
+    """Locate a Python interpreter that can import `swebench.harness`: current interpreter first, then `<repo>/SWE-bench/venv/`; skip the POSIX bin on Windows (WinError 193)."""
     if importlib.util.find_spec("swebench") is not None:
         return sys.executable
     win_py = SWEBENCH_VENV / "Scripts" / "python.exe"
@@ -44,7 +28,6 @@ def _swebench_python() -> str:
 
 
 def _remove_stale_containers(run_id: str) -> None:
-    """Remove any containers left over from a previous run with the same run_id."""
     result = subprocess.run(
         ["docker", "ps", "-a", "--filter", f"name=sweb.eval.", "--format", "{{.Names}}"],
         capture_output=True, text=True
@@ -58,14 +41,11 @@ def _remove_stale_containers(run_id: str) -> None:
 
 
 def _purge_stale_reports(run_id: str, report_dir: str | None) -> None:
-    """Delete any existing per-instance `report.json` under
-    `logs/run_evaluation/<run_id>/`. SWE-bench skips instances whose
-    report file already exists (run_evaluation.py:443-456,
-    `exclude_completed=True` is hardcoded), so without this purge a
-    re-invocation with the same run_id reuses the prior result and
-    logs "N instances already run, skipping...". `--report_dir`
-    controls where reports land; default is the current working
-    directory.
+    """Delete per-instance `report.json` under `logs/run_evaluation/<run_id>/`.
+
+    SWE-bench hardcodes `exclude_completed=True` (run_evaluation.py:443-456),
+    so without this purge a same-run_id re-invocation reuses the prior result
+    and logs "N instances already run, skipping...".
     """
     base = Path(report_dir or ".") / "logs" / "run_evaluation" / run_id
     if not base.is_dir():
@@ -126,11 +106,9 @@ def run_evaluation(
     try:
         subprocess.run(cmd, check=False)
     except OSError as e:
-        # WinError 193 = "%1 is not a valid Win32 application", fires if
-        # the resolved python is a POSIX ELF binary (the case when the
-        # project-local `SWE-bench/venv` was built under WSL and we're
-        # invoking from Windows-side Python). Same remedy as the sb-cli
-        # script: install the package into the active venv natively.
+        # WinError 193 fires when the resolved python is a POSIX ELF binary
+        # (SWE-bench/venv built under WSL but invoked from Windows-side
+        # Python). Install swebench into the host-native venv instead.
         logger.error(
             "Failed to execute the SWE-bench harness (%s). Install "
             "swebench into the active evomas venv so a host-native "

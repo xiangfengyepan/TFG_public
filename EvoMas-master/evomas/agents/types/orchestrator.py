@@ -7,14 +7,7 @@ from evomas.agents.llm_tool_agent import LLMToolAgent
 
 
 class Orchestrator(LLMToolAgent):
-    """Orchestrator agent.
-
-    Shape mirrors the upstream Orchestrator agents catalogued at
-    `evomas/config/agent_types/*.json` (OpenHands AgentController, HyperAgent
-    planner, trae_agent TraeAgent, …): a thin LLM gateway with no tools.
-    The graph builder routes the chain; this agent's job is to emit a short
-    plan / dispatch acknowledgement that downstream agents can read.
-    """
+    """Thin LLM gateway with no tools that emits a short plan / dispatch acknowledgement; the graph builder does the actual routing."""
 
     AGENT_TYPE: ClassVar[str] = "Orchestrator"
     name = "orchestrator"

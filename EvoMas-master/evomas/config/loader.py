@@ -137,3 +137,58 @@ def resolve_variant_block(block: dict[str, Any]) -> dict[str, Any]:
                 for t in cat_tools if t.get("name")
             ]
     return resolved
+
+
+# ─── Topology-page config listing / validation ──────────────────────────────
+# Helpers used by the api topology router to list configs from both roots
+# and validate user-uploaded ones. Decoupled from FastAPI — raises
+# `ConfigError` on validation failure; the api wraps as HTTP 400.
+
+REQUIRED_CONFIG_KEYS: tuple[str, ...] = ("id", "entry", "end", "edges", "agents")
+
+
+def scan_config_dir(base: Path, source: str) -> list[dict[str, str]]:
+    """`[{stem, id, description, source}, …]` for every `*.json` under `base`.
+    `source` is the label written into the `source` field on each entry
+    ("predefined" or "loaded"). Malformed JSON files still produce an
+    entry with empty `id`/`description` so the UI can surface them as
+    broken rather than silently disappearing."""
+    out: list[dict[str, str]] = []
+    if not base.is_dir():
+        return out
+    for p in sorted(base.glob("*.json")):
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            data = {}
+        out.append({
+            "stem": p.stem,
+            "id": str(data.get("id") or p.stem),
+            "description": str(data.get("description") or ""),
+            "source": source,
+        })
+    return out
+
+
+def resolve_config_path(
+    name: str, *, predefined_dir: Path, loaded_dir: Path,
+) -> Path | None:
+    """On-disk path of a config by stem — `predefined_dir` first, then `loaded_dir`."""
+    for base in (predefined_dir, loaded_dir):
+        p = base / f"{name}.json"
+        if p.is_file():
+            return p
+    return None
+
+
+def validate_loaded_config(data: dict[str, Any], expected_stem: str) -> None:
+    """Required keys present + `id` matches the filename stem.
+    Raises `ConfigError` (caller translates to HTTP 400)."""
+    missing = [k for k in REQUIRED_CONFIG_KEYS if k not in data]
+    if missing:
+        raise ConfigError(f"config is missing required keys: {missing}")
+    if str(data.get("id") or "") != expected_stem:
+        raise ConfigError(
+            f"config 'id' must match filename stem (id={data.get('id')!r}, "
+            f"stem={expected_stem!r})"
+        )

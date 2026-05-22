@@ -1,30 +1,4 @@
-"""apply_and_test.py - Apply EvoMas patches to their repos and run the tests.
-
-Two modes:
-
-  1. CLI / interactive (default): pretty Rich tables to stdout.
-
-         python scripts/apply_and_test.py \\
-             --instances test_instance.jsonl \\
-             --predictions test_predictions.jsonl
-
-  2. Machine-consumable (`--report-dir` set): in addition to the Rich output,
-     writes a SWE-bench-compatible directory layout that the EvoMas Results
-     page reads directly. Used by the FastAPI evaluation worker to score
-     custom-repo predictions (subset="custom" / split="custom"):
-
-         <report-dir>/logs/run_evaluation/<run-id>/<model>/<instance_id>/
-             report.json       (keyed by instance_id, same shape as the harness)
-             patch.diff
-             test_output.txt
-         <report-dir>/<model>.<run-id>.json   (run-level summary)
-
-Resolution rule:
-  * If FAIL_TO_PASS / PASS_TO_PASS are non-empty (SWE-bench rows):
-        resolved = all FTP PASS  AND  all PTP PASS
-  * If both lists are empty (custom rows):
-        resolved = patch_applied  AND  pytest returncode == 0
-"""
+"""Apply EvoMas patches to their repos and run the tests, optionally writing a SWE-bench-compatible report layout for the Results page."""
 import argparse
 import json
 import logging
@@ -38,16 +12,15 @@ from typing import Any
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Pull in the project root so we can reuse evomas.tools.patch_tools.apply_patch_impl
-# (which already falls back to `patch --fuzz=5` when `git apply` rejects a diff
-# with wrong line numbers -- the most common LLM-generated patch failure).
+# Reuse evomas.tools.patch_tools.apply_patch_impl when importable so we get the
+# `patch --fuzz=5` fallback for LLM-generated diffs with wrong hunk line numbers.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 try:
     from evomas.tools.patch_tools import apply_patch_impl, normalize_patch_impl  # noqa: E402
     _HAS_EVOMAS_PATCH_TOOLS = True
-except Exception:  # pragma: no cover -- script must still work without evomas installed
+except Exception:  # pragma: no cover
     _HAS_EVOMAS_PATCH_TOOLS = False
 
 from rich.console import Console
@@ -62,7 +35,6 @@ def _print(msg: str) -> None:
     _console.print(msg)
 
 
-# -- I/O helpers --------------------------------------------------------------
 def load_jsonl(path: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     with open(path, encoding="utf-8") as f:
@@ -87,7 +59,6 @@ def _parse_list(value: Any) -> list[str]:
     return []
 
 
-# -- git helpers --------------------------------------------------------------
 def _workspace_root() -> Path:
     root = Path(tempfile.gettempdir()) / "evomas_workspace"
     root.mkdir(parents=True, exist_ok=True)
@@ -95,24 +66,18 @@ def _workspace_root() -> Path:
 
 
 def _git(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess:
-    """Run a git command, capturing stdout+stderr. Caller decides whether
-    a non-zero rc is fatal -- we surface stderr in error messages so the
-    user can see WHY a checkout failed (the previous version swallowed it)."""
     return subprocess.run(cmd, cwd=str(cwd) if cwd else None,
                           capture_output=True, text=True)
 
 
 def _checkout(commit: str, cwd: Path) -> None:
-    """Best-effort checkout: try a plain checkout first, fall back to a
-    full fetch + retry if the SHA isn't local yet. Matches the proven
-    `evomas/utils/workspace.py:clone_workspace` flow."""
+    """Try a plain checkout, fall back to `git fetch --all` + retry if the SHA isn't local yet."""
     res = _git(["git", "checkout", commit], cwd=cwd)
     if res.returncode == 0:
         return
-    # SHA wasn't reachable from any local branch -- pull everything and retry.
-    # `--depth=1 origin <sha>` (the old behaviour) is fragile because GitHub
-    # requires uploadpack.allowReachableSHA1InWant for arbitrary-SHA fetches,
-    # and the shallow history may not contain the parents we need.
+    # `--depth=1 origin <sha>` is fragile: GitHub requires
+    # uploadpack.allowReachableSHA1InWant for arbitrary-SHA fetches, and a
+    # shallow history may not contain the parents we need.
     logger.info("checkout %s failed locally; running 'git fetch --all'", commit[:8])
     fetch = _git(["git", "fetch", "--all"], cwd=cwd)
     if fetch.returncode != 0:
@@ -122,8 +87,6 @@ def _checkout(commit: str, cwd: Path) -> None:
         )
     res2 = _git(["git", "checkout", commit], cwd=cwd)
     if res2.returncode != 0:
-        # Include both the initial and post-fetch stderr so the failure mode
-        # is obvious in the SSE log.
         msg = (f"git checkout {commit} failed even after `git fetch --all`. "
                f"initial stderr: {res.stderr.strip() or res.stdout.strip()} | "
                f"post-fetch stderr: {res2.stderr.strip() or res2.stdout.strip()}")
@@ -133,9 +96,7 @@ def _checkout(commit: str, cwd: Path) -> None:
 
 
 def _force_rmtree(path: Path) -> None:
-    """Remove `path` even when Windows has partially-locked files inside
-    (Defender / OneDrive scans on the .git template files are a common
-    culprit). Mirrors `evomas/utils/workspace.py:_force_rmtree`."""
+    """Remove `path` even when Windows has partially-locked files inside (Defender / OneDrive scans on .git templates are the common culprit)."""
     import os, shutil, stat
     if not path.exists():
         return
@@ -154,22 +115,19 @@ def _force_rmtree(path: Path) -> None:
 
 
 def _do_clone(url: str, dest: Path) -> None:
-    """Clone with a uuid-suffixed fallback path if `dest` can't be fully
-    cleared (Windows AV race) -- guarantees the clone always lands somewhere."""
+    """Clone, retrying at a uuid-suffixed path on the Windows AV `.git/hooks/` `File exists` race so the clone always lands somewhere."""
     import uuid
     res = _git(["git", "clone", url, str(dest)])
     if res.returncode == 0:
         return
-    # On Windows, AV can rehydrate template files inside the .git/hooks/ dir
-    # faster than git can write them, causing rc=128 with "File exists". Try
-    # one more time at a fresh uuid-suffixed path so the clone always lands.
+    # Windows AV can rehydrate template files inside `.git/hooks/` faster than
+    # git can write them (rc=128, "File exists"). Retry once at a fresh path.
     if "File exists" in (res.stderr or "") + (res.stdout or ""):
         fallback = dest.parent / f"{dest.name}-{uuid.uuid4().hex[:8]}"
         logger.warning("clone hit File-exists race; retrying at %s", fallback)
         res2 = _git(["git", "clone", url, str(fallback)])
         if res2.returncode == 0:
-            # Symlink/copy: easier to just point the caller at the fallback.
-            # We rename to the original dest so downstream paths stay stable.
+            # Rename to original dest so downstream paths stay stable.
             _force_rmtree(dest)
             fallback.rename(dest)
             return
@@ -187,15 +145,12 @@ def clone_or_reuse(repo: str, base_commit: str, keep: bool = False) -> Path:
     dest = _workspace_root() / repo.replace("/", "__")
     if dest.is_dir() and (dest / ".git").is_dir():
         if keep:
-            # `--keep` opts out of the pre-run scrub: reuse whatever's on
-            # disk (patched, untracked files, etc.) so the user can iterate
-            # on a previous run's state. The new patch may fail to apply
-            # if it conflicts — that's the user's call to manage.
+            # `--keep` reuses whatever's on disk so the user can iterate on a
+            # previous run's state; a conflicting new patch is theirs to manage.
             logger.info("Reusing workspace %s (--keep set; skipping pre-run scrub)", dest)
             return dest
-        # Default path: scrub leftover state — a previous run's applied
-        # patch + untracked files would otherwise pollute the new test.
-        # Cheap (no network, no rebuild) and consistent results.
+        # Scrub leftover state so a previous run's patch + untracked files
+        # don't pollute this test.
         logger.info("Cleaning workspace at %s (base_commit=%s)", dest, base_commit[:8])
         _git(["git", "reset", "--hard", "HEAD"], cwd=dest)
         _git(["git", "clean", "-fdx"], cwd=dest)
@@ -207,11 +162,8 @@ def clone_or_reuse(repo: str, base_commit: str, keep: bool = False) -> Path:
                 "in-place checkout failed (%s); falling through to reclone",
                 (exc.stderr or "").strip() or exc,
             )
-        # In-place recovery exhausted -- force-remove and reclone below.
         _force_rmtree(dest)
     elif dest.is_dir():
-        # Dir exists but is NOT a git repo (corrupt / interrupted earlier
-        # clone). Wipe it before cloning so the clone has a clean target.
         logger.info("workspace %s exists but is not a git repo; wiping", dest)
         _force_rmtree(dest)
 
@@ -222,24 +174,17 @@ def clone_or_reuse(repo: str, base_commit: str, keep: bool = False) -> Path:
 
 
 def apply_patch(patch: str, workspace: Path) -> tuple[bool, str]:
-    """Apply a unified diff. Prefers `evomas.tools.patch_tools.apply_patch_impl`
-    when the project's importable, which adds a `patch --fuzz=5` fallback for
-    LLM-generated diffs with wrong hunk-header line numbers (the most common
-    real-world failure). Otherwise falls back to plain `git apply --check`
-    + `git apply` so the script stays usable standalone."""
+    """Apply a unified diff via evomas.tools.patch_tools when importable, else plain `git apply` so the script stays usable standalone."""
     if not patch or not patch.strip():
         return False, "empty patch"
 
     if _HAS_EVOMAS_PATCH_TOOLS:
-        # normalize_patch_impl repairs blank-context lines + recomputes hunk
-        # counts; apply_patch_impl tries git apply first, then patch --fuzz=5.
         normalized = normalize_patch_impl(patch)  # pyright: ignore[reportPossiblyUnboundVariable]
         res = apply_patch_impl(normalized or patch, str(workspace), dry_run=False)  # pyright: ignore[reportPossiblyUnboundVariable]
         if res["applied"]:
             return True, res.get("output") or "patch applied"
         return False, (res.get("output") or "patch did not apply").strip()
 
-    # Fallback: same bare-bones logic the script shipped with originally.
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".patch", delete=False, encoding="utf-8", newline="\n"
     ) as f:
@@ -264,12 +209,10 @@ def apply_patch(patch: str, workspace: Path) -> tuple[bool, str]:
 
 
 def reset_workspace(workspace: Path, base_commit: str) -> None:
-    """Undo applied patch, restore clean state at base_commit."""
     subprocess.run(["git", "checkout", base_commit, "--", "."],
                    cwd=workspace, capture_output=True)
 
 
-# -- test runner --------------------------------------------------------------
 def run_tests(
     workspace: Path,
     fail_to_pass: list[str],
@@ -280,8 +223,6 @@ def run_tests(
     result = subprocess.run(cmd, cwd=workspace, capture_output=True, text=True)
     output = result.stdout + result.stderr
 
-    # Parse individual test statuses from pytest output
-    # e.g. "test_calculator.py::test_multiply PASSED"
     statuses: dict[str, str] = {}
     for line in output.splitlines():
         for status in ("PASSED", "FAILED", "ERROR"):
@@ -304,11 +245,9 @@ def run_tests(
     ftp_resolved   = all(v == "PASSED" for v in ftp_results.values()) if ftp_results else True
     ptp_maintained = all(v == "PASSED" for v in ptp_results.values()) if ptp_results else True
 
-    # Resolution fallback for custom-repo rows (no FTP/PTP lists). The
-    # SWE-bench rule needs at least one classified test to mean anything --
-    # for an empty classification axis it would always return True regardless
-    # of pytest's actual verdict. Fall back to the process return code so
-    # a failing test suite still reads as unresolved.
+    # Custom-repo rows have no FTP/PTP lists; the SWE-bench rule would return
+    # True for an empty classification axis regardless of pytest's verdict, so
+    # fall back to the process return code instead.
     if not fail_to_pass and not pass_to_pass:
         resolved = result.returncode == 0
         rule = "pytest_returncode==0"
@@ -323,7 +262,6 @@ def run_tests(
         "ptp_maintained":   ptp_maintained,
         "ftp_results":      ftp_results,
         "ptp_results":      ptp_results,
-        # Every test pytest discovered, regardless of FTP/PTP classification.
         # Drives the FAIL_TO_PASS bucket for custom-repo instances (which
         # carry no FTP/PTP lists from the dataset).
         "all_test_results": statuses,
@@ -332,7 +270,6 @@ def run_tests(
     }
 
 
-# -- display ------------------------------------------------------------------
 def _status_icon(val: str) -> str:
     return {"PASSED": "+", "FAILED": "x", "ERROR": "!", "NOT_RUN": "?"}.get(val, val)
 
@@ -375,10 +312,8 @@ def print_summary(results: list[dict[str, Any]]) -> None:
     _console.print(Panel(f"[bold]{msg}[/bold]", border_style=color))
 
 
-# -- SWE-bench-compatible report writers --------------------------------------
 def _bucket_tests(results: dict[str, str]) -> dict[str, list[str]]:
-    """Split a {test_id: PASSED|FAILED|ERROR|NOT_RUN} dict into the
-    SWE-bench `success` / `failure` buckets."""
+    """Split {test_id: status} into SWE-bench `success` / `failure` buckets."""
     success = [tid for tid, s in results.items() if s == "PASSED"]
     failure = [tid for tid, s in results.items() if s != "PASSED"]
     return {"success": success, "failure": failure}
@@ -397,24 +332,18 @@ def write_instance_report(
     base_commit: str = "",
     workspace: Path | None = None,
 ) -> Path:
-    """Write the SWE-bench-compatible per-instance files. Returns the
-    instance directory path.
+    """Write the SWE-bench-compatible per-instance files (report.json, patch.diff, test_output.txt, run_instance.log) and return the instance directory.
 
-    Always writes: report.json, patch.diff, test_output.txt, run_instance.log.
-    Does NOT write eval.sh -- the harness wraps a Docker container; our custom
-    flow runs pytest directly so there's no shell script equivalent. The
-    Results page tells the user this when they click the eval.sh tab on a
-    custom instance.
+    No eval.sh is written: the harness wraps a Docker container, while custom
+    rows run pytest directly. Custom rows have no FTP/PTP from the dataset, so
+    every discovered test goes into FAIL_TO_PASS (the bucket the Results page
+    renders).
     """
     inst_dir = report_dir / "logs" / "run_evaluation" / run_id / model / instance_id
     inst_dir.mkdir(parents=True, exist_ok=True)
 
     patch_is_none = not (patch and patch.strip())
 
-    # SWE-bench rows carry FTP/PTP from the dataset and we put the per-test
-    # results into the matching bucket. Custom rows have empty FTP/PTP, so we
-    # drop *every* discovered test into FAIL_TO_PASS (the user-visible bucket
-    # the Results page renders -- per user request).
     has_classification = bool(test.get("ftp_results") or test.get("ptp_results"))
     if has_classification:
         ftp_bucket = _bucket_tests(test.get("ftp_results", {}))
@@ -468,9 +397,7 @@ def _write_run_instance_log(
     test: dict[str, Any],
     report_entry: dict[str, Any],
 ) -> None:
-    """Emit the timestamped run_instance.log the Results page expects.
-    Mirrors the SWE-bench harness format (Python `logging` style) so the
-    same syntax-highlighting in app/src/app/pages/results/ Just Works."""
+    """Emit run_instance.log in SWE-bench harness format so the Results page's syntax-highlighting works unchanged."""
     def _now() -> str:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
 
@@ -505,7 +432,7 @@ def write_run_summary(
     model: str,
     per_instance: list[dict[str, Any]],
 ) -> Path:
-    """Mirror the SWE-bench wrapper's <model>.<run-id>.json aggregate."""
+    """Mirror SWE-bench's <model>.<run-id>.json aggregate."""
     completed_ids = [r["instance_id"] for r in per_instance if r.get("completed")]
     resolved_ids  = [r["instance_id"] for r in per_instance if r.get("resolved")]
     error_ids     = [r["instance_id"] for r in per_instance if r.get("error")]
@@ -529,7 +456,6 @@ def write_run_summary(
     return out
 
 
-# -- main ---------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(description="Apply patches and run tests.")
     parser.add_argument("--instances",   required=True, help="Instance JSONL file")
@@ -584,7 +510,6 @@ def main() -> None:
 
         logger.info("-- %s --", iid)
 
-        # Clone / reuse workspace
         workspace = None
         clone_error: str | None = None
         try:
@@ -593,7 +518,7 @@ def main() -> None:
             detail = (cpe.stderr or "").strip() or (cpe.output or "").strip() or str(cpe)
             logger.error("Clone failed (rc=%s): %s", cpe.returncode, detail)
             clone_error = detail
-        except Exception as exc:  # noqa: BLE001 -- log + skip the instance
+        except Exception as exc:  # noqa: BLE001
             logger.error("Clone failed: %s", exc)
             clone_error = str(exc)
 
@@ -603,7 +528,6 @@ def main() -> None:
                 "instance_id": iid, "completed": False, "resolved": False, "error": True,
             })
             if report_dir:
-                # Synthesize a minimal "error" report so the Results page sees the row.
                 empty_test = {
                     "resolved": False, "resolved_rule": "clone_failed",
                     "ftp_results": {}, "ptp_results": {}, "all_test_results": {},
@@ -616,14 +540,13 @@ def main() -> None:
                     repo=repo, base_commit=base_commit, workspace=None,
                 )
             continue
-        assert workspace is not None  # clone succeeded above
+        assert workspace is not None
 
-        # Apply patch
         apply_ok, apply_msg = apply_patch(patch, workspace)
         if not apply_ok:
             logger.warning("Patch did not apply: %s", apply_msg)
 
-        # Run tests (even if patch failed - to show baseline)
+        # Run tests even on apply failure so the report shows a baseline.
         test = run_tests(workspace, ftp, ptp)
         test["instance_id"] = iid
         all_results.append(test)

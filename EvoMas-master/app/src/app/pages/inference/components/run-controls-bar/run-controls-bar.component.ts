@@ -35,6 +35,7 @@ export class RunControlsBarComponent {
   @Output() run                = new EventEmitter<void>();
   @Output() cancel             = new EventEmitter<void>();
   @Output() clearRun           = new EventEmitter<void>();
+  @Output() downloadNotebook   = new EventEmitter<void>();
 
   onConfigChange(v: string): void       { this.config       = v; this.configChange.emit(v); }
   onShowThinkingChange(v: boolean): void { this.showThinking = v; this.showThinkingChange.emit(v); }

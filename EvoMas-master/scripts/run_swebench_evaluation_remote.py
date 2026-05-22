@@ -1,31 +1,4 @@
-"""Remote SWE-bench evaluation via `sb-cli`.
-
-Submits a predictions JSONL to the hosted SWE-bench leaderboards
-(https://www.swebench.com/sb-cli/) instead of running the Docker-based
-harness locally. Use this when:
-
-  - Docker / WSL isn't available on the host.
-  - You're preparing a leaderboard submission and want the official
-    grader (the local harness and the remote scorer differ on edge
-    cases — only the remote result counts for the leaderboard).
-  - You need the resolved/unresolved split scored against the test
-    split that's not publicly available (only `swe-bench_lite` /
-    `swe-bench_verified` / `swe-bench-m` test splits work; full SWE-bench
-    has no test split on the hosted API).
-
-Requirements:
-  - `sb-cli` installed; this script prefers the venv at
-    `<repo>/sb-cli/venv/bin/sb-cli` and falls back to whatever
-    `sb-cli` is on PATH.
-  - `SWEBENCH_API_KEY` env var set. Generate via
-    `sb-cli gen-api-key your@email.com` and verify with the code
-    you receive by email.
-
-The script converts the project's local JSONL (one prediction per
-line) into the JSON-list format the hosted API consumes, submits the
-batch, and (by default) waits for the run to be scored + downloads
-the report.
-"""
+"""Submit a predictions JSONL to the hosted SWE-bench leaderboards via `sb-cli`, as an alternative to the local Docker harness."""
 
 import argparse
 import json
@@ -44,10 +17,9 @@ logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SB_CLI_VENV = REPO_ROOT / "sb-cli" / "venv"
 
-# Map evomas's subset names (the same vocabulary the local script uses)
-# to sb-cli's dataset slugs. The hosted API doesn't carry the full
-# SWE-bench set, so `full` is intentionally absent — we fail loudly
-# instead of silently picking a different subset.
+# Map evomas subset names to sb-cli dataset slugs. `full` is intentionally
+# absent: the hosted API doesn't carry it, and we'd rather fail loudly than
+# silently pick a different subset.
 SUBSET_TO_SB_DATASET: dict[str, str] = {
     "lite":       "swe-bench_lite",
     "verified":   "swe-bench_verified",
@@ -56,23 +28,7 @@ SUBSET_TO_SB_DATASET: dict[str, str] = {
 
 
 def _sb_cli_executable() -> str:
-    """Locate the sb-cli entry-point.
-
-    Resolution order (each step is a fallback for the previous):
-      1. `shutil.which('sb-cli')` — picks up sb-cli installed into the
-         currently-active virtualenv (e.g. the user did
-         `pip install sb-cli` in their evomas venv) or on PATH. This is
-         the safest because the binary is guaranteed to match the host
-         OS — on Windows it's `Scripts\\sb-cli.exe`, on POSIX it's
-         `bin/sb-cli`.
-      2. The Windows entry-point under `<repo>/sb-cli/venv/Scripts/`.
-      3. The POSIX entry-point under `<repo>/sb-cli/venv/bin/`. This
-         only works when the script runs in the same OS that built the
-         venv — a Linux-layout venv (the common case after cloning
-         sb-cli and running its setup under WSL) cannot be executed
-         from Windows-side Python and will raise WinError 193.
-      4. Bare `'sb-cli'` so subprocess.run gets a usable string even
-         if everything else fails (and surfaces a clear FileNotFoundError)."""
+    """Locate the sb-cli entry-point: PATH, then the in-repo venv; skip the POSIX bin on Windows since CreateProcess can't run a shebang script (WinError 193)."""
     on_path = shutil.which("sb-cli")
     if on_path:
         return on_path
@@ -81,18 +37,12 @@ def _sb_cli_executable() -> str:
         return str(win_exe)
     posix_bin = SB_CLI_VENV / "bin" / "sb-cli"
     if posix_bin.exists() and os.name != "nt":
-        # Skip on Windows: the bin/sb-cli file is a POSIX shebang script
-        # and CreateProcess won't run it (WinError 193).
         return str(posix_bin)
     return "sb-cli"
 
 
 def jsonl_to_json_list(predictions_jsonl: Path, out_json: Path) -> int:
-    """Convert one-prediction-per-line JSONL to the JSON-list shape the
-    hosted API accepts (see sb-cli README "Predictions File Format").
-    Each record must already carry `instance_id`, `model_patch`, and
-    `model_name_or_path` — that's the schema the local harness uses
-    too, so no field rewriting is needed."""
+    """Convert one-prediction-per-line JSONL to the JSON-list shape the hosted API accepts."""
     records: list[dict] = []
     with predictions_jsonl.open(encoding="utf-8") as f:
         for ln, raw in enumerate(f, 1):
@@ -151,22 +101,16 @@ def run_remote_evaluation(
         )
         return 2
 
-    # sb-cli's `submit` reads a JSON file, not JSONL. Convert into a
-    # temp file we delete on exit so the working tree stays clean
-    # regardless of submission outcome. `mkstemp` returns (fd, path) AND
-    # leaves the OS-level file descriptor open — on Windows that turns
-    # the later `unlink()` into ERROR_SHARING_VIOLATION (WinError 32),
-    # because the file is "in use" by our own process. Close the fd
-    # immediately; we only need the path so jsonl_to_json_list can
-    # reopen it in text mode.
+    # sb-cli's `submit` reads JSON, not JSONL. `mkstemp` leaves the OS-level
+    # fd open: on Windows the later `unlink()` would raise WinError 32
+    # (ERROR_SHARING_VIOLATION) because our own process holds the file open.
+    # Close the fd immediately; we only need the path.
     fd, tmp_path = tempfile.mkstemp(suffix=".json", prefix="evomas-preds-")
     os.close(fd)
     tmp_json = Path(tmp_path)
     try:
         n = jsonl_to_json_list(pred_path, tmp_json)
         if n == 0:
-            # File has bytes but every line stripped to empty — malformed
-            # JSONL (e.g. all blank lines).
             logger.error(
                 "no JSON records in %s (file has %d bytes but every line "
                 "stripped to empty). Re-generate predictions and try again.",
@@ -199,12 +143,9 @@ def run_remote_evaluation(
         try:
             result = subprocess.run(cmd)
         except OSError as e:
-            # WinError 193 = "%1 is not a valid Win32 application". Fires
-            # when sb-cli resolved to a POSIX shebang script (the case if
-            # the user cloned sb-cli/ and built its venv under WSL but is
-            # invoking from Windows-side Python). The fix is to install
-            # sb-cli into the host-native venv — a one-liner — so the
-            # Scripts/sb-cli.exe entry-point exists.
+            # WinError 193 fires when sb-cli resolved to a POSIX shebang
+            # script (sb-cli built under WSL but invoked from Windows-side
+            # Python). Install sb-cli into the host-native venv.
             logger.error(
                 "Failed to execute sb-cli (%s). Install sb-cli into the "
                 "active evomas venv so a native Windows entry-point "

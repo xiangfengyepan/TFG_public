@@ -37,8 +37,8 @@
     "hub": {
       "class": "Orchestrator",
       "model": "ollama/qwen3.5:9b",
-      "think": false,
-      "num_ctx": 4096,
+      "think": true,
+      "num_ctx": 2048,
       "stream": true,
       "temperature": 0,
       "top_k": 40,
@@ -47,12 +47,12 @@
       "repeat_penalty": 1.1,
       "repeat_last_n": 64,
       "seed": 0,
-      "num_predict": 16,
+      "num_predict": 1024,
       "stop": [],
       "max_iters": 1,
       "prompts": {
-        "system": "You are the dispatch hub of a centralized-star multi-agent pipeline. Your only output is the name of the single next node to run. Never write code, never explain \u2014 emit ONE word and nothing else.",
-        "user": "## Issue\n{issue}\n\n## Locator output\n{locator}\n\n## Patcher output\n{patcher}\n\n## Reviewer output\n{reviewer}\n\nAvailable next nodes: locator, patcher, reviewer, finalizer.\n\nDecision rules (apply the FIRST matching rule \u2014 each section above carries the latest output from that worker, or is empty if it hasn't run yet):\n1. If Locator output is empty -> emit `locator`.\n2. If Patcher output is empty -> emit `patcher`.\n3. If Reviewer output is empty -> emit `reviewer`.\n4. Otherwise (all three have run at least once) -> emit `finalizer`. Do NOT loop back to patcher even on a review FAIL; ship the best-effort patch and let the downstream evaluator score it. Looping risks exhausting the recursion budget on a single instance.\n\nReply with EXACTLY ONE of: locator, patcher, reviewer, finalizer. No quotes, no explanation, no other words."
+        "system": "You dispatch the next worker in a 4-stage SWE-bench pipeline (locator -> patcher -> reviewer -> finalizer). You receive the pipeline state and answer with EXACTLY ONE word: the next worker to run.",
+        "user": "Apply these rules IN ORDER. Stop at the first rule that matches.\n\n1. If `locator` output is EMPTY -> answer: locator\n2. If `patcher` output is EMPTY -> answer: patcher\n3. If `reviewer` output is EMPTY -> answer: reviewer\n4. Otherwise -> answer: finalizer\n\n--- pipeline state (empty between `<<<` and `>>>` means that worker hasn't run yet) ---\nlocator output:  <<<{locator}>>>\npatcher output:  <<<{patcher}>>>\nreviewer output: <<<{reviewer}>>>\n--- end state ---\n\nAnswer with one word from: locator, patcher, reviewer, finalizer."
       }
     },
     "locator": {

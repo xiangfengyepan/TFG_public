@@ -6,13 +6,11 @@ import subprocess
 from pathlib import Path
 
 # `datasets` (HuggingFace) is imported lazily inside `build_instances` so the
-# custom-repo branch — which doesn't need HuggingFace at all — can run even on
-# environments missing pandas/dateutil/etc.
+# custom-repo branch can run on environments missing pandas/dateutil/etc.
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Three SWE-bench subsets supported by the frontend's nested instance picker.
 SUBSET_DATASETS: dict[str, str] = {
     "lite":     "SWE-bench/SWE-bench_Lite",
     "full":     "SWE-bench/SWE-bench",
@@ -27,17 +25,12 @@ def build_instances(
     subset: str = "lite",
     append: bool = False,
 ) -> int:
-    """Pull instances from HuggingFace and write one JSONL line per item.
-
-    Each line is annotated with its source `subset` and `split` so the UI can
-    group them. When `append=True`, existing lines for *other* (subset, split)
-    pairs are preserved and only the matching pair is replaced.
-    """
+    """Pull instances from HuggingFace and write one JSONL line per item, annotated with `subset` and `split` so the UI can group them; with `append=True`, other (subset, split) pairs are preserved."""
     if subset not in SUBSET_DATASETS:
         raise ValueError(
             f"unknown subset {subset!r}; expected one of {sorted(SUBSET_DATASETS)}"
         )
-    from datasets import load_dataset  # lazy: HF deps not needed for --custom-repo
+    from datasets import load_dataset  # lazy: HF deps not needed on --custom-repo
     ds = load_dataset(SUBSET_DATASETS[subset])
     if split_name not in ds:
         raise ValueError(f"split {split_name!r} not in dataset {SUBSET_DATASETS[subset]!r}")
@@ -48,8 +41,7 @@ def build_instances(
     out = Path(output_path)
     surviving: list[str] = []
     if append and out.exists():
-        # Drop any pre-existing lines for the same (subset, split) — those are
-        # the ones we are about to re-fetch — and keep everything else.
+        # Drop pre-existing lines for the same (subset, split); we're about to re-fetch them.
         for raw in out.read_text(encoding="utf-8").splitlines():
             if not raw.strip():
                 continue
@@ -83,7 +75,7 @@ _GITHUB_URL_RE = re.compile(r"^(?:https?://github\.com/)?([\w.-]+)/([\w.-]+?)(?:
 
 
 def _parse_github_repo(repo: str) -> tuple[str, str]:
-    """Accept either 'owner/name' or a full GitHub URL; return (owner, name)."""
+    """Accept 'owner/name' or a full GitHub URL; return (owner, name)."""
     m = _GITHUB_URL_RE.match(repo.strip())
     if not m:
         raise ValueError(f"--custom-repo must be 'owner/name' or a GitHub URL, got {repo!r}")
@@ -91,8 +83,7 @@ def _parse_github_repo(repo: str) -> tuple[str, str]:
 
 
 def _resolve_head(owner: str, name: str) -> str:
-    """Look up the remote HEAD SHA via `git ls-remote`. Used when the caller
-    omits --custom-base-commit."""
+    """Look up the remote HEAD SHA via `git ls-remote`."""
     url = f"https://github.com/{owner}/{name}.git"
     proc = subprocess.run(
         ["git", "ls-remote", url, "HEAD"],
@@ -117,7 +108,7 @@ def _append_custom_row(
     problem_statement: str,
     instance_id: str | None,
 ) -> dict:
-    """Build and append one custom-repo row to the JSONL. Returns the row dict."""
+    """Build and append one custom-repo row to the JSONL (idempotent on instance_id)."""
     owner, name = _parse_github_repo(repo)
     sha = base_commit.strip() if base_commit else _resolve_head(owner, name)
     iid = instance_id or f"custom-{owner}-{name}-{sha[:7]}"
@@ -132,7 +123,6 @@ def _append_custom_row(
     }
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    # If the same instance_id already exists, replace it (idempotent re-runs).
     surviving: list[str] = []
     if out.exists():
         for raw in out.read_text(encoding="utf-8").splitlines():
@@ -163,9 +153,8 @@ def main() -> None:
                         help="Process only the first N instances (smoke test)")
     parser.add_argument("--append", action="store_true",
                         help="Keep existing lines for other (subset, split) pairs.")
-    # Custom-repo branch — when --custom-repo is set, the HuggingFace pull is
-    # skipped and we append exactly one synthetic 'custom' row matching the
-    # /api/instances/custom schema.
+    # --custom-repo skips the HuggingFace pull and appends one synthetic
+    # 'custom' row matching the /api/instances/custom schema.
     parser.add_argument("--custom-repo", default="",
                         help="GitHub 'owner/name' or URL. Switches to custom-repo mode "
                              "(skips the HuggingFace pull; appends one row).")
