@@ -36,5 +36,7 @@ if [ ! -x "$UVICORN" ]; then
     exit 1
 fi
 echo "Starting EvoMas API server on http://${API_HOST}:${API_PORT}"
-exec "$UVICORN" --app-dir "$REPO_ROOT/api" server:app \
+# --app-dir points at the repo root (not api/) so `from api import common`
+# inside api/server.py finds the `api` package on sys.path.
+exec "$UVICORN" --app-dir "$REPO_ROOT" api.server:app \
     --host "$API_HOST" --port "$API_PORT" --reload
