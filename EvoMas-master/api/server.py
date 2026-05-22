@@ -3,6 +3,16 @@ page-scoped router under `api/routers/` (see `routers/__init__.py` for
 the map). Shared path constants + helpers live in `api/common.py`."""
 from __future__ import annotations
 
+# Repo root on sys.path BEFORE the first `from api …` import so this
+# module loads cleanly under any uvicorn `--app-dir` choice (start_api
+# launchers pass the repo root explicitly; this is a safety net for
+# any other entry point that imports api.server bare).
+import sys as _sys
+from pathlib import Path as _Path
+_REPO_ROOT = _Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,5 +47,8 @@ app.include_router(results_router.router)
 
 
 if __name__ == "__main__":
+    import sys
+    from pathlib import Path
     import uvicorn
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=False)
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    uvicorn.run("api.server:app", host="0.0.0.0", port=8000, reload=False)

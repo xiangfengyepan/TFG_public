@@ -31,4 +31,6 @@ if (-not (Test-Path $Uvicorn)) {
     exit 1
 }
 Write-Host "Starting EvoMas API server on http://$($apiHost):$($apiPort)"
-& $Uvicorn --app-dir "$RepoRoot\api" server:app --host $apiHost --port $apiPort --reload
+# --app-dir points at the repo root (not api\) so `from api import common`
+# inside api\server.py finds the `api` package on sys.path.
+& $Uvicorn --app-dir "$RepoRoot" api.server:app --host $apiHost --port $apiPort --reload
