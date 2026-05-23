@@ -70,6 +70,13 @@
   border: 1px dashed var(--border);
   border-radius: 5px;
 }
+/* Constrain hint width so long sentences wrap instead of forcing the
+   :host flex panel to grow past its 340px min-width. */
+.hint-text {
+  max-width: 320px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
 .hint-text.err { color: var(--danger); border-color: rgba(248,81,73,.3); background: rgba(248,81,73,.08); }
 
 .inspection-card {

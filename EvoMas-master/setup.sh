@@ -37,11 +37,11 @@ test_cli() {
 echo "[setup] checking prerequisites"
 echo "[setup] python -> $PYTHON_BIN"
 ollama_ok=0; test_cli ollama "Install Ollama from https://ollama.com/download." && ollama_ok=1 || true
-docker_ok=0; test_cli docker "Install Docker (Desktop on macOS) from https://www.docker.com/products/docker-desktop/ (required for SWE-bench evaluation)." && docker_ok=1 || true
+docker_ok=0; test_cli docker "Install Docker (Desktop on macOS) from https://www.docker.com/products/docker-desktop/ (required for default 'evomas run evaluation --local')." && docker_ok=1 || true
 npm_ok=0;    test_cli npm    "Install Node.js 18+ from https://nodejs.org/ (needed for the Angular frontend)." && npm_ok=1 || true
 
 [ "$ollama_ok" = 0 ] && echo "[setup] continuing without ollama -- 'evomas ollama *' will fail until you install it."
-[ "$docker_ok" = 0 ] && echo "[setup] continuing without docker -- 'evomas run evaluation' will fail until you install it."
+[ "$docker_ok" = 0 ] && echo "[setup] continuing without docker -- 'evomas run evaluation' (default --local) will fail; pass --remote to use sb-cli instead."
 [ "$npm_ok" = 0 ]    && echo "[setup] continuing without npm -- 'evomas web' will fail until you install Node.js."
 
 # ── 2. Ensure the venv exists ────────────────────────────────────────────────

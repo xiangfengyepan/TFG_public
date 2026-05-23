@@ -276,11 +276,13 @@ def run_prediction(
     context_settings=_FORWARD_CTX,
     help=(
         "Run SWE-bench evaluation on a predictions JSONL."
-        "\n\n  --local  (default) - runs the SWE-bench harness via Docker "
-        "(one container per instance per worker; requires Docker Desktop)."
-        "\n  --remote - submits to the swebench.com leaderboards via "
-        "sb-cli (requires SWEBENCH_API_KEY)."
-        "\n\nExample (local):   evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --split dev"
+        "\n\n  --local  (default) - SWE-bench Docker harness; full per-instance "
+        "logs (eval.sh, patch.diff, test_output.txt) under <report-dir>/logs/. "
+        "Needs Docker; on Windows the wrapper shells out to WSL (`swebench` is "
+        "POSIX-only)."
+        "\n  --remote           - submits to swebench.com via sb-cli "
+        "(needs SWEBENCH_API_KEY; verdicts only, no per-instance logs)."
+        "\n\nExample:           evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --split dev"
         "\nExample (remote):  evomas run evaluation --remote --predictions evomas_predictions.jsonl --subset lite --split dev"
     ),
 )
@@ -304,7 +306,7 @@ def run_evaluation(
     ),
     max_workers: int = typer.Option(
         8, "--max-workers",
-        help="Parallel harness workers (local only - ignored when --remote).",
+        help="Parallel harness workers (--local only; ignored on --remote).",
     ),
     run_id: Optional[str] = typer.Option(
         None, "--run-id",
@@ -316,7 +318,7 @@ def run_evaluation(
     ),
     remote: bool = typer.Option(
         False, "--remote/--local",
-        help="Run remotely via sb-cli (--remote) or locally via the Docker harness (--local, default).",
+        help="--local (default) runs the Docker harness for full logs; --remote submits via sb-cli.",
     ),
 ) -> None:
     if remote:

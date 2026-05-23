@@ -372,7 +372,7 @@ def test_run_evaluation_requires_subset(runner: CliRunner) -> None:
 def test_run_evaluation_local_default(
     runner: CliRunner, stub_runners: dict[str, list],
 ) -> None:
-    """Without `--remote`, the LOCAL script wraps the harness."""
+    """Default (no flag) routes to the Docker harness; --max-workers forwarded."""
     result = _invoke(
         runner,
         ["run", "evaluation",
@@ -381,16 +381,13 @@ def test_run_evaluation_local_default(
     assert result.exit_code == 0
     name, args = _last_forward(stub_runners)
     assert name == "run_swebench_evaluation.py"
-    # Local path always forwards --max-workers (8 by default).
-    assert "--max-workers" in args
-    assert "8" in args
+    assert "--max-workers" in args and "8" in args
 
 
 def test_run_evaluation_remote_routes_to_remote_script(
     runner: CliRunner, stub_runners: dict[str, list],
 ) -> None:
-    """With `--remote`, the sb-cli wrapper script is invoked and the
-    local-only `--max-workers` is dropped."""
+    """`--remote` invokes the sb-cli wrapper; local-only --max-workers dropped."""
     result = _invoke(
         runner,
         ["run", "evaluation", "--remote",

@@ -84,7 +84,7 @@ evomas ollama list             # ollama list
 evomas ollama serve [--cpu-only]
 evomas run instances ...       # generate the SWE-bench instances JSONL
 evomas run prediction ...      # run inference, write predictions JSONL
-evomas run evaluation ...      # score predictions via the SWE-bench harness (needs Docker)
+evomas run evaluation ...      # score predictions (default --local via Docker harness, + WSL on Windows; --remote uses sb-cli)
 evomas web                     # ng serve (Angular frontend on :4200)
 evomas api                     # uvicorn (FastAPI backend on :8000)
 ```
