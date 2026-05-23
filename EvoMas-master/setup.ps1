@@ -25,7 +25,7 @@ function Test-Cli($name, $hint) {
 Write-Host "[setup] checking prerequisites" -ForegroundColor Cyan
 $pythonOk = Test-Cli "python" "Install Python 3.12+ from https://www.python.org/downloads/ (Python 3.12.6 is the dev baseline)."
 $ollamaOk = Test-Cli "ollama" "Install Ollama from https://ollama.com/download."
-$dockerOk = Test-Cli "docker" "Install Docker Desktop from https://www.docker.com/products/docker-desktop/ (required for SWE-bench evaluation)."
+$dockerOk = Test-Cli "docker" "Install Docker Desktop from https://www.docker.com/products/docker-desktop/ (required for default 'evomas run evaluation --local')."
 $npmOk    = Test-Cli "npm"    "Install Node.js 18+ from https://nodejs.org/ (needed for the Angular frontend)."
 
 if (-not $pythonOk) {
@@ -36,7 +36,7 @@ if (-not $ollamaOk) {
     Write-Host "[setup] continuing without ollama -- `evomas ollama *` will fail until you install it."
 }
 if (-not $dockerOk) {
-    Write-Host "[setup] continuing without docker -- `evomas run evaluation` will fail until you install it."
+    Write-Host "[setup] continuing without docker -- `evomas run evaluation` (default --local) will fail; pass --remote to use sb-cli instead."
 }
 if (-not $npmOk) {
     Write-Host "[setup] continuing without npm -- `evomas web` will fail until you install Node.js."

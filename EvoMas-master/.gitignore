@@ -6,6 +6,12 @@
 /evomas/config/loaded/
 swebench_instances.jsonl
 requirements.txt
+# Reproduction-notebook artefacts that land at the repo root when
+# the notebook is executed there (per-run folder, ad-hoc .ipynb copies,
+# user-imported SWE-bench-style instance JSONLs).
+/notebook-*/
+/notebook-*.ipynb
+/swebench_*.jsonl
 
 # ─── Standard GitHub Python .gitignore ───────────────────────────────────────
 # Byte-compiled / optimized / DLL files
@@ -110,10 +116,7 @@ cython_debug/
 # Ruff
 .ruff_cache/
 
-# External tooling clones + their venvs / report artefacts. Fetched
-# into the repo root for the SWE-bench leaderboards flow; not part
-# of the EvoMas source tree.
-/sb-cli/
-/sb-cli-reports/
-/experiments/
-RENAME_PLAN.md
+# NOTE: The per-clone scratch entries (sb-cli/, sb-cli-reports/,
+# experiments/, RENAME_PLAN.md) live in `.git/info/exclude` now —
+# they're user-specific and shouldn't impose on collaborators via the
+# shared .gitignore.

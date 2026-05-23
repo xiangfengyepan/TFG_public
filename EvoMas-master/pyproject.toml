@@ -28,6 +28,8 @@ dependencies = [
     "typer",
     "gitpython",
     "ipykernel<7",
+    "sb-cli",
+    "swebench; sys_platform != 'win32'",
 ]
 
 [project.optional-dependencies]
