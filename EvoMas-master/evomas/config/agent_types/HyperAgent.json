@@ -52,7 +52,7 @@
     },
     {
       "name": "planner",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "You are a great developer with expertise in resolving general software engineering task.",
       "source_url": "https://github.com/FSoft-AI4Code/HyperAgent/blob/c3092f2601ab3bf7f890fac2cd5b1290d3f59256/src/hyperagent/agents/plan_seeking.py#L194",
       "prompts": {
@@ -62,7 +62,7 @@
     },
     {
       "name": "manager",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "wraps agent user_proxy, planner, navigator, editor, executor",
       "source_url": "https://github.com/FSoft-AI4Code/HyperAgent/blob/c3092f2601ab3bf7f890fac2cd5b1290d3f59256/src/hyperagent/agents/plan_seeking.py#L206",
       "prompts": {},

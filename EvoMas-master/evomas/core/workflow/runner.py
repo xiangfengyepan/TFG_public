@@ -9,7 +9,7 @@ from evomas.config.loader import load_config, resolve_variant_block
 from evomas.core.workflow.graph_builder import build_graph
 from evomas.core.workflow.state_factory import build_initial_state, build_state_class
 from evomas.exceptions.errors import ConfigError, EvomasError, OllamaMemoryError
-from evomas.tools.patch_tools import generate_diff_impl
+from evomas.utils.patch import generate_diff_impl
 from evomas.utils.ollama_preflight import preflight_models
 from evomas.utils.workspace import clone_workspace
 
@@ -133,7 +133,7 @@ def _run_impl(instance: dict[str, Any], config: str | dict[str, Any] = "") -> st
         raise EvomasError(f"graph failure for {instance_id}: {exc}") from exc
 
     # Prefer the workspace `git diff` over the end-node slot: an
-    # Orchestrator slot holds `"END"`, a Reviewer slot holds review text
+    # Router slot holds `"END"`, a Reviewer slot holds review text
     # — both fail to apply as patches. Fall back to the end-node slot only
     # when the workspace is clean (virtual-patcher pattern, where an agent
     # emits a diff string without touching files).

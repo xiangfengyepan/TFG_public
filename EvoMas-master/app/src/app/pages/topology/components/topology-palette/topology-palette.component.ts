@@ -25,6 +25,17 @@ export class TopologyPaletteComponent {
 
   @Output() variantChange = new EventEmitter<{ type: string; key: string }>();
 
+  /** Domain agents — the bulk of the palette. */
+  get domainTypes(): AgentType[] {
+    return this.agentTypes.filter(t => (t.category ?? 'agent') !== 'control');
+  }
+
+  /** Control-flow primitives (e.g. Router). Rendered in a separate lane
+   * so they read as architectural pieces, not just another domain role. */
+  get controlTypes(): AgentType[] {
+    return this.agentTypes.filter(t => t.category === 'control');
+  }
+
   variantsFor(type: string): AgentVariant[] {
     return this.agentTypes.find(t => t.type === type)?.variants ?? [];
   }

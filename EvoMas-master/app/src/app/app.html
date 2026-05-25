@@ -53,8 +53,18 @@
   @if (saveDialogOpen) {
     <div class="modal-backdrop" (click)="cancelSave()">
       <div class="modal-card" (click)="$event.stopPropagation()">
-        <div class="modal-title">Save configuration</div>
+        <div class="modal-title">Export configuration</div>
         <div class="modal-body">
+          <!-- Which config to export. Defaults to the active one; the
+               user can pick any other entry from the catalog (predefined
+               or loaded) without leaving the dialog. -->
+          <label class="modal-label">Source config</label>
+          <evo-select class="modal-select"
+                      [optgroups]="exportSelectGroups"
+                      [(ngModel)]="saveSourceStem" />
+          <!-- Empty by default so the user types a name deliberately
+               (avoids exporting "chain.json" because the active config's
+               name was pre-filled and they didn't notice). -->
           <label class="modal-label">File name</label>
           <input type="text" class="modal-input" [(ngModel)]="saveName"
                  placeholder="my-config" (keyup.enter)="confirmSave()" autofocus />
@@ -65,7 +75,10 @@
         </div>
         <div class="modal-actions">
           <button class="modal-btn" (click)="cancelSave()" type="button">Cancel</button>
-          <button class="modal-btn primary" (click)="confirmSave()" type="button">Save</button>
+          <button class="modal-btn primary" (click)="confirmSave()" type="button"
+                  [disabled]="saveBusy">
+            {{ saveBusy ? 'Exporting…' : 'Export' }}
+          </button>
         </div>
       </div>
     </div>
@@ -108,3 +121,8 @@
     <router-outlet />
   </main>
 </div>
+
+<!-- App-wide modal host. One instance services every page / guard
+     that uses DialogService.{alert,confirm,prompt}. Lives at the
+     shell root so the backdrop overlays the navbar too. -->
+<app-dialog-host></app-dialog-host>

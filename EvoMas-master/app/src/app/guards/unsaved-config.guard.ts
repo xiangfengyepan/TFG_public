@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
 import { TopologyStateService } from '../services/topology-state.service';
+import { DialogService } from '../services/dialog.service';
 import type { TopologyComponent } from '../pages/topology/topology.component';
 
 /**
@@ -26,16 +27,21 @@ import type { TopologyComponent } from '../pages/topology/topology.component';
  * installs in `ngOnInit` for the browser-tab-close case (the router
  * guard only catches in-app navigation).
  */
-export const unsavedConfigGuard: CanDeactivateFn<TopologyComponent> = (
+export const unsavedConfigGuard: CanDeactivateFn<TopologyComponent> = async (
   component, _currentRoute, _currentState, nextState,
 ) => {
   const svc = inject(TopologyStateService);
   if (!svc.dirty) return true;
   if (!component.isLoadedConfig) return true;
-  const accepted = window.confirm(
-    `You have unsaved changes in "${svc.currentConfigName}". `
-    + 'Leave the page and lose them?',
-  );
+  const dialog = inject(DialogService);
+  const accepted = await dialog.confirm({
+    title: 'Discard unsaved changes?',
+    message:
+      `You have unsaved changes in "${svc.currentConfigName}". ` +
+      `Leave the page and lose them?`,
+    okLabel: 'Discard',
+    danger: true,
+  });
   if (!accepted) return false;
   // User opted to discard their edits. Clear `dirty` FIRST so the
   // `beforeunload` listener `TopologyComponent` installed doesn't

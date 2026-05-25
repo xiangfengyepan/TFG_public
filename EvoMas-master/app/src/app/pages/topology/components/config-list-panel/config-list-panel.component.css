@@ -53,10 +53,23 @@
 }
 .topo-item:hover { background: var(--bg-2); color: var(--text); }
 .topo-item.active { background: rgba(88,166,255,.12); color: var(--accent); font-weight: 600; }
-.topo-item.loaded {
-  display: flex; align-items: center; gap: 6px;
-}
+/* Predefined rows render as plain text; reserve enough space for the
+ * leading validity dot so the row contents stay aligned across rows
+ * with and without a badge. */
+.topo-item { display: flex; align-items: center; gap: 6px; }
+.topo-item .topo-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .topo-item.loaded .loaded-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+
+/* Validity dot — red for errors, amber for warnings-only. Sits just
+ * left of the row name so the user can scan the list at a glance. */
+.validity-dot {
+  flex-shrink: 0;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.validity-dot--error { background: var(--danger, #f85149); }
+.validity-dot--warn  { background: #e3b341; }
 .topo-item.loaded .loaded-delete {
   background: transparent; border: none; color: var(--text-muted);
   cursor: pointer; padding: 0 4px; font-size: 14px; line-height: 1;

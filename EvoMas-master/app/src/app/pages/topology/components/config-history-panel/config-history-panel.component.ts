@@ -12,6 +12,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 
 import { ICON } from '../../../../icons';
 import { ApiService } from '../../../../services/api.service';
+import { DialogService } from '../../../../services/dialog.service';
 import {
   AgentType, ConfigHistoryEntry, ConfigRunMatch, UnifiedConfig,
 } from '../../../../models/types';
@@ -71,6 +72,7 @@ export class ConfigHistoryPanelComponent implements OnChanges, AfterViewInit, On
   constructor(
     private api: ApiService,
     private cdr: ChangeDetectorRef,
+    private dialog: DialogService,
   ) {}
 
   ngOnChanges(ch: SimpleChanges): void {
@@ -152,17 +154,21 @@ export class ConfigHistoryPanelComponent implements OnChanges, AfterViewInit, On
   }
 
   /** Drop one commit; confirm warns about descendant-SHA rewrites. */
-  deleteEntry(entry: ConfigHistoryEntry, ev: Event): void {
+  async deleteEntry(entry: ConfigHistoryEntry, ev: Event): Promise<void> {
     ev.stopPropagation();
     if (!this.configName) return;
     const short = entry.sha.slice(0, 8);
-    if (!confirm(
-      `Delete version ${short} from history?\n\n` +
-      `This rewrites the git history of this config — any later ` +
-      `versions get new SHAs and stop matching runs that pinned to ` +
-      `their old SHA. If this is the latest version, the on-disk ` +
-      `file will be reverted to the previous one.`,
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: `Delete version ${short}`,
+      message:
+        `This rewrites the git history of this config — any later ` +
+        `versions get new SHAs and stop matching runs that pinned to ` +
+        `their old SHA. If this is the latest version, the on-disk ` +
+        `file will be reverted to the previous one.`,
+      okLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     this.api.deleteConfigHistoryEntry(this.configName, entry.sha).subscribe({
       next: () => {
         // Descendants got new SHAs; per-sha caches are now stale.
@@ -179,20 +185,32 @@ export class ConfigHistoryPanelComponent implements OnChanges, AfterViewInit, On
         this._loadHistory();
       },
       error: err => {
-        alert(err?.error?.detail ?? err?.message ?? 'Delete failed');
+        this.dialog.alert({
+          title: 'Delete failed',
+          variant: 'danger',
+          detail: err?.error?.detail ?? err?.message ?? 'Delete failed',
+        });
       },
     });
   }
 
-  /** Wipe history across every loaded config; on-disk JSONs survive. */
-  clearAllHistory(): void {
-    if (!confirm(
-      `Clear ALL version history?\n\n` +
-      `This removes every commit across every loaded config. The ` +
-      `.json files on disk are preserved; only the timeline is reset. ` +
-      `Run sidecars that referenced old SHAs will stop matching.`,
-    )) return;
-    this.api.clearAllConfigHistory().subscribe({
+  /** Wipe history for the currently-open config only. The .json file
+   * on disk is preserved; only this config's timeline is reset. */
+  async clearAllHistory(): Promise<void> {
+    if (!this.configName) return;
+    const ok = await this.dialog.confirm({
+      title: `Clear history for "${this.configName}"`,
+      message:
+        `This removes every commit touching ${this.configName}.json. ` +
+        `The .json file on disk is preserved; only this config's ` +
+        `timeline is reset. Other configs' visible history survives ` +
+        `(but their commit SHAs may be rewritten, so run sidecars that ` +
+        `pinned to old SHAs will stop matching).`,
+      okLabel: 'Clear history',
+      danger: true,
+    });
+    if (!ok) return;
+    this.api.clearConfigHistory(this.configName).subscribe({
       next: () => {
         this.runsBySha = {};
         this.selectedSha = null;
@@ -204,7 +222,11 @@ export class ConfigHistoryPanelComponent implements OnChanges, AfterViewInit, On
         this._loadHistory();
       },
       error: err => {
-        alert(err?.error?.detail ?? err?.message ?? 'Reset failed');
+        this.dialog.alert({
+          title: 'Reset failed',
+          variant: 'danger',
+          detail: err?.error?.detail ?? err?.message ?? 'Reset failed',
+        });
       },
     });
   }
@@ -312,7 +334,7 @@ export class ConfigHistoryPanelComponent implements OnChanges, AfterViewInit, On
   }
 
   // ─── Restore ────────────────────────────────────────────────────
-  doRestore(): void {
+  async doRestore(): Promise<void> {
     if (!this.selectedSha || !this.previewContent) return;
     let parsed: UnifiedConfig;
     try {
@@ -323,10 +345,14 @@ export class ConfigHistoryPanelComponent implements OnChanges, AfterViewInit, On
       return;
     }
     const short = this.selectedSha.slice(0, 8);
-    if (!confirm(
-      `Restore version ${short}? The current working file will be ` +
-      `overwritten and committed as a new history entry on next Save.`,
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: `Restore version ${short}`,
+      message:
+        `The current working file will be overwritten and committed as a ` +
+        `new history entry on next Save.`,
+      okLabel: 'Restore',
+    });
+    if (!ok) return;
     this.restore.emit(parsed);
   }
 
@@ -409,7 +435,7 @@ function buildTopologyElements(
   const back = findBackEdges(cfg);
 
   const isConditional = (e: { from: string; to: string }) =>
-    (agents[e.from] as { class?: string })?.class === 'Orchestrator'
+    (agents[e.from] as { class?: string })?.class === 'Router'
     && (outDegree[e.from] ?? 0) >= 2;
 
   const elements: ElementDefinition[] = [

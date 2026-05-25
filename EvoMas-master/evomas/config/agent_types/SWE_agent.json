@@ -38,7 +38,7 @@
     },
     {
       "name": "DefaultAgent (Orchestrator)",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "The agent handles the behaviour of the model and how it interacts with the environment. Use tools: HandleTools and DefaultHistoryProcessor",
       "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/agents.py#L443",
       "prompts": {
@@ -123,7 +123,7 @@
     },
     {
       "name": "ShellAgent (Orchestrator)",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "Agent that inherit from DefaultAgent. So it also use toolsHandle",
       "source_url": "https://github.com/SWE-agent/SWE-agent/blob/39e2931a81c8698265e2db40ec4f3911b630d942/sweagent/agent/extra/shell_agent.py#L13",
       "prompts": {

@@ -18,7 +18,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 try:
-    from evomas.tools.patch_tools import apply_patch_impl, normalize_patch_impl  # noqa: E402
+    from evomas.utils.patch import apply_patch_impl, normalize_patch_impl  # noqa: E402
     _HAS_EVOMAS_PATCH_TOOLS = True
 except Exception:  # pragma: no cover
     _HAS_EVOMAS_PATCH_TOOLS = False

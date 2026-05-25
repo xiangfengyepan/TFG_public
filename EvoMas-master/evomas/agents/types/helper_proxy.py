@@ -1,21 +1,34 @@
-"""Helper / Proxy — supports the topology without mutating the workspace."""
+"""Helper / Proxy — supports the topology without mutating the workspace.
+
+Pure read-only finalizer: answers questions about the codebase, formats raw
+LLM responses into structured shapes (JSON), and drives proxy roles. Does
+NOT modify source files.
+
+The previous candidate-selection / ensembler logic (which read
+`{patches, validations}` from an upstream reviewer and picked the
+best-scoring patch) lives in `PatcherAgent.run()` now. That keeps
+"selecting the best patch among multiple generated options" together with
+the rest of the Patcher's responsibilities, matching the thesis Patcher
+definition. HelperProxyAgent is now strictly auxiliary.
+"""
 from __future__ import annotations
 
 from typing import Any, ClassVar
 
 from evomas.agents.llm_tool_agent import LLMToolAgent
-from evomas.tools.patch_tools import generate_diff_impl
+from evomas.utils.patch import generate_diff_impl
 
 
 class HelperProxyAgent(LLMToolAgent):
-    """Read-only / proxy roles -- ask about code, transform output into JSON, drive a browser session, etc. -- doubling as the deterministic final-patch selector when the predecessor bundles `{patches, validations}`."""
+    """Read-only / proxy roles -- ask about code, transform output into JSON, drive a browser session, etc. Does NOT modify source files."""
 
     AGENT_TYPE: ClassVar[str] = "Helper/Proxy"
     name = "helper_proxy"
 
-    # Canonical ensembler slot for star-style chains -- emits the final patch
-    # string. Slot stays `str` on the LLM-fallthrough branch too; the empty
-    # default signals "no patch produced".
+    # Canonical finalizer slot for chain topologies -- emits the final patch
+    # string (= the workspace `git diff` produced by upstream agents). Slot
+    # stays `str` on the LLM-fallthrough branch too; the empty default
+    # signals "no patch produced".
     OUTPUT_TYPE: ClassVar[Any] = str
     OUTPUT_DEFAULT: ClassVar[str] = ""
 
@@ -30,10 +43,7 @@ class HelperProxyAgent(LLMToolAgent):
         "a one-line acknowledgement (e.g. 'patch accepted: <one-sentence summary>')\n"
         "and emit NO tool calls — the loop exits as soon as you respond without\n"
         "a tool call. The base runner reads the workspace `git diff` as the\n"
-        "final prediction patch.\n\n"
-        "If the predecessor bundles `{patches, validations}` the framework\n"
-        "selects the best candidate deterministically before your run; you'll\n"
-        "never be asked to pick via the LLM."
+        "final prediction patch."
     )
     DEFAULT_USER: ClassVar[str] = (
         "## Task\n{issue}\n\n## Workspace\n{workspace}\n\n"
@@ -57,59 +67,3 @@ class HelperProxyAgent(LLMToolAgent):
             if diff.strip():
                 return diff
         return self._final_response_text
-
-    def run(self, state: dict[str, Any]) -> dict[str, Any]:
-        # Predecessor (typically a Reviewer) forwards a bundle
-        # `{patches, validations}` we score and pick from. Topologies that
-        # never populate the bundle fall through to the generic LLM loop.
-        upstream = state.get(self.predecessor_name or "")
-        if not isinstance(upstream, dict):
-            return super().run(state)
-        candidates: list[str] = list(upstream.get("patches") or [])
-        if not candidates:
-            return super().run(state)
-
-        results: list[dict[str, Any]] = list(upstream.get("validations") or [])
-
-        if results and len(results) == len(candidates):
-            scored = sorted(
-                zip(candidates, results),
-                key=lambda pr: (
-                    pr[1].get("score", 0),
-                    pr[1].get("applies", False),
-                    pr[1].get("flake8_ok", False),
-                    pr[1].get("review_pass", False),
-                ),
-                reverse=True,
-            )
-            best_patch, best_result = scored[0]
-            self.logger.info(
-                "helper_proxy ensembler: picked candidate %s (score=%s applies=%s)",
-                best_result.get("patch_idx"),
-                best_result.get("score"),
-                best_result.get("applies"),
-            )
-            if best_result.get("score", 0) > 0 and best_patch.strip():
-                return {self.name: best_patch}
-            # All zero-score -- only fall back to a candidate that applies,
-            # else we'd submit a doomed patch the harness rejects.
-            applies_map = {
-                r.get("patch_idx", i): r.get("applies", False)
-                for i, r in enumerate(results)
-            }
-            fallback = next(
-                (p for i, p in enumerate(candidates) if p.strip() and applies_map.get(i, False)),
-                "",
-            )
-            self.logger.info(
-                "helper_proxy ensembler: zero-score fallback applies=%s len=%d",
-                bool(fallback), len(fallback),
-            )
-            return {self.name: fallback}
-
-        # No validation_results -- pick first non-empty candidate so the
-        # runner's `final_patch` lookup has something.
-        self.logger.warning(
-            "helper_proxy ensembler: no/mismatched validation results; using first non-empty"
-        )
-        return {self.name: next((p for p in candidates if p and p.strip()), "")}

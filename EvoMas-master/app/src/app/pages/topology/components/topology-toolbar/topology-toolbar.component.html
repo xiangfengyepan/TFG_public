@@ -41,7 +41,7 @@
   <evo-button [variant]="addEdgeMode ? 'active' : 'default'"
               [disabled]="!isLoadedConfig"
               (clicked)="toggleAddEdge.emit()"
-              title="Click two nodes to connect them. Drag from START to a node to set the entry point; drag from a node to END to toggle that node's membership in the config's `end` list (the nodes allowed to route to END at runtime).">
+              title="Add Edge (Ctrl+A). Click two nodes to connect them. Drag from START to a node to set the entry point; drag from a node to END to toggle that node's membership in the config's `end` list (the nodes allowed to route to END at runtime).">
     <ng-icon class="btn-icon" name="arrowUpRight" />
     <span class="btn-label">{{ addEdgeMode ? (edgeSource ? 'Click target…' : 'Click source…') : 'Add Edge' }}</span>
   </evo-button>
@@ -55,6 +55,18 @@
               (clicked)="renameSelected.emit()"
               title="Rename the selected node. The new name must not collide with any other node in this config; all edges, entry, and end references are updated automatically.">
     <ng-icon class="btn-icon" name="pencil" /><span class="btn-label">Rename</span>
+  </evo-button>
+  <evo-button variant="ghost"
+              [disabled]="!isLoadedConfig || !canUndo"
+              (clicked)="undo.emit()"
+              title="Undo the last graph edit (Ctrl+Z). History lives in RAM and resets on Reload.">
+    <ng-icon class="btn-icon" name="undo" /><span class="btn-label">Undo</span>
+  </evo-button>
+  <evo-button variant="ghost"
+              [disabled]="!isLoadedConfig || !canRedo"
+              (clicked)="redo.emit()"
+              title="Redo the last undone edit (Ctrl+Y or Ctrl+Shift+Z).">
+    <ng-icon class="btn-icon" name="redo" /><span class="btn-label">Redo</span>
   </evo-button>
 
   <div class="toolbar-group-sep"></div>
@@ -86,9 +98,6 @@
                 title="Show the version history of this loaded config — every Save action is recorded as a commit.">
       <ng-icon class="btn-icon" name="clock" /><span class="btn-label">History</span>
     </evo-button>
-    @if (saveError) {
-      <span class="save-error" [title]="saveError"><ng-icon name="warn" /> Save failed</span>
-    }
   }
 
   <div class="toolbar-group-sep"></div>
@@ -136,7 +145,7 @@
           </svg>
           <div class="legend-text">
             <div class="legend-name">Conditional <span class="legend-tag">LLM-routed</span></div>
-            <div class="legend-desc">Source is an <code>Orchestrator</code> with ≥2 outgoing edges. The LLM emits target name(s); the router whole-word-matches and dispatches only those targets. Falls back to <em>all</em> targets on a parser miss so the run never stalls.</div>
+            <div class="legend-desc">Source is an <code>Router</code> with ≥2 outgoing edges. The LLM emits target name(s); the router whole-word-matches and dispatches only those targets. Falls back to <em>all</em> targets on a parser miss so the run never stalls.</div>
           </div>
         </div>
 

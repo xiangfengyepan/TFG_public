@@ -252,6 +252,10 @@ export interface AgentType {
   color: string;
   description: string;
   class: string;
+  /** `"agent"` = domain role; `"control"` = graph control-flow primitive
+   * (e.g. Router). The palette renders control types in a separate lane.
+   * Older backends omit this — treat as `"agent"`. */
+  category?: 'agent' | 'control';
   default_system: string;
   default_user: string;
   default_tools: string[];

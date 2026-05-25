@@ -136,6 +136,7 @@ vi.stubGlobal('requestAnimationFrame', rafSpy);
 
 import { TopologyComponent } from './topology.component';
 import { TopologyStateService } from '../../services/topology-state.service';
+import { DialogService } from '../../services/dialog.service';
 
 const BASE = 'http://localhost:8000/api';
 
@@ -151,7 +152,7 @@ const CHAIN_CFG = {
   end: 'orchestrator',
   edges: [{ from: 'orchestrator', to: 'locator' }],
   agents: {
-    orchestrator: { class: 'Orchestrator' },
+    orchestrator: { class: 'Router' },
     locator:  { class: 'LocatorAgent' },
   },
 } as unknown as UnifiedConfig;
@@ -163,7 +164,7 @@ const EVO_CHAIN_CFG = {
   end: 'orchestrator',
   edges: [{ from: 'orchestrator', to: 'locator' }],
   agents: {
-    orchestrator: { class: 'Orchestrator' },
+    orchestrator: { class: 'Router' },
     locator:  { class: 'Locator' },
   },
 } as unknown as UnifiedConfig;
@@ -192,9 +193,20 @@ describe('TopologyComponent · graph re-renders after error → success config s
     http.expectOne(`${BASE}/agent-types`).flush([]);
     http.expectOne(`${BASE}/configs`).flush(CHAIN_SUMMARIES);
     if (initialCfg) {
-      // After /api/configs lands, the component auto-loads the first
-      // (preferring `chain`).
-      http.expectOne(`${BASE}/configs/${initialCfg.id}`).flush(initialCfg);
+      // After /api/configs lands, the component does two things in
+      // parallel: (1) the boot-pass validate-all GETs every summary's
+      // content; (2) the auto-load fires its own GET on the first config
+      // (preferring `chain`). So `/api/configs/chain` has TWO open
+      // requests; flush all matches at once. The non-chain summary
+      // (openhands) gets one boot-pass request — flush it with an
+      // arbitrary placeholder body so the validator runs on something.
+      http.match(`${BASE}/configs/${initialCfg.id}`)
+        .forEach(req => req.flush(initialCfg));
+      const others = CHAIN_SUMMARIES.filter(s => s.stem !== initialCfg.id);
+      for (const s of others) {
+        http.match(`${BASE}/configs/${s.stem}`)
+          .forEach(req => req.flush({ ...initialCfg, id: s.stem }));
+      }
     }
   }
 
@@ -292,10 +304,10 @@ describe('TopologyComponent · graph re-renders after error → success config s
     // defaults. Bypasses the private classToType via `as any` since we
     // don't want the public API surface to grow just for the test.
     component.agentTypes = [{
-      type: 'Orchestrator',
+      type: 'Router',
       color: '#abc',
       description: '',
-      class: 'Orchestrator',
+      class: 'Router',
       default_system: 'default-system',
       default_user: 'default-user',
       default_tools: ['read_file', 'finish'],
@@ -307,20 +319,21 @@ describe('TopologyComponent · graph re-renders after error → success config s
       },
     }];
     (component as unknown as { classToType: Record<string, string> }).classToType = {
-      'Orchestrator': 'Orchestrator',
+      'Router': 'Router',
     };
     return svc;
   }
 
-  it('resetParams overwrites only Ollama knobs and leaves prompts/tools intact', () => {
+  it('resetParams overwrites only Ollama knobs and leaves prompts/tools intact', async () => {
     const svc = makeWritable();
     const block = svc.selectedAgentBlock()!;
     block.temperature = 0.99;
     block.tools = [{ name: 'apply_patch', params: { foo: 'bar' } }];
     block.prompts = { system: 'custom-sys', user: 'custom-usr' };
 
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    component.resetParams();
+    const confirmSpy = vi.spyOn(TestBed.inject(DialogService), 'confirm')
+      .mockResolvedValue(true);
+    await component.resetParams();
     confirmSpy.mockRestore();
 
     expect(block.temperature).toBe(0.0);
@@ -330,15 +343,16 @@ describe('TopologyComponent · graph re-renders after error → success config s
     expect(svc.dirty).toBe(true);
   });
 
-  it('resetTools re-applies type default_tools and leaves params/prompts intact', () => {
+  it('resetTools re-applies type default_tools and leaves params/prompts intact', async () => {
     const svc = makeWritable();
     const block = svc.selectedAgentBlock()!;
     block.tools = [{ name: 'apply_patch', params: { foo: 'bar' } }];
     block.temperature = 0.99;
     block.prompts = { system: 'custom-sys' };
 
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    component.resetTools();
+    const confirmSpy = vi.spyOn(TestBed.inject(DialogService), 'confirm')
+      .mockResolvedValue(true);
+    await component.resetTools();
     confirmSpy.mockRestore();
 
     expect(block.tools).toEqual([
@@ -350,15 +364,16 @@ describe('TopologyComponent · graph re-renders after error → success config s
     expect(svc.dirty).toBe(true);
   });
 
-  it('resetPrompts clears block.prompts and leaves params/tools intact', () => {
+  it('resetPrompts clears block.prompts and leaves params/tools intact', async () => {
     const svc = makeWritable();
     const block = svc.selectedAgentBlock()!;
     block.prompts = { system: 'custom-sys', user: 'custom-usr', proxy: 'p' };
     block.tools = [{ name: 'apply_patch', params: { foo: 'bar' } }];
     block.temperature = 0.99;
 
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    component.resetPrompts();
+    const confirmSpy = vi.spyOn(TestBed.inject(DialogService), 'confirm')
+      .mockResolvedValue(true);
+    await component.resetPrompts();
     confirmSpy.mockRestore();
 
     expect(block.prompts).toEqual({});
@@ -367,17 +382,134 @@ describe('TopologyComponent · graph re-renders after error → success config s
     expect(svc.dirty).toBe(true);
   });
 
-  it('reset methods short-circuit when confirm() is dismissed', () => {
+  it('reset methods short-circuit when confirm() is dismissed', async () => {
     const svc = makeWritable();
     const block = svc.selectedAgentBlock()!;
     block.temperature = 0.99;
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const confirmSpy = vi.spyOn(TestBed.inject(DialogService), 'confirm')
+      .mockResolvedValue(false);
     svc.dirty = false;
-    component.resetParams();
+    await component.resetParams();
     confirmSpy.mockRestore();
 
     expect(block.temperature).toBe(0.99);
     expect(svc.dirty).toBe(false);
+  });
+
+  it('undo/redo restores topology state without tearing down the cytoscape canvas', () => {
+    // Regression: an earlier `applySnapshot` re-used `renderConfig`, which
+    // calls `cy.elements().remove()` to clear the canvas before re-adding
+    // every node/edge. That wholesale wipe + add competed with the
+    // parallax/grid layer and left the user staring at a blank graph for
+    // a beat after every Ctrl+Z. The surgical path must instead diff the
+    // desired set against the live cytoscape state and mutate in place —
+    // same style as `onGraphDrop`.
+    const svc = makeWritable();
+
+    // Queue an undo snapshot of the as-loaded `chain` topology, then
+    // simulate a structural mutation (palette drop) by inserting an
+    // extra agent into `currentConfig`. The drop path also pushes a
+    // snapshot before mutating, but here we exercise the helper directly
+    // so the test doesn't depend on synthesizing a DragEvent.
+    (component as unknown as { pushUndoSnapshot(coalesceKey?: string): void })
+      .pushUndoSnapshot();
+    svc.currentConfig!.agents['extra'] = { class: 'Locator' } as never;
+
+    expect(svc.canUndo('chain'), 'pushUndoSnapshot must queue an entry')
+      .toBe(true);
+    expect(Object.keys(svc.currentConfig!.agents).sort())
+      .toEqual(['extra', 'locator', 'orchestrator']);
+
+    // `cy.elements().remove()` is the smoking gun of the disappearing
+    // graph — applySnapshot must never call it. Hold a stable reference
+    // to the mock's remove fn (the inner `empty` object is reused across
+    // every cy.elements() call within a single test).
+    const wholesaleRemove = cyState.fake.elements().remove as
+      ReturnType<typeof vi.fn>;
+    wholesaleRemove.mockClear();
+    cyState.fake.add.mockClear();
+
+    component.undo();
+
+    // 1) In-memory config is rolled back.
+    expect(Object.keys(svc.currentConfig!.agents).sort(),
+      'undo must restore the pre-mutation agents')
+      .toEqual(['locator', 'orchestrator']);
+    // 2) Canvas is NOT wiped wholesale. (The mock empty.forEach is a
+    //    no-op, so any per-node removes from the diff loop don't touch
+    //    this fn either — non-call is the right assertion.)
+    expect(wholesaleRemove,
+      'cy.elements().remove() leaves the canvas blank — surgical diff must avoid it')
+      .not.toHaveBeenCalled();
+    // 3) The surviving topology is re-added node-by-node so the canvas
+    //    stays populated (the mock reports `getElementById(...).length`
+    //    as 0, so the diff treats every desired node/edge as missing
+    //    and re-adds them — exactly what a real cy with stale ids would
+    //    skip and a freshly-cleared one would do in full).
+    expect(cyState.fake.add,
+      'undo must re-populate the canvas after the rollback')
+      .toHaveBeenCalled();
+
+    // Redo path mirrors undo: restore the post-mutation snapshot,
+    // again without a wholesale wipe.
+    wholesaleRemove.mockClear();
+    cyState.fake.add.mockClear();
+    component.redo();
+
+    expect(Object.keys(svc.currentConfig!.agents).sort(),
+      'redo must reapply the mutation')
+      .toEqual(['extra', 'locator', 'orchestrator']);
+    expect(wholesaleRemove,
+      'redo must not call cy.elements().remove() either')
+      .not.toHaveBeenCalled();
+    expect(cyState.fake.add,
+      'redo must add the restored extra node back to the canvas')
+      .toHaveBeenCalled();
+  });
+
+  it('undo back to the saved baseline clears dirty and keeps the inspector open', () => {
+    // Two behaviours under one regression:
+    //   1) `dirty` is derived from current-vs-saved. Editing → dirty=true.
+    //      Undoing all the way back to the loaded baseline → dirty=false,
+    //      so the "unsaved" toolbar chip disappears (and the user can't
+    //      "undo further" past the disk state).
+    //   2) Undo / redo preserve `selectedAgent` when the node still
+    //      exists, so the agent-inspector panel doesn't collapse on every
+    //      Ctrl+Z.
+    const svc = makeWritable();
+    expect(svc.selectedAgent, 'makeWritable seeds the orchestrator selection')
+      .toBe('orchestrator');
+    expect(svc.dirty, 'fresh-loaded baseline is clean').toBe(false);
+
+    // Drive a real mutation through the public API. `onAgentField` is
+    // what the inspector calls per-keystroke; it pushes an undo snapshot
+    // and flips dirty via the new recomputeDirty path.
+    component.onAgentField('temperature', 0.5);
+
+    expect(svc.dirty, 'editing must mark dirty')
+      .toBe(true);
+    expect(svc.canUndo('chain'), 'edit must queue an undo snapshot')
+      .toBe(true);
+
+    component.undo();
+
+    expect(svc.selectedAgent,
+      'undo must NOT close the agent-config panel — selectedAgent persists when the node still exists')
+      .toBe('orchestrator');
+    expect(svc.dirty,
+      'undoing back to the saved baseline must clear the unsaved chip')
+      .toBe(false);
+    expect(svc.canUndo('chain'),
+      'undo stack is empty once we are back at the saved baseline')
+      .toBe(false);
+
+    // Redo re-applies the edit and re-marks dirty.
+    component.redo();
+    expect(svc.selectedAgent,
+      'redo must also preserve the inspector selection')
+      .toBe('orchestrator');
+    expect(svc.dirty, 'redo restores the divergence from saved')
+      .toBe(true);
   });
 
   it('graph host is always mounted (no [hidden] on .graph-wrap)', async () => {

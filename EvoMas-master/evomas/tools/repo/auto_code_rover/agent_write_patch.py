@@ -13,7 +13,7 @@ import logging
 
 from langchain_core.tools import tool
 
-from evomas.tools.patch_tools import apply_patch_impl
+from evomas.utils.patch import apply_patch_impl
 
 logger = logging.getLogger(__name__)
 

@@ -125,7 +125,7 @@ def stubbed_clone(
 def _populate_targets_from_config(config_name: str) -> None:
     """Build `_NODE_TARGETS` from the config so the stub LLM loop has
     parseable router targets to emit. The router's candidate set is
-    exactly the declared outgoing edges — Orchestrators cannot route
+    exactly the declared outgoing edges — Routers cannot route
     to END, so no synthetic candidate is appended."""
     from evomas.config.loader import load_config
     cfg = load_config(config_name)

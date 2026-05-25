@@ -102,9 +102,13 @@ export class ApiService {
     );
   }
 
-  /** Wipe history across every loaded config. JSON files are preserved. */
-  clearAllConfigHistory(): Observable<{ ok: boolean }> {
-    return this.http.delete<{ ok: boolean }>(`${BASE}/configs/loaded/history`);
+  /** Drop every commit touching `<name>.json`. Other configs' history is
+   * preserved (SHAs may be rewritten but their content + timeline survive).
+   * The working-tree JSON for `name` is kept so the loader still finds it. */
+  clearConfigHistory(name: string): Observable<{ ok: boolean; stem: string }> {
+    return this.http.delete<{ ok: boolean; stem: string }>(
+      `${BASE}/configs/loaded/${encodeURIComponent(name)}/history`,
+    );
   }
 
   /** Config snapshot saved alongside the run. `exists: false` for legacy runs. */

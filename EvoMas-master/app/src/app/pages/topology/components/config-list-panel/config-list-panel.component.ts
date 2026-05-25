@@ -26,9 +26,41 @@ export class ConfigListPanelComponent {
   @Input() loadedList: ConfigSummary[] = [];
   @Input() currentConfigName: string | null = null;
   @Input() collapsed = false;
+  /** Per-config validity from the ngOnInit boot pass. Renders a red dot
+   * for errors and an amber dot for warnings-only; tooltip lists the
+   * issues. Configs absent from the map (and clean ones) show no dot. */
+  @Input() validity: Record<string, { errors: string[]; warnings: string[] }> = {};
 
   @Output() load            = new EventEmitter<string>();
   @Output() rename          = new EventEmitter<string>();
   @Output() delete          = new EventEmitter<{ stem: string; ev: Event }>();
   @Output() toggleCollapsed = new EventEmitter<void>();
+
+  /** `'error'` when the config has at least one error, `'warn'` if only
+   * warnings, `null` if clean / unvalidated (no dot rendered). */
+  badge(stem: string): 'error' | 'warn' | null {
+    const v = this.validity[stem];
+    if (!v) return null;
+    if (v.errors.length > 0) return 'error';
+    if (v.warnings.length > 0) return 'warn';
+    return null;
+  }
+
+  /** Tooltip text combining the row's description with the validation
+   * issues so hovering surfaces both. */
+  badgeTooltip(stem: string, fallback: string): string {
+    const v = this.validity[stem];
+    const issues: string[] = [];
+    if (v?.errors.length) {
+      issues.push(`Errors (${v.errors.length}):`);
+      for (const e of v.errors) issues.push(`  • ${e}`);
+    }
+    if (v?.warnings.length) {
+      if (issues.length) issues.push('');
+      issues.push(`Warnings (${v.warnings.length}):`);
+      for (const w of v.warnings) issues.push(`  • ${w}`);
+    }
+    if (!issues.length) return fallback;
+    return `${fallback}\n\n${issues.join('\n')}`;
+  }
 }

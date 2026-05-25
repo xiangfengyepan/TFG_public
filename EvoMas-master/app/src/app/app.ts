@@ -6,11 +6,13 @@ import { ApiService } from './services/api.service';
 import { TopologyStateService } from './services/topology-state.service';
 import { UnifiedConfig, ConfigSummary } from './models/types';
 import { ApragonIconComponent, EvoSelectComponent } from './components/index';
+import { DialogHostComponent } from './components/dialog-host/dialog-host.component';
+import { DialogService } from './services/dialog.service';
 import type { SelectOption, SelectOptionGroup } from './components/select/evo-select.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, ApragonIconComponent, EvoSelectComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, ApragonIconComponent, EvoSelectComponent, DialogHostComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -21,6 +23,14 @@ export class App implements OnInit, OnDestroy {
   saveDialogOpen = false;
   saveName = '';
   saveError = '';
+  /** Stem of the config being exported. The dropdown defaults to the
+   * currently-active config; the user can pick any predefined or loaded
+   * entry. When the picked stem matches `currentConfigName`, the
+   * exporter uses the in-memory `currentConfig` (so unsaved edits are
+   * preserved); otherwise it re-fetches the picked file from the API
+   * so the export reflects the on-disk version. */
+  saveSourceStem = '';
+  saveBusy = false;
 
   // "Create from template" dialog — predefined + loaded both eligible.
   templateDialogOpen = false;
@@ -50,6 +60,29 @@ export class App implements OnInit, OnDestroy {
     return groups;
   }
 
+  /** Same shape as `templateSelectGroups` but sourced from the live
+   * catalog (`state.predefinedConfigs`) — used by the Export-config
+   * dialog's "Which config" dropdown so the user can export any entry,
+   * not just the active one. */
+  get exportSelectGroups(): SelectOptionGroup[] {
+    const groups: SelectOptionGroup[] = [];
+    const predefined = this.state.predefinedConfigs.filter(c => c.source === 'predefined');
+    const loaded = this.state.predefinedConfigs.filter(c => c.source === 'loaded');
+    if (predefined.length > 0) {
+      groups.push({
+        label: 'Predefined',
+        items: predefined.map(t => ({ value: t.stem, label: t.id || t.stem })),
+      });
+    }
+    if (loaded.length > 0) {
+      groups.push({
+        label: 'Loaded',
+        items: loaded.map(t => ({ value: t.stem, label: t.id || t.stem })),
+      });
+    }
+    return groups;
+  }
+
   apiOnline: boolean | null = null;
   apiHost = '';
   private healthTimer?: ReturnType<typeof setInterval>;
@@ -60,6 +93,7 @@ export class App implements OnInit, OnDestroy {
     private api: ApiService,
     private state: TopologyStateService,
     private cdr: ChangeDetectorRef,
+    private dialog: DialogService,
   ) {}
 
   ngOnInit(): void {
@@ -108,12 +142,26 @@ export class App implements OnInit, OnDestroy {
   }
 
   openSaveDialog(): void {
-    if (!this.state.currentConfig) {
-      alert('No configuration loaded to save.');
+    if (this.state.predefinedConfigs.length === 0 && !this.state.currentConfig) {
+      this.dialog.alert({
+        title: 'Nothing to save',
+        message: 'No configurations available to export.',
+      });
       return;
     }
-    this.saveName = this.state.currentConfigName ?? '';
+    // Default the dropdown to the currently-active config when one is
+    // loaded; otherwise fall back to the first catalog entry. The name
+    // input starts empty so the user always types it deliberately
+    // (avoids accidentally exporting "chain.json" because they didn't
+    // notice the default name was pre-filled).
+    const active = this.state.currentConfigName;
+    const fallback = this.state.predefinedConfigs[0]?.stem ?? '';
+    this.saveSourceStem = (active && this.state.predefinedConfigs.some(c => c.stem === active))
+      ? active
+      : fallback;
+    this.saveName = '';
     this.saveError = '';
+    this.saveBusy = false;
     this.saveDialogOpen = true;
     this.menuOpen = false;
   }
@@ -121,39 +169,66 @@ export class App implements OnInit, OnDestroy {
   cancelSave(): void {
     this.saveDialogOpen = false;
     this.saveName = '';
+    this.saveSourceStem = '';
     this.saveError = '';
+    this.saveBusy = false;
   }
 
+  /** Download the picked config under the chosen filename. When the
+   * picked stem is the currently-active config we use the in-memory
+   * `currentConfig` so unsaved edits flow into the export; otherwise
+   * we fetch the on-disk version via the API. */
   confirmSave(): void {
+    if (this.saveBusy) return;
     const name = this.saveName.trim();
     if (!name) { this.saveError = 'Name cannot be empty.'; return; }
-    if (/[\\/:*?"<>|]/.test(name)) { this.saveError = 'Name contains invalid characters.'; return; }
-    if (this.state.predefinedConfigs.some(c => c.stem === name || c.id === name)) {
-      this.saveError = `"${name}" collides with a predefined config. Pick a different name.`;
+    if (/[\\/:*?"<>|]/.test(name)) {
+      this.saveError = 'Name contains invalid characters.';
       return;
     }
-    if (!this.state.currentConfig) {
-      this.saveError = 'No configuration loaded.';
+    if (!this.saveSourceStem) {
+      this.saveError = 'Pick a config to export.';
       return;
     }
 
-    // Sync `id` to the chosen filename — loader enforces id == stem.
-    // Clone first so the editing session isn't mutated.
-    const cloned = { ...this.state.currentConfig, id: name } as UnifiedConfig;
-    const json = JSON.stringify(cloned, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${name}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const finalize = (cfg: UnifiedConfig) => {
+      // Sync `id` to the chosen filename — the loader treats `id` as
+      // the routing key and enforces `id == stem` on re-import.
+      const cloned = { ...cfg, id: name } as UnifiedConfig;
+      const json = JSON.stringify(cloned, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${name}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-    this.saveDialogOpen = false;
-    this.saveName = '';
-    this.saveError = '';
+      this.saveDialogOpen = false;
+      this.saveName = '';
+      this.saveSourceStem = '';
+      this.saveError = '';
+      this.saveBusy = false;
+      this.cdr.markForCheck();
+    };
+
+    // Active config → in-memory (carries unsaved edits). Otherwise →
+    // re-fetch so the export reflects the on-disk version.
+    if (this.saveSourceStem === this.state.currentConfigName && this.state.currentConfig) {
+      finalize(this.state.currentConfig);
+      return;
+    }
+    this.saveBusy = true;
+    this.api.getConfig(this.saveSourceStem).subscribe({
+      next: cfg => finalize(cfg),
+      error: err => {
+        this.saveBusy = false;
+        this.saveError = `Could not fetch "${this.saveSourceStem}": ${err?.error?.detail ?? err?.message ?? 'unknown error'}`;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   openFilePicker(): void {
@@ -166,7 +241,10 @@ export class App implements OnInit, OnDestroy {
   openCreateFromTemplate(): void {
     this.templateOptions = this.state.predefinedConfigs.slice();
     if (this.templateOptions.length === 0) {
-      alert('No templates available.');
+      this.dialog.alert({
+        title: 'No templates',
+        message: 'No templates available.',
+      });
       this.menuOpen = false;
       return;
     }
@@ -240,46 +318,56 @@ export class App implements OnInit, OnDestroy {
       try {
         parsed = JSON.parse(reader.result as string) as Record<string, unknown>;
       } catch (err) {
-        alert(`Failed to parse JSON: ${(err as Error).message}`);
+        this.dialog.alert({
+          title: 'Import failed',
+          variant: 'danger',
+          message: 'The file could not be parsed as JSON.',
+          detail: (err as Error).message,
+        });
+        return;
+      }
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        this.dialog.alert({
+          title: 'Import failed',
+          variant: 'danger',
+          message: 'The file does not contain a JSON object.',
+        });
         return;
       }
       const stem = file.name.replace(/\.json$/i, '');
-      const reason = this.validateLoadedConfig(parsed, stem);
-      if (reason) {
-        alert(`Invalid config: ${reason}`);
-        return;
-      }
+      // Permissive import: no required-key / id-stem checks. The
+      // topology page's Validate button surfaces structural problems
+      // against the in-memory config; the file imports as-is.
       this.persistLoadedConfig(stem, parsed);
     };
-    reader.onerror = () => alert('Could not read file.');
+    reader.onerror = () => this.dialog.alert({
+      title: 'Read failed',
+      variant: 'danger',
+      message: 'Could not read the selected file.',
+    });
     reader.readAsText(file);
-  }
-
-  /** Reason string on failure, null when valid. */
-  private validateLoadedConfig(obj: Record<string, unknown>, stem: string): string | null {
-    const required = ['id', 'entry', 'edges', 'agents'];
-    const missing = required.filter(k => !(k in obj));
-    if (missing.length) return `missing required key(s): ${missing.join(', ')}`;
-    if (obj['id'] !== stem) {
-      return `the JSON's "id" must match the filename. Got id=${JSON.stringify(obj['id'])}, file=${JSON.stringify(stem)}.`;
-    }
-    return null;
   }
 
   /** POST the config; on 409 prompt for replacement and retry. */
   private persistLoadedConfig(stem: string, data: Record<string, unknown>, replace = false): void {
     this.api.saveLoadedConfig(stem, data, replace).subscribe({
       next: () => this.refreshConfigsAfterImport(stem, data as unknown as UnifiedConfig),
-      error: err => {
+      error: async err => {
         if (err?.status === 409 && !replace) {
-          if (confirm(
-            `A loaded config named "${stem}" already exists.\n\nReplace it?`
-          )) {
-            this.persistLoadedConfig(stem, data, true);
-          }
+          const ok = await this.dialog.confirm({
+            title: 'Config already exists',
+            message: `A loaded config named "${stem}" already exists. Replace it?`,
+            okLabel: 'Replace',
+            danger: true,
+          });
+          if (ok) this.persistLoadedConfig(stem, data, true);
           return;
         }
-        alert(`Failed to load config: ${err?.error?.detail ?? err?.message ?? 'unknown error'}`);
+        this.dialog.alert({
+          title: 'Load failed',
+          variant: 'danger',
+          detail: err?.error?.detail ?? err?.message ?? 'unknown error',
+        });
       },
     });
   }

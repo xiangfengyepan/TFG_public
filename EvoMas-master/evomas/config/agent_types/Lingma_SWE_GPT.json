@@ -22,7 +22,7 @@
     },
     {
       "name": "ProjectApiManager (Orchestrator)",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "Manager that import agent_proxy and agent_write_patch. Define the (tools) search tools (search api) + write path tool",
       "source_url": "https://github.com/LingmaTongyi/Lingma-SWE-GPT/blob/888e87dd65a59c84555a04eeb85856cf5fa83936/app/api/manage.py#L28",
       "prompts": {},

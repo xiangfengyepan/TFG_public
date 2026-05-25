@@ -2,8 +2,8 @@
 
 Wiring rules:
 - `end` nodes with no outgoing edges get a static edge to END.
-- Orchestrator nodes with ≥2 outgoing edges get an LLM-driven conditional
-  router. Orchestrators cannot route to END directly (the candidate set
+- Router nodes with ≥2 outgoing edges get an LLM-driven conditional
+  router. Routers cannot route to END directly (the candidate set
   is exactly the declared targets) — terminal logic must run in a worker
   node whose static `→ END` wire ends the graph.
 - All other multi-edge sources get static fan-out (every successor runs
@@ -20,7 +20,7 @@ from typing import Any, Callable
 from langgraph.graph import END, START, StateGraph
 
 from evomas.agents.base_agent import BaseAgent
-from evomas.agents.types.orchestrator import Orchestrator
+from evomas.agents.router import Router
 from evomas.exceptions.errors import OllamaMemoryError, TopologyError
 from evomas.utils.handoff import preview_payload, summarize_payload
 
@@ -79,7 +79,7 @@ def _emit_handoff_log(source: str, picked: list[str], primary: Any) -> None:
 def _make_router(
     source: str, targets: list[str],
 ) -> Callable[[dict[str, Any]], list[str]]:
-    """Conditional-edge router for an Orchestrator hub. Reads
+    """Conditional-edge router for a Router hub. Reads
     `state[source]` and returns target names mentioned as whole words.
     Falls back to all targets on parser miss (over-dispatch beats stall)."""
     patterns: dict[str, re.Pattern[str]] = {
@@ -150,7 +150,7 @@ def build_graph(
         # static-fan-out log to avoid double-emission.
         conditional_sources: set[str] = {
             source for source, declared in out_edges.items()
-            if isinstance(agents.get(source), Orchestrator) and len(declared) >= 2
+            if isinstance(agents.get(source), Router) and len(declared) >= 2
         }
 
         graph = StateGraph(state_cls)
@@ -163,11 +163,11 @@ def build_graph(
 
         graph.add_edge(START, entry)  # pyright: ignore[reportArgumentType]
 
-        # Static fan-out by default; Orchestrators with ≥2 outgoing
+        # Static fan-out by default; Routers with ≥2 outgoing
         # edges get an LLM-driven conditional router instead.
         for source, targets in out_edges.items():
             agent = agents.get(source)
-            if isinstance(agent, Orchestrator) and len(targets) >= 2:
+            if isinstance(agent, Router) and len(targets) >= 2:
                 graph.add_conditional_edges(
                     source,
                     _make_router(source, list(targets)),

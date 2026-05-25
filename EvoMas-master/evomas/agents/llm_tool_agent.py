@@ -10,7 +10,7 @@ from typing import Any
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from evomas.agents.base_agent import BaseAgent
-from evomas.tools.patch_tools import generate_diff_impl
+from evomas.utils.patch import generate_diff_impl
 from evomas.utils.handoff import preview_payload
 
 # Must match `graph_builder._wrap`'s offered-line cap. Log-only inline

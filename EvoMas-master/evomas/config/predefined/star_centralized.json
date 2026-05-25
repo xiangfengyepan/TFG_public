@@ -35,7 +35,7 @@
   ],
   "agents": {
     "hub": {
-      "class": "Orchestrator",
+      "class": "Router",
       "model": "ollama/qwen3.5:9b",
       "think": true,
       "num_ctx": 2048,

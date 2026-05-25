@@ -74,7 +74,7 @@
     },
     {
       "name": "TraeAgent (Orchestrator)",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "Single Agent Architecture that does all. It is an LLM-based agent for general purpose software engineering tasks. It provides a powerful CLI interface that can understand natural language instructions and execute complex software engineering workflows using various tools and LLM providers.",
       "source_url": "https://github.com/bytedance/trae-agent/blob/e839e559ac61bdd0e057c375dd1dee391fee797d/trae_agent/agent/trae_agent.py#L30",
       "prompts": {

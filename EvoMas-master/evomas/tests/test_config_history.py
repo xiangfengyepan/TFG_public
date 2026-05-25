@@ -151,27 +151,3 @@ def test_delete_commit_unknown_sha_returns_none(history_tmp: Path) -> None:
     _write(history_tmp, "demo", {"id": "demo", "agents": {}, "edges": []})
     commit_save("demo")
     assert delete_commit("deadbeef" * 5) is None
-
-
-def test_delete_all_history_wipes_repo(history_tmp: Path) -> None:
-    """`delete_all_history` removes `.git/`, re-initialises empty,
-    and preserves working-tree files. After the wipe a fresh
-    `commit_save` works the same way it does on first use."""
-    from evomas.config.history import (
-        commit_save, current_sha, delete_all_history, list_history,
-    )
-    _write(history_tmp, "demo", {"id": "demo", "agents": {"a": {}}, "edges": []})
-    commit_save("demo")
-    assert current_sha("demo") is not None
-    delete_all_history()
-    # Working-tree file survived.
-    assert (history_tmp / "demo.json").is_file()
-    # History is empty (only the seed `init` commit exists, and it
-    # doesn't touch demo.json so it's filtered out of list_history).
-    assert list_history("demo") == []
-    assert current_sha("demo") is None
-    # Subsequent save creates a fresh first-commit on top of the
-    # re-initialised repo.
-    new_sha = commit_save("demo")
-    assert new_sha is not None
-    assert current_sha("demo") == new_sha

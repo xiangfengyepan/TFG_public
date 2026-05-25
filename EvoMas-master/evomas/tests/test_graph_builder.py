@@ -188,16 +188,16 @@ def test_fan_in_with_shared_accumulator_does_not_crash() -> None:
 
 
 def _stub_orchestrator(name: str, canned_output: str) -> Any:
-    """Build a real Orchestrator-typed stub that bypasses BaseAgent's
+    """Build a real Router-typed stub that bypasses BaseAgent's
     MCP-server / model-init plumbing. The router's `isinstance` check
     fires off the class, not on agent behavior, so we just need an
     instance of the right type with a predictable `run()` return."""
-    from evomas.agents.types.orchestrator import Orchestrator
+    from evomas.agents.router import Router
 
-    class _StubOrchestrator(Orchestrator):  # noqa: N801 — internal test helper
+    class _StubRouter(Router):  # noqa: N801 — internal test helper
         def __init__(self, n: str, out: str) -> None:
             # Skip BaseAgent.__init__ — we don't need an LLM or MCP server,
-            # only an instance that satisfies `isinstance(agent, Orchestrator)`.
+            # only an instance that satisfies `isinstance(agent, Router)`.
             self.name = n  # type: ignore[misc]
             self.predecessor_name = None
             self._out = out
@@ -205,7 +205,7 @@ def _stub_orchestrator(name: str, canned_output: str) -> Any:
         def run(self, state: dict[str, Any]) -> dict[str, Any]:
             return {self.name: self._out}
 
-    return _StubOrchestrator(name, canned_output)
+    return _StubRouter(name, canned_output)
 
 
 class _StarState(TypedDict, total=False):
@@ -221,7 +221,7 @@ class _StarState(TypedDict, total=False):
 
 
 def test_orchestrator_routes_to_named_target() -> None:
-    """An Orchestrator hub with ≥2 outgoing edges should trigger
+    """An Router hub with ≥2 outgoing edges should trigger
     LLM-driven routing: only the spoke whose name appears in the hub's
     output runs."""
     cfg = {
@@ -276,7 +276,7 @@ def test_orchestrator_falls_back_to_all_targets_on_garbage() -> None:
 
 
 def test_orchestrator_with_single_outgoing_edge_uses_static_wire() -> None:
-    """An Orchestrator with exactly ONE outgoing edge should not
+    """An Router with exactly ONE outgoing edge should not
     install a conditional router (nothing to choose between). Proves the
     `len(targets) >= 2` guard."""
     cfg = {
@@ -429,11 +429,11 @@ def test_multi_fan_out_and_fan_in_propagate_state() -> None:
     assert set(final["errors"]) == {"[source]", "[a]", "[b]", "[c]", "[sink]"}
 
 
-# ─── Orchestrator cannot route to END ───────────────────────────────
+# ─── Router cannot route to END ───────────────────────────────
 
 
 def test_orchestrator_cannot_route_to_end_candidate() -> None:
-    """An Orchestrator's conditional router only dispatches to its
+    """An Router's conditional router only dispatches to its
     declared targets — `END` is NOT added to the candidate set even
     when the orchestrator is listed in `end`. A topology that wants
     the orchestrator to terminate the run must route to a terminal
@@ -473,8 +473,8 @@ def test_orchestrator_cannot_route_to_end_candidate() -> None:
 
 
 def test_non_orchestrator_in_end_with_outgoing_edges_compiles() -> None:
-    """A non-Orchestrator listed in `end` with outgoing edges
-    cannot terminate via routing (only Orchestrators go through
+    """A non-Router listed in `end` with outgoing edges
+    cannot terminate via routing (only Routers go through
     the conditional-edge path, and even they cannot pick `END`).
     The graph still compiles cleanly; the validator surfaces this
     as an error pre-flight. Verifies the wiring loop is consistent."""

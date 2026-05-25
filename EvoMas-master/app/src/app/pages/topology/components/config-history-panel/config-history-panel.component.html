@@ -15,8 +15,8 @@
               class="hist-clear-all"
               [disabled]="entries.length === 0"
               (click)="clearAllHistory()"
-              title="Clear all version history across every loaded config.">
-        <ng-icon name="bin" /> Clear all
+              title="Clear this config's version history. Other configs' history is preserved.">
+        <ng-icon name="bin" /> Clear history
       </button>
       <button type="button" class="hist-close"
               (click)="close.emit()" title="Close (Esc)">
@@ -53,7 +53,7 @@
                         (click)="deleteEntry(entry, $event)"
                         [title]="entry.parent_sha
                                   ? 'Delete this version (rewrites later SHAs)'
-                                  : 'Cannot delete the root commit — use Clear all instead'">
+                                  : 'Cannot delete the root commit — use Clear history instead'">
                   <ng-icon name="bin" />
                 </button>
               </div>

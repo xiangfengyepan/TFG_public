@@ -9,6 +9,8 @@ import {
   heroArrowPath,             // refresh / restore
   heroArrowsRightLeft,       // re-layout
   heroArrowUpRight,          // add-edge
+  heroArrowUturnLeft,        // undo
+  heroArrowUturnRight,       // redo
   heroArrowDownTray,         // download
   heroFolder,                // open path / reveal-in-explorer
   heroFolderOpen,            // open-state folder
@@ -40,6 +42,8 @@ export const ICON = {
   refresh: heroArrowPath,
   shuffle: heroArrowsRightLeft,
   arrowUpRight: heroArrowUpRight,
+  undo: heroArrowUturnLeft,
+  redo: heroArrowUturnRight,
   download: heroArrowDownTray,
   folder: heroFolder,
   folderOpen: heroFolderOpen,

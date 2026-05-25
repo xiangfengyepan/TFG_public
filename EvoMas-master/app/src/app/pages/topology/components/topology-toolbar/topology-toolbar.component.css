@@ -215,13 +215,6 @@
   letter-spacing: 0.4px;
   text-transform: uppercase;
 }
-.save-error {
-  margin-left: 6px;
-  color: var(--danger);
-  font-size: 11px;
-  cursor: help;
-}
-
 /* ─── Validation panel (Validate button + pre-Save block) ──── */
 /* Validation panel: warning, not blocking. Save proceeds regardless. */
 .validation-panel {
