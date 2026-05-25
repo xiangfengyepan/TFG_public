@@ -86,7 +86,7 @@
     },
     {
       "name": "AgentController",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "Controls the agents",
       "source_url": "https://github.com/OpenHands/OpenHands/blob/b37adbc1e6f14b1ce70c6ad424ee9cc9786d9f99/openhands/controller/agent_controller.py#L112",
       "prompts": {},

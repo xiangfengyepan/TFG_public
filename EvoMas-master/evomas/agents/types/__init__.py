@@ -4,25 +4,31 @@ from __future__ import annotations
 from typing import Any
 
 from evomas.agents.base_agent import BaseAgent
-from evomas.agents.types.base_agent_type import BaseAgentType
+from evomas.agents.router import Router
 from evomas.agents.types.bug_reproduction import BugReproductionAgent
 from evomas.agents.types.environment_setup import EnvironmentSetupAgent
+from evomas.agents.types.generic_agent import GenericAgent
 from evomas.agents.types.helper_proxy import HelperProxyAgent
 from evomas.agents.types.locator import LocatorAgent
-from evomas.agents.types.orchestrator import Orchestrator
 from evomas.agents.types.patcher import PatcherAgent
+from evomas.agents.types.planner_orchestrator import PlannerOrchestrator
 from evomas.agents.types.reviewer import ReviewerAgent
 
 # Ordered as in the SWE-bench AgentType.csv so the frontend palette renders
 # them consistently. Each type is registered TWICE so a config block can spell
 # `class` as either the AGENT_TYPE label ("Locator") or the Python class name
 # ("LocatorAgent") -- both resolve via AGENT_REGISTRY in runner.py.
+#
+# Router lives at `evomas/agents/router.py` (not under types/) because routing
+# is a core control-flow primitive of the graph runtime, not a domain role;
+# but it's still part of the AGENT_TYPE taxonomy so it's re-exported here.
 _TYPES: tuple[type[BaseAgent], ...] = (
     LocatorAgent,
     PatcherAgent,
     HelperProxyAgent,
-    Orchestrator,
-    BaseAgentType,
+    PlannerOrchestrator,
+    Router,
+    GenericAgent,
     BugReproductionAgent,
     EnvironmentSetupAgent,
     ReviewerAgent,
@@ -36,13 +42,15 @@ for _cls in _TYPES:
 TYPE_COLORS: dict[str, str] = {
     "Locator":              "#388bfd",  # blue
     "Patcher":              "#56d364",  # green
-    "Helper/Proxy":         "#a371f7",  # purple
-    "Orchestrator": "#e3b341",  # amber
+    "Helper/Proxy":         "#2dd4bf",  # teal-cyan
+    "Planner/Orchestrator": "#f0883e",  # orange
+    "Router":               "#a371f7",  # purple, matches conditional edges
     "Base agent":           "#8b949e",  # neutral gray
     "Bug reproduction":     "#f78166",  # coral
     "Environment setup":    "#39c5cf",  # teal
     "Reviewer":             "#db61a2",  # magenta
 }
+_CONTROL_TYPES: frozenset[str] = frozenset({"Router"})
 
 
 def list_agent_types() -> list[dict[str, Any]]:
@@ -57,6 +65,7 @@ def list_agent_types() -> list[dict[str, Any]]:
             "color":           TYPE_COLORS.get(cls.AGENT_TYPE, "#888"),
             "description":     doc[0] if doc else "",
             "class":           cls.__name__,
+            "category":        "control" if cls.AGENT_TYPE in _CONTROL_TYPES else "agent",
             "default_system":  cls.DEFAULT_SYSTEM,
             "default_user":    cls.DEFAULT_USER,
             "default_tools":   list(cls.DEFAULT_TOOLS),
@@ -69,12 +78,13 @@ __all__ = [
     "TYPE_REGISTRY",
     "TYPE_COLORS",
     "list_agent_types",
-    "BaseAgentType",
     "BugReproductionAgent",
     "EnvironmentSetupAgent",
+    "GenericAgent",
     "HelperProxyAgent",
     "LocatorAgent",
-    "Orchestrator",
     "PatcherAgent",
+    "PlannerOrchestrator",
+    "Router",
     "ReviewerAgent",
 ]

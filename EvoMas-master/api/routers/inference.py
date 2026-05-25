@@ -113,7 +113,7 @@ async def run_inference(req: InferenceRequest):
                 build_initial_state,
                 build_state_class,
             )
-            from evomas.tools.patch_tools import generate_diff_impl
+            from evomas.utils.patch import generate_diff_impl
             from evomas.utils.workspace import clone_workspace
 
             if isinstance(req.config, dict):

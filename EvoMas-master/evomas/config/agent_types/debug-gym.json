@@ -5,7 +5,7 @@
     {
       "name": "BaseAgent",
       "agent_type": "Base agent",
-      "short_description": "Base agent",
+      "short_description": "Generic",
       "source_url": "https://github.com/microsoft/debug-gym/blob/f260483f06f4083db8c21f60e64e3c109943167c/debug_gym/agents/base_agent.py#L88",
       "prompts": {},
       "tools": []

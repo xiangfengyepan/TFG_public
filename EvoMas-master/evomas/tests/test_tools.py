@@ -5,7 +5,8 @@ import pytest
 
 from evomas.mcp.server import MCPServer, ToolRegistry, get_server
 from evomas.tools.lint_tools import run_flake8_impl
-from evomas.tools.patch_tools import apply_patch_impl, generate_diff_impl, reset_repo_impl
+from evomas.tools.patch_tools import reset_repo_impl
+from evomas.utils.patch import apply_patch_impl, generate_diff_impl
 from evomas.tools.repo_tools import list_files_impl, read_file_impl
 from evomas.tools.search_tools import search_code_impl
 

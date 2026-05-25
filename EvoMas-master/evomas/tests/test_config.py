@@ -3,7 +3,6 @@ import pytest
 from evomas.config.loader import (
     AgentConfig,
     agent_config_from_block,
-    list_configs,
     load_config,
 )
 from evomas.core.workflow.runner import _build_agents
@@ -15,12 +14,6 @@ from evomas.exceptions.errors import ConfigError
 
 
 # ── unified config ────────────────────────────────────────────────────────────
-
-def test_list_configs_includes_chain() -> None:
-    # Loader returns filename stems; the chain topology ships as
-    # `evomas/config/predefined/chain.json` so the stem is `chain`.
-    assert "chain" in list_configs()
-
 
 def test_load_unknown_config_raises() -> None:
     with pytest.raises(ConfigError):

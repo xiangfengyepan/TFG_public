@@ -103,7 +103,7 @@
     },
     {
       "name": "ArchitectCoder(AskCoder)",
-      "agent_type": "Orchestrator",
+      "agent_type": "Router",
       "short_description": "A coder that separates the planning and execution of code modifications. \nIt acts as an architect to design and describe the necessary code changes, and then delegates the actual file editing to a designated editor coder based on that plan.",
       "source_url": "https://github.com/Aider-AI/aider/blob/7afaa26f8b8b7b56146f0674d2a67e795b616b7c/aider/coders/architect_coder.py#L6",
       "prompts": {

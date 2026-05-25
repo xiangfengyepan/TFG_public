@@ -3,7 +3,7 @@ dedicated repo under `evomas/config/loaded/` (gitignored at the project
 root). Each Save commits the file with a structural-diff summary.
 
 Public API: `commit_save`, `commit_delete`, `current_sha`,
-`list_history`, `read_at`, `delete_commit`, `delete_all_history`."""
+`list_history`, `read_at`, `delete_commit`, `clear_history_for`."""
 from __future__ import annotations
 
 import json
@@ -182,12 +182,55 @@ def delete_commit(sha: str) -> str | None:
     return repo.head.commit.hexsha
 
 
-def delete_all_history() -> None:
-    """Wipe `.git/` under `loaded/`. Working-tree JSONs are preserved;
-    the next save starts a fresh timeline. Blunt — affects every config."""
-    import shutil
-    git_dir = LOADED_DIR / ".git"
-    if git_dir.is_dir():
-        # ignore_errors=True: tolerate Windows index.lock leftovers.
-        shutil.rmtree(git_dir, ignore_errors=True)
-    _ensure_repo()
+def clear_history_for(name: str) -> None:
+    """Drop every commit touching `<name>.json` from the timeline.
+
+    Each commit in this repo is single-file (see `commit_save` /
+    `commit_delete`) so dropping one only deletes that config's
+    history; descendants get re-applied via `rebase -X theirs`, which
+    rewrites their SHAs but preserves their per-file snapshots. Other
+    configs' visible history therefore survives intact.
+
+    Working-tree `<name>.json` is read up-front and re-written after
+    the loop so the loader still finds it — the next save will commit
+    it as the new starting point.
+    """
+    if "/" in name or "\\" in name or not name:
+        raise ValueError(f"invalid config name: {name!r}")
+    target = LOADED_DIR / f"{name}.json"
+    saved_bytes = target.read_bytes() if target.is_file() else None
+
+    # Loop until `list_history` returns empty — that's the only honest
+    # termination signal since each rebase rewrites every SHA after the
+    # drop point, and the next pass needs the fresh values.
+    while True:
+        entries = list_history(name)
+        if not entries:
+            break
+        progress = False
+        # Drop the oldest commit first so its descendants get
+        # re-applied in one pass; otherwise we'd churn the same
+        # commits through multiple rebases. `list_history` returns
+        # newest-first, hence the reversed iteration.
+        for entry in reversed(entries):
+            new_head = delete_commit(entry["sha"])
+            if new_head is not None:
+                progress = True
+                break
+        if not progress:
+            # Every remaining entry is unreachable or a root commit —
+            # `_ensure_repo` only seeds an empty "init" root that
+            # never touches any config file, so we shouldn't hit this
+            # in practice. Bail out rather than spin.
+            logger.warning(
+                "clear_history_for(%r): could not drop %d remaining entries",
+                name, len(entries),
+            )
+            break
+
+    # Restore working-tree content so the loader still finds the file.
+    # The rebase loop overwrites it with whatever HEAD's tree had at
+    # the new base (which doesn't include this config anymore).
+    if saved_bytes is not None:
+        LOADED_DIR.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(saved_bytes)

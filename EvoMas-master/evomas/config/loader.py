@@ -57,17 +57,6 @@ def load_config(name_or_path: str) -> dict[str, Any]:
         raise ConfigError(f"failed to parse {path}: {exc}") from exc
 
 
-def list_configs() -> list[str]:
-    """Return stems of every *.json under evomas/config/ (predefined/,
-    loaded/, and the legacy flat root). Stems must be unique across the
-    three roots — the loader assumes one config per name."""
-    stems: set[str] = set()
-    for base in (PREDEFINED_DIR, LOADED_DIR, _THIS_DIR):
-        if base.is_dir():
-            stems.update(p.stem for p in base.glob("*.json"))
-    return sorted(stems)
-
-
 def agent_config_from_block(block: dict[str, Any]) -> AgentConfig:
     """Project a unified-config agent block down to the model knobs Pydantic schema."""
     return AgentConfig(**{k: v for k, v in block.items() if k in AGENT_CONFIG_KEYS})
@@ -144,9 +133,6 @@ def resolve_variant_block(block: dict[str, Any]) -> dict[str, Any]:
 # and validate user-uploaded ones. Decoupled from FastAPI — raises
 # `ConfigError` on validation failure; the api wraps as HTTP 400.
 
-REQUIRED_CONFIG_KEYS: tuple[str, ...] = ("id", "entry", "end", "edges", "agents")
-
-
 def scan_config_dir(base: Path, source: str) -> list[dict[str, str]]:
     """`[{stem, id, description, source}, …]` for every `*.json` under `base`.
     `source` is the label written into the `source` field on each entry
@@ -182,13 +168,11 @@ def resolve_config_path(
 
 
 def validate_loaded_config(data: dict[str, Any], expected_stem: str) -> None:
-    """Required keys present + `id` matches the filename stem.
-    Raises `ConfigError` (caller translates to HTTP 400)."""
-    missing = [k for k in REQUIRED_CONFIG_KEYS if k not in data]
-    if missing:
-        raise ConfigError(f"config is missing required keys: {missing}")
-    if str(data.get("id") or "") != expected_stem:
-        raise ConfigError(
-            f"config 'id' must match filename stem (id={data.get('id')!r}, "
-            f"stem={expected_stem!r})"
-        )
+    """Permissive load gate -- the file just has to be a JSON object.
+
+    Raises `ConfigError` (caller translates to HTTP 400) only on the
+    truly unsalvageable shape: not a dict.
+    """
+    del expected_stem  # retained for API stability; no longer enforced
+    if not isinstance(data, dict):
+        raise ConfigError("config must be a JSON object")

@@ -17,8 +17,14 @@
         <div class="topo-item"
              [class.active]="cfg.stem === currentConfigName"
              (click)="load.emit(cfg.stem)"
-             [title]="cfg.description || cfg.stem">
-          {{ cfg.id }}
+             [title]="badgeTooltip(cfg.stem, cfg.description || cfg.stem)">
+          @if (badge(cfg.stem); as b) {
+            <span class="validity-dot"
+                  [class.validity-dot--error]="b === 'error'"
+                  [class.validity-dot--warn]="b === 'warn'"
+                  aria-hidden="true"></span>
+          }
+          <span class="topo-item-name">{{ cfg.id }}</span>
         </div>
       }
       @if (predefinedList.length === 0) {
@@ -35,7 +41,13 @@
              [class.active]="cfg.stem === currentConfigName"
              (click)="load.emit(cfg.stem)"
              (dblclick)="rename.emit(cfg.stem)"
-             [title]="cfg.description || cfg.stem + ' — double-click to rename'">
+             [title]="badgeTooltip(cfg.stem, (cfg.description || cfg.stem) + ' — double-click to rename')">
+          @if (badge(cfg.stem); as b) {
+            <span class="validity-dot"
+                  [class.validity-dot--error]="b === 'error'"
+                  [class.validity-dot--warn]="b === 'warn'"
+                  aria-hidden="true"></span>
+          }
           <span class="loaded-name">{{ cfg.id }}</span>
           <button class="loaded-delete"
                   type="button"

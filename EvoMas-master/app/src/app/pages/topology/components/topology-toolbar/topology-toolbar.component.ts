@@ -37,13 +37,14 @@ export class TopologyToolbarComponent {
   @Input() isLoadedConfig = false;
   @Input() dirty = false;
   @Input() validated = true;
-  @Input() saveError = '';
 
   // ── Edit-group state ────────────────────────────────────────────
   @Input() addEdgeMode = false;
   @Input() edgeSource: string | null = null;
   @Input() selectedAgent: string | null = null;
   @Input() selectedEdgeId: string | null = null;
+  @Input() canUndo = false;
+  @Input() canRedo = false;
 
   // ── Transient flashes ───────────────────────────────────────────
   @Input() saveFlash = false;
@@ -67,6 +68,8 @@ export class TopologyToolbarComponent {
   @Output() toggleAddEdge              = new EventEmitter<void>();
   @Output() deleteSelected             = new EventEmitter<void>();
   @Output() renameSelected             = new EventEmitter<void>();
+  @Output() undo                       = new EventEmitter<void>();
+  @Output() redo                       = new EventEmitter<void>();
   @Output() relayout                   = new EventEmitter<void>();
   @Output() reloadGraph                = new EventEmitter<void>();
   @Output() validate                   = new EventEmitter<void>();

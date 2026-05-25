@@ -1,14 +1,25 @@
-"""Patcher — produces (and optionally selects) the patch that fixes the bug."""
+"""Patcher — writes, selects, and applies the patch that fixes the bug."""
 from __future__ import annotations
 
+import logging
 from typing import Any, ClassVar
 
 from evomas.agents.llm_tool_agent import LLMToolAgent
-from evomas.tools.patch_tools import generate_diff_impl
+from evomas.utils.patch import generate_diff_impl
+
+logger = logging.getLogger(__name__)
 
 
 class PatcherAgent(LLMToolAgent):
-    """Write / select / apply the patch; writes the workspace `git diff` into `state[self.name]` (the patch is the real artifact, not the LLM ack text)."""
+    """Handles the actual code modification: writing a patch, **selecting the best
+    patch among multiple generated options**, and applying the patch to the file
+    system. Writes the workspace `git diff` into `state[self.name]`.
+
+    When the predecessor slot is a `{patches: list[str], validations: list[dict]}`
+    bundle (e.g. from a Reviewer in a star/fan-in topology), PatcherAgent runs
+    a deterministic ensembler that scores candidates and picks the best — no
+    LLM call. Otherwise it falls through to the normal LLM-driven patcher loop.
+    """
 
     AGENT_TYPE: ClassVar[str] = "Patcher"
     name = "patcher"
@@ -24,6 +35,71 @@ class PatcherAgent(LLMToolAgent):
             if diff.strip():
                 return diff
         return self._final_response_text
+
+    def run(self, state: dict[str, Any]) -> dict[str, Any]:
+        """Two paths:
+          1. Ensembler — predecessor is a `{patches, validations}` bundle.
+             Score candidates deterministically and emit the best patch.
+          2. Generic LLM loop — call `super().run(state)`. Used by linear
+             chains where the predecessor is just a locator's `<files>` block.
+        """
+        upstream = state.get(self.predecessor_name or "")
+        if isinstance(upstream, dict) and (upstream.get("patches") or []):
+            return self._ensemble_from_bundle(upstream)
+        return super().run(state)
+
+    def _ensemble_from_bundle(self, upstream: dict[str, Any]) -> dict[str, Any]:
+        """Deterministic candidate-patch selector. Pure Python — no LLM call.
+
+        Reads `upstream["patches"]` (list[str]) + `upstream["validations"]`
+        (list[dict] per patch with `score`, `applies`, `flake8_ok`,
+        `review_pass`) and returns the highest-ranked patch.
+        """
+        candidates: list[str] = list(upstream.get("patches") or [])
+        results: list[dict[str, Any]] = list(upstream.get("validations") or [])
+
+        if results and len(results) == len(candidates):
+            scored = sorted(
+                zip(candidates, results),
+                key=lambda pr: (
+                    pr[1].get("score", 0),
+                    pr[1].get("applies", False),
+                    pr[1].get("flake8_ok", False),
+                    pr[1].get("review_pass", False),
+                ),
+                reverse=True,
+            )
+            best_patch, best_result = scored[0]
+            self.logger.info(
+                "patcher ensembler: picked candidate %s (score=%s applies=%s)",
+                best_result.get("patch_idx"),
+                best_result.get("score"),
+                best_result.get("applies"),
+            )
+            if best_result.get("score", 0) > 0 and best_patch.strip():
+                return {self.name: best_patch}
+            # All zero-score -- only fall back to a candidate that applies,
+            # else we'd submit a doomed patch the harness rejects.
+            applies_map = {
+                r.get("patch_idx", i): r.get("applies", False)
+                for i, r in enumerate(results)
+            }
+            fallback = next(
+                (p for i, p in enumerate(candidates) if p.strip() and applies_map.get(i, False)),
+                "",
+            )
+            self.logger.info(
+                "patcher ensembler: zero-score fallback applies=%s len=%d",
+                bool(fallback), len(fallback),
+            )
+            return {self.name: fallback}
+
+        # No validation_results -- pick first non-empty candidate so the
+        # runner's `final_patch` lookup has something.
+        self.logger.warning(
+            "patcher ensembler: no/mismatched validation results; using first non-empty"
+        )
+        return {self.name: next((p for p in candidates if p and p.strip()), "")}
 
     DEFAULT_SYSTEM: ClassVar[str] = (
         "You are an expert software engineer producing a MINIMAL bug-fix patch.\n"

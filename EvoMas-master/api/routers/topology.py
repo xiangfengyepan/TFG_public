@@ -269,8 +269,8 @@ def delete_config_history_entry(name: str, sha: str) -> dict[str, Any]:
             raise HTTPException(
                 409,
                 "cannot delete — commit is the root of history (use "
-                "the 'clear all history' action instead) or the SHA "
-                "is no longer reachable",
+                "the 'clear this config's history' action instead) or "
+                "the SHA is no longer reachable",
             )
         return {"ok": True, "new_head": new_head}
     except HTTPException:
@@ -280,16 +280,23 @@ def delete_config_history_entry(name: str, sha: str) -> dict[str, Any]:
         raise HTTPException(500, f"delete failed: {exc}") from exc
 
 
-@router.delete("/api/configs/loaded/history")
-def clear_all_config_history() -> dict[str, Any]:
-    """Wipe `.git/` under `loaded/` — every config loses its history;
-    working-tree files are preserved."""
+@router.delete("/api/configs/loaded/{name}/history")
+def clear_config_history(name: str) -> dict[str, Any]:
+    """Drop every commit touching `<name>.json`. Other configs'
+    history entries survive (their commit SHAs are rewritten by the
+    cascading rebase, but content + timeline are preserved). The
+    working-tree JSON is preserved so the loader still finds it."""
+    if "/" in name or "\\" in name or not name:
+        raise HTTPException(400, "invalid config name")
+    target = LOADED_CONFIG_DIR / f"{name}.json"
+    if not target.is_file():
+        raise HTTPException(404, f"loaded config '{name}' not found")
     try:
-        from evomas.config.history import delete_all_history
-        delete_all_history()
-        return {"ok": True}
+        from evomas.config.history import clear_history_for
+        clear_history_for(name)
+        return {"ok": True, "stem": name}
     except Exception as exc:  # noqa: BLE001
-        logger.warning("clear_all_config_history failed: %s", exc)
+        logger.warning("clear_config_history failed for %s: %s", name, exc)
         raise HTTPException(500, f"reset failed: {exc}") from exc
 
 

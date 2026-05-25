@@ -4,16 +4,18 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of, catchError, map } from 'rxjs';
 import cytoscape, { Core, NodeSingular, EdgeSingular } from 'cytoscape';
 import { ApiService } from '../../services/api.service';
-import { TopologyStateService } from '../../services/topology-state.service';
+import { TopologyStateService, TopologySnapshot } from '../../services/topology-state.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   AgentBlock, AgentTool, AgentType, AgentVariant, ConfigSummary, ToolDescriptor, UnifiedConfig,
   AGENT_COLORS, AGENT_LABELS, ALL_AGENTS, normalizeNodeBase, suggestNodeId,
 } from '../../models/types';
 import { SelectOption, SelectOptionGroup } from '../../components/select/evo-select.component';
 import { findAllCycles } from '../../utils/cycles';
+import { validateConfig as validateConfigPure } from '../../utils/validate-config';
 import {
   ConfigHistoryPanelComponent,
   ConfigListPanelComponent,
@@ -76,6 +78,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     private svc: TopologyStateService,
     private cdr: ChangeDetectorRef,
     private zone: NgZone,
+    private dialog: DialogService,
   ) {}
 
   // ─── Proxies into TopologyStateService ────────────────────────
@@ -100,15 +103,162 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   get dirty(): boolean { return this.svc.dirty; }
   /** Validated since the last edit — gates the Save button. */
   get validated(): boolean { return this.svc.validated; }
-  /** Flag the config dirty + unvalidated. Call after every mutation. */
+  /** Re-derive the dirty flag from the current config vs the saved
+   * baseline. Call after every mutation so reaching the baseline again
+   * (e.g. via repeated undo) clears the chip automatically. */
   private markDirty(): void {
-    if (this.svc.dirty && !this.svc.validated) return;
-    this.svc.dirty = true;
-    this.svc.validated = false;
+    this.svc.recomputeDirty();
     this.cdr.markForCheck();
   }
 
   get agentBlock(): AgentBlock | null { return this.svc.selectedAgentBlock(); }
+
+  // ─── Undo / redo ───────────────────────────────────────────────
+  /** Pre-drag snapshot captured on cytoscape `grab`; consumed by the
+   * matching `dragfreeon` so an entire drag is one undo step (and a bare
+   * click that grabs without moving discards the snapshot). */
+  private pendingDragSnapshot: TopologySnapshot | null = null;
+
+  get canUndo(): boolean { return this.svc.canUndo(this.currentConfigName); }
+  get canRedo(): boolean { return this.svc.canRedo(this.currentConfigName); }
+
+  /** Deep-clone current config + persisted positions for the undo stack.
+   * Refreshes positions from cytoscape first so the snapshot reflects
+   * whatever the user has dragged since the last save. */
+  private takeSnapshot(): TopologySnapshot | null {
+    if (!this.currentConfig || !this.currentConfigName) return null;
+    this.saveNodePositions();
+    const positions = this.svc.nodePositions[this.currentConfigName] ?? {};
+    return {
+      config: structuredClone(this.currentConfig),
+      positions: structuredClone(positions),
+    };
+  }
+
+  /** Capture the current state and push it as a single undo step. Pass
+   * `coalesceKey` for streaming edits (e.g. text inputs) so a burst of
+   * keystrokes on the same field collapses into one snapshot. */
+  private pushUndoSnapshot(coalesceKey?: string): void {
+    const name = this.currentConfigName;
+    if (!name || !this.isLoadedConfig) return;
+    const snap = this.takeSnapshot();
+    if (!snap) return;
+    this.svc.pushUndo(name, snap, coalesceKey);
+  }
+
+  /** Swap the canvas back to a stored snapshot. Mutates cytoscape in
+   * place — diff the desired node/edge set against what's on screen, then
+   * add/remove the delta — instead of `renderConfig`'s tear-and-rebuild.
+   * The tear path briefly left the canvas blank during `cy.elements()
+   * .remove()` and competed with the parallax/grid layer; the surgical
+   * path mirrors `onGraphDrop`'s style so the graph never flashes empty
+   * and selection / zoom / pan stay put across an undo. */
+  private applySnapshot(snap: TopologySnapshot): void {
+    const name = this.currentConfigName;
+    if (!name || !this.cy) return;
+    this.svc.currentConfig = structuredClone(snap.config);
+    this.svc.nodePositions[name] = structuredClone(snap.positions);
+
+    const cfg = this.svc.currentConfig!;
+    const positions = this.svc.nodePositions[name];
+
+    // Edge selection refers to an edge id that may be gone after the
+    // diff (the inspector doesn't render anything for edges anyway).
+    // Selected agent, on the other hand, drives the right-rail
+    // inspector — keep it open across undo/redo when the node survives.
+    this.selectedEdgeId = null;
+    if (this.selectedAgent && !cfg.agents[this.selectedAgent]) {
+      this.selectedAgent = null;
+    }
+    if (this.addEdgeMode && this.edgeSource) {
+      this.cy.getElementById(this.edgeSource).removeClass('edge-source');
+      this.edgeSource = null;
+      this.addEdgeMode = false;
+    }
+
+    // ── Node diff ───────────────────────────────────────────────
+    // Drop cy nodes whose ids are no longer in cfg.agents. Skip virtual
+    // START / END — those get rebuilt from cfg.entry / cfg.end below by
+    // refreshBoundaryEdges.
+    const desiredIds = new Set(Object.keys(cfg.agents));
+    this.cy.nodes().forEach((n: NodeSingular) => {
+      const id = n.id();
+      if (id === START_NODE_ID || id === END_NODE_ID) return;
+      if (!desiredIds.has(id)) n.remove();
+    });
+    // Add missing nodes; refresh label / color / position on the rest.
+    // Same shape as `onGraphDrop`'s cy.add call so newly-restored nodes
+    // pick up the breadcrumb position from the snapshot.
+    for (const id of desiredIds) {
+      const existing = this.cy.getElementById(id);
+      const label = AGENT_LABELS[this.baseAgentId(id)] ?? id;
+      const color = this.colorForAgentNode(id);
+      const pos = positions[id];
+      if (existing.length === 0) {
+        this.cy.add({
+          data: { id, label, color },
+          ...(pos ? { position: { x: pos.x, y: pos.y } } : {}),
+        });
+      } else {
+        existing.data('label', label);
+        existing.data('color', color);
+        if (pos) {
+          const cur = existing.position();
+          if (Math.abs(cur.x - pos.x) > 0.5 || Math.abs(cur.y - pos.y) > 0.5) {
+            existing.position({ x: pos.x, y: pos.y });
+          }
+        }
+      }
+    }
+
+    // ── Non-virtual edge diff ───────────────────────────────────
+    const desiredEdgeIds = new Set(cfg.edges.map(e => `${e.from}-${e.to}`));
+    this.cy.edges().forEach((e: EdgeSingular) => {
+      if (e.hasClass('virtual-edge')) return;
+      if (!desiredEdgeIds.has(e.id())) e.remove();
+    });
+    for (const e of cfg.edges) {
+      const id = `${e.from}-${e.to}`;
+      if (this.cy.getElementById(id).length === 0) {
+        this.cy.add({ data: { id, source: e.from, target: e.to } });
+      }
+    }
+
+    // Re-classify edges + rebuild virtual START / END for the restored
+    // topology. Cheap full-graph passes — graphs are small.
+    this.applyEdgeClasses();
+    this.refreshBoundaryEdges();
+    this.refreshLoopbackCurves();
+
+    this.syncModelOptions(this.agentBlock?.model ?? '');
+    // Derive dirty from the new in-memory state — undoing back to the
+    // saved baseline must clear the chip.
+    this.svc.recomputeDirty();
+    this.cdr.markForCheck();
+  }
+
+  undo(): void {
+    const name = this.currentConfigName;
+    if (!name || !this.isLoadedConfig) return;
+    const snap = this.svc.popUndo(name);
+    if (!snap) return;
+    const current = this.takeSnapshot();
+    if (current) this.svc.pushRedo(name, current);
+    this.applySnapshot(snap);
+  }
+
+  redo(): void {
+    const name = this.currentConfigName;
+    if (!name || !this.isLoadedConfig) return;
+    const snap = this.svc.popRedo(name);
+    if (!snap) return;
+    const current = this.takeSnapshot();
+    // Use the redo-preserving variant — calling the regular pushUndo
+    // would wipe the rest of the redo path, so the user could only ever
+    // redo a single step.
+    if (current) this.svc.pushUndoPreserveRedo(name, current);
+    this.applySnapshot(snap);
+  }
 
   availableTools: ToolDescriptor[] = [];
   agentTypes: AgentType[] = [];
@@ -174,18 +324,46 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     this.api.getConfigs().subscribe(summaries => {
       this.predefinedConfigs = summaries;
       this.cdr.detectChanges();
+      // Boot pass: validate every predefined + loaded config so the
+      // left-rail list can show per-row error/warning badges before the
+      // user touches anything. Runs in parallel; non-fatal — a failed
+      // GET surfaces as a single "could not fetch" entry.
+      this.validateAllConfigs(summaries);
       if (!this.currentConfig && summaries.length > 0) {
         const chain = summaries.find(s => s.stem === 'chain');
         this.loadPredefined((chain ?? summaries[0]).stem);
       }
     });
 
-    // Re-render when the config is replaced via the navbar Open dropdown.
+    // Re-render when the config is replaced via the navbar Open dropdown
+    // / new-from-template / file-import. The new stem may not have an
+    // entry in the boot-pass validity map yet, so refresh it (and the
+    // config-list summaries, since import adds a row).
     this.configChangedSub = this.svc.configChanged.subscribe(cfg => {
       if (cfg) {
         this.zone.run(() => {
+          // Config json swap (file import / new-from-template / navbar
+          // Open) always re-runs the layout. Drop cached positions for
+          // the new stem so renderConfig falls through to the
+          // breadthfirst pass instead of a "preset" no-op.
+          if (this.currentConfigName) {
+            delete this.svc.nodePositions[this.currentConfigName];
+          }
           this.renderConfig(cfg);
           this.syncModelOptions(this.agentBlock?.model ?? '');
+          if (this.currentConfigName) {
+            this.revalidateConfig(this.currentConfigName, cfg);
+            const cached = this.configValidity[this.currentConfigName];
+            if (cached) {
+              this.validationErrors = cached.errors;
+              this.validationWarnings = cached.warnings;
+            }
+          }
+          // Pick up any new stem in the list (imports add a Loaded row).
+          this.api.getConfigs().subscribe(list => {
+            this.predefinedConfigs = list;
+            this.cdr.markForCheck();
+          });
           this.cdr.markForCheck();
         });
       }
@@ -264,20 +442,29 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Double-click rename for loaded configs (predefined are read-only). */
-  renameLoaded(stem: string): void {
+  async renameLoaded(stem: string): Promise<void> {
     if (this.isPredefined(stem)) return;
-    const proposed = window.prompt('Rename config to:', stem);
-    if (!proposed) return;
+    const proposed = await this.dialog.prompt({
+      title: 'Rename config',
+      message: `Rename "${stem}" to:`,
+      defaultValue: stem,
+      placeholder: 'new name',
+      validate: v => {
+        const t = v.trim();
+        if (!t) return 'Name cannot be empty.';
+        if (/[\\/:*?"<>|\s]/.test(t)) return 'Name contains invalid characters.';
+        return null;
+      },
+    });
+    if (proposed === null) return;
     const trimmed = proposed.trim();
     if (!trimmed || trimmed === stem) return;
-    if (/[\\/:*?"<>|\s]/.test(trimmed)) {
-      window.alert('Name contains invalid characters.');
-      return;
-    }
     this.api.renameLoadedConfig(stem, trimmed).subscribe({
       next: () => {
         this.api.getConfigs().subscribe(list => {
           this.predefinedConfigs = list;
+          // Old stem's entry is now stale; refresh the whole map.
+          this.validateAllConfigs(list);
           if (this.currentConfigName === stem) {
             this.loadPredefined(trimmed);
           }
@@ -285,20 +472,37 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       },
       error: err => {
-        window.alert(`Rename failed: ${err?.error?.detail ?? err?.message ?? 'unknown error'}`);
+        this.dialog.alert({
+          title: 'Rename failed',
+          variant: 'danger',
+          detail: err?.error?.detail ?? err?.message ?? 'unknown error',
+        });
       },
     });
   }
 
   /** Delete a loaded config from disk. Prompts for confirmation. */
-  deleteLoaded(stem: string, ev?: Event): void {
+  async deleteLoaded(stem: string, ev?: Event): Promise<void> {
     ev?.stopPropagation();
     if (this.isPredefined(stem)) return;
-    if (!window.confirm(`Delete loaded config "${stem}"? This removes the file from evomas/config/loaded/.`)) return;
+    const ok = await this.dialog.confirm({
+      title: 'Delete config',
+      message: `Delete loaded config "${stem}"? This removes the file from evomas/config/loaded/.`,
+      okLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     this.api.deleteLoadedConfig(stem).subscribe({
       next: () => {
         this.api.getConfigs().subscribe(list => {
           this.predefinedConfigs = list;
+          // Drop the deleted stem from the validity map (the boot-pass
+          // entry is now meaningless).
+          if (this.configValidity[stem]) {
+            const next = { ...this.configValidity };
+            delete next[stem];
+            this.configValidity = next;
+          }
           if (this.currentConfigName === stem) {
             const next = this.predefinedList[0];
             if (next) this.loadPredefined(next.stem);
@@ -307,7 +511,11 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       },
       error: err => {
-        window.alert(`Delete failed: ${err?.error?.detail ?? err?.message ?? 'unknown error'}`);
+        this.dialog.alert({
+          title: 'Delete failed',
+          variant: 'danger',
+          detail: err?.error?.detail ?? err?.message ?? 'unknown error',
+        });
       },
     });
   }
@@ -408,7 +616,26 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
       next: cfg => {
         this.loadError = '';
         this.svc.setCurrentConfig(cfg, name);
+        // Switching to a different config json always re-runs the
+        // layout. Dropping the cached drag positions here is what
+        // renderConfig keys on to choose between "preset" (honour
+        // saved coords) and a fresh breadthfirst pass.
+        delete this.svc.nodePositions[name];
         this.renderConfig(cfg);
+        // Auto-surface the validation panel from the (possibly cached)
+        // boot-pass result for this config so the user immediately sees
+        // any structural issues instead of having to click Validate.
+        // Also refresh the per-stem map entry from the just-fetched
+        // config — it may have changed on disk since the boot pass.
+        this.revalidateConfig(name, cfg);
+        const cached = this.configValidity[name];
+        if (cached) {
+          this.validationErrors = cached.errors;
+          this.validationWarnings = cached.warnings;
+          // The on-disk version was implicitly validated when written;
+          // mark validated so Save isn't blocked until the user edits.
+          this.svc.validated = true;
+        }
         this.cdr.markForCheck();
       },
       error: err => {
@@ -476,7 +703,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
           selector: 'edge:selected',
           style: { 'line-color': '#f85149', 'target-arrow-color': '#f85149', width: 3 } as any,
         },
-        // Conditional edge: Orchestrator + ≥2 out-edges → LLM-driven router.
+        // Conditional edge: Router + ≥2 out-edges → LLM-driven router.
         {
           selector: 'edge.edge-conditional',
           style: {
@@ -577,7 +804,31 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     });
-    this.cy.on('dragfreeon', 'node', () => this.zone.run(() => this.saveNodePositions()));
+    // Snapshot the pre-drag state on grab; commit it as an undo step on
+    // dragfreeon only if the position actually changed. A bare click
+    // grabs+frees without moving — drop that snapshot so undo isn't full
+    // of no-op entries.
+    this.cy.on('grab', 'node', () => this.zone.run(() => {
+      if (!this.isLoadedConfig) return;
+      this.pendingDragSnapshot = this.takeSnapshot();
+    }));
+    this.cy.on('dragfreeon', 'node', evt => this.zone.run(() => {
+      const name = this.currentConfigName;
+      const snap = this.pendingDragSnapshot;
+      this.pendingDragSnapshot = null;
+      // Compare pre-drag position with the new position; skip the push
+      // when they match (pure click) so undo stays meaningful.
+      if (snap && name && this.isLoadedConfig) {
+        const id = (evt.target as NodeSingular).id();
+        const before = snap.positions[id];
+        const after = (evt.target as NodeSingular).position();
+        const moved = !before
+          || Math.abs(before.x - after.x) > 0.5
+          || Math.abs(before.y - after.y) > 0.5;
+        if (moved) this.svc.pushUndo(name, snap);
+      }
+      this.saveNodePositions();
+    }));
 
     // One handler keeps the starfield, world-grid, and zoom% readout in sync.
     const onView = () => this.zone.run(() => this.syncCyView());
@@ -633,14 +884,14 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     return back;
   }
 
-  /** Conditional = Orchestrator source with ≥2 out-edges (matches `_make_router`). */
+  /** Conditional = Router source with ≥2 out-edges (matches `_make_router`). */
   private isConditionalEdge(
     edge: { from: string; to: string },
     cfg: UnifiedConfig,
     outDegree: Record<string, number>,
   ): boolean {
     if ((outDegree[edge.from] ?? 0) < 2) return false;
-    return cfg.agents[edge.from]?.class === 'Orchestrator';
+    return cfg.agents[edge.from]?.class === 'Router';
   }
 
   /** Normalize `cfg.end` (string | string[]) into a flat id array. */
@@ -823,6 +1074,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isLoadedConfig) return;
 
     if (source === START_NODE_ID) {
+      this.pushUndoSnapshot();
       this.currentConfig.entry = target;
       this.refreshBoundaryEdges();
       this.markDirty();
@@ -832,6 +1084,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (target === END_NODE_ID) {
       // Toggle `source` in `cfg.end`. Outgoing edges are independent —
       // an end-listed node can still route to other targets.
+      this.pushUndoSnapshot();
       const ends = this.endNodeIds(this.currentConfig);
       const idx = ends.indexOf(source);
       if (idx >= 0) {
@@ -848,6 +1101,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const edgeId = `${source}-${target}`;
     if (this.cy.getElementById(edgeId).length > 0) return;
+    this.pushUndoSnapshot();
     this.cy.add({ data: { id: edgeId, source, target } });
     this.persistEdgesFromGraph();
     this.refreshBoundaryEdges();
@@ -958,13 +1212,43 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /** Delete/Backspace shortcut for the toolbar Delete button. */
+  /** Keyboard shortcuts: Delete/Backspace (toolbar Delete), Ctrl/Cmd+Z
+   * (undo), Ctrl/Cmd+Y or Ctrl/Cmd+Shift+Z (redo). All gated on the
+   * focus not being inside a text input so the browser's native edit
+   * keys keep working in the inspector. */
   @HostListener('document:keydown', ['$event'])
   onKeyDown(ev: KeyboardEvent): void {
-    if (ev.key !== 'Delete' && ev.key !== 'Backspace') return;
     const target = ev.target as HTMLElement | null;
     const tag = target?.tagName?.toUpperCase();
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
+    const inTextField =
+      tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable;
+
+    const ctrl = ev.ctrlKey || ev.metaKey;
+    const key = ev.key.toLowerCase();
+    if (ctrl && key === 'z' && !ev.shiftKey) {
+      if (inTextField || !this.isLoadedConfig) return;
+      ev.preventDefault();
+      this.undo();
+      return;
+    }
+    if (ctrl && (key === 'y' || (key === 'z' && ev.shiftKey))) {
+      if (inTextField || !this.isLoadedConfig) return;
+      ev.preventDefault();
+      this.redo();
+      return;
+    }
+    // Ctrl+A toggles Add Edge mode — shadows the browser's native
+    // "Select all" only when focus is on the canvas, so text inputs in
+    // the inspector still get the default select-all behaviour.
+    if (ctrl && key === 'a' && !ev.shiftKey) {
+      if (inTextField || !this.isLoadedConfig) return;
+      ev.preventDefault();
+      this.toggleAddEdgeMode();
+      return;
+    }
+
+    if (ev.key !== 'Delete' && ev.key !== 'Backspace') return;
+    if (inTextField) return;
     if (!this.isLoadedConfig) return;
     if (!this.cy || this.cy.$(':selected').length === 0) return;
     ev.preventDefault();
@@ -975,6 +1259,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentConfig) return;
     const selected = this.cy.$(':selected');
     if (!selected.length) return;
+    this.pushUndoSnapshot();
 
     // Process virtual edges first; deleting them is a config metadata edit.
     selected.edges().filter(e => e.hasClass('virtual-edge')).forEach(e => {
@@ -1007,27 +1292,34 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Rename a node — rewrites every `cfg.agents` key, `entry`, `end`,
    * edge endpoint, cytoscape id, and saved-position slot. */
-  renameSelected(): void {
+  async renameSelected(): Promise<void> {
     if (!this.isLoadedConfig || !this.currentConfig || !this.cy) return;
     const oldName = this.selectedAgent;
     if (!oldName) return;
     if (oldName === START_NODE_ID || oldName === END_NODE_ID) return;
 
-    const proposed = window.prompt(`Rename node "${oldName}" to:`, oldName);
+    const agents = this.currentConfig.agents;
+    const proposed = await this.dialog.prompt({
+      title: 'Rename node',
+      message: `Rename node "${oldName}" to:`,
+      defaultValue: oldName,
+      placeholder: 'new name',
+      validate: v => {
+        const t = v.trim();
+        if (!t) return 'Name cannot be empty.';
+        if (t === START_NODE_ID || t === END_NODE_ID) {
+          return `"${t}" is a reserved sentinel id. Pick a different name.`;
+        }
+        if (t !== oldName && Object.prototype.hasOwnProperty.call(agents, t)) {
+          return `A node named "${t}" already exists in this config. Pick a different name.`;
+        }
+        return null;
+      },
+    });
     if (proposed === null) return;
     const newName = proposed.trim();
     if (!newName || newName === oldName) return;
-
-    if (newName === START_NODE_ID || newName === END_NODE_ID) {
-      window.alert(`"${newName}" is a reserved sentinel id. Pick a different name.`);
-      return;
-    }
-    if (Object.prototype.hasOwnProperty.call(this.currentConfig.agents, newName)) {
-      window.alert(
-        `A node named "${newName}" already exists in this config. Pick a different name.`,
-      );
-      return;
-    }
+    this.pushUndoSnapshot();
 
     // 1) Rebuild agents preserving insertion order.
     this.currentConfig.agents = Object.fromEntries(
@@ -1077,16 +1369,22 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Tear down cytoscape and re-fetch from disk — manual canvas recovery. */
-  reloadGraph(): void {
+  async reloadGraph(): Promise<void> {
     const name = this.currentConfigName;
     if (!name) return;
     if (this.isLoadedConfig && this.dirty) {
-      if (!window.confirm(
-        `Reload "${name}"? You have unsaved edits — these will be discarded ` +
-        `and the on-disk version of the config will replace the current canvas.`
-      )) return;
+      const ok = await this.dialog.confirm({
+        title: 'Reload from disk',
+        message:
+          `Reload "${name}"? You have unsaved edits — these will be discarded ` +
+          `and the on-disk version of the config will replace the current canvas.`,
+        okLabel: 'Discard & reload',
+        danger: true,
+      });
+      if (!ok) return;
     }
     delete this.svc.nodePositions[name];
+    this.svc.clearHistory(name);
     this.selectedAgent = null;
     this.selectedEdgeId = null;
     this.cy?.destroy();
@@ -1105,6 +1403,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentConfigName) return;
     this.svc.currentConfig = restored;
     delete this.svc.nodePositions[this.currentConfigName];
+    this.svc.clearHistory(this.currentConfigName);
     this.cy?.destroy();
     this.cy = undefined as unknown as Core;
     this.renderConfig(restored);
@@ -1198,6 +1497,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isLoadedConfig) return;
     const type = event.dataTransfer?.getData('agent-type');
     if (!type || !this.cy || !this.currentConfig) return;
+    this.pushUndoSnapshot();
     // Optional variant key from the new palette; legacy drags fall back to built-in.
     const variantKey = event.dataTransfer?.getData('agent-variant') || '';
     const variant = variantKey ? this.findVariant(variantKey) : null;
@@ -1276,7 +1576,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ─── Reset-to-defaults (per section) ────────────────────────────
-  resetParams(): void {
+  async resetParams(): Promise<void> {
     if (!this.isLoadedConfig) return;
     const block = this.agentBlock;
     if (!block) return;
@@ -1284,10 +1584,16 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!id) return;
     const meta = this.agentTypes.find(t => t.type === (this.classToType[block.class] ?? block.class));
     if (!meta) return;
-    if (!window.confirm(
-      `Reset parameters of agent "${id}" to the ${meta.type} defaults? `
-      + `Model + every knob will be overwritten. Other fields (tools, prompts) stay.`
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: 'Reset parameters',
+      message:
+        `Reset parameters of agent "${id}" to the ${meta.type} defaults? `
+        + `Model + every knob will be overwritten. Other fields (tools, prompts) stay.`,
+      okLabel: 'Reset',
+      danger: true,
+    });
+    if (!ok) return;
+    this.pushUndoSnapshot();
 
     const cfg = (meta.default_config ?? {}) as Record<string, unknown>;
     block.model          = (cfg['model']          as string)   ?? 'qwen3.5:9b';
@@ -1308,7 +1614,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  resetTools(): void {
+  async resetTools(): Promise<void> {
     if (!this.isLoadedConfig) return;
     const block = this.agentBlock;
     if (!block) return;
@@ -1316,10 +1622,16 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!id) return;
     const meta = this.agentTypes.find(t => t.type === (this.classToType[block.class] ?? block.class));
     if (!meta) return;
-    if (!window.confirm(
-      `Reset tools of agent "${id}" to the ${meta.type} defaults? `
-      + `Custom tool params will be lost.`
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: 'Reset tools',
+      message:
+        `Reset tools of agent "${id}" to the ${meta.type} defaults? `
+        + `Custom tool params will be lost.`,
+      okLabel: 'Reset',
+      danger: true,
+    });
+    if (!ok) return;
+    this.pushUndoSnapshot();
 
     const variant = meta.variants?.find(v => v.key === block.variant);
     const useVariant = !!variant && variant.repo !== 'evomas';
@@ -1331,7 +1643,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  resetPrompts(): void {
+  async resetPrompts(): Promise<void> {
     if (!this.isLoadedConfig) return;
     const block = this.agentBlock;
     if (!block) return;
@@ -1339,10 +1651,16 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!id) return;
     const meta = this.agentTypes.find(t => t.type === (this.classToType[block.class] ?? block.class));
     if (!meta) return;
-    if (!window.confirm(
-      `Reset prompts of agent "${id}" to the ${meta.type} defaults? `
-      + `Custom system/user/proxy text will be lost.`
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: 'Reset prompts',
+      message:
+        `Reset prompts of agent "${id}" to the ${meta.type} defaults? `
+        + `Custom system/user/proxy text will be lost.`,
+      okLabel: 'Reset',
+      danger: true,
+    });
+    if (!ok) return;
+    this.pushUndoSnapshot();
 
     block.prompts = {};
     this.markDirty();
@@ -1354,6 +1672,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isLoadedConfig) return;
     const block = this.agentBlock;
     if (!block) return;
+    this.pushUndoSnapshot(`field:${String(key)}:${this.selectedAgent ?? ''}`);
     block[key] = value;
     if (key === 'model') this.syncModelOptions(value as string);
     this.markDirty();
@@ -1361,7 +1680,6 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ─── Save (disk) ───────────────────────────────────────────────
   saveFlash = false;
-  saveError = '';
 
   /** Loaded configs are writable; predefined are read-only. */
   get isLoadedConfig(): boolean {
@@ -1371,16 +1689,21 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  saveToDisk(): void {
+  async saveToDisk(): Promise<void> {
     if (!this.currentConfig || !this.currentConfigName) return;
     if (!this.isLoadedConfig) return;
     // Pre-flight validation is non-blocking; runtime is the real gate.
     const { errors, warnings } = this.validateConfig();
     this.validationErrors = errors;
     this.validationWarnings = warnings;
-    if (!window.confirm(
-      `Overwrite evomas/config/loaded/${this.currentConfigName}.json with the current edits? The previous file will be gone.`
-    )) return;
+    const ok = await this.dialog.confirm({
+      title: 'Save to disk',
+      message:
+        `Overwrite evomas/config/loaded/${this.currentConfigName}.json ` +
+        `with the current edits? The previous file will be gone.`,
+      okLabel: 'Save',
+    });
+    if (!ok) return;
     this._persistCurrentConfig();
   }
 
@@ -1389,15 +1712,25 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentConfig || !this.currentConfigName) return;
     this.api.saveLoadedConfig(this.currentConfigName, this.currentConfig, true).subscribe({
       next: () => {
-        this.saveError = '';
         this.saveFlash = true;
-        this.svc.dirty = false;
+        // Re-anchor the dirty baseline to what we just wrote so future
+        // edits compare against this fresh on-disk version.
+        this.svc.markSaved();
+        // Refresh the per-row validity badge for the just-saved stem
+        // using the in-memory config (no extra HTTP round-trip).
+        if (this.currentConfigName) {
+          this.revalidateConfig(this.currentConfigName, this.currentConfig);
+        }
         setTimeout(() => { this.saveFlash = false; this.cdr.markForCheck(); }, 1200);
         this.cdr.markForCheck();
       },
       error: err => {
-        this.saveError = err?.error?.detail ?? err?.message ?? 'Save failed';
-        this.cdr.markForCheck();
+        this.dialog.alert({
+          title: 'Save failed',
+          variant: 'danger',
+          message: 'The backend rejected the save request:',
+          detail: err?.error?.detail ?? err?.message ?? 'Save failed',
+        });
       },
     });
   }
@@ -1496,6 +1829,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     // Copy any fallback defaults into the block first so add lands on top.
     this.materializeDefaultTools();
     if (this.agentBlock.tools!.some(t => t.name === name)) return;
+    this.pushUndoSnapshot();
     this.agentBlock.tools!.push({ name, params: {} });
     this.markDirty();
     this.cdr.markForCheck();
@@ -1506,6 +1840,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     // Materialize first so removing a "ghost" default actually persists.
     this.materializeDefaultTools();
     if (!this.agentBlock?.tools) return;
+    this.pushUndoSnapshot();
     this.agentBlock.tools.splice(idx, 1);
     delete this.toolParamsDraft[idx];
     delete this.toolParamsError[idx];
@@ -1528,6 +1863,9 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
       if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
         throw new Error('must be a JSON object');
       }
+      // Only snapshot when the JSON parses — otherwise the user is still
+      // mid-edit and the in-memory params haven't changed yet.
+      this.pushUndoSnapshot(`params:${idx}:${this.selectedAgent ?? ''}`);
       this.currentTools[idx].params = parsed as Record<string, unknown>;
       delete this.toolParamsError[idx];
       this.markDirty();
@@ -1572,6 +1910,7 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isLoadedConfig) return;
     const block = this.agentBlock;
     if (!block) return;
+    this.pushUndoSnapshot(`prompt:${slot}:${this.selectedAgent ?? ''}`);
     if (!block.prompts) block.prompts = {};
     block.prompts[slot] = value;
     this.markDirty();
@@ -1583,116 +1922,84 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   validationWarnings: string[] = [];
   validateFlash = false;
 
-  /** Pure — safe to call from both Validate clicks and pre-save blocks. */
+  /** Per-config validity from the ngOnInit boot pass, keyed by file
+   * stem. Fed to the left-rail config list so each row can show a
+   * red (errors) or amber (warnings-only) dot. Refreshed when a
+   * config is added / saved / deleted / renamed. */
+  configValidity: Record<string, { errors: string[]; warnings: string[] }> = {};
+
+  /** Fetch each config in parallel and run the pure validator on it.
+   * Replaces `configValidity` wholesale. Safe to call repeatedly — used
+   * both at boot and after structural list changes (rename / delete /
+   * import / new-from-template). Catalog summaries are snapshotted up
+   * front so every per-config run sees the same `{stem, id}` table for
+   * the cross-config checks (id-stem match + duplicate id). */
+  private validateAllConfigs(summaries: ConfigSummary[]): void {
+    if (summaries.length === 0) {
+      this.configValidity = {};
+      this.cdr.markForCheck();
+      return;
+    }
+    const catalog = summaries.map(s => ({ stem: s.stem, id: s.id }));
+    const requests = summaries.map(s =>
+      this.api.getConfig(s.stem).pipe(
+        map(cfg => {
+          const { errors, warnings } =
+            validateConfigPure(cfg, { stem: s.stem, catalog });
+          return { stem: s.stem, errors, warnings };
+        }),
+        catchError(() => of({
+          stem: s.stem,
+          errors: ['Could not fetch this config to validate it.'],
+          warnings: [] as string[],
+        })),
+      ),
+    );
+    forkJoin(requests).subscribe(results => {
+      const next: Record<string, { errors: string[]; warnings: string[] }> = {};
+      for (const r of results) next[r.stem] = { errors: r.errors, warnings: r.warnings };
+      this.configValidity = next;
+      this.cdr.markForCheck();
+    });
+  }
+
+  /** Re-validate a single stem in place — used after Save / import /
+   * new-from-template so the badge updates without re-fetching every
+   * other config. When `data` is provided we skip the GET. Uses the
+   * current catalog snapshot so the duplicate-id check runs here too. */
+  private revalidateConfig(stem: string, data?: UnifiedConfig | null): void {
+    const catalog = this.catalogSummaries;
+    const apply = (cfg: UnifiedConfig | null) => {
+      const { errors, warnings } = validateConfigPure(cfg, { stem, catalog });
+      this.configValidity = { ...this.configValidity, [stem]: { errors, warnings } };
+      this.cdr.markForCheck();
+    };
+    if (data) {
+      apply(data);
+      return;
+    }
+    this.api.getConfig(stem).subscribe({
+      next: cfg => apply(cfg),
+      error: () => apply(null),
+    });
+  }
+
+  /** Thin wrapper over the pure helper — lets the boot pass validate
+   * every config without coupling to component state, while keeping the
+   * Validate button + pre-save flow unchanged. The catalog summaries +
+   * the active stem are passed through so the cross-config checks
+   * (`id` matches filename + no duplicate ids) fire here too. */
   validateConfig(): { valid: boolean; errors: string[]; warnings: string[] } {
-    const cfg = this.currentConfig;
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    if (!cfg) return { valid: false, errors: ['No configuration loaded.'], warnings };
+    return validateConfigPure(this.currentConfig, {
+      stem: this.currentConfigName ?? undefined,
+      catalog: this.catalogSummaries,
+    });
+  }
 
-    const agentIds = Object.keys(cfg.agents);
-    if (agentIds.length === 0) {
-      errors.push('Configuration has no agents.');
-      return { valid: false, errors, warnings };
-    }
-
-    // 1. entry must be set and refer to an existing agent.
-    if (!cfg.entry || !cfg.entry.trim()) {
-      errors.push('`entry` is empty — no node will be the START successor.');
-    } else if (!cfg.agents[cfg.entry]) {
-      errors.push(`\`entry\` points at "${cfg.entry}" but no agent with that id exists.`);
-    }
-
-    // 2. end must be non-empty and every entry must refer to an existing agent.
-    const ends = this.endNodeIds(cfg);
-    if (ends.length === 0) {
-      errors.push('`end` is empty — no node is allowed to route to END.');
-    }
-    for (const id of ends) {
-      if (!cfg.agents[id]) {
-        errors.push(`\`end\` lists "${id}" but no agent with that id exists.`);
-      }
-    }
-
-    // 3. every edge endpoint must refer to an existing agent.
-    for (const e of cfg.edges) {
-      if (!cfg.agents[e.from]) {
-        errors.push(`Edge "${e.from} → ${e.to}" has unknown source "${e.from}".`);
-      }
-      if (!cfg.agents[e.to]) {
-        errors.push(`Edge "${e.from} → ${e.to}" has unknown target "${e.to}".`);
-      }
-    }
-
-    // 4+5. Shape diagnostics (warnings, not errors): orphan dead-ends
-    //      and fully-disconnected nodes. Dedupe to the more specific case.
-    const hasOutgoing = new Set<string>(cfg.edges.map(e => e.from));
-    const hasIncoming = new Set<string>(cfg.edges.map(e => e.to));
-    const endSet = new Set(ends);
-    for (const id of agentIds) {
-      const incoming = hasIncoming.has(id);
-      const outgoing = hasOutgoing.has(id);
-      const isEntry  = cfg.entry === id;
-      const inEnd    = endSet.has(id);
-      if (!incoming && !outgoing && !isEntry) {
-        warnings.push(
-          `Node "${id}" is disconnected — no incoming or outgoing edges and not the entry. ` +
-          `It will never execute at runtime.`,
-        );
-      } else if (!outgoing && !inEnd) {
-        warnings.push(
-          `Node "${id}" has no outgoing edges and is not in \`end\` — it's an orphan ` +
-          `dead-end. The branch that reaches it will stall until the runtime ` +
-          `recursion-limit aborts the run.`,
-        );
-      }
-    }
-
-    // 6. BFS from `entry` must reach at least one degree-0 end-set node.
-    //    Only degree-0 `end` nodes get the static `→ END` wire at runtime.
-    if (cfg.entry && cfg.agents[cfg.entry] && ends.length > 0) {
-      const outBySource: Record<string, string[]> = {};
-      for (const e of cfg.edges) (outBySource[e.from] ||= []).push(e.to);
-      const reachable = new Set<string>();
-      const frontier: string[] = [cfg.entry];
-      while (frontier.length) {
-        const node = frontier.shift()!;
-        if (reachable.has(node)) continue;
-        reachable.add(node);
-        for (const t of (outBySource[node] || [])) frontier.push(t);
-      }
-      const endZeroDegree = ends.filter(id => !outBySource[id]);
-      if (endZeroDegree.length === 0) {
-        errors.push(
-          `\`end\` has no degree-0 nodes — every end-set node has outgoing edges. ` +
-          `At runtime only degree-0 end-set nodes get the static \`→ END\` wire, ` +
-          `so START can never reach END.`,
-        );
-      } else if (!endZeroDegree.some(id => reachable.has(id))) {
-        errors.push(
-          `START cannot reach END: BFS from entry "${cfg.entry}" never reaches a ` +
-          `degree-0 end-set node (candidates: ${endZeroDegree.map(s => `"${s}"`).join(', ')}). ` +
-          `Add an edge path from "${cfg.entry}" to one of them.`,
-        );
-      }
-      // Warning (not error): nodes defined in `cfg.agents` but never
-      // reached by the BFS from entry. Mirrors the runtime warning at
-      // `graph_builder._build_graph()` — the graph still compiles, but
-      // those nodes will never execute (orphan inference cost). Skip
-      // the entry itself; it's always reachable by definition.
-      const unreachable = agentIds.filter(
-        id => id !== cfg.entry && !reachable.has(id),
-      );
-      if (unreachable.length > 0) {
-        warnings.push(
-          `${unreachable.length} node(s) unreachable from entry "${cfg.entry}": ` +
-          `${unreachable.map(s => `"${s}"`).join(', ')}. These will never execute ` +
-          `at runtime — connect them with edges or remove them from \`agents\`.`,
-        );
-      }
-    }
-
-    return { valid: errors.length === 0, errors, warnings };
+  /** Slim view over `predefinedConfigs` for the validator's catalog
+   * context — just `{stem, id}` per row. */
+  private get catalogSummaries(): { stem: string; id: string }[] {
+    return this.predefinedConfigs.map(c => ({ stem: c.stem, id: c.id }));
   }
 
   /** Toolbar Validate button: surface the result inline. On success,

@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { App } from './app';
 import { ApiService } from './services/api.service';
 import { TopologyStateService } from './services/topology-state.service';
+import { DialogService } from './services/dialog.service';
 import type { ConfigSummary, UnifiedConfig } from './models/types';
 
 type ApiMock = Record<string, unknown> & { getHealth: ReturnType<typeof vi.fn>; apiHost: string };
@@ -20,7 +21,8 @@ function makeApp(
   };
   const cdr = { markForCheck: vi.fn() } as unknown as ChangeDetectorRef;
   const svc = new TopologyStateService();
-  const app = new App(api as unknown as ApiService, svc, cdr);
+  const dialog = new DialogService();
+  const app = new App(api as unknown as ApiService, svc, cdr, dialog);
   return { app, api, svc };
 }
 

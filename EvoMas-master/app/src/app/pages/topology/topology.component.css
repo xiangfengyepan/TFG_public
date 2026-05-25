@@ -7,6 +7,24 @@
   overflow: hidden;
 }
 
+/* Save-error modal: wraps the backend's reason string in a readable
+ * monospace block. Long detail messages stay scrollable horizontally
+ * inside the card rather than blowing out the modal width. */
+.save-error-detail {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 12px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow: auto;
+}
+
 /* ─── Main layout ────────────────────────────────────────── */
 .topo-layout {
   display: flex;

@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   InferenceRunService, RunInstance, buildNodeColors,
 } from '../../services/inference-run.service';
@@ -70,6 +71,7 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
     public inferSvc: InferenceRunService,
     public state: InferenceStateService,
     private cdr: ChangeDetectorRef,
+    private dialog: DialogService,
   ) {}
 
   // ─── Getters delegating to the run service ─────────────────────
@@ -299,7 +301,11 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
       },
       error: err => {
         const msg = err?.error?.detail ?? err?.message ?? 'Failed to build notebook';
-        alert(`Notebook download failed: ${msg}`);
+        this.dialog.alert({
+          title: 'Notebook download failed',
+          variant: 'danger',
+          detail: msg,
+        });
       },
     });
   }

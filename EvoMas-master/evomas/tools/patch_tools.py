@@ -1,7 +1,18 @@
+"""LLM-facing patch tools: thin `@tool` wrappers around the software-callable
+`_impl` functions in `evomas/utils/patch.py`, plus the deterministic class-1
+description-bug fixer (`apply_description_fix`) that composes
+`detect_bug_class` + `derive_description_fix` + `apply_patch` into a single
+call the patcher chain runs first.
+
+The real `git apply` / `git diff` / unified-diff-normaliser code lives in
+`evomas/utils/patch.py`. This module just wraps each `_impl` in an `@tool`
+so a LangChain-driven agent can call it as a tool. Code that doesn't need
+the tool layer (api router, agent runtime, runner, scripts) should import
+the `_impl` versions from `evomas/utils/patch` directly.
+"""
+from __future__ import annotations
+
 import logging
-import re
-import subprocess
-import tempfile
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -9,229 +20,40 @@ from langchain_core.tools import tool
 
 from evomas.tools.repo_tools import derive_description_fix_impl
 from evomas.tools.search_tools import detect_bug_class_impl
+from evomas.utils.patch import (
+    PatchResult,
+    _git,
+    apply_patch_impl,
+    generate_diff_impl,
+    normalize_patch_impl,
+)
+
+# Re-export for callers that previously imported these names from this
+# module. They still resolve to the canonical implementations in
+# `evomas/utils/patch.py`.
+__all__ = [
+    "PatchResult",
+    "apply_patch_impl",
+    "generate_diff_impl",
+    "normalize_patch_impl",
+    "reset_repo_impl",
+    "apply_description_fix_impl",
+    "DescriptionFixApplied",
+    "apply_patch",
+    "generate_diff",
+    "normalize_patch",
+    "reset_repo",
+    "apply_description_fix",
+]
 
 logger = logging.getLogger(__name__)
 
 
-class PatchResult(TypedDict):
-    ok: bool
-    output: str
-    applied: bool
-
-
-def _git(args: list[str], cwd: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["git", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-
-
-def _patch_cmd(args: list[str], cwd: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        ["patch", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-
-
-def apply_patch_impl(patch_str: str, repo_path: str, dry_run: bool = False) -> PatchResult:
-    if not patch_str.strip():
-        return {"ok": False, "output": "empty patch", "applied": False}
-
-    content = patch_str if patch_str.endswith("\n") else patch_str + "\n"
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".diff", delete=False, encoding="utf-8"
-    ) as tf:
-        tf.write(content)
-        patch_path = tf.name
-
-    try:
-        # Method 1: git apply --check (strict)
-        check = _git(["apply", "--check", patch_path], cwd=repo_path)
-        if check.returncode == 0:
-            if dry_run:
-                return {"ok": True, "output": "patch applies cleanly (dry run)", "applied": False}
-            apply = _git(["apply", patch_path], cwd=repo_path)
-            return {
-                "ok": apply.returncode == 0,
-                "output": (apply.stdout + apply.stderr).strip() or "patch applied",
-                "applied": apply.returncode == 0,
-            }
-
-        git_err = (check.stdout + check.stderr).strip()
-
-        # Method 2: patch --fuzz=5 (more lenient context matching)
-        fuzz_args = ["--batch", "--fuzz=5", "-p1", "-i", patch_path]
-        if dry_run:
-            fuzz_args = ["--dry-run"] + fuzz_args
-        fuzz = _patch_cmd(fuzz_args, cwd=repo_path)
-        if fuzz.returncode == 0:
-            output = (fuzz.stdout + fuzz.stderr).strip() or "patch applied (fuzz)"
-            return {"ok": True, "output": output, "applied": not dry_run}
-
-        return {
-            "ok": False,
-            "output": f"{git_err}\n{(fuzz.stdout + fuzz.stderr).strip()}".strip(),
-            "applied": False,
-        }
-    finally:
-        try:
-            Path(patch_path).unlink()
-        except OSError:
-            pass
-
-
-def generate_diff_impl(repo_path: str, base_commit: str | None = None) -> str:
-    args = ["diff", "--no-color"]
-    if base_commit:
-        args.append(base_commit)
-    proc = _git(args, cwd=repo_path)
-    if proc.returncode != 0:
-        logger.warning("git diff failed: %s", proc.stderr)
-        return ""
-    return proc.stdout
-
-
 def reset_repo_impl(repo_path: str, base_commit: str) -> None:
+    """Hard-reset `repo_path` to `base_commit` and wipe untracked files.
+    Software-callable; the `@tool` wrapper below is what an LLM agent uses."""
     _git(["reset", "--hard", base_commit], cwd=repo_path)
     _git(["clean", "-fdx"], cwd=repo_path)
-
-
-# ─── Unified-diff repair helpers (used by `normalize_patch` and by any
-# PatcherAgent that wants to normalize before applying). Pure string
-# functions, no filesystem side-effects. ────────────────────────────────
-def _add_git_header_if_missing(patch: str) -> str:
-    """Prepend `diff --git a/<path> b/<path>` when the LLM omitted it.
-    `git apply` requires the header; GNU `patch` doesn't. Adding it makes
-    the diff compatible with both backends used inside apply_patch."""
-    if patch.startswith("diff --git"):
-        return patch
-    lines = patch.splitlines()
-    old_path = new_path = None
-    for line in lines[:10]:
-        if line.startswith("--- a/") and old_path is None:
-            old_path = line[6:].split("\t")[0].strip()
-        elif line.startswith("+++ b/") and new_path is None:
-            new_path = line[6:].split("\t")[0].strip()
-    if old_path and new_path:
-        return f"diff --git a/{old_path} b/{new_path}\n{patch}"
-    return patch
-
-
-def _fix_blank_context_lines(patch: str) -> str:
-    """Ensure blank context lines inside hunks have a leading space.
-    `git apply` rejects patches where context lines inside a hunk are
-    completely empty — the unified-diff standard requires a single-space
-    prefix for unchanged lines."""
-    lines = patch.splitlines(keepends=True)
-    result: list[str] = []
-    in_hunk = False
-    for line in lines:
-        if line.startswith("@@"):
-            in_hunk = True
-        elif line.startswith("diff --git"):
-            in_hunk = False
-        if in_hunk and line in ("\n", "\r\n", ""):
-            line = " \n"
-        result.append(line)
-    return "".join(result)
-
-
-_HUNK_HEADER_RE_INNER: re.Pattern[str] = re.compile(
-    r"^@@\s+-(\d+)(?:,\d+)?\s+\+(\d+)(?:,\d+)?\s+@@", re.MULTILINE,
-)
-
-
-def _fix_hunk_headers(patch: str) -> str:
-    """Recalculate `@@` hunk headers to match the actual content line counts.
-    LLMs frequently write wrong `old_count` / `new_count`; `git apply --check`
-    flags this as a corrupt patch even when the content would apply fine."""
-    lines = patch.splitlines(keepends=True)
-    result: list[str] = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        m = _HUNK_HEADER_RE_INNER.match(line)
-        if m:
-            old_start = int(m.group(1))
-            new_start = int(m.group(2))
-            i += 1
-            body: list[str] = []
-            while i < len(lines) and not lines[i].startswith("@@") and not lines[i].startswith("diff --git"):
-                body.append(lines[i])
-                i += 1
-            old_count = sum(1 for l in body if l and (l[0] in (" ", "-")))
-            new_count = sum(1 for l in body if l and (l[0] in (" ", "+")))
-            suffix_m = re.match(r"@@[^@]*@@(.*)", line.rstrip("\r\n"))
-            suffix = suffix_m.group(1) if suffix_m else ""
-            new_header = f"@@ -{old_start},{old_count} +{new_start},{new_count} @@{suffix}\n"
-            result.append(new_header)
-            result.extend(body)
-        else:
-            result.append(line)
-            i += 1
-    return "".join(result)
-
-
-def _filter_noop_hunks(patch: str) -> str:
-    """Remove hunks where every removed line equals the corresponding added
-    line (whitespace-only flips, trailing-comment churn). Such hunks fail
-    `git apply` with context-mismatch and carry no useful fix anyway."""
-    lines = patch.splitlines(keepends=True)
-    file_header: list[str] = []
-    current_hunk: list[str] = []
-    meaningful_hunks: list[list[str]] = []
-
-    def _is_meaningful(hunk: list[str]) -> bool:
-        removed = [l[1:].rstrip("\r\n") for l in hunk if l.startswith("-")]
-        added = [l[1:].rstrip("\r\n") for l in hunk if l.startswith("+")]
-        return removed != added
-
-    def _flush_hunk() -> None:
-        if current_hunk and _is_meaningful(current_hunk):
-            meaningful_hunks.append(list(current_hunk))
-        current_hunk.clear()
-
-    in_file = False
-    for line in lines:
-        if line.startswith("diff --git") or line.startswith("--- ") or line.startswith("+++ "):
-            _flush_hunk()
-            if line.startswith("diff --git"):
-                in_file = True
-            file_header.append(line)
-        elif line.startswith("@@") and in_file:
-            _flush_hunk()
-            current_hunk.append(line)
-        elif in_file and current_hunk:
-            current_hunk.append(line)
-    _flush_hunk()
-
-    if not meaningful_hunks:
-        if not file_header:
-            return patch
-        return ""
-
-    return "".join(file_header + [l for h in meaningful_hunks for l in h])
-
-
-def normalize_patch_impl(patch_str: str) -> str:
-    """Run every diff-repair pass on a (possibly malformed) unified diff and
-    return a `git apply`-compatible string. Empty input → empty output."""
-    patch = (patch_str or "").strip("\n\r ")
-    if not patch:
-        return ""
-    patch = _add_git_header_if_missing(patch)
-    patch = _fix_blank_context_lines(patch)
-    patch = _fix_hunk_headers(patch)
-    patch = _filter_noop_hunks(patch)
-    if patch and not patch.endswith("\n"):
-        patch += "\n"
-    return patch
 
 
 @tool
@@ -281,7 +103,7 @@ def normalize_patch(patch_str: str) -> str:
 
 # ─── End-to-end class-1 description fixer ────────────────────────────────────
 # Composes `detect_bug_class` (search_tools) + `derive_description_fix`
-# (repo_tools) + `apply_patch` (same module) into a single deterministic call
+# (repo_tools) + `apply_patch` (utils.patch) into a single deterministic call
 # the patcher chain invokes first. Lives in patch_tools because the
 # downstream operation — building a minimal unified diff and applying it — is
 # fundamentally a patch op.

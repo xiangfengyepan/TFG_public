@@ -24,6 +24,7 @@ from evomas.tools.patch_tools import (
 from evomas.tools.repo.patchwork import PATCHWORK_TOOLS
 from evomas.tools.repo_tools import derive_description_fix, list_files, read_file
 from evomas.tools.search_tools import detect_bug_class, search_code
+from evomas.tools.test_runner import run_tests
 from evomas.tools.repo.suna import SUNA_TOOLS
 from evomas.tools.repo.swe_agent import SWE_AGENT_TOOLS
 from evomas.tools.repo.trae_agent import TRAE_AGENT_TOOLS
@@ -99,7 +100,8 @@ def default_registry() -> ToolRegistry:
     # Core tools used by every topology.
     for tool in (read_file, list_files, search_code, run_flake8, apply_patch,
                  generate_diff, normalize_patch, reset_repo,
-                 detect_bug_class, derive_description_fix, apply_description_fix):
+                 detect_bug_class, derive_description_fix, apply_description_fix,
+                 run_tests):
         registry.register(tool)
     # Repo-variant bundles. Duplicate names across bundles are
     # last-registered-wins; bundles avoid collisions by re-exporting
