@@ -72,6 +72,12 @@
       } @else {
         <evo-badge variant="ok">done</evo-badge>
       }
+      @if (cardDuration(card); as d) {
+        <span class="card-duration"
+              [title]="'Wall-clock time this agent spent executing'">
+          {{ d }}
+        </span>
+      }
       <ng-icon class="card-chevron" [name]="card.expanded ? 'chevronDown' : 'chevronRight'" />
     </div>
     @if (card.expanded) {

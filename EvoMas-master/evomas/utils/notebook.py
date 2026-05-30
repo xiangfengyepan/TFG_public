@@ -321,7 +321,7 @@ def _build_reproduction_notebook(
             "\n"
             "- **`OLLAMA_BASE_URL`** — where the Ollama daemon serves. "
             "Local default works when `ollama serve` runs on this machine; "
-            "swap to e.g. `http://192.168.1.100:11434` for a remote host.\n"
+            "swap to e.g. `http://192.168.1.50:11434` for a remote host.\n"
             "- **`SWEBENCH_API_KEY`** — required by the remote-eval cell "
             "(section 5) when running `--remote` against sb-cli. Local "
             "Docker harness runs don't need it.\n"

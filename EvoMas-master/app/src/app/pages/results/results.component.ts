@@ -19,7 +19,10 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { EvoBoxComponent, EvoButtonComponent, EvoSelectComponent } from '../../components/index';
 import { ICON } from '../../icons';
-import { RunInstance, buildNodeColors, parseNdjsonToRunInstance } from '../../services/inference-run.service';
+import {
+  RunInstance, buildNodeColors, parseNdjsonToRunInstance,
+  parseAgentTimingsFromLog, applyAgentTimingsToInstance,
+} from '../../services/inference-run.service';
 
 import {
   InstanceTreePickerComponent, PredictionPanelComponent,
@@ -525,9 +528,15 @@ export class ResultsComponent implements OnInit {
     forkJoin({
       ndjson: this.api.getResultPredictionNdjson(file.path),
       cfg:    this.api.getResultPredictionConfig(file.path),
+      // The .log file is the source of truth for per-agent execution
+      // time. NDJSON events don't carry per-event timestamps, so the
+      // replay path overlays log-derived `durationMs` onto the cards
+      // after the NDJSON reduce. Missing log → cards render without
+      // timings (the renderer just omits the badge).
+      log:    this.api.getResultPredictionLog(file.path),
       types:  agentTypes$,
     }).subscribe({
-      next: ({ ndjson, cfg, types }) => {
+      next: ({ ndjson, cfg, log, types }) => {
         this.logViewLoading = false;
         if (types && !this.agentTypesCache) this.agentTypesCache = types;
         if (!ndjson.exists) {
@@ -545,6 +554,16 @@ export class ResultsComponent implements OnInit {
         this.logViewInstance = parseNdjsonToRunInstance(
           ndjson.raw, this.logViewTitle, nodeColors,
         );
+        // Overlay log-derived per-agent durations. The NDJSON reduce
+        // path also writes `durationMs` (using parse-time wall clock,
+        // not the original run's clock), so this overwrite is what
+        // makes the replay timing meaningful.
+        if (log.exists && log.raw) {
+          applyAgentTimingsToInstance(
+            this.logViewInstance,
+            parseAgentTimingsFromLog(log.raw),
+          );
+        }
         this.cdr.markForCheck();
       },
       error: err => {

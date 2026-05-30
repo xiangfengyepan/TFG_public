@@ -39,6 +39,19 @@
 .card-header:hover { background: var(--bg-2); }
 .card-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .card-name { font-size: 13px; font-weight: 600; flex: 1; }
+/* Per-agent wall-clock duration pill — sits next to the running/done
+ * badge in the card header. Hidden when the card has no timing
+ * (in-flight live card, or replay with a missing .log file). */
+.card-duration {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
 .card-chevron { font-size: 11px; color: var(--text-muted); }
 .card-body {
   padding: 10px 12px; border-top: 1px solid var(--border);

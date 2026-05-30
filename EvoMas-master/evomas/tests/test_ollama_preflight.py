@@ -89,7 +89,7 @@ def test_pull_forwards_ollama_host_env(monkeypatch: pytest.MonkeyPatch) -> None:
     `OLLAMA_HOST` to the subprocess from `_ollama_base_url()`."""
     cfg = {"agents": {"a": {"model": "ollama/qwen3:8b"}}}
     monkeypatch.setattr(ollama_preflight, "_list_pulled", lambda: set())
-    monkeypatch.setenv("OLLAMA_BASE_URL", "http://192.168.1.100:11434")
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://192.168.1.50:11434")
 
     captured: dict[str, Any] = {}
 
@@ -105,7 +105,7 @@ def test_pull_forwards_ollama_host_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
     # The forwarded env must carry OLLAMA_HOST set to the same base URL
     # we'd probe with `/api/tags`, so the pull lands on the right daemon.
-    assert captured["env"].get("OLLAMA_HOST") == "http://192.168.1.100:11434"
+    assert captured["env"].get("OLLAMA_HOST") == "http://192.168.1.50:11434"
 
 
 def test_event_sink_receives_progress_events(monkeypatch: pytest.MonkeyPatch) -> None:

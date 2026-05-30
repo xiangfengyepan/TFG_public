@@ -39,16 +39,23 @@ for _cls in _TYPES:
     TYPE_REGISTRY[_cls.__name__] = _cls
 
 # Stable tints used both by the frontend palette and the topology graph.
+# 9 visually distinguishable hues spread across the wheel — every
+# pair sits at least ~35° apart on the H axis OR differs strongly in
+# S/L. Avoids the prior clashes (Router vs Base-agent on purple,
+# Helper/Proxy vs Env-setup on teal, Planner vs Bug-repro on orange).
 TYPE_COLORS: dict[str, str] = {
-    "Locator":              "#388bfd",  # blue
-    "Patcher":              "#56d364",  # green
-    "Helper/Proxy":         "#2dd4bf",  # teal-cyan
-    "Planner/Orchestrator": "#f0883e",  # orange
-    "Router":               "#a371f7",  # purple, matches conditional edges
-    "Base agent":           "#8b949e",  # neutral gray
-    "Bug reproduction":     "#f78166",  # coral
-    "Environment setup":    "#39c5cf",  # teal
-    "Reviewer":             "#db61a2",  # magenta
+    "Bug reproduction":     "#f85149",  # red          ~ 3°
+    "Base agent":           "#a4886c",  # taupe/brown  ~30° (desaturated
+                                        #              so it doesn't blur
+                                        #              with red or amber)
+    "Planner/Orchestrator": "#e3b341",  # amber        ~44°
+    "Environment setup":    "#bcbd22",  # olive-yellow ~60°
+    "Patcher":              "#56d364",  # green        ~129°
+    "Helper/Proxy":         "#2dd4bf",  # teal-cyan    ~172°
+    "Locator":              "#388bfd",  # royal blue   ~213°
+    "Router":               "#a371f7",  # purple       ~263° (matches
+                                        #              conditional edges)
+    "Reviewer":             "#db61a2",  # magenta-pink ~328°
 }
 _CONTROL_TYPES: frozenset[str] = frozenset({"Router"})
 
