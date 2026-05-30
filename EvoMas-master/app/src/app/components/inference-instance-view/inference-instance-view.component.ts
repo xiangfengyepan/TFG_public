@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { ICON } from '../../icons';
-import { AgentCard, RunInstance } from '../../services/inference-run.service';
+import { AgentCard, RunInstance, formatDurationMs } from '../../services/inference-run.service';
 import { HandoffChip } from '../../models/types';
 import { EvoBadgeComponent } from '../badge/evo-badge.component';
 
@@ -58,6 +58,14 @@ export class InferenceInstanceViewComponent {
 
   // ─── Card expand / collapse ─────────────────────────────────────
   toggleCard(card: AgentCard): void { card.expanded = !card.expanded; }
+
+  /** Human-friendly duration for a card. Empty when the card has no
+   * timing — happens for in-flight live cards (status still 'running')
+   * or for replays whose `.log` file is missing. */
+  cardDuration(card: AgentCard): string {
+    if (card.durationMs == null) return '';
+    return formatDurationMs(card.durationMs);
+  }
 
   // ─── Hand-off preview modal ─────────────────────────────────────
   handoffPreview: HandoffChip | null = null;

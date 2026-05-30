@@ -1,15 +1,15 @@
 {
-  "id": "star_centralized",
-  "description": "True centralized star: hub (Orchestrator) at the center with bidirectional edges to locator, patcher, reviewer for iteration, plus a one-way edge to finalizer for termination. The hub's conditional router picks a spoke to continue iterating, or `finalizer` to terminate. The finalizer (HelperProxyAgent) emits the canonical workspace diff as the run's final patch.",
+  "id": "experepair_star",
+  "description": "ExpeRepair centralized star: EvoMas Router hub iterates with agent_search (Locator), PatchAgent (Patcher), and TestAgent (Bug reproduction); Review is the terminal sink. Workers are sourced from the ExpeRepair catalog; the hub uses EvoMas's built-in Router because ExpeRepair ships no native dispatcher.",
   "entry": "hub",
-  "end": "finalizer",
+  "end": "reviewer",
   "edges": [
     {
       "from": "hub",
-      "to": "locator"
+      "to": "search"
     },
     {
-      "from": "locator",
+      "from": "search",
       "to": "hub"
     },
     {
@@ -22,15 +22,15 @@
     },
     {
       "from": "hub",
-      "to": "reviewer"
+      "to": "tester"
     },
     {
-      "from": "reviewer",
+      "from": "tester",
       "to": "hub"
     },
     {
       "from": "hub",
-      "to": "finalizer"
+      "to": "reviewer"
     }
   ],
   "agents": {
@@ -51,12 +51,13 @@
       "stop": [],
       "max_iters": 1,
       "prompts": {
-        "system": "You dispatch the next worker in a 4-stage SWE-bench pipeline (locator -> patcher -> reviewer -> finalizer). You receive the pipeline state and answer with EXACTLY ONE word: the next worker to run.",
-        "user": "Apply these rules IN ORDER. Stop at the first rule that matches.\n\n1. If `locator` output is EMPTY -> answer: locator\n2. If `patcher` output is EMPTY -> answer: patcher\n3. If `reviewer` output is EMPTY -> answer: reviewer\n4. Otherwise -> answer: finalizer\n\n--- pipeline state (empty between `<<<` and `>>>` means that worker hasn't run yet) ---\nlocator output:  <<<{locator}>>>\npatcher output:  <<<{patcher}>>>\nreviewer output: <<<{reviewer}>>>\n--- end state ---\n\nAnswer with one word from: locator, patcher, reviewer, finalizer."
+        "system": "You dispatch the next worker in an ExpeRepair-flavoured SWE-bench pipeline. Critical path: search (agent_search — Locator) -> patcher (PatchAgent) -> reviewer (Review — terminal). `tester` (TestAgent — Bug reproduction) is an optional helper and is never selected here. Answer with EXACTLY ONE word.",
+        "user": "Apply these rules IN ORDER. Stop at the first rule that matches.\n\n1. If `search` output is EMPTY -> answer: search\n2. If `patcher` output is EMPTY -> answer: patcher\n3. Otherwise -> answer: reviewer\n\n--- pipeline state (empty between `<<<` and `>>>` means that worker hasn't run yet) ---\nsearch output:   <<<{search}>>>\npatcher output:  <<<{patcher}>>>\ntester output:   <<<{tester}>>>\n--- end state ---\n\nAnswer with one word from: search, patcher, reviewer."
       }
     },
-    "locator": {
-      "class": "LocatorAgent",
+    "search": {
+      "class": "Locator",
+      "variant": "ExpeRepair:agent_search",
       "model": "ollama/qwen3.5:9b",
       "think": true,
       "num_ctx": 8192,
@@ -72,10 +73,12 @@
       "stop": [
         "</files>"
       ],
-      "max_iters": 6
+      "max_iters": 6,
+      "prompts": {}
     },
     "patcher": {
-      "class": "PatcherAgent",
+      "class": "Patcher",
+      "variant": "ExpeRepair:PatchAgent",
       "model": "ollama/qwen3.5:9b",
       "think": true,
       "num_ctx": 16384,
@@ -95,10 +98,30 @@
       "fallback": {
         "enabled": true,
         "guarantee_change": true
-      }
+      },
+      "prompts": {}
+    },
+    "tester": {
+      "class": "Bug reproduction",
+      "variant": "ExpeRepair:TestAgent",
+      "model": "ollama/qwen3.5:9b",
+      "think": true,
+      "num_ctx": 8192,
+      "stream": true,
+      "temperature": 0.2,
+      "top_k": 40,
+      "top_p": 0.9,
+      "min_p": 0,
+      "repeat_penalty": 1.1,
+      "repeat_last_n": 64,
+      "seed": 0,
+      "num_predict": 1024,
+      "stop": [],
+      "max_iters": 6
     },
     "reviewer": {
-      "class": "ReviewerAgent",
+      "class": "Reviewer",
+      "variant": "ExpeRepair:Review",
       "model": "ollama/qwen3.5:9b",
       "think": true,
       "num_ctx": 4096,
@@ -115,23 +138,6 @@
         "</review>"
       ],
       "max_iters": 6
-    },
-    "finalizer": {
-      "class": "HelperProxyAgent",
-      "model": "ollama/qwen3.5:9b",
-      "think": true,
-      "num_ctx": 4096,
-      "stream": true,
-      "temperature": 0,
-      "top_k": 40,
-      "top_p": 0.9,
-      "min_p": 0,
-      "repeat_penalty": 1.1,
-      "repeat_last_n": 64,
-      "seed": 0,
-      "num_predict": 512,
-      "stop": [],
-      "max_iters": 4
     }
   }
 }

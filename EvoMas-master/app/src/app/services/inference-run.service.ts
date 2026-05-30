@@ -60,6 +60,8 @@ export interface AgentCard {
   /** Chips that triggered THIS card iteration (drained from the
    * run-level pending queue at spawn time). One chip → one card. */
   incomingChips: HandoffChip[];
+  startedAt?: number;
+  durationMs?: number;
 }
 
 /** Per-instance buffer so the user can switch between instances in a
@@ -95,6 +97,7 @@ function newCard(agent: string, nodeColors: Record<string, string>): AgentCard {
     inputs: {},
     tokens: null,
     incomingChips: [],
+    startedAt: Date.now(),
   };
 }
 
@@ -173,6 +176,9 @@ export function applyEventToInstance(
       const card = open ?? _spawnCard(inst, agent, nodeColors);
       card.delta = open ? { ...card.delta, ...(ev.delta ?? {}) } : (ev.delta ?? {});
       card.status = 'done';
+      if (card.startedAt != null && card.durationMs == null) {
+        card.durationMs = Date.now() - card.startedAt;
+      }
       break;
     }
 
@@ -315,7 +321,89 @@ export function parseNdjsonToRunInstance(
   if (!sawInstanceStart && inst.status === 'queued') {
     inst.status = 'done';
   }
+  // Strip the live-path `durationMs` that the reducer wrote using
+  // parse-time wall clock — those numbers reflect the millis between
+  // spawn and event-reduce, NOT the original run. Callers overlay
+  // log-derived timings via `applyAgentTimingsToInstance` instead.
+  for (const card of inst.cards) {
+    card.durationMs = undefined;
+    card.startedAt = undefined;
+  }
   return inst;
+}
+
+/** Extract per-agent execution time (ms) from a prediction's `.log` text.
+ *
+ * The runner writes lines shaped like
+ *   `YYYY-MM-DD HH:MM:SS,mmm - INFO - [agent] ...`
+ * and sub-tag variants like `[agent|think]` or `[agent|tool]`. The
+ * agent's TOTAL time is taken as (last timestamp − first timestamp) of
+ * every line whose `[agent...]` prefix matches that agent — sub-tags
+ * are folded into the parent agent so `[locator|think]` counts toward
+ * `locator`.
+ *
+ * Returns `agent → durationMs`. Agents that only emit one line get 0.
+ */
+export function parseAgentTimingsFromLog(raw: string): Map<string, number> {
+  // ISO-ish line head: `2026-05-14 22:24:01,881 - INFO - [agent...]`.
+  // Capture group 1 = timestamp; group 2 = agent identifier (before any
+  // `|` sub-tag or `]`).
+  const RE = /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - \w+ - \[([^\]|]+)/;
+  const first = new Map<string, number>();
+  const last  = new Map<string, number>();
+  for (const line of raw.split('\n')) {
+    const m = line.match(RE);
+    if (!m) continue;
+    const t = parseLogTimestamp(m[1]);
+    if (t == null) continue;
+    const agent = m[2].trim();
+    if (!agent) continue;
+    if (!first.has(agent) || t < (first.get(agent) ?? Infinity)) first.set(agent, t);
+    if (!last.has(agent)  || t > (last.get(agent)  ?? -Infinity)) last.set(agent, t);
+  }
+  const out = new Map<string, number>();
+  for (const [a, start] of first) {
+    out.set(a, Math.max(0, (last.get(a) ?? start) - start));
+  }
+  return out;
+}
+
+/** `2026-05-14 22:24:01,881` → epoch ms. Parses as **local time** since
+ * the runner uses the host clock. Returns `null` on malformed input. */
+function parseLogTimestamp(s: string): number | null {
+  // `Date.parse` accepts `YYYY-MM-DDTHH:MM:SS.mmm` reliably across
+  // browsers; the runner writes `YYYY-MM-DD HH:MM:SS,mmm`.
+  const iso = s.replace(' ', 'T').replace(',', '.');
+  const t = Date.parse(iso);
+  return Number.isFinite(t) ? t : null;
+}
+
+/** Overwrite each `AgentCard.durationMs` with the matching entry from
+ * `timings`. Cards for the same agent across retries get the same
+ * aggregate value — the `.log` file doesn't split iteration boundaries
+ * reliably, so showing the total on every card is the accurate read. */
+export function applyAgentTimingsToInstance(
+  inst: RunInstance,
+  timings: Map<string, number>,
+): void {
+  for (const card of inst.cards) {
+    const d = timings.get(card.agent);
+    if (d != null) card.durationMs = d;
+  }
+}
+
+/** Human-friendly duration: `420ms` / `5.4s` / `1m 12s` / `1h 03m`. */
+export function formatDurationMs(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) return '';
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  const s = ms / 1000;
+  if (s < 60) return `${s.toFixed(s < 10 ? 1 : 0)}s`;
+  const totalSec = Math.round(s);
+  const m = Math.floor(totalSec / 60);
+  const r = totalSec % 60;
+  if (m < 60) return `${m}m ${String(r).padStart(2, '0')}s`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${String(m % 60).padStart(2, '0')}m`;
 }
 
 /** Single-run inference. One run at a time; overlapping `run()` calls

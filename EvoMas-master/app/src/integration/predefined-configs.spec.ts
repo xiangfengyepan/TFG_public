@@ -33,14 +33,44 @@ interface Instance { id: string; hint?: string }
 /** Each entry runs inference + evaluation against every predefined config.
  * SWE-bench rows go through the harness; subset=custom rows route to
  * `apply_and_test.py` (clone → apply patch → pytest). Both write a
- * `report.json` with a `resolved` flag we assert on. */
+ * `report.json` with a `resolved` flag we assert on.
+ *
+ * The 23 lite/dev rows below are the full SWE-bench Lite dev split,
+ * mirrored in `swebench_lite_dev.jsonl`. Evaluation runs through the
+ * SWE-bench harness (WSL + Docker) — no hints since these are real-
+ * world bugs, not synthetic. */
 const INSTANCES: Instance[] = [
-  { id: 'custom-xiangfengyepan-evomas-test-instance-fcf59bc', hint: 'calculator.py' },
+  { id: 'sqlfluff__sqlfluff-1517' },
+  { id: 'sqlfluff__sqlfluff-1625' },
+  { id: 'sqlfluff__sqlfluff-1733' },
+  { id: 'sqlfluff__sqlfluff-1763' },
+  { id: 'sqlfluff__sqlfluff-2419' },
+  { id: 'marshmallow-code__marshmallow-1343' },
+  { id: 'marshmallow-code__marshmallow-1359' },
+  { id: 'pvlib__pvlib-python-1072' },
+  { id: 'pvlib__pvlib-python-1154' },
+  { id: 'pvlib__pvlib-python-1606' },
+  { id: 'pvlib__pvlib-python-1707' },
+  { id: 'pvlib__pvlib-python-1854' },
+  { id: 'pylint-dev__astroid-1196' },
+  { id: 'pylint-dev__astroid-1268' },
+  { id: 'pylint-dev__astroid-1333' },
+  { id: 'pylint-dev__astroid-1866' },
+  { id: 'pylint-dev__astroid-1978' },
+  { id: 'pyvista__pyvista-4315' },
+  { id: 'pydicom__pydicom-901' },
+  { id: 'pydicom__pydicom-1139' },
+  { id: 'pydicom__pydicom-1256' },
+  { id: 'pydicom__pydicom-1413' },
+  { id: 'pydicom__pydicom-1694' },
 ];
 
-/** 30-min per-cell cap: long enough for slow CPU-only inference, short
- * enough that a stuck Ollama can't hang the suite indefinitely. */
-const TEST_TIMEOUT_MS = 30 * 60 * 1000;
+/** 90-min per-cell cap: heavy cyclic topologies (joycode_star,
+ * agentscope_hybrid) routinely use 25-40 min when Ollama is hot from
+ * back-to-back matrix cells; the cap stays generous enough for them to
+ * land while still preventing a stuck Ollama from hanging the suite
+ * indefinitely. */
+const TEST_TIMEOUT_MS = 90 * 60 * 1000;
 
 /** Disable undici's body/headers timeouts; SSE streams idle for minutes
  * while Ollama generates the next agent's response. */
