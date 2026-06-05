@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import re
 import subprocess
 import sys
@@ -21,12 +22,19 @@ from api.common import (
     EVALUATION_DIR,
     INSTANCES_PATH,
     PREDICTIONS_DIR,
+    RESULTS_DIR,
     SWEBENCH_VENV_PYTHON,
     safe_under,
 )
+from evomas.paths import (
+    INFERENCE_INTERNAL_LOGS_DIR,
+    PREDICTION_TEXT_LOGS_DIR,
+)
 from evomas.utils.instances import instance_origin_lookup, load_instance_rows
 from evomas.utils.paths import to_wsl
-from evomas.utils.predictions import derive_run_id_base, partition_predictions
+from evomas.utils.predictions import derive_run_id_base
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -41,12 +49,79 @@ class EvaluationRequest(BaseModel):
     # Both auto-detected from the prediction file when omitted.
     split: str | None = None
     run_id: str | None = None
+    # Required: filename stem under `scripts/evaluation/` (no `.py`).
+    script: str | None = None
+
+
+@router.get("/api/paths")
+def get_paths() -> dict[str, str]:
+    """Resolved on-disk paths the frontend renders in user-facing strings
+    (empty-state hints, tooltips, error messages). Returned as repo-relative
+    POSIX strings so the same payload reads the same on Windows + macOS.
+    Falls back to the absolute path when a value lives outside `BASE_DIR`
+    (rare: a user passes an absolute `RESULTS_DIR` outside the repo)."""
+
+    def rel(p: Path) -> str:
+        try:
+            return p.resolve().relative_to(BASE_DIR.resolve()).as_posix()
+        except (ValueError, OSError):
+            return p.as_posix()
+
+    return {
+        "base_dir":              rel(BASE_DIR),
+        "results_dir":           rel(RESULTS_DIR),
+        "predictions_dir":       rel(PREDICTIONS_DIR),
+        "predictions_logs_dir":  rel(PREDICTION_TEXT_LOGS_DIR),
+        "evaluations_dir":       rel(EVALUATION_DIR),
+        "inference_logs_dir":    rel(INFERENCE_INTERNAL_LOGS_DIR),
+    }
 
 
 @router.get("/api/predictions")
 def list_predictions() -> list[str]:
     files = sorted(PREDICTIONS_DIR.glob("*.jsonl"), key=lambda x: x.stat().st_mtime, reverse=True)
     return [str(p) for p in files]
+
+
+_DEFAULT_MANIFEST = {"needs_wsl": False}
+
+
+def _eval_manifest(stem: str) -> dict[str, Any]:
+    """Read `EVOMAS_EVALUATOR` from `scripts/evaluation/<stem>.py` (or
+    fall back to defaults when missing / unparseable)."""
+    script_path = BASE_DIR / "scripts" / "evaluation" / f"{stem}.py"
+    if not script_path.is_file():
+        raise FileNotFoundError(f"evaluator script not found: {stem}")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(f"_eval_{stem}", script_path)
+    if spec is None or spec.loader is None:
+        return {**_DEFAULT_MANIFEST}
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("evaluator %s import failed: %s; using defaults", stem, exc)
+        return {**_DEFAULT_MANIFEST}
+    declared = getattr(mod, "EVOMAS_EVALUATOR", None)
+    if not isinstance(declared, dict):
+        return {**_DEFAULT_MANIFEST}
+    return {**_DEFAULT_MANIFEST, **declared}
+
+
+@router.get("/api/evaluation/scripts")
+def list_evaluation_scripts() -> list[dict[str, str]]:
+    """Every `scripts/evaluation/*.py` as `{value, label}` for the
+    Evaluation-page dropdown. Label = `<stem>.py`."""
+    folder = BASE_DIR / "scripts" / "evaluation"
+    out: list[dict[str, str]] = []
+    if not folder.is_dir():
+        return out
+    for p in sorted(folder.glob("*.py")):
+        stem = p.stem
+        if stem.startswith("_"):
+            continue
+        out.append({"value": stem, "label": p.name})
+    return out
 
 
 @router.get("/api/predictions/inspect")
@@ -117,12 +192,16 @@ async def run_evaluation(req: EvaluationRequest):
     loop = asyncio.get_event_loop()
     key = req.predictions_path
 
-    # Partition by (subset, split) so a multi-instance file is scored
-    # against every dataset its rows came from. Custom-repo rows go to
-    # `apply_and_test.py` since the SWE-bench harness needs test_patch.
-    groups = partition_predictions(pred_path, INSTANCES_PATH)
-    skipped_custom = groups.pop(("custom", "custom"), [])
+    forced = (req.script or "").strip()
+    if not forced:
+        raise HTTPException(400, "Missing evaluator script.")
+    try:
+        manifest = _eval_manifest(forced)
+    except FileNotFoundError:
+        raise HTTPException(400, f"Unknown evaluator script: {forced!r}")
+
     base = req.run_id or f"evaluation-{derive_run_id_base(pred_path)}"
+    all_predictions = [ln for ln in pred_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
 
     def put(data: dict) -> None:
         loop.call_soon_threadsafe(q.put_nowait, data)
@@ -133,124 +212,87 @@ async def run_evaluation(req: EvaluationRequest):
             tmp_dir = EVALUATION_DIR / "_tmp_predictions"
             tmp_dir.mkdir(parents=True, exist_ok=True)
 
-            put({"type": "log", "message": (
-                f"Detected {len(groups)} (subset, split) group(s) in {pred_path.name}: "
-                + ", ".join(f"{s}/{sp}={len(v)}" for (s, sp), v in groups.items())
-            )})
-            if skipped_custom:
-                put({"type": "log", "message": (
-                    f"Detected {len(skipped_custom)} custom-repo prediction(s) -- "
-                    f"will score them by cloning + applying patch + running pytest after "
-                    f"the SWE-bench group(s)."
-                )})
-            if not groups and not skipped_custom:
+            if not all_predictions:
+                put({"type": "log", "message": f"{pred_path.name} has no prediction rows; nothing to evaluate."})
                 put({"type": "done", "returncode": 0})
                 return
 
-            return_codes: list[int] = []
-            for (subset, split), lines in groups.items():
-                group_path = tmp_dir / f"{pred_path.stem}__{subset}_{split}.jsonl"
-                group_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-                group_run_id = f"{base}-{subset}-{split}" if len(groups) > 1 else base
-                effective_split = req.split or split
+            iids: list[str] = []
+            for raw in all_predictions:
+                try:
+                    obj = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
+                iid = obj.get("instance_id")
+                if iid:
+                    iids.append(iid)
+            inst_rows = load_instance_rows(iids, INSTANCES_PATH)
 
-                put({"type": "group_start", "subset": subset, "split": split,
-                     "run_id": group_run_id, "count": len(lines)})
+            model_name = "evomas"
+            for raw in all_predictions:
+                try:
+                    cand = json.loads(raw).get("model_name_or_path") or json.loads(raw).get("model")
+                    if isinstance(cand, str) and cand.strip():
+                        model_name = cand.strip()
+                        break
+                except json.JSONDecodeError:
+                    continue
 
+            shared_pred_path = tmp_dir / f"{pred_path.stem}.jsonl"
+            shared_pred_path.write_text("\n".join(all_predictions) + "\n", encoding="utf-8")
+            shared_inst_path = tmp_dir / f"{pred_path.stem}__instances.jsonl"
+            shared_inst_path.write_text(
+                "\n".join(json.dumps(r, ensure_ascii=False) for r in inst_rows.values()) + "\n",
+                encoding="utf-8",
+            )
+
+            put({"type": "log", "message": (
+                f"Evaluator {forced!r} over {len(all_predictions)} prediction row(s); "
+                f"{len(inst_rows)} instance row(s) resolved for --instances."
+            )})
+            put({"type": "group_start", "subset": "all", "split": "all",
+                 "run_id": base, "count": len(all_predictions)})
+
+            # `needs_wsl: True` wraps in WSL (swebench is POSIX-only).
+            script_path = BASE_DIR / "scripts" / "evaluation" / f"{forced}.py"
+            if manifest.get("needs_wsl"):
                 cmd = [
                     "wsl",
                     to_wsl(str(SWEBENCH_VENV_PYTHON)),
-                    to_wsl(str(BASE_DIR / "scripts" / "run_swebench_evaluation.py")),
-                    "--predictions", to_wsl(str(group_path)),
-                    "--subset", subset,
-                    "--split", effective_split,
-                    "--max-workers", str(req.max_workers),
-                    "--run-id", group_run_id,
-                    "--report-dir", to_wsl(str(EVALUATION_DIR)),
-                ]
-                proc = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    cwd=str(EVALUATION_DIR),
-                    encoding="utf-8",
-                    errors="replace",
-                )
-                _eval_procs[key] = proc
-                assert proc.stdout is not None
-                for line in iter(proc.stdout.readline, ""):
-                    put({"type": "log", "message": line.rstrip()})
-                proc.wait()
-                return_codes.append(proc.returncode)
-                put({"type": "group_done", "subset": subset, "split": split,
-                     "run_id": group_run_id, "returncode": proc.returncode})
-
-            # Custom group: native clone + apply + pytest. Runs after the
-            # harness groups so SSE order matches the frontend's render.
-            if skipped_custom:
-                custom_run_id = (
-                    f"{base}-custom-custom" if groups else base
-                )
-                custom_iids: list[str] = []
-                for raw in skipped_custom:
-                    try:
-                        obj = json.loads(raw)
-                    except json.JSONDecodeError:
-                        continue
-                    iid = obj.get("instance_id")
-                    if iid:
-                        custom_iids.append(iid)
-                rows = load_instance_rows(custom_iids, INSTANCES_PATH)
-
-                model_name = "evomas-custom"
-                try:
-                    first = json.loads(skipped_custom[0])
-                    cand = first.get("model_name_or_path") or first.get("model")
-                    if isinstance(cand, str) and cand.strip():
-                        model_name = cand.strip()
-                except json.JSONDecodeError:
-                    pass
-
-                custom_pred_path = tmp_dir / f"{pred_path.stem}__custom_custom.jsonl"
-                custom_pred_path.write_text("\n".join(skipped_custom) + "\n", encoding="utf-8")
-                custom_inst_path = tmp_dir / f"{pred_path.stem}__custom_custom_instances.jsonl"
-                custom_inst_path.write_text(
-                    "\n".join(json.dumps(r, ensure_ascii=False) for r in rows.values()) + "\n",
-                    encoding="utf-8",
-                )
-
-                put({"type": "group_start", "subset": "custom", "split": "custom",
-                     "run_id": custom_run_id, "count": len(skipped_custom)})
-
-                cmd = [
-                    sys.executable,
-                    str(BASE_DIR / "scripts" / "apply_and_test.py"),
-                    "--instances",   str(custom_inst_path),
-                    "--predictions", str(custom_pred_path),
-                    "--report-dir",  str(EVALUATION_DIR),
-                    "--run-id",      custom_run_id,
+                    to_wsl(str(script_path)),
+                    "--predictions", to_wsl(str(shared_pred_path)),
+                    "--instances",   to_wsl(str(shared_inst_path)),
+                    "--report-dir",  to_wsl(str(EVALUATION_DIR)),
+                    "--run-id",      base,
                     "--model",       model_name,
                 ]
-                proc = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    cwd=str(BASE_DIR),
-                    encoding="utf-8",
-                    errors="replace",
-                )
-                _eval_procs[key] = proc
-                assert proc.stdout is not None
-                for line in iter(proc.stdout.readline, ""):
-                    put({"type": "log", "message": line.rstrip()})
-                proc.wait()
-                return_codes.append(proc.returncode)
-                put({"type": "group_done", "subset": "custom", "split": "custom",
-                     "run_id": custom_run_id, "returncode": proc.returncode})
-
-            put({"type": "done", "returncode": max(return_codes) if return_codes else 0})
+            else:
+                cmd = [
+                    sys.executable,
+                    str(script_path),
+                    "--predictions", str(shared_pred_path),
+                    "--instances",   str(shared_inst_path),
+                    "--report-dir",  str(EVALUATION_DIR),
+                    "--run-id",      base,
+                    "--model",       model_name,
+                ]
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=str(BASE_DIR),
+                encoding="utf-8",
+                errors="replace",
+            )
+            _eval_procs[key] = proc
+            assert proc.stdout is not None
+            for line in iter(proc.stdout.readline, ""):
+                put({"type": "log", "message": line.rstrip()})
+            proc.wait()
+            put({"type": "group_done", "subset": "all", "split": "all",
+                 "run_id": base, "returncode": proc.returncode})
+            put({"type": "done", "returncode": proc.returncode})
         except Exception as exc:
             put({"type": "error", "message": str(exc)})
         finally:

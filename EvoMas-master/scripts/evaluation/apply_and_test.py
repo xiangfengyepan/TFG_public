@@ -1,4 +1,7 @@
 """Apply EvoMas patches to their repos and run the tests, optionally writing a SWE-bench-compatible report layout for the Results page."""
+# No `EVOMAS_EVALUATOR` manifest needed -- single_shot dispatch + no
+# WSL are the framework defaults. See `docs/adding_a_new_problem.md`.
+
 import argparse
 import json
 import logging
@@ -14,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 # Reuse evomas.tools.patch_tools.apply_patch_impl when importable so we get the
 # `patch --fuzz=5` fallback for LLM-generated diffs with wrong hunk line numbers.
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+# scripts/evaluation/<this>.py -- parents[2] = repo root.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 try:

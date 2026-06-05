@@ -35,7 +35,7 @@ import { DialogService, DialogState } from '../../services/dialog.service';
   styleUrl: './dialog-host.component.css',
 })
 export class DialogHostComponent implements OnInit, OnDestroy {
-  @ViewChild('promptInput') promptInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('promptInput') promptInput?: ElementRef<HTMLInputElement | HTMLSelectElement>;
 
   state: DialogState | null = null;
   /** Local copy of the prompt input value — bound via `[(ngModel)]`. */
@@ -57,7 +57,12 @@ export class DialogHostComponent implements OnInit, OnDestroy {
       // render before the ViewChild ref is populated.
       if (next?.kind === 'prompt') {
         queueMicrotask(() => this.promptInput?.nativeElement.focus());
-        queueMicrotask(() => this.promptInput?.nativeElement.select());
+        queueMicrotask(() => {
+          const el = this.promptInput?.nativeElement;
+          // `.select()` is input-only; the select-options variant uses
+          // a <select> element which doesn't have it.
+          if (el instanceof HTMLInputElement) el.select();
+        });
       }
     });
   }

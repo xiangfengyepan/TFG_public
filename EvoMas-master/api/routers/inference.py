@@ -265,6 +265,9 @@ async def run_inference(req: InferenceRequest):
                     instance["repo"],
                     instance["base_commit"],
                 )
+                # Sandboxed tools (write_file, ...) read this env var.
+                import os as _os
+                _os.environ["EVOMAS_WORKSPACE_PATH"] = str(workspace.path)
 
                 issue_parts: list[str] = []
                 if instance.get("problem_statement"):
@@ -377,9 +380,10 @@ async def run_inference(req: InferenceRequest):
                                     "timestamp": handoff_ts,
                                 })
 
-                # Canonical patch: workspace `git diff`. Fall back to the
-                # end-node producer slot only when the workspace is clean
-                # (covers the virtual-patcher pattern). Mirrors the runner.
+                # `model_patch` is a unified diff or empty -- the end-node
+                # slot is only used when it actually contains `diff --git `
+                # (virtual-patcher pattern), so LLM phrases like "null" /
+                # "done" can't leak into the prediction.
                 workspace_diff = generate_diff_impl(str(workspace.path)) or ""
                 if workspace_diff.strip():
                     final_patch: str = workspace_diff
@@ -389,7 +393,8 @@ async def run_inference(req: InferenceRequest):
                         end_field if isinstance(end_field, str)
                         else (end_field[-1] if end_field else "")
                     )
-                    final_patch = str(accumulated.get(end_key) or "")
+                    slot = str(accumulated.get(end_key) or "")
+                    final_patch = slot if "diff --git " in slot else ""
 
                 # Sum per-agent token counts across the run.
                 tokens_in = sum(int(a.tokens.get("input", 0))  for a in agents.values())
@@ -505,6 +510,7 @@ class NotebookRequest(BaseModel):
     state) minus the SSE-only run knobs."""
     instance_ids: list[str]
     config: str | dict[str, Any] = ""
+    evaluator: str = ""
 
 
 @router.post("/api/inference/notebook")
@@ -518,6 +524,9 @@ def build_inference_notebook(req: NotebookRequest) -> Response:
     (the topology page's "Save to session" payload)."""
     if not req.instance_ids:
         raise HTTPException(400, "instance_ids must be non-empty")
+    evaluator_stem = (req.evaluator or "").strip()
+    if not evaluator_stem:
+        raise HTTPException(400, "evaluator stem is required")
 
     if isinstance(req.config, dict):
         cfg_data = req.config
@@ -537,11 +546,15 @@ def build_inference_notebook(req: NotebookRequest) -> Response:
         except json.JSONDecodeError as exc:
             raise HTTPException(500, f"failed to parse {cfg_path.name}: {exc}") from exc
 
-    run_id, notebook = build_notebook_for_inputs(
-        instance_ids=list(req.instance_ids),
-        config_data=cfg_data,
-        instances_path=INSTANCES_PATH,
-    )
+    try:
+        run_id, notebook = build_notebook_for_inputs(
+            instance_ids=list(req.instance_ids),
+            config_data=cfg_data,
+            instances_path=INSTANCES_PATH,
+            evaluator=evaluator_stem,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(400, str(exc)) from exc
     body = json.dumps(notebook, indent=1)
     return Response(
         content=body,

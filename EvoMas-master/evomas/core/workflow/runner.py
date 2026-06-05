@@ -1,5 +1,7 @@
 import logging
 import os
+import tempfile
+from pathlib import Path
 from typing import Any
 
 from evomas.agents.base_agent import BaseAgent
@@ -11,7 +13,7 @@ from evomas.core.workflow.state_factory import build_initial_state, build_state_
 from evomas.exceptions.errors import ConfigError, EvomasError, OllamaMemoryError
 from evomas.utils.patch import generate_diff_impl
 from evomas.utils.ollama_preflight import preflight_models
-from evomas.utils.workspace import clone_workspace
+from evomas.utils.workspace import Workspace, clone_workspace
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +83,17 @@ def _maybe_weave_op(fn):
 
 def _run_impl(instance: dict[str, Any], config: str | dict[str, Any] = "") -> str:
     """Run the EvoMas workflow for a single SWE-bench instance. `config` is
-    a name, path, in-memory unified config dict, or empty for the default."""
+    a name, path, in-memory unified config dict, or empty for the default.
+
+    `instance.repo` + `instance.base_commit` are optional — when both are
+    absent (or empty), the runner skips the GitHub clone and uses a
+    throwaway tmpdir as the workspace. That's the path the websearch /
+    chat-style configs take: agents that don't need source files just
+    want SOMETHING the tool sandbox can resolve `EVOMAS_WORKSPACE_PATH`
+    against."""
     instance_id: str = instance["instance_id"]
-    repo: str = instance["repo"]
-    base_commit: str = instance["base_commit"]
+    repo: str | None = instance.get("repo") or None
+    base_commit: str | None = instance.get("base_commit") or None
 
     if isinstance(config, dict):
         cfg_label = config.get("id") or "<inline>"
@@ -98,8 +107,20 @@ def _run_impl(instance: dict[str, Any], config: str | dict[str, Any] = "") -> st
     # from LangChain 30s into the agent loop.
     preflight_models(cfg)
 
-    workspace = clone_workspace(instance_id, repo, base_commit)
+    if repo and base_commit:
+        workspace = clone_workspace(instance_id, repo, base_commit)
+    else:
+        # No repo to clone -- give the chain an empty scratch dir so
+        # workspace-aware tools (write_file, list_files) still have a
+        # valid root, and so `generate_diff_impl` later returns "" via
+        # its existing git-failure path.
+        ws_path = Path(tempfile.gettempdir()) / "evomas_workspace" / f"adhoc-{instance_id}"
+        ws_path.mkdir(parents=True, exist_ok=True)
+        workspace = Workspace(instance_id, repo or "", base_commit or "", ws_path)
+        logger.info("ad-hoc workspace at %s (no repo/base_commit on instance)", ws_path)
     issue_text = _compose_issue(instance)
+    # Sandboxed tools (write_file, ...) read this env var.
+    os.environ["EVOMAS_WORKSPACE_PATH"] = str(workspace.path)
 
     # Order matters: state_factory reads each agent class's
     # OUTPUT_TYPE / OUTPUT_DEFAULT ClassVars.
@@ -132,11 +153,9 @@ def _run_impl(instance: dict[str, Any], config: str | dict[str, Any] = "") -> st
         logger.exception("graph execution failed for %s: %s", instance_id, exc)
         raise EvomasError(f"graph failure for {instance_id}: {exc}") from exc
 
-    # Prefer the workspace `git diff` over the end-node slot: an
-    # Router slot holds `"END"`, a Reviewer slot holds review text
-    # — both fail to apply as patches. Fall back to the end-node slot only
-    # when the workspace is clean (virtual-patcher pattern, where an agent
-    # emits a diff string without touching files).
+    # `final_patch` is a unified diff or empty -- the end-node slot is
+    # only used when it actually contains `diff --git ` (virtual-patcher
+    # pattern), so LLM phrases like "null" / "OK" can't leak through.
     workspace_diff = generate_diff_impl(str(workspace.path)) or ""
     if workspace_diff.strip():
         final_patch: str = workspace_diff
@@ -147,17 +166,18 @@ def _run_impl(instance: dict[str, Any], config: str | dict[str, Any] = "") -> st
             else (end_field[-1] if end_field else "")
         )
         slot_value = str(final_state.get(end_key) or "")
-        if slot_value.strip():
+        if "diff --git " in slot_value:
             logger.info(
-                "%s: workspace has no diff; using end-node state[%r] as patch",
+                "%s: workspace clean; using diff from end-node state[%r]",
                 instance_id, end_key,
             )
+            final_patch = slot_value
         else:
             logger.warning(
-                "%s produced empty patch (workspace clean AND state[%r] empty)",
+                "%s produced empty patch (workspace clean AND state[%r] not a diff)",
                 instance_id, end_key,
             )
-        final_patch = slot_value
+            final_patch = ""
 
     # Sum each agent's `BaseAgent.tokens` so the CLI line matches the API.
     tokens_in    = sum(int(a.tokens.get("input", 0))  for a in agents.values())

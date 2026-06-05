@@ -281,31 +281,17 @@ class LLMToolAgent(BaseAgent):
                                 self.name, target_name, exc)
 
     def _bound_tools(self) -> list[Any]:
+        """Resolve the BaseTool objects to bind to the LLM straight from
+        the MCP registry. Whatever `default_registry()` auto-discovered
+        under `evomas/tools/` (top-level `@tool` fns + every bundle's
+        `*_TOOLS` list) is what this agent can call."""
+        registry = self.mcp.registry.tools
         names = (
             list(self.tool_policy.keys())
             if self.tool_policy is not None
-            else list(self.mcp.registry.tools.keys())
+            else list(registry.keys())
         )
-        from evomas.tools import lint_tools, patch_tools, repo_tools, search_tools
-        from evomas.tools.repo.openhands import LOC_TOOLS, OPENHANDS_TOOLS
-
-        builtin = [
-            repo_tools.read_file,
-            repo_tools.list_files,
-            repo_tools.derive_description_fix,
-            search_tools.search_code,
-            search_tools.detect_bug_class,
-            lint_tools.run_flake8,
-            patch_tools.apply_patch,
-            patch_tools.generate_diff,
-            patch_tools.normalize_patch,
-            patch_tools.reset_repo,
-            patch_tools.apply_description_fix,
-            *OPENHANDS_TOOLS,
-            *LOC_TOOLS,
-        ]
-        by_name = {t.name: t for t in builtin}
-        return [by_name[n] for n in names if n in by_name]
+        return [registry[n].tool for n in names if n in registry and registry[n].tool is not None]
 
     @staticmethod
     def _extract_tool_calls(response: Any) -> list[dict[str, Any]]:

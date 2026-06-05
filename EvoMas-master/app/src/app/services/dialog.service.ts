@@ -49,6 +49,10 @@ export interface PromptOptions {
   /** Synchronous client-side check. Return a string to render as an
    * inline error and keep the dialog open; return null to accept. */
   validate?: (value: string) => string | null;
+  /** When provided, the prompt renders a `<select>` over these options
+   * instead of a free-text `<input>`. `defaultValue` should match one
+   * of them. */
+  selectOptions?: { value: string; label: string }[];
 }
 
 export type DialogKind = 'alert' | 'confirm' | 'prompt';
@@ -65,6 +69,7 @@ export interface DialogState {
   placeholder?: string;
   defaultValue?: string;
   validate?: (value: string) => string | null;
+  selectOptions?: { value: string; label: string }[];
   resolve: (value: unknown) => void;
 }
 
@@ -117,6 +122,7 @@ export class DialogService {
         defaultValue: opts.defaultValue ?? '',
         placeholder: opts.placeholder,
         validate: opts.validate,
+        selectOptions: opts.selectOptions,
         okLabel: opts.okLabel ?? 'OK',
         cancelLabel: opts.cancelLabel ?? 'Cancel',
         resolve: (v: unknown) => resolve(typeof v === 'string' ? v : null),

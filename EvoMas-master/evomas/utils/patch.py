@@ -6,7 +6,7 @@
 # `normalize_patch`) live in `evomas/tools/patch_tools.py` and delegate
 # straight into the `_impl` functions here. Code that doesn't need a
 # LangChain tool round-trip (api router, agent runtime, runner,
-# scripts/apply_and_test.py) imports from this module directly.
+# scripts/evaluation/apply_and_test.py) imports from this module directly.
 #
 # This split keeps the LLM-facing tool definitions thin and parks the real
 # implementation alongside the rest of evomas's pure-Python utilities in
@@ -32,11 +32,16 @@ class PatchResult(TypedDict):
 
 
 def _git(args: list[str], cwd: str, timeout: int = 60) -> subprocess.CompletedProcess[str]:
+    # Force UTF-8: git emits UTF-8 but `text=True` decodes via the
+    # system locale (cp1252 on Windows), which double-encodes non-ASCII
+    # bytes and breaks downstream `git apply`.
     return subprocess.run(
         ["git", *args],
         cwd=cwd,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=timeout,
     )
 
@@ -47,6 +52,8 @@ def _patch_cmd(args: list[str], cwd: str, timeout: int = 60) -> subprocess.Compl
         cwd=cwd,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=timeout,
     )
 

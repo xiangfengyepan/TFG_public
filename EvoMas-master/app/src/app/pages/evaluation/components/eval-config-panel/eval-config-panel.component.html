@@ -21,14 +21,14 @@
                       (ngModelChange)="onPredictionsPathChange($event)"
                       [disabled]="running" />
         } @else {
-          <div class="empty-hint pred-select">No .jsonl files found in results/predictions/</div>
+          <div class="empty-hint pred-select">No .jsonl files found in {{ predictionsDir }}/</div>
         }
         <input #predictionFile type="file" accept=".jsonl,application/x-ndjson,application/json"
                (change)="predictionFileChosen.emit($event)" hidden />
         <evo-button size="sm"
                     [disabled]="running"
                     (clicked)="predictionFile.click()"
-                    title="Browse to a .jsonl prediction file (must live under results/predictions/)">
+                    [title]="'Browse to a .jsonl prediction file (must live under ' + predictionsDir + '/)'">
           <ng-icon name="folder" />
         </evo-button>
         <evo-button size="sm"
@@ -46,6 +46,27 @@
       <evo-spinbox [min]="1" [max]="16" [step]="1"
                    [ngModel]="maxWorkers"
                    (ngModelChange)="onMaxWorkersChange($event)" />
+    </div>
+
+    <!-- Evaluator script. Options come from the parent which derives
+         them from the inspection: `apply_and_test` if any row is
+         custom, `run_swebench_evaluation` if any row is non-custom.
+         Empty array when neither matches -- the dropdown renders with
+         no items and the run button stays disabled. -->
+    <div class="field-block">
+      <label class="field-label">Evaluator script</label>
+      <evo-select [options]="evaluatorOptions"
+                  [ngModel]="evaluator"
+                  (ngModelChange)="onEvaluatorChange($event)"
+                  [disabled]="running || evaluatorOptions.length === 0" />
+      <div class="hint-text" style="margin-top: 4px; color: var(--text-muted)">
+        @if (evaluatorOptions.length === 0) {
+          No evaluator matches this prediction file -- inspection didn't find
+          custom or SWE-bench rows.
+        } @else {
+          Picked from <code>scripts/evaluation/</code>.
+        }
+      </div>
     </div>
 
     <!-- Subset / split / run ID — auto-detected from the prediction file.
@@ -87,26 +108,11 @@
       }
     </div>
 
-    @if (isCustomOnly) {
-      <div class="hint-text" style="margin-bottom:6px; color: var(--text-muted)">
-        Custom GitHub instances will be scored by cloning the repo, applying the
-        model patch, and running <code>pytest</code> (no SWE-bench harness).
-      </div>
-      <div class="hint-text" style="margin-bottom:6px; color: var(--text-muted)">
-        Resolution = patch applies cleanly AND pytest exits 0.
-      </div>
-    } @else if (hasCustomMixed) {
-      <div class="hint-text" style="margin-bottom:6px; color: var(--warn, #e3b341)">
-        <ng-icon name="warn" /> This file mixes custom-repo rows with SWE-bench rows. SWE-bench rows
-        go through the harness first; the customs are scored afterwards via
-        <code>pytest</code> on the cloned repo.
-      </div>
-    }
 
     <div class="run-row">
       @if (!running) {
         <evo-button variant="success"
-                    [disabled]="!predictionsPath"
+                    [disabled]="!predictionsPath || !evaluator"
                     (clicked)="run.emit()">
           <ng-icon name="play" /> Run Evaluation
         </evo-button>

@@ -10,9 +10,6 @@ from typing import Generator
 
 import pytest
 
-_OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3.5:9b")
-
-
 def _ollama_alive(host: str = "localhost", port: int = 11434, timeout: float = 1.0) -> bool:
     try:
         with socket.create_connection((host, port), timeout=timeout):
@@ -56,14 +53,17 @@ def ollama_required() -> None:
     port = int(port_s.split("/")[0]) if port_s else 11434
     if not _ollama_alive(host or "localhost", port):
         pytest.skip(f"ollama not reachable at {base_url}")
-    loadable, reason = _model_loadable(base_url, _OLLAMA_MODEL)
+    # Model tag mirrored by `test_langchain_ollama_model.py` — keep them
+    # in sync if you switch off qwen3.5:9b.
+    model = "qwen3.5:9b"
+    loadable, reason = _model_loadable(base_url, model)
     if not loadable:
         if "memory" in reason.lower():
             pytest.skip(
-                f"{_OLLAMA_MODEL} cannot load - insufficient memory "
+                f"{model} cannot load - insufficient memory "
                 f"(run tests from Windows where Ollama has more RAM): {reason[:200]}"
             )
-        pytest.skip(f"{_OLLAMA_MODEL} not available: {reason[:200]}")
+        pytest.skip(f"{model} not available: {reason[:200]}")
 
 
 @pytest.fixture

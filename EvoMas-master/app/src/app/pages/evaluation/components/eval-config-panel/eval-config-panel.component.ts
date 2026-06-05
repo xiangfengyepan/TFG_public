@@ -38,6 +38,12 @@ export class EvalConfigPanelComponent {
   @Input() filePickerError = '';
   @Output() predictionFileChosen = new EventEmitter<Event>();
   @Output() refreshPredictions = new EventEmitter<void>();
+  /** Resolved predictions directory (e.g. `results/predictions` by default,
+   * `experiments/foo/predictions` when RESULTS_DIR is overridden). Surfaced
+   * in the empty-state hint + file-picker tooltip so they show the real
+   * path the backend is scanning. Falls back to the legacy literal when
+   * the parent hasn't fetched `/api/paths` yet. */
+  @Input() predictionsDir = 'results/predictions';
 
   // ─── Workers + inspection ─────────────────────────────────
   @Input() maxWorkers = 1;
@@ -47,6 +53,19 @@ export class EvalConfigPanelComponent {
   @Input() inspectionError = '';
   @Input() isCustomOnly = false;
   @Input() hasCustomMixed = false;
+
+  // ─── Evaluator script picker ──────────────────────────────
+  /** Options the parent derives from the prediction-file inspection.
+   * The `<empty>` sentinel is included whenever nothing is detected so
+   * the dropdown still has a visible item; the parent disables Run
+   * while that's the active value. */
+  @Input() evaluatorOptions: { value: string; label: string }[] = [];
+  @Input() evaluator = '';
+  @Output() evaluatorChange = new EventEmitter<string>();
+  onEvaluatorChange(v: string): void {
+    this.evaluator = v;
+    this.evaluatorChange.emit(v);
+  }
 
   // ─── Run / progress / stats ───────────────────────────────
   @Input() running = false;

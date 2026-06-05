@@ -5,7 +5,7 @@ import {
   UnifiedConfig, ConfigSummary, Instance, InferenceEvent, EvalEvent,
   ResultInstance, ResultPrediction, ResultEvaluation, ToolDescriptor,
   AgentType, AgentVariant, PredictionInspection, OllamaModel,
-  ConfigHistoryEntry, ConfigRunMatch,
+  ConfigHistoryEntry, ConfigRunMatch, EvomasPaths,
 } from '../models/types';
 
 const BASE = 'http://localhost:8000/api';
@@ -17,6 +17,15 @@ export class ApiService {
   // ─── Health ───────────────────────────────────────────────────────
   getHealth(): Observable<{ status: string }> {
     return this.http.get<{ status: string }>(`${BASE}/health`);
+  }
+
+  /** Resolved on-disk paths the backend uses for the current RESULTS_DIR.
+   * Used by user-facing strings (Evaluation page empty hint, file-picker
+   * tooltips, "log lives under …" hints) so the displayed path tracks
+   * whatever the user set in `evomas/.env` / `api/.env` instead of the
+   * legacy `results/` literal. Returned as repo-relative POSIX strings. */
+  getPaths(): Observable<EvomasPaths> {
+    return this.http.get<EvomasPaths>(`${BASE}/paths`);
   }
 
   /** `host:port` portion of BASE. */
@@ -118,10 +127,12 @@ export class ApiService {
     );
   }
 
-  /** Reproduce-this-run notebook as a Blob (attachment-headered). */
-  getResultPredictionNotebook(path: string): Observable<Blob> {
+  /** Reproduce-this-run notebook as a Blob (attachment-headered).
+   * `evaluator` is the filename stem under `scripts/evaluation/` baked
+   * into the notebook's section 5 — required. */
+  getResultPredictionNotebook(path: string, evaluator: string): Observable<Blob> {
     return this.http.get(
-      `${BASE}/results/prediction/notebook?path=${encodeURIComponent(path)}`,
+      `${BASE}/results/prediction/notebook?path=${encodeURIComponent(path)}&evaluator=${encodeURIComponent(evaluator)}`,
       { responseType: 'blob' },
     );
   }
@@ -144,6 +155,11 @@ export class ApiService {
     return this.http.get<PredictionInspection>(
       `${BASE}/predictions/inspect?path=${encodeURIComponent(path)}`,
     );
+  }
+
+  /** Every `scripts/evaluation/*.py` exposed by the backend. */
+  getEvaluationScripts(): Observable<{ value: string; label: string }[]> {
+    return this.http.get<{ value: string; label: string }[]>(`${BASE}/evaluation/scripts`);
   }
 
   // ─── Results browser ──────────────────────────────────────────────
@@ -230,11 +246,11 @@ export class ApiService {
    * BEFORE any prediction exists, so the comparative section is omitted.
    * Mirror of `getResultPredictionNotebook` for the Inference page. */
   buildInferenceNotebook(
-    instanceIds: string[], config: string | UnifiedConfig,
+    instanceIds: string[], config: string | UnifiedConfig, evaluator: string,
   ): Observable<Blob> {
     return this.http.post(
       `${BASE}/inference/notebook`,
-      { instance_ids: instanceIds, config },
+      { instance_ids: instanceIds, config, evaluator },
       { responseType: 'blob' },
     );
   }
@@ -347,7 +363,7 @@ export class ApiService {
   }
 
   // ─── Evaluation SSE ───────────────────────────────────────────────
-  streamEvaluation(predictionsPath: string, split: string, maxWorkers: number, runId: string): Observable<EvalEvent> {
+  streamEvaluation(predictionsPath: string, split: string, maxWorkers: number, runId: string, script: string = ''): Observable<EvalEvent> {
     return new Observable<EvalEvent>(observer => {
       const controller = new AbortController();
       // Omit blanks so the backend auto-detects from the prediction file.
@@ -357,6 +373,7 @@ export class ApiService {
       };
       if (split) body['split'] = split;
       if (runId) body['run_id'] = runId;
+      if (script) body['script'] = script;
       fetch(`${BASE}/evaluation/run`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

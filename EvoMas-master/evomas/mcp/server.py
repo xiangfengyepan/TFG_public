@@ -1,5 +1,7 @@
+import importlib
 import inspect
 import logging
+import pkgutil
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -12,24 +14,76 @@ from evomas.tools.repo.composio import COMPOSIO_TOOLS
 from evomas.tools.repo.debug_gym import DEBUG_GYM_TOOLS
 from evomas.tools.repo.joycode_agent import JOYCODE_AGENT_TOOLS
 from evomas.tools.repo.lingma_swe_gpt import LINGMA_SWE_GPT_TOOLS
-from evomas.tools.lint_tools import run_flake8
 from evomas.tools.repo.openhands import LOC_TOOLS, OPENHANDS_TOOLS
-from evomas.tools.patch_tools import (
-    apply_description_fix,
-    apply_patch,
-    generate_diff,
-    normalize_patch,
-    reset_repo,
-)
 from evomas.tools.repo.patchwork import PATCHWORK_TOOLS
-from evomas.tools.repo_tools import derive_description_fix, list_files, read_file
-from evomas.tools.search_tools import detect_bug_class, search_code
-from evomas.tools.test_runner import run_tests
 from evomas.tools.repo.suna import SUNA_TOOLS
 from evomas.tools.repo.swe_agent import SWE_AGENT_TOOLS
 from evomas.tools.repo.trae_agent import TRAE_AGENT_TOOLS
 
 logger = logging.getLogger(__name__)
+
+
+def _discover_tools() -> list[BaseTool]:
+    """One walker for every tool the framework can use. Recursively
+    visits `evomas/tools/`:
+
+    - `.py` modules contribute their module-level `BaseTool` attributes
+      (`@tool`-decorated functions). Covers `lint_tools.py`,
+      `patch_tools.py`, `repo_tools.py`, `search_tools.py`,
+      `test_runner.py`, ...
+    - Packages contribute their `*_TOOLS` lists/tuples (and any
+      `BaseTool` attributes they re-export). Covers task bundles
+      (`translate/`, `websearch/`, ...) AND repo-variant bundles
+      one level deeper under `repo/<bundle>/` (openhands, swe_agent,
+      patchwork, ...).
+
+    At each directory level, `.py` modules are scanned before
+    subpackages so `evomas/tools/<x>.py` registers first; bundles
+    register later and can overwrite by name (last-registered-wins),
+    which matches the original two-step behaviour.
+
+    Drop a new `.py` or bundle folder anywhere under `evomas/tools/`
+    and it lights up on the next process start — no edits here."""
+    import evomas.tools as tools_pkg
+
+    out: list[BaseTool] = []
+    seen: set[int] = set()
+
+    def _emit(val: Any) -> None:
+        if isinstance(val, BaseTool) and id(val) not in seen:
+            seen.add(id(val))
+            out.append(val)
+
+    def _scan(parent: str, paths: list[str]) -> None:
+        # Sort: modules (ispkg=False) before packages so top-level
+        # core tools register before any same-named bundle entry.
+        entries: list[tuple[str, bool]] = [
+            (name, ispkg)
+            for _finder, name, ispkg in pkgutil.iter_modules(paths)
+            if not name.startswith("_")
+        ]
+        entries.sort(key=lambda kv: (kv[1], kv[0]))
+        for name, ispkg in entries:
+            full = f"{parent}.{name}"
+            try:
+                mod = importlib.import_module(full)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("tool module %s failed to import: %s", full, exc)
+                continue
+            for attr in sorted(dir(mod)):
+                if attr.startswith("_"):
+                    continue
+                val = getattr(mod, attr, None)
+                if attr.endswith("_TOOLS") and isinstance(val, (list, tuple)):
+                    for t in val:
+                        _emit(t)
+                else:
+                    _emit(val)
+            if ispkg:
+                _scan(full, list(mod.__path__))
+
+    _scan("evomas.tools", list(tools_pkg.__path__))
+    return out
 
 
 @dataclass
@@ -38,6 +92,11 @@ class ToolDescriptor:
     description: str
     schema: dict[str, Any]
     invoke: Callable[[dict[str, Any]], Any]
+    # Original BaseTool kept alongside the invoke closure so consumers
+    # that need to bind tools to a LangChain model (LLMToolAgent) don't
+    # have to re-import every bundle by hand. None when a descriptor
+    # was constructed directly without a backing BaseTool (legacy code).
+    tool: BaseTool | None = None
 
 
 @dataclass
@@ -73,7 +132,7 @@ def _descriptor_from_tool(tool: BaseTool) -> ToolDescriptor:
     def invoke(arguments: dict[str, Any]) -> Any:
         return tool.invoke(arguments)
 
-    return ToolDescriptor(name=name, description=description, schema=schema, invoke=invoke)
+    return ToolDescriptor(name=name, description=description, schema=schema, invoke=invoke, tool=tool)
 
 
 def _extract_schema(tool: BaseTool) -> dict[str, Any]:
@@ -97,32 +156,11 @@ def _extract_schema(tool: BaseTool) -> dict[str, Any]:
 
 def default_registry() -> ToolRegistry:
     registry = ToolRegistry()
-    # Core tools used by every topology.
-    for tool in (read_file, list_files, search_code, run_flake8, apply_patch,
-                 generate_diff, normalize_patch, reset_repo,
-                 detect_bug_class, derive_description_fix, apply_description_fix,
-                 run_tests):
+    # Every tool reachable under `evomas/tools/` — top-level @tool fns
+    # AND bundle `*_TOOLS` lists, repo-variant ones recursed too. One
+    # walk, no manual imports.
+    for tool in _discover_tools():
         registry.register(tool)
-    # Repo-variant bundles. Duplicate names across bundles are
-    # last-registered-wins; bundles avoid collisions by re-exporting
-    # canonicals instead of duplicating (see TOOL_AUDIT.md).
-    for bundle in (
-        OPENHANDS_TOOLS,
-        LOC_TOOLS,
-        AUTO_CODE_ROVER_TOOLS,
-        AUGMENT_SWEBENCH_AGENT_TOOLS,
-        CLAUDE_CODER_TOOLS,
-        COMPOSIO_TOOLS,
-        DEBUG_GYM_TOOLS,
-        JOYCODE_AGENT_TOOLS,
-        LINGMA_SWE_GPT_TOOLS,
-        PATCHWORK_TOOLS,
-        SUNA_TOOLS,
-        SWE_AGENT_TOOLS,
-        TRAE_AGENT_TOOLS,
-    ):
-        for tool in bundle:
-            registry.register(tool)
     return registry
 
 

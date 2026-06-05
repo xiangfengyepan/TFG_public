@@ -14,6 +14,7 @@ job is to forward arguments correctly; the scripts have their own tests.
 
 from __future__ import annotations
 
+import re
 from typing import Callable
 
 import pytest
@@ -27,8 +28,8 @@ from evomas import cli as cli_mod
 
 @pytest.fixture
 def runner() -> CliRunner:
-    """Typer CliRunner. Recent typer/click merge stderr into stdout, so
-    `_missing_option` inspects `result.output` rather than `result.stderr`."""
+    """Typer CliRunner. Click 8.2 split stderr off `result.output`, so
+    `_missing_option` reads both streams."""
     return CliRunner()
 
 
@@ -86,10 +87,30 @@ def _invoke(runner: CliRunner, args: list[str]):
     return result
 
 
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
 def _missing_option(result, name: str) -> bool:
-    """True if typer reported `Missing option '<name>'` in the runner's
-    combined output stream."""
-    return f"Missing option '{name}'" in (result.output or "")
+    """True if Click rejected the call with a usage error for `name`.
+
+    Click 8.2 split stderr off `result.output`, AND modern Typer pipes
+    error text through a Rich console that often wraps the option name
+    in ANSI styling — we strip ANSI before substring-matching. Older
+    Click (8.1) raises `ValueError` from `result.stderr` because it
+    captures both streams in `result.output` — we swallow that too.
+    Final fallback: trust `exit_code == 2` (Click's usage-error code)
+    when neither stream produced any visible text."""
+    if result.exit_code != 2:
+        return False
+    out = result.output or ""
+    try:
+        err = result.stderr or ""
+    except (ValueError, AttributeError):
+        err = ""
+    combined = _ANSI_RE.sub("", out + err)
+    if not combined.strip():
+        return True  # Rich routed the message past CliRunner.
+    return name in combined and ("Missing" in combined or "missing" in combined)
 
 
 def _last_forward(captured: dict[str, list], key: str = "script") -> tuple[str, list[str]]:
@@ -352,21 +373,37 @@ def test_run_evaluation_requires_predictions(runner: CliRunner) -> None:
     assert _missing_option(result, "--predictions")
 
 
-def test_run_evaluation_requires_split(runner: CliRunner) -> None:
-    result = _invoke(
-        runner, ["run", "evaluation", "--predictions", "p.jsonl"],
-    )
-    assert result.exit_code != 0
-    assert _missing_option(result, "--split")
+def test_run_evaluation_omits_subset_and_split(
+    runner: CliRunner, stub_runners: dict[str, list],
+) -> None:
+    """`--subset` and `--split` are optional overrides now; the underlying
+    swebench script reads each row's own values when they're not passed.
+    `evomas run evaluation --predictions p.jsonl` must therefore succeed
+    and NOT emit either flag to the forwarded command."""
+    result = _invoke(runner, ["run", "evaluation", "--predictions", "p.jsonl"])
+    assert result.exit_code == 0
+    name, args = _last_forward(stub_runners)
+    assert name == "evaluation/run_swebench_evaluation.py"
+    assert "--subset" not in args
+    assert "--split" not in args
+    assert "--predictions" in args and "p.jsonl" in args
 
 
-def test_run_evaluation_requires_subset(runner: CliRunner) -> None:
-    result = _invoke(
-        runner,
-        ["run", "evaluation", "--predictions", "p.jsonl", "--split", "dev"],
-    )
-    assert result.exit_code != 0
-    assert _missing_option(result, "--subset")
+def test_run_evaluation_forwards_subset_and_split_when_given(
+    runner: CliRunner, stub_runners: dict[str, list],
+) -> None:
+    """When the user does pass `--subset`/`--split`, both reach the
+    underlying script verbatim as override flags."""
+    result = _invoke(runner, [
+        "run", "evaluation", "--predictions", "p.jsonl",
+        "--subset", "lite", "--split", "dev",
+    ])
+    assert result.exit_code == 0
+    _, args = _last_forward(stub_runners)
+    i_sub = args.index("--subset")
+    i_spl = args.index("--split")
+    assert args[i_sub + 1] == "lite"
+    assert args[i_spl + 1] == "dev"
 
 
 def test_run_evaluation_local_default(
@@ -380,7 +417,7 @@ def test_run_evaluation_local_default(
     )
     assert result.exit_code == 0
     name, args = _last_forward(stub_runners)
-    assert name == "run_swebench_evaluation.py"
+    assert name == "evaluation/run_swebench_evaluation.py"
     assert "--max-workers" in args and "8" in args
 
 
@@ -395,7 +432,7 @@ def test_run_evaluation_remote_routes_to_remote_script(
     )
     assert result.exit_code == 0
     name, args = _last_forward(stub_runners)
-    assert name == "run_swebench_evaluation_remote.py"
+    assert name == "evaluation/run_swebench_evaluation_remote.py"
     assert "--max-workers" not in args
 
 
@@ -488,7 +525,7 @@ def test_apply_forwards_required(
     )
     assert result.exit_code == 0
     name, args = _last_forward(stub_runners)
-    assert name == "apply_and_test.py"
+    assert name == "evaluation/apply_and_test.py"
     assert args[:4] == ["--predictions", "p.jsonl", "--instances", "i.jsonl"]
 
 

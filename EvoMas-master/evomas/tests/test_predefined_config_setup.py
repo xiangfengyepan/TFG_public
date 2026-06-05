@@ -97,6 +97,14 @@ def stubbed_llm_loop(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
+def stubbed_preflight(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No-op the Ollama preflight. The real one shells out to
+    `ollama pull` for any missing models, which requires the binary on
+    PATH + a reachable daemon — neither is available in CI sandboxes."""
+    monkeypatch.setattr(runner_mod, "preflight_models", lambda *_a, **_kw: None)
+
+
+@pytest.fixture
 def stubbed_clone(
     fake_workspace: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> dict[str, Any]:
@@ -139,6 +147,7 @@ def test_predefined_config_setup_starts(
     config_name: str,
     buggy_instance: dict[str, Any],
     stubbed_llm_loop: None,
+    stubbed_preflight: None,
     stubbed_clone: dict[str, Any],
 ) -> None:
     """Drive the full setup → entry-agent-dispatch path for one

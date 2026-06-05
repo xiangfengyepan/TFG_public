@@ -80,6 +80,7 @@
     <app-batch-progress-strip
         [runInstances]="runInstances"
         [currentInstance]="currentInstance"
+        [predictionsLogsDir]="predictionsLogsDir"
         (selectInstance)="selectInstanceInRun($event)" />
 
     <div class="stream-area" #scrollEl (scroll)="onLogScroll()">

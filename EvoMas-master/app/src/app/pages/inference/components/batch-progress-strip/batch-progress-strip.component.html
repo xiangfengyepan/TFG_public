@@ -12,7 +12,7 @@
         @if (inst.runId) {
           <span class="bp-runid" [title]="'Prediction ID: ' + inst.runId">{{ inst.runId }}</span>
           <span class="bp-logname"
-                [title]="'User-facing text log: results/predictions/logs/prediction-' + inst.runId + '.log'">
+                [title]="'User-facing text log: ' + predictionsLogsDir + '/prediction-' + inst.runId + '.log'">
             prediction-{{ inst.runId }}.log
           </span>
         }
