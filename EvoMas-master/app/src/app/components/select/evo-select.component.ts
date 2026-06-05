@@ -27,9 +27,11 @@ export interface SelectOptionGroup { label: string; items: string[] | SelectOpti
 
           @if (open) {
             <div class="grouped-panel" role="listbox"
+                 [class.up]="panelOpenUp"
                  [style.top.px]="panelTop"
                  [style.left.px]="panelLeft"
-                 [style.width.px]="panelWidth">
+                 [style.width.px]="panelWidth"
+                 [style.max-height.px]="panelMaxHeight">
               <!-- Flat options (from the [options] input) render at the
                    top of the panel as an ungrouped list, before any
                    section headers. Used by callers that want a leading
@@ -134,6 +136,18 @@ export class EvoSelectComponent implements ControlValueAccessor {
   /** Viewport-edge gutter so the panel never butts directly against
    * the right side of the window. */
   private static readonly PANEL_RIGHT_GUTTER = 12;
+  /** Cap on panel height. Matches the CSS `max-height` so the inline
+   * computed value never gets larger than what the stylesheet allows;
+   * the runtime value shrinks below this when the chosen direction
+   * doesn't have enough room. */
+  private static readonly PANEL_MAX_HEIGHT = 320;
+  /** Minimum usable panel height — below this the picker becomes a
+   * single-row stub. Floor for the auto-shrink path so we never
+   * collapse to <120px even when both above/below are cramped. */
+  private static readonly PANEL_MIN_HEIGHT = 120;
+  /** Vertical gutter between the trigger and the panel; also used as
+   * the safety margin against viewport edges. */
+  private static readonly PANEL_VERTICAL_GUTTER = 8;
 
   @ViewChild('trigger') triggerRef?: ElementRef<HTMLButtonElement>;
 
@@ -147,6 +161,10 @@ export class EvoSelectComponent implements ControlValueAccessor {
   panelTop = 0;
   panelLeft = 0;
   panelWidth = 0;
+  panelMaxHeight = EvoSelectComponent.PANEL_MAX_HEIGHT;
+  /** True when the panel should expand UP from the trigger because
+   * there's more room above than below. Toggled by `positionPanel()`. */
+  panelOpenUp = false;
 
   private onChange: (v: string) => void = () => {};
   private onTouched: () => void = () => {};
@@ -176,13 +194,35 @@ export class EvoSelectComponent implements ControlValueAccessor {
     if (!btn) return;
     const r = btn.getBoundingClientRect();
     const minW = EvoSelectComponent.PANEL_MIN_WIDTH;
-    const gutter = EvoSelectComponent.PANEL_RIGHT_GUTTER;
+    const rightGutter = EvoSelectComponent.PANEL_RIGHT_GUTTER;
+    const vGutter = EvoSelectComponent.PANEL_VERTICAL_GUTTER;
+    const maxH = EvoSelectComponent.PANEL_MAX_HEIGHT;
+    const minH = EvoSelectComponent.PANEL_MIN_HEIGHT;
     // Width: at least PANEL_MIN_WIDTH and at least as wide as the trigger;
     // capped so the right edge stays inside the viewport.
-    const maxFitting = Math.max(160, window.innerWidth - r.left - gutter);
+    const maxFitting = Math.max(160, window.innerWidth - r.left - rightGutter);
     this.panelWidth = Math.min(Math.max(minW, r.width), maxFitting);
-    this.panelTop = r.bottom + 4;
     this.panelLeft = r.left;
+
+    // Choose the side with more room. Prefer DOWN when both fit; flip UP
+    // only when down can't hold the desired height AND up can hold more.
+    // This keeps the long-standing "appears below" behaviour for triggers
+    // anywhere in the upper viewport and only inverts near the bottom
+    // edge (e.g. the inspector's Add-tool picker on a bottom-anchored
+    // node card).
+    const spaceBelow = Math.max(0, window.innerHeight - r.bottom - vGutter);
+    const spaceAbove = Math.max(0, r.top - vGutter);
+    const fitsBelow = spaceBelow >= maxH;
+    const flipUp = !fitsBelow && spaceAbove > spaceBelow;
+    if (flipUp) {
+      this.panelMaxHeight = Math.max(minH, Math.min(maxH, spaceAbove));
+      this.panelTop = Math.max(vGutter, r.top - 4 - this.panelMaxHeight);
+      this.panelOpenUp = true;
+    } else {
+      this.panelMaxHeight = Math.max(minH, Math.min(maxH, spaceBelow));
+      this.panelTop = r.bottom + 4;
+      this.panelOpenUp = false;
+    }
   }
 
   pick(v: string): void {

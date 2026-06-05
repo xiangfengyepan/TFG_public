@@ -19,6 +19,10 @@ export class BatchProgressStripComponent {
   @Input() runInstances: RunInstance[] = [];
   @Input() currentInstance: RunInstance | null = null;
   @Output() selectInstance = new EventEmitter<string>();
+  /** Resolved predictions-logs directory (e.g. `results/predictions/logs` by
+   * default, `experiments/foo/predictions/logs` when RESULTS_DIR overrides).
+   * Surfaced in the per-chip tooltip so the path tracks the backend. */
+  @Input() predictionsLogsDir = 'results/predictions/logs';
 
   onClick(_ev: MouseEvent, id: string): void {
     // Don't switch instances when the click is a click-to-copy on the

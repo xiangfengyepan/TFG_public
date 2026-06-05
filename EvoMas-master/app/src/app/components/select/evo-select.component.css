@@ -70,8 +70,10 @@
 .grouped-panel {
   /* position: fixed (viewport-relative) so the panel escapes the
      inspector's `overflow:hidden` / `overflow-y:auto` ancestor chain
-     and can be wider than the trigger. top/left/width are set inline
-     by `positionPanel()` based on the trigger's bounding rect. */
+     and can be wider than the trigger. top/left/width and max-height
+     are set inline by `positionPanel()` based on the trigger's
+     bounding rect — the 320 px below is a fallback cap; the inline
+     value shrinks below it when the chosen direction lacks room. */
   position: fixed;
   z-index: 50;
   background: var(--bg-1);
@@ -83,8 +85,20 @@
   padding: 0 0 4px;
   animation: groupedPanelIn 0.12s ease-out;
 }
+/* Mirror the slide-in when the panel opens upward — appears to rise
+   into place from just below the resting position, matching the
+   visual direction of the user's expectation. Box-shadow flipped
+   upward too so the panel still looks "lifted" from its trigger. */
+.grouped-panel.up {
+  animation: groupedPanelInUp 0.12s ease-out;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+}
 @keyframes groupedPanelIn {
   from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes groupedPanelInUp {
+  from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 

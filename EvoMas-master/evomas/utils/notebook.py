@@ -1,17 +1,7 @@
 """Build a reproduce-this-run Jupyter notebook.
 
-Lives in `evomas.utils` (not in `api/`) so the CLI, tests, and any other
-caller can produce notebooks without dragging in FastAPI. HTTP endpoints
-in `api/routers/results.py` and `api/routers/inference.py` are thin
-wrappers that stream the dict this module returns as an `.ipynb` blob.
-
-Two public entry points:
-- `build_notebook_for_prediction(path)` — from an existing prediction
-  JSONL (Results page). Includes the comparative section that diffs
-  the re-run against the original `model_patch`.
-- `build_notebook_for_inputs(instance_ids, config_data, …)` — from
-  raw inputs (Inference page download button + CLI `--instances/--config`).
-  No baseline patches, so the comparative section is omitted.
+Lives in `evomas.utils` (not `api/`) so non-FastAPI callers can produce
+notebooks too.
 """
 from __future__ import annotations
 
@@ -21,39 +11,45 @@ from pathlib import Path
 from typing import Any
 
 
-# Default config-snapshot + instances locations come from evomas.paths so
-# the environment-aware `RESULTS_DIR` override is honored without each
-# caller having to forward the path explicitly.
+from evomas.paths import BASE_DIR as _BASE_DIR
 from evomas.paths import INSTANCES_PATH as _DEFAULT_INSTANCES_PATH
 from evomas.paths import PREDICTION_CONFIGS_DIR as _DEFAULT_CONFIGS_DIR
+
+
+def resolve_evaluator(stem: str) -> tuple[str, bool]:
+    """Validate `scripts/evaluation/<stem>.py` exists and parse its
+    `EVOMAS_EVALUATOR.needs_wsl` flag (defaults False). Raises
+    FileNotFoundError if the script is missing."""
+    script_path = _BASE_DIR / "scripts" / "evaluation" / f"{stem}.py"
+    if not script_path.is_file():
+        raise FileNotFoundError(
+            f"Evaluator script not found: scripts/evaluation/{stem}.py"
+        )
+    import re as _re
+    needs_wsl = False
+    m = _re.search(
+        r"EVOMAS_EVALUATOR\s*=\s*(\{[^}]*\})",
+        script_path.read_text(encoding="utf-8"),
+    )
+    if m and '"needs_wsl": True' in m.group(1):
+        needs_wsl = True
+    return stem, needs_wsl
 
 
 def _resolve_instance_plan(
     instance_ids: list[str], instances_path: Path,
 ) -> tuple[dict[tuple[str, str], list[str]], list[dict[str, Any]]]:
-    """Build the data the notebook needs to regenerate its instances
-    from zero at runtime.
+    """Return `(swebench_groups, custom_rows)` for the notebook to
+    rehydrate its instances at runtime.
 
-    Returns a `(swebench_groups, custom_rows)` pair:
-
-    - `swebench_groups`: `{(subset, split): [instance_ids]}` — the
-      notebook will call `fetch_swebench_instances` once per group at
-      runtime to re-pull just those rows fresh from HuggingFace.
-    - `custom_rows`: full row dicts for IDs starting with `custom-`
-      (their upstream doesn't exist — the user added them locally via
-      the `+ Custom` modal; the notebook embeds the minimal inputs so
-      it can reconstruct the row without any cache lookup at runtime).
-
-    The on-disk cache is consulted ONCE at notebook-gen time to figure
-    out the (subset, split) pair for each SWE-bench id + to grab the
-    inline data for custom ones. The generated notebook never reads
-    the cache.
+    `swebench_groups`: `{(subset, split): [ids]}` — fetched fresh from
+    HuggingFace at runtime. `custom_rows`: full row dicts inlined into
+    the notebook (no upstream to fetch). The on-disk cache is consulted
+    ONLY at notebook-gen time; the generated notebook never reads it.
     """
     swebench_groups: dict[tuple[str, str], list[str]] = {}
     custom_rows: list[dict[str, Any]] = []
 
-    # Default each SWE-bench id to (lite, dev) so IDs missing from the
-    # cache still produce a plan the notebook can attempt.
     by_id: dict[str, dict[str, Any]] = {}
     if instances_path.is_file():
         wanted = set(instance_ids)
@@ -70,13 +66,19 @@ def _resolve_instance_plan(
                 if iid in wanted:
                     by_id[iid] = rec
 
+    # `custom-` id prefix is back-compat — predates the `subset` field.
+    SWEBENCH_SUBSETS = {"lite", "full", "verified", "multimodal"}
     for iid in instance_ids:
-        if iid.startswith("custom-"):
-            row = by_id.get(iid)
+        row = by_id.get(iid)
+        subset = (row or {}).get("subset")
+        is_swebench_row = (
+            not iid.startswith("custom-")
+            and isinstance(subset, str)
+            and subset in SWEBENCH_SUBSETS
+        )
+        if not is_swebench_row:
             if row is not None:
-                # Keep only the minimal inputs needed to drive a run.
-                # `patch`/`test_patch` etc. (when present) are stripped
-                # — they're huge and unused on the custom-eval path.
+                # Strip patch/test_patch — unused inline, bloat the notebook.
                 custom_rows.append({
                     "instance_id":       row.get("instance_id"),
                     "repo":              row.get("repo", ""),
@@ -87,8 +89,7 @@ def _resolve_instance_plan(
                     "split":             row.get("split", "custom"),
                 })
             continue
-        row = by_id.get(iid)
-        subset = (row or {}).get("subset") or "lite"
+        assert isinstance(subset, str)  # narrowed by is_swebench_row above
         split = (row or {}).get("split") or "dev"
         swebench_groups.setdefault((subset, split), []).append(iid)
 
@@ -98,18 +99,12 @@ def _resolve_instance_plan(
 def build_notebook_for_prediction(
     path: Path,
     *,
+    evaluator: str,
     configs_dir: Path | None = None,
     instances_path: Path | None = None,
 ) -> tuple[str, dict[str, Any]]:
-    """Build the reproduce-this-run notebook for a prediction JSONL.
-    Shared between the HTTP endpoint and the `evomas notebook` CLI so
-    both produce byte-identical .ipynb output. Raises FileNotFoundError
-    when `path` doesn't exist.
-
-    `configs_dir` is where this run's config snapshot lives (defaults
-    to `<repo>/results/predictions/configs/`); `instances_path` is the
-    SWE-bench cache (defaults to `<repo>/swebench_instances.jsonl`).
-    """
+    """Build a notebook reproducing the run that produced `path` (a
+    prediction JSONL). Raises FileNotFoundError if `path` is missing."""
     if not path.is_file():
         raise FileNotFoundError(f"prediction file not found: {path}")
 
@@ -134,8 +129,8 @@ def build_notebook_for_prediction(
                 if isinstance(bp, str):
                     baseline_patches[iid] = bp
 
-    # Inline the resolved config snapshot so the notebook survives
-    # edits/renames/deletions of the source config.
+    # Inline the snapshot so the notebook survives later edits/deletes
+    # of the source config.
     cfg_snapshot_path = cfg_dir / (path.stem + ".json")
     config_data: dict[str, Any] = {}
     if cfg_snapshot_path.is_file():
@@ -148,6 +143,7 @@ def build_notebook_for_prediction(
     if run_id.startswith("prediction-"):
         run_id = run_id[len("prediction-"):]
 
+    evaluator_stem, needs_wsl = resolve_evaluator(evaluator)
     swebench_groups, custom_rows = _resolve_instance_plan(instance_ids, inst_path)
     notebook = _build_reproduction_notebook(
         run_id=run_id,
@@ -157,6 +153,8 @@ def build_notebook_for_prediction(
         baseline_patches=baseline_patches,
         swebench_groups=swebench_groups,
         custom_rows=custom_rows,
+        evaluator=evaluator_stem,
+        evaluator_needs_wsl=needs_wsl,
     )
     return run_id, notebook
 
@@ -165,22 +163,17 @@ def build_notebook_for_inputs(
     *,
     instance_ids: list[str],
     config_data: dict[str, Any],
+    evaluator: str,
     run_id_label: str | None = None,
     instances_path: Path | None = None,
 ) -> tuple[str, dict[str, Any]]:
-    """Build a notebook from raw inputs (no prediction file yet).
-
-    Used by the Inference page's download button and the CLI's
-    `evomas notebook --instances/--config` mode. The comparative section
-    is omitted (there's no baseline `model_patch` to diff against).
-
-    `run_id_label` defaults to the config id so the on-disk
-    `notebook-<run_id>/` folder name is meaningful before any run.
-    """
+    """Build a notebook from raw inputs (no prediction file yet). The
+    comparative-diff section is omitted — nothing to diff against."""
     inst_path = instances_path if instances_path is not None else _DEFAULT_INSTANCES_PATH
     cfg_id = str(config_data.get("id") or "session")
     run_id = run_id_label or cfg_id
 
+    evaluator_stem, needs_wsl = resolve_evaluator(evaluator)
     swebench_groups, custom_rows = _resolve_instance_plan(instance_ids, inst_path)
     notebook = _build_reproduction_notebook(
         run_id=run_id,
@@ -190,6 +183,8 @@ def build_notebook_for_inputs(
         baseline_patches=None,
         swebench_groups=swebench_groups,
         custom_rows=custom_rows,
+        evaluator=evaluator_stem,
+        evaluator_needs_wsl=needs_wsl,
     )
     return run_id, notebook
 
@@ -203,10 +198,11 @@ def _build_reproduction_notebook(
     baseline_patches: dict[str, str] | None,
     swebench_groups: dict[tuple[str, str], list[str]],
     custom_rows: list[dict[str, Any]],
+    evaluator: str,
+    evaluator_needs_wsl: bool,
 ) -> dict[str, Any]:
-    """Build the nbformat-v4 dict reproducing one run. Kept as a plain
-    dict (no `nbformat` import) — structure is small enough to maintain
-    inline."""
+    """Build the nbformat-v4 dict. Plain dict, no `nbformat` import —
+    structure is small enough to maintain inline."""
     def md(text: str) -> dict[str, Any]:
         return {"cell_type": "markdown", "metadata": {}, "source": text}
 
@@ -220,8 +216,7 @@ def _build_reproduction_notebook(
         }
 
     # pprint, not json.dumps: the CONFIG cell needs Python literals
-    # (True/False/None), not JSON (true/false/null) — the latter would
-    # NameError when the cell executes.
+    # (True/False/None); JSON's true/false/null would NameError.
     cfg_repr = pprint.pformat(config_data, indent=4, width=100, sort_dicts=False)
     ids_repr = pprint.pformat(instance_ids, indent=4, width=100)
 
@@ -282,12 +277,8 @@ def _build_reproduction_notebook(
             "import subprocess\n"
             "from pathlib import Path\n"
             "\n"
-            "# Defensive sys.path prepend: if the running kernel isn't the\n"
-            "# evomas-venv one (e.g. user opened the notebook on a fresh\n"
-            "# clone without running setup.ps1, or VSCode picked a generic\n"
-            "# Python 3), surface the venv's site-packages so `import\n"
-            "# evomas...` still resolves. Skipped when the active sys\n"
-            "# already points at the venv.\n"
+            "# Defensive sys.path prepend so `import evomas...` still\n"
+            "# resolves when the kernel isn't the evomas-venv one.\n"
             "_venv = Path.home() / '.evomas-venv'\n"
             "if _venv.is_dir() and str(_venv) not in sys.executable:\n"
             "    for _sp in (_venv / 'Lib' / 'site-packages',\n"
@@ -295,33 +286,37 @@ def _build_reproduction_notebook(
             "        if _sp.is_dir() and str(_sp) not in sys.path:\n"
             "            sys.path.insert(0, str(_sp))\n"
             "\n"
+            "import evomas.paths  # noqa: F401  # triggers load_dotenv(evomas/.env)\n"
+            "\n"
             "from evomas.core.workflow.runner import run as run_evomas\n"
             "from evomas.utils.instances import fetch_swebench_instances\n"
             "\n"
-            "# Route Python `logging` records to the notebook output so\n"
-            "# every `logger.info(...)` call from the agent loop (handoffs,\n"
-            "# tool calls, token counts, …) appears inline as the cell\n"
-            "# runs. `force=True` overrides any prior basicConfig (e.g.\n"
-            "# from a stale kernel) so the format actually takes effect.\n"
+            "# Mirror logging to a per-run text file so generate_report.py\n"
+            "# can mine the same lines the API matrix path writes.\n"
             "import logging\n"
+            f"RUN_OUTPUT_DIR = Path('notebook-{run_id}').resolve()\n"
+            "RUN_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)\n"
+            "LOG_FILE = RUN_OUTPUT_DIR / 'inference.log'\n"
             "logging.basicConfig(\n"
             "    level=logging.INFO,\n"
             "    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',\n"
             "    force=True,\n"
+            "    handlers=[\n"
+            "        logging.StreamHandler(),\n"
+            "        logging.FileHandler(LOG_FILE, encoding='utf-8'),\n"
+            "    ],\n"
             ")\n"
+            "print(f'Mirroring inference logs to {LOG_FILE}')\n"
         ),
         md(
             "### Environment variables\n"
             "\n"
             "All run-time configuration the notebook needs lives in this "
             "cell — edit values here rather than chasing them through the "
-            "code. Each variable falls back to the value the EvoMas .env "
-            "file / shell already has set (via `os.environ.setdefault`), "
-            "so the cell is safe to re-run.\n"
+            "code. Each assignment **overrides** whatever is in the "
+            "environment / .env when the cell runs.\n"
             "\n"
-            "- **`OLLAMA_BASE_URL`** — where the Ollama daemon serves. "
-            "Local default works when `ollama serve` runs on this machine; "
-            "swap to e.g. `http://192.168.1.50:11434` for a remote host.\n"
+            "- **`OLLAMA_BASE_URL`** — where the Ollama daemon serves.\n"
             "- **`SWEBENCH_API_KEY`** — required by the remote-eval cell "
             "(section 5) when running `--remote` against sb-cli. Local "
             "Docker harness runs don't need it.\n"
@@ -333,14 +328,13 @@ def _build_reproduction_notebook(
             "inlined config picks a Gemini / OpenAI model instead of Ollama.\n"
         ),
         code(
-            "# Edit these inline OR export them in your shell before\n"
-            "# launching Jupyter. `setdefault` means values already in the\n"
-            "# environment (e.g. loaded from evomas/.env) win.\n"
-            "os.environ.setdefault('OLLAMA_BASE_URL',   'http://127.0.0.1:11434')\n"
-            "# os.environ.setdefault('SWEBENCH_API_KEY', 'swb_...')\n"
-            "# os.environ.setdefault('EVOMAS_INSTANCES', '/path/to/swebench_instances.jsonl')\n"
-            "# os.environ.setdefault('GOOGLE_API_KEY',   '...')\n"
-            "# os.environ.setdefault('OPENAI_API_KEY',   '...')\n"
+            "# Edit values here; each assignment overrides the inherited\n"
+            "# environment / .env. Uncomment the lines you need.\n"
+            "os.environ['OLLAMA_BASE_URL'] = 'http://localhost:11434'\n"
+            "# os.environ['SWEBENCH_API_KEY'] = 'swb_...'\n"
+            "# os.environ['EVOMAS_INSTANCES'] = '/path/to/swebench_instances.jsonl'\n"
+            "# os.environ['GOOGLE_API_KEY']   = '...'\n"
+            "# os.environ['OPENAI_API_KEY']   = '...'\n"
             "\n"
             "# Echo the effective values (mask secrets) so you can verify the cell ran.\n"
             "for _k in ('OLLAMA_BASE_URL', 'SWEBENCH_API_KEY', 'EVOMAS_INSTANCES',\n"
@@ -384,9 +378,7 @@ def _build_reproduction_notebook(
             "    for name, block in (cfg.get('agents') or {}).items():\n"
             "        cls = (block or {}).get('class', '') or ''\n"
             "        label = f'{name}<br/><i>{cls}</i>' if cls else name\n"
-            "        # Backticks would break the mermaid parser; strip them\n"
-            "        # defensively. Class names never contain them today,\n"
-            "        # this is just future-proofing.\n"
+            "        # Backticks break the mermaid parser; strip them.\n"
             "        label = label.replace('`', '')\n"
             "        lines.append(f'    {name}[\"{label}\"]')\n"
             "    entry = cfg.get('entry') or ''\n"
@@ -400,9 +392,8 @@ def _build_reproduction_notebook(
             "        [end_field] if isinstance(end_field, str) and end_field\n"
             "        else list(end_field or [])\n"
             "    )\n"
-            "    # Only emit `→ END` for nodes with no outgoing edges (the\n"
-            "    # same wiring rule `graph_builder.py` uses). Hub-in-end\n"
-            "    # nodes with outgoing edges don't get the static edge.\n"
+            "    # `→ END` only for nodes with no outgoing edges, same\n"
+            "    # rule as `graph_builder.py`.\n"
             "    out_sources = {e.get('from') for e in (cfg.get('edges') or [])\n"
             "                   if isinstance(e, dict)}\n"
             "    for n in ends:\n"
@@ -423,24 +414,15 @@ def _build_reproduction_notebook(
         ),
         code(f"INSTANCE_IDS = {ids_repr}\n"),
         code(
-            f"# Pull plan for SWE-bench rows: `{{(subset, split): [ids]}}`.\n"
-            f"# At runtime the cell below calls `fetch_swebench_instances`\n"
-            f"# per group and filters down to just these IDs.\n"
+            f"# `{{(subset, split): [ids]}}` — one HuggingFace fetch per group.\n"
             f"SWEBENCH_GROUPS = {pprint.pformat(dict(swebench_groups), indent=4, width=100)}\n"
         ),
         code(
-            f"# Custom-instance inputs (no upstream — added locally via the\n"
-            f"# Inference page's `+ Custom` modal). Notebook reconstructs the\n"
-            f"# row dict from these fields; nothing else is needed.\n"
+            f"# Custom-instance inputs inlined — no upstream to fetch.\n"
             f"CUSTOM_ROWS = {pprint.pformat(custom_rows, indent=4, width=100, sort_dicts=False)}\n"
         ),
         code(
-            f"# Materialise SWE-bench + custom rows into one JSONL the\n"
-            f"# runner consumes. `.resolve()` so the eval subprocess can\n"
-            f"# find paths regardless of cwd. `output_path` is bound here\n"
-            f"# (not in the inference cell) so eval can run standalone.\n"
-            f"output_dir = Path('notebook-{run_id}').resolve()\n"
-            f"output_dir.mkdir(parents=True, exist_ok=True)\n"
+            f"output_dir = RUN_OUTPUT_DIR\n"
             f"output_path = output_dir / 'prediction-{run_id}.jsonl'\n"
             "INSTANCES_PATH = output_dir / 'instances.jsonl'\n"
             "\n"
@@ -474,7 +456,6 @@ def _build_reproduction_notebook(
         code(
             "from evomas.exceptions.errors import OllamaMemoryError\n"
             "\n"
-            "# `output_dir` + `output_path` were created in the instances cell above.\n"
             "predictions = []\n"
             "with open(output_path, 'w', encoding='utf-8') as out:\n"
             "    for inst in selected:\n"
@@ -500,74 +481,52 @@ def _build_reproduction_notebook(
         md(
             "## 5. Evaluation\n"
             "\n"
-            "Two routes depending on the instance type:\n"
-            "\n"
-            "- **SWE-bench instances** → `evomas run evaluation` (default "
-            "`--local`, Docker harness; writes per-instance `eval.sh`, "
-            "`patch.diff`, `test_output.txt`, `report.json` under "
-            "`<report-dir>/logs/run_evaluation/<run_id>/`). On Windows "
-            "`--local` shells out to WSL (`swebench` is POSIX-only). "
-            "Flip `MODE = 'remote'` to submit via sb-cli instead (needs "
-            "`SWEBENCH_API_KEY`; verdicts only, no per-instance logs).\n"
-            "- **Custom GitHub repos** (subset/split = `custom` or id "
-            "prefix `custom-`) → `evomas apply` clones the repo, applies "
-            "the patch, runs pytest. sb-cli rejects these (no "
-            "`test_patch` / `FAIL_TO_PASS` / `PASS_TO_PASS`).\n"
-            "\n"
-            "Subset/split come from the first instance's metadata."
+            f"Runs `scripts/evaluation/{evaluator}.py` — the evaluator chosen "
+            "at notebook-generation time (the `--evaluator` flag on `evomas "
+            "notebook`). Forwards through the unified evaluator CLI contract: "
+            "`--predictions / --instances / --report-dir / --run-id / --model`. "
+            f"Output lands at `<report-dir>/{{model}}.{{run-id}}.json` plus "
+            f"per-instance folders under `<report-dir>/logs/run_evaluation/"
+            f"<run-id>/<model>/<instance>/`."
+            + (
+                "\n\nThis evaluator is marked `needs_wsl=True`, so on Windows "
+                "the script is wrapped through WSL (the harness is POSIX-only)."
+                if evaluator_needs_wsl else ""
+            )
         ),
         code(
-            "# Flip to 'remote' to submit via sb-cli (verdicts only, no\n"
-            "# per-instance logs). Default --local writes eval.sh + patch.diff\n"
-            "# under <report-dir>/logs/run_evaluation/<run_id>/.\n"
-            "MODE = 'local'\n"
+            f"EVALUATOR_STEM = {evaluator!r}\n"
+            f"EVALUATOR_NEEDS_WSL = {evaluator_needs_wsl!r}\n"
             "\n"
             "first = selected[0] if selected else None\n"
             "SUBSET = (first or {}).get('subset', 'lite')\n"
             "SPLIT  = (first or {}).get('split',  'dev')\n"
-            "_is_custom = (\n"
-            "    SUBSET == 'custom'\n"
-            "    or SPLIT == 'custom'\n"
-            "    or any(iid.startswith('custom-') for iid in INSTANCE_IDS)\n"
-            ")\n"
-            "print(f'Evaluating against {SUBSET} / {SPLIT}' + (' (custom mode)' if _is_custom else f' (--{MODE})'))\n"
             "\n"
-            "# All eval artifacts land under `output_dir` (alongside\n"
-            "# instances.jsonl + prediction-*.jsonl). SWE-bench writes\n"
-            "# `<model>.<run_id>.json` here plus per-instance folders under\n"
-            "# `logs/run_evaluation/<run_id>/<model>/<instance>/`.\n"
             "eval_report_dir = output_dir\n"
             "\n"
-            "if _is_custom:\n"
+            "import platform\n"
+            "from evomas.paths import BASE_DIR as _BASE_DIR\n"
+            "_script = _BASE_DIR / 'scripts' / 'evaluation' / f'{EVALUATOR_STEM}.py'\n"
+            "if EVALUATOR_NEEDS_WSL and platform.system() == 'Windows':\n"
+            "    from evomas.utils.paths import to_wsl\n"
             "    cmd = [\n"
-            "        'evomas', 'apply',\n"
-            "        '--instances',   str(INSTANCES_PATH),\n"
-            "        '--predictions', str(output_path),\n"
-            "        '--report-dir',  str(eval_report_dir),\n"
+            "        'wsl', '--', 'python3', to_wsl(str(_script)),\n"
+            "        '--predictions', to_wsl(str(output_path)),\n"
+            "        '--instances',   to_wsl(str(INSTANCES_PATH)),\n"
+            "        '--report-dir',  to_wsl(str(eval_report_dir)),\n"
             "        '--run-id',      f'notebook-{SUBSET}-{SPLIT}',\n"
             "        '--model',       'evomas-notebook',\n"
             "    ]\n"
             "else:\n"
-            "    import platform, shlex\n"
-            "    pred_arg, report_arg = str(output_path), str(eval_report_dir)\n"
-            "    if MODE == 'local' and platform.system() == 'Windows':\n"
-            "        # `swebench` is POSIX-only; route through WSL.\n"
-            "        from evomas.utils.paths import to_wsl\n"
-            "        inner = ' '.join(shlex.quote(a) for a in [\n"
-            "            'evomas', 'run', 'evaluation', '--local',\n"
-            "            '--predictions', to_wsl(pred_arg),\n"
-            "            '--subset', SUBSET, '--split', SPLIT,\n"
-            "            '--report-dir', to_wsl(report_arg),\n"
-            "        ])\n"
-            "        cmd = ['wsl', '--', 'bash', '-lc', inner]\n"
-            "    else:\n"
-            "        cmd = [\n"
-            "            'evomas', 'run', 'evaluation', f'--{MODE}',\n"
-            "            '--predictions', pred_arg,\n"
-            "            '--subset', SUBSET, '--split', SPLIT,\n"
-            "            '--report-dir', report_arg,\n"
-            "        ]\n"
-            "\n"
+            "    cmd = [\n"
+            "        sys.executable, str(_script),\n"
+            "        '--predictions', str(output_path),\n"
+            "        '--instances',   str(INSTANCES_PATH),\n"
+            "        '--report-dir',  str(eval_report_dir),\n"
+            "        '--run-id',      f'notebook-{SUBSET}-{SPLIT}',\n"
+            "        '--model',       'evomas-notebook',\n"
+            "    ]\n"
+            "print(f'Evaluating via {EVALUATOR_STEM}.py')\n"
             "print('+ ' + ' '.join(cmd))\n"
             "\n"
             "eval_proc = subprocess.Popen(\n"
@@ -581,25 +540,18 @@ def _build_reproduction_notebook(
             "eval_proc.wait()\n"
             "print(f'\\n[evaluation finished with exit code {eval_proc.returncode}]')\n"
             "\n"
-            "# Surface the per-instance artifacts the harness wrote (only\n"
-            "# exists for --local; --remote returns verdicts via sb-cli with\n"
-            "# no equivalent files).\n"
-            "if MODE == 'local' and not _is_custom:\n"
-            "    logs_root = eval_report_dir / 'logs' / 'run_evaluation'\n"
-            "    if logs_root.is_dir():\n"
-            "        print('\\nPer-instance artifacts (eval.sh, patch.diff, test_output.txt, report.json):')\n"
-            "        for inst_dir in sorted(logs_root.rglob('*/')):\n"
-            "            if (inst_dir / 'eval.sh').is_file():\n"
-            "                print(f'  {inst_dir}')\n"
-            "    for summary in sorted(eval_report_dir.glob('*.json')):\n"
-            "        print(f'Summary: {summary}')\n"
+            "logs_root = eval_report_dir / 'logs' / 'run_evaluation'\n"
+            "if logs_root.is_dir():\n"
+            "    print('\\nPer-instance artifacts:')\n"
+            "    for inst_dir in sorted(logs_root.rglob('*/')):\n"
+            "        if (inst_dir / 'report.json').is_file():\n"
+            "            print(f'  {inst_dir}')\n"
+            "for summary in sorted(eval_report_dir.glob('*.json')):\n"
+            "    print(f'Summary: {summary}')\n"
         ),
     ]
 
-    # Compare-with-original section: only emitted when we have a baseline
-    # to diff against (i.e. the notebook was generated from a prediction
-    # JSONL on the Results page). Inference-page downloads and CLI
-    # `--instances/--config` mode skip this — there's nothing to compare.
+    # Compare-with-original section only when a baseline exists to diff.
     if baseline_patches is not None:
         cells.extend([
             md(
@@ -679,12 +631,9 @@ def _build_reproduction_notebook(
     return {
         "cells": cells,
         "metadata": {
-            # `evomas` is the kernelspec that `setup.ps1` registers via
-            # `python -m ipykernel install --user --name evomas` against
-            # `~/.evomas-venv`. Jupyter / VSCode will pick it
-            # automatically on open. If the user's installation doesn't
-            # have it, the setup cell's defensive sys.path prepend keeps
-            # the imports working under any Python 3 kernel.
+            # `evomas` kernelspec registered by `setup.ps1` via `python
+            # -m ipykernel install --user --name evomas`. Falls back to
+            # any Python 3 kernel via the setup cell's sys.path prepend.
             "kernelspec": {
                 "name": "evomas",
                 "display_name": "Python 3 (EvoMas)",
@@ -695,8 +644,6 @@ def _build_reproduction_notebook(
                 "mimetype": "text/x-python",
                 "file_extension": ".py",
             },
-            # Self-documenting `extra` block so the notebook carries
-            # provenance even after re-saves.
             "evomas": {
                 "generated_from": source_jsonl,
                 "run_id": run_id,

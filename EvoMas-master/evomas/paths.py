@@ -26,9 +26,26 @@ PREDEFINED_CONFIG_DIR: Path = CONFIG_DIR / "predefined"
 LOADED_CONFIG_DIR: Path = CONFIG_DIR / "loaded"
 INSTANCES_PATH: Path = BASE_DIR / "swebench_instances.jsonl"
 
-# Results root is overridable via RESULTS_DIR in evomas/.env (relative
-# values resolved against BASE_DIR). Resolved at module-import time so
-# every caller sees the same path even if env vars mutate later.
+# Load `.env` BEFORE resolving env-driven constants. `bootstrap()` also
+# loads them later for the side-effect bundle, but that fires AFTER
+# `RESULTS_DIR` is bound — without this eager call, a `RESULTS_DIR=…`
+# set in `api/.env` is silently ignored because os.getenv() returns
+# empty at module-import time. `override=False` keeps shell-set values
+# winning over .env values, matching the bootstrap() contract.
+try:
+    from dotenv import load_dotenv as _load_dotenv
+    _load_dotenv(BASE_DIR / "evomas" / ".env", override=False)
+    _load_dotenv(BASE_DIR / "api" / ".env", override=False)
+except ImportError:
+    # python-dotenv not installed — paths fall back to defaults; the
+    # CLI/API will fail loud elsewhere if dotenv is genuinely missing.
+    pass
+
+
+# Results root is overridable via RESULTS_DIR in evomas/.env or
+# api/.env (relative values resolved against BASE_DIR). Resolved at
+# module-import time so every caller sees the same path even if env
+# vars mutate later.
 def _resolve_results_dir() -> Path:
     raw = os.getenv("RESULTS_DIR", "").strip()
     if not raw:

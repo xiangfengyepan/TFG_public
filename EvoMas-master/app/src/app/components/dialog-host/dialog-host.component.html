@@ -25,12 +25,22 @@
         }
 
         @if (s.kind === 'prompt') {
-          <input #promptInput
-                 type="text"
-                 class="modal-input"
-                 [placeholder]="s.placeholder || ''"
-                 [(ngModel)]="promptValue"
-                 (keyup.enter)="confirm()" />
+          @if (s.selectOptions; as opts) {
+            <select #promptInput
+                    class="modal-input"
+                    [(ngModel)]="promptValue">
+              @for (opt of opts; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          } @else {
+            <input #promptInput
+                   type="text"
+                   class="modal-input"
+                   [placeholder]="s.placeholder || ''"
+                   [(ngModel)]="promptValue"
+                   (keyup.enter)="confirm()" />
+          }
           @if (promptError) {
             <div class="modal-error">{{ promptError }}</div>
           }

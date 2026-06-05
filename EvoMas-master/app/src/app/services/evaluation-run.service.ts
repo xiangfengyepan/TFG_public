@@ -83,6 +83,8 @@ export class EvaluationRunService {
   split = 'dev';
   maxWorkers = 4;
   runId = '';
+  /** Filename stem under scripts/evaluation/ (no .py). Required. */
+  evaluator = '';
 
   // Run state (persists across navigation)
   running = false;
@@ -111,11 +113,9 @@ export class EvaluationRunService {
     this.returnCode = null;
     this.notify();
 
-    // Subset, split, and run_id are auto-detected by the backend from the
-    // prediction file (every line carries its own subset+split). Sending empty
-    // strings tells the API to derive them.
+    // Subset, split, run_id auto-derived backend-side; `evaluator` is the script stem.
     this.sub = this.api.streamEvaluation(
-      this.predictionsPath, '', this.maxWorkers, '',
+      this.predictionsPath, '', this.maxWorkers, '', this.evaluator,
     ).subscribe({
       next: ev => { this.handleEvent(ev); this.notify(); },
       error: err => {

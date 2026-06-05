@@ -31,6 +31,10 @@ export class EvaluationComponent implements OnInit, OnDestroy {
   inspectionError = '';
   inspectionLoading = false;
   filePickerError = '';
+  /** Resolved predictions directory from /api/paths, surfaced in
+   * user-facing strings. Defaults to the legacy `results/predictions`
+   * literal until the first fetch lands. */
+  predictionsDir = 'results/predictions';
   private changeSub?: Subscription;
   private lastInspectedPath = '';
 
@@ -59,8 +63,32 @@ export class EvaluationComponent implements OnInit, OnDestroy {
   get maxWorkers(): number { return this.evalSvc.maxWorkers; }
   setMaxWorkers(v: number): void { this.evalSvc.maxWorkers = v; }
 
+  get evaluator(): string { return this.evalSvc.evaluator; }
+  setEvaluator(v: string): void { this.evalSvc.evaluator = v; }
+
+  /** `{value, label}` for every `scripts/evaluation/*.py`. Fetched once
+   * on init; the inspection card below is informational only. */
+  evaluatorOptions: { value: string; label: string }[] = [];
+
   ngOnInit(): void {
     this.loadPredictions();
+    this.api.getEvaluationScripts().subscribe({
+      next: opts => {
+        this.evaluatorOptions = opts;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.evaluatorOptions = []; },
+    });
+    // Pull the resolved RESULTS_DIR-derived paths so the empty hint +
+    // file-picker tooltip + "isn't under …" error message reflect what
+    // the backend actually scans (instead of the hardcoded `results/`).
+    this.api.getPaths().subscribe({
+      next: paths => {
+        this.predictionsDir = paths.predictions_dir;
+        this.cdr.markForCheck();
+      },
+      error: () => { /* keep the literal fallback */ },
+    });
     this.changeSub = this.evalSvc.changed.subscribe(() => this.cdr.markForCheck());
   }
 
@@ -159,13 +187,13 @@ export class EvaluationComponent implements OnInit, OnDestroy {
         this.predictionOptions = paths.map(p => ({ value: p, label: this.fileName(p) }));
         if (!resolveFromList()) {
           this.filePickerError =
-            `"${file.name}" isn't under results/predictions/. ` +
+            `"${file.name}" isn't under ${this.predictionsDir}/. ` +
             `Move/copy it there and try again — the harness only reads files under that folder.`;
         }
         this.cdr.markForCheck();
       },
       error: () => {
-        this.filePickerError = `"${file.name}" isn't under results/predictions/.`;
+        this.filePickerError = `"${file.name}" isn't under ${this.predictionsDir}/.`;
         this.cdr.markForCheck();
       },
     });

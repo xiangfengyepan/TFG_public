@@ -63,6 +63,10 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   customRepo = '';
   customProblem = '';
   customBaseCommit = '';
+  /** Resolved predictions-logs directory from /api/paths; used in the
+   * per-instance chip tooltip. Defaults to the legacy literal until the
+   * first fetch lands. */
+  predictionsLogsDir = 'results/predictions/logs';
   customSubmitting = false;
   customError = '';
 
@@ -102,6 +106,16 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   ngOnInit(): void {
     this.inferSvc.attach();
     this.loadInstances();
+    // Pick up the resolved RESULTS_DIR-derived paths so the per-chip
+    // tooltip surfaces the actual logs directory (not the legacy
+    // `results/predictions/logs` literal).
+    this.api.getPaths().subscribe({
+      next: paths => {
+        this.predictionsLogsDir = paths.predictions_logs_dir;
+        this.cdr.markForCheck();
+      },
+      error: () => { /* keep the literal fallback */ },
+    });
     this.api.getConfigs().subscribe(summaries => {
       this.configs = summaries.map(s => s.stem);
       if (!this.config && this.configs.length) {
@@ -287,24 +301,56 @@ export class InferenceComponent implements OnInit, OnDestroy, AfterViewChecked {
   downloadNotebook(): void {
     const ids = this.state.selectedList;
     if (ids.length === 0 || !this.config) return;
-    this.api.buildInferenceNotebook(ids, this.config).subscribe({
-      next: blob => {
-        const stem = `notebook-${this.config}-${Date.now()}`;
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${stem}.ipynb`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    // Ask which evaluator to bake into section 5 — required at gen
+    // time because inference is task-agnostic but grading isn't.
+    this.api.getEvaluationScripts().subscribe({
+      next: async scripts => {
+        if (scripts.length === 0) {
+          this.dialog.alert({
+            title: 'No evaluators registered',
+            variant: 'danger',
+            detail: 'Add a script under scripts/evaluation/ before downloading a reproducer notebook.',
+          });
+          return;
+        }
+        const defaultStem = scripts.some(s => s.value === 'apply_and_test')
+          ? 'apply_and_test'
+          : scripts[0].value;
+        const chosen = await this.dialog.prompt({
+          title: 'Pick evaluator',
+          message: 'Baked into the notebook\'s section 5. Pick the grader that matches this task.',
+          defaultValue: defaultStem,
+          selectOptions: scripts,
+          okLabel: 'Download',
+        });
+        if (!chosen) return;
+        this.api.buildInferenceNotebook(ids, this.config!, chosen).subscribe({
+          next: blob => {
+            const stem = `notebook-${this.config}-${Date.now()}`;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${stem}.ipynb`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          },
+          error: err => {
+            const msg = err?.error?.detail ?? err?.message ?? 'Failed to build notebook';
+            this.dialog.alert({
+              title: 'Notebook download failed',
+              variant: 'danger',
+              detail: msg,
+            });
+          },
+        });
       },
       error: err => {
-        const msg = err?.error?.detail ?? err?.message ?? 'Failed to build notebook';
         this.dialog.alert({
-          title: 'Notebook download failed',
+          title: 'Could not list evaluators',
           variant: 'danger',
-          detail: msg,
+          detail: err?.error?.detail ?? err?.message ?? String(err),
         });
       },
     });

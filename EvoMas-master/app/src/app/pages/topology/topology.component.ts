@@ -1751,35 +1751,41 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   get currentTools(): AgentTool[] {
     if (!this.agentBlock) return [];
     // When the JSON block doesn't carry an explicit `tools` array, surface
-    // the type's DEFAULT_TOOLS as a read-only preview. The first add/remove
-    // call materializes them into the block so subsequent edits behave the
-    // way they always have.
+    // the appropriate default list as a read-only preview. The first
+    // add/remove call materializes them into the block so subsequent edits
+    // behave the way they always have. For non-EvoMas variants the default
+    // list is the variant's catalog tools (matches the backend's
+    // `resolve_variant_block` injection); for EvoMas variants and the
+    // no-variant path it's the type's DEFAULT_TOOLS.
     if (this.agentBlock.tools && this.agentBlock.tools.length > 0) {
       return this.agentBlock.tools;
     }
-    // Non-EvoMas variants own their tool list (possibly empty); no fallback.
-    if (this.blockHasRepoVariant) {
-      if (!this.agentBlock.tools) this.agentBlock.tools = [];
-      return this.agentBlock.tools;
-    }
-    const t = this.currentAgentType;
-    if (t && t.default_tools.length > 0) {
-      return t.default_tools.map(name => ({ name, params: {} }));
+    const defaults = this.defaultToolsForBlock();
+    if (defaults.length > 0) {
+      return defaults.map(name => ({ name, params: {} }));
     }
     if (!this.agentBlock.tools) this.agentBlock.tools = [];
     return this.agentBlock.tools;
   }
 
-  /** Copy type defaults into the block so add/remove operates on a real array. */
+  /** Copy the active defaults (variant catalog OR type DEFAULT_TOOLS) into
+   * the block so add/remove operates on a real array. */
   private materializeDefaultTools(): void {
     if (!this.agentBlock) return;
     if (this.agentBlock.tools && this.agentBlock.tools.length > 0) return;
+    this.agentBlock.tools = this.defaultToolsForBlock().map(name => ({ name, params: {} }));
+  }
+
+  /** Which default-tool list applies to the current block: variant
+   * catalog when a repo variant is set, otherwise the type-level default.
+   * Returns an empty array when neither has any tools to surface. */
+  private defaultToolsForBlock(): string[] {
+    if (!this.agentBlock) return [];
     if (this.blockHasRepoVariant) {
-      if (!this.agentBlock.tools) this.agentBlock.tools = [];
-      return;
+      const v = this.findVariant(this.agentBlock.variant ?? '');
+      return v?.default_tools ?? [];
     }
-    const t = this.currentAgentType;
-    this.agentBlock.tools = (t?.default_tools ?? []).map(name => ({ name, params: {} }));
+    return this.currentAgentType?.default_tools ?? [];
   }
 
   /** Tool names in the registry that the current agent has not yet added. */

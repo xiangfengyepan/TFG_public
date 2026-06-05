@@ -150,17 +150,22 @@ def get_prediction_config(path: str) -> dict[str, Any]:
 
 
 @router.get("/api/results/prediction/notebook")
-def get_prediction_notebook(path: str) -> Response:
+def get_prediction_notebook(path: str, evaluator: str = "") -> Response:
     """Reproduce-this-run Jupyter notebook (.ipynb) for a prediction JSONL.
     Thin HTTP wrapper around `evomas.utils.notebook.build_notebook_for_prediction`;
     passes the api-side config/instances paths so the env-overrideable
-    `RESULTS_DIR` is honored."""
+    `RESULTS_DIR` is honored. `evaluator` is the filename stem under
+    `scripts/evaluation/` to bake into section 5 — required."""
+    evaluator_stem = (evaluator or "").strip()
+    if not evaluator_stem:
+        raise HTTPException(400, "evaluator stem is required")
     p = safe_under(PREDICTIONS_DIR, path)
     try:
         run_id, notebook = build_notebook_for_prediction(
             p,
             configs_dir=PREDICTION_CONFIGS_DIR,
             instances_path=INSTANCES_PATH,
+            evaluator=evaluator_stem,
         )
     except FileNotFoundError as exc:
         raise HTTPException(404, str(exc)) from exc

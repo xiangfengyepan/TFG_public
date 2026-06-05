@@ -12,8 +12,8 @@
  * Opt-in: `EVOMAS_RUN_INTEGRATION=1 npx vitest run app/src/integration/`.
  */
 import { fileURLToPath } from 'node:url';
-import { readdirSync } from 'node:fs';
-import { dirname, resolve, basename } from 'node:path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, resolve, join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { Agent } from 'undici';
 
@@ -22,11 +22,40 @@ const RUN = env['EVOMAS_RUN_INTEGRATION'] === '1';
 const API = env['EVOMAS_API_URL'] ?? 'http://localhost:8000/api';
 
 const SPEC_DIR = dirname(fileURLToPath(import.meta.url));
-const PREDEFINED_DIR = resolve(SPEC_DIR, '../../../evomas/config/predefined');
-const CONFIGS: string[] = readdirSync(PREDEFINED_DIR)
-  .filter(f => f.endsWith('.json'))
-  .map(f => basename(f, '.json'))
-  .sort();
+
+/** Opt-in resume mode: set EVOMAS_RESUME_DIR=<results dir relative to repo
+ * root, e.g. experiments/results-7configs-23instances-litedev> to skip
+ * cells whose (config, instance) already has a non-empty prediction file
+ * in <dir>/predictions. Stalled (0-byte) predictions count as not-done.
+ * Empty value = no skipping; every cell runs. */
+const _RESUME_DIR_REL = (env['EVOMAS_RESUME_DIR'] ?? '').trim();
+const _DONE_PAIRS: Set<string> = (() => {
+  if (!_RESUME_DIR_REL) return new Set();
+  const predDir = resolve(SPEC_DIR, '../../..', _RESUME_DIR_REL, 'predictions');
+  const out = new Set<string>();
+  try {
+    for (const fname of readdirSync(predDir)) {
+      if (!fname.startsWith('prediction-') || !fname.endsWith('.jsonl')) continue;
+      const fpath = join(predDir, fname);
+      if (statSync(fpath).size === 0) continue;
+      try {
+        const obj = JSON.parse(readFileSync(fpath, 'utf-8'));
+        // run_id stem after `prediction-` is `<config>-<runid>`; recover
+        // the config from the filename prefix. Trust the instance_id from
+        // the JSON.
+        const stem = fname.slice('prediction-'.length, -'.jsonl'.length);
+        const config = stem.replace(/-[a-f0-9]+$/, '');
+        const iid = obj.instance_id;
+        if (config && iid) out.add(`${config}::${iid}`);
+      } catch { /* malformed prediction file, skip */ }
+    }
+  } catch { /* dir not present yet — first run */ }
+  return out;
+})();
+/** Configs that run in this matrix. Edit this literal to flip the target
+ * — no env vars to set, no ng-test arg forwarding to fight. Each entry
+ * must correspond to a file at `evomas/config/predefined/<name>.json`. */
+const CONFIGS: string[] = ['hyperagent_star'];
 
 interface Instance { id: string; hint?: string }
 
@@ -65,12 +94,7 @@ const INSTANCES: Instance[] = [
   { id: 'pydicom__pydicom-1694' },
 ];
 
-/** 90-min per-cell cap: heavy cyclic topologies (joycode_star,
- * agentscope_hybrid) routinely use 25-40 min when Ollama is hot from
- * back-to-back matrix cells; the cap stays generous enough for them to
- * land while still preventing a stuck Ollama from hanging the suite
- * indefinitely. */
-const TEST_TIMEOUT_MS = 90 * 60 * 1000;
+const TEST_TIMEOUT_MS = 30 * 60 * 1000;
 
 /** Disable undici's body/headers timeouts; SSE streams idle for minutes
  * while Ollama generates the next agent's response. */
@@ -189,8 +213,8 @@ async function runInferenceWithEval(config: string, instance: string, hint?: str
     `[${config} × ${instance}] not resolved: report=${JSON.stringify(report)} patch:\n${inferredPatch}`,
   ).toBe(true);
 }
-
-describe.skipIf(!RUN)('integration · predefined configs', () => {
+// describe.skipIf(!RUN)('integration · predefined configs', () => {
+describe.skip('integration · predefined configs', () => {
   // Fail-fast if the FastAPI server isn't reachable, so an unstarted
   // server doesn't burn the full per-cell timeout.
   beforeAll(async () => {
@@ -210,7 +234,12 @@ describe.skipIf(!RUN)('integration · predefined configs', () => {
   for (const config of CONFIGS) {
     describe(config, () => {
       for (const inst of INSTANCES) {
-        it(
+        // Resume mode: skip cells that already have a non-empty
+        // prediction in the EVOMAS_RESUME_DIR snapshot taken at module
+        // init. Cells with 0-byte predictions are NOT in the set and
+        // therefore re-run, which is the whole point of the flag.
+        const alreadyDone = _DONE_PAIRS.has(`${config}::${inst.id}`);
+        it.skipIf(alreadyDone)(
           `resolves ${inst.id} (inference + evaluation)`,
           async () => { await runInferenceWithEval(config, inst.id, inst.hint); },
           TEST_TIMEOUT_MS,

@@ -54,6 +54,19 @@ export interface AgentBlock extends AgentConfig {
   prompts?: PromptBlock;
 }
 
+/** Repo-relative on-disk paths the backend resolves from BASE_DIR +
+ * the current RESULTS_DIR. Surfaced via `/api/paths` so the frontend's
+ * user-facing strings (empty hints, tooltips, error messages) reflect
+ * the actual values rather than the hardcoded defaults. */
+export interface EvomasPaths {
+  base_dir: string;
+  results_dir: string;
+  predictions_dir: string;
+  predictions_logs_dir: string;
+  evaluations_dir: string;
+  inference_logs_dir: string;
+}
+
 export interface ToolDescriptor {
   name: string;
   description: string;

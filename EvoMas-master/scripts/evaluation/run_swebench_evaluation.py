@@ -1,5 +1,12 @@
+"""Local SWE-bench Docker harness wrapper. On Windows the API spawns
+this through WSL (`swebench` is POSIX-only)."""
+
+# swebench is POSIX-only; manifest tells the API + CLI to wrap in WSL.
+EVOMAS_EVALUATOR = {"needs_wsl": True}
+
 import argparse
 import importlib.util
+import json
 import logging
 import os
 import subprocess
@@ -10,7 +17,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SWEBENCH_VENV = REPO_ROOT / "SWE-bench" / "venv"
 
 
@@ -21,9 +28,12 @@ def _swebench_python() -> str:
     win_py = SWEBENCH_VENV / "Scripts" / "python.exe"
     if win_py.exists():
         return str(win_py)
-    posix_py = SWEBENCH_VENV / "bin" / "python"
-    if posix_py.exists() and os.name != "nt":
-        return str(posix_py)
+    # Short-circuit before exists(): the POSIX venv's python is a WSL
+    # symlink the native os.stat can't resolve (WinError 1920).
+    if os.name != "nt":
+        posix_py = SWEBENCH_VENV / "bin" / "python"
+        if posix_py.exists():
+            return str(posix_py)
     return sys.executable
 
 
@@ -121,11 +131,60 @@ def run_evaluation(
         return 127
 
 
+def _group_predictions(
+    predictions_path: str,
+    instances_path: str | None,
+    subset_override: str | None,
+    split_override: str | None,
+) -> dict[tuple[str, str], list[str]]:
+    """Group prediction rows by (subset, split). Per-row resolution:
+    CLI override → row field → instances-cache lookup → ('lite','dev')."""
+    inst_cache: dict[str, tuple[str, str]] = {}
+    if instances_path:
+        try:
+            text = Path(instances_path).read_text(encoding="utf-8")
+        except OSError as exc:
+            logger.warning("could not open instances cache %s: %s", instances_path, exc)
+            text = ""
+        for raw in text.splitlines():
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                obj = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            iid = obj.get("instance_id")
+            if iid:
+                inst_cache[iid] = (
+                    obj.get("subset") or "lite",
+                    obj.get("split") or "dev",
+                )
+
+    buckets: dict[tuple[str, str], list[str]] = {}
+    for raw in Path(predictions_path).read_text(encoding="utf-8").splitlines():
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            obj = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        iid = obj.get("instance_id") or ""
+        subset = subset_override or obj.get("subset") or inst_cache.get(iid, ("lite", "dev"))[0]
+        split  = split_override  or obj.get("split")  or inst_cache.get(iid, ("lite", "dev"))[1]
+        buckets.setdefault((subset, split), []).append(raw)
+    return buckets
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Run the SWE-bench Docker harness on a predictions JSONL. "
-            "On Windows, invoke via WSL (`swebench` is POSIX-only)."
+            "Rows are grouped by (subset, split) internally -- one "
+            "harness invocation per bucket -- so the framework can call "
+            "this script once with the unified evaluator contract. On "
+            "Windows, invoke via WSL (`swebench` is POSIX-only)."
         )
     )
     parser.add_argument(
@@ -133,16 +192,35 @@ def main() -> None:
         default="evomas_predictions.jsonl",
         help="Path to the JSONL predictions file",
     )
-    parser.add_argument("--split", choices=["dev", "test", "train"], default="dev")
     parser.add_argument(
-        "--subset", choices=list(SUBSET_DATASETS), default="lite",
-        help="SWE-bench subset to evaluate against (lite | full | verified)",
+        "--instances",
+        default=None,
+        help=(
+            "Instances JSONL used to resolve subset/split for prediction "
+            "rows that don't carry those fields. Optional -- omit if "
+            "every row already declares them, or if you pass "
+            "--subset/--split as overrides."
+        ),
+    )
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Accepted for the unified evaluator contract; unused here "
+             "(SWE-bench writes a fixed report layout).",
+    )
+    parser.add_argument(
+        "--split", choices=["dev", "test", "train"], default=None,
+        help="Override per-row split (forces every row into this bucket).",
+    )
+    parser.add_argument(
+        "--subset", choices=list(SUBSET_DATASETS), default=None,
+        help="Override per-row subset (forces every row into this bucket).",
     )
     parser.add_argument("--max-workers", type=int, default=8)
     parser.add_argument(
         "--run-id",
         default=None,
-        help="Override run_id (default: evomas-<split>-<date>)",
+        help="Run-id base. Multi-bucket runs append -<subset>-<split>.",
     )
     parser.add_argument(
         "--report-dir",
@@ -185,19 +263,37 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    buckets = _group_predictions(args.predictions, args.instances, args.subset, args.split)
+    if not buckets:
+        logger.error("No predictions found in %s", args.predictions)
+        sys.exit(1)
+
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    run_id = args.run_id or f"evomas-{args.split}-{ts}"
-    logger.info(
-        "Running evaluation on %s/%s (run_id=%s)", args.subset, args.split, run_id,
-    )
-    rc = run_evaluation(
-        args.predictions, run_id, args.split, args.max_workers,
-        args.report_dir, args.subset,
-        force=args.force,
-        cache_level=args.cache_level,
-        force_rebuild=args.force_rebuild,
-    )
-    sys.exit(rc)
+    base_run_id = args.run_id or f"evomas-{ts}"
+    report_dir = args.report_dir or "."
+    tmp_dir = Path(report_dir) / "_tmp_predictions"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    return_codes: list[int] = []
+    for (subset, split), lines in buckets.items():
+        bucket_path = tmp_dir / f"_bucket_{subset}_{split}.jsonl"
+        bucket_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        bucket_run_id = (
+            f"{base_run_id}-{subset}-{split}" if len(buckets) > 1 else base_run_id
+        )
+        logger.info(
+            "Bucket %s/%s -> %d row(s), run_id=%s", subset, split, len(lines), bucket_run_id,
+        )
+        rc = run_evaluation(
+            str(bucket_path), bucket_run_id, split, args.max_workers,
+            args.report_dir, subset,
+            force=args.force,
+            cache_level=args.cache_level,
+            force_rebuild=args.force_rebuild,
+        )
+        return_codes.append(rc)
+
+    sys.exit(max(return_codes) if return_codes else 0)
 
 
 if __name__ == "__main__":

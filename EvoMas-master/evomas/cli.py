@@ -86,12 +86,42 @@ def _ollama_host_env() -> dict[str, str]:
     return env
 
 
+def _script_needs_wsl(script_path: Path) -> bool:
+    """True iff the script exposes `EVOMAS_EVALUATOR = {"needs_wsl": True}`."""
+    import importlib.util
+    try:
+        spec = importlib.util.spec_from_file_location(
+            f"_cli_manifest_{script_path.stem}", script_path,
+        )
+        if spec is None or spec.loader is None:
+            return False
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+    except Exception:  # noqa: BLE001
+        return False
+    manifest = getattr(mod, "EVOMAS_EVALUATOR", None)
+    return bool(isinstance(manifest, dict) and manifest.get("needs_wsl"))
+
+
 def _run_script(script_name: str, extra_args: list[str]) -> int:
-    """Subprocess a `scripts/<name>.py` entry point."""
+    """Subprocess a `scripts/<name>.py` entry point. Scripts declaring
+    `EVOMAS_EVALUATOR.needs_wsl` get auto-wrapped in WSL on Windows."""
     script_path = REPO_ROOT / "scripts" / script_name
     if not script_path.is_file():
         typer.echo(f"script not found: {script_path}", err=True)
         return 1
+
+    if platform.system() == "Windows" and _script_needs_wsl(script_path):
+        import shlex
+        from evomas.utils.paths import to_wsl
+        swebench_py = REPO_ROOT / "SWE-bench" / "venv" / "bin" / "python"
+        inner = " ".join(shlex.quote(a) for a in [
+            to_wsl(str(swebench_py)),
+            to_wsl(str(script_path)),
+            *extra_args,
+        ])
+        return subprocess.run(["wsl", "--", "bash", "-lc", inner]).returncode
+
     return subprocess.run(
         [sys.executable, str(script_path), *extra_args],
         cwd=REPO_ROOT,
@@ -236,7 +266,10 @@ def run_instances(
     help=(
         "Generate EvoMas predictions for the instances JSONL. Runs the "
         "configured LangGraph topology against each instance and emits "
-        "one model_patch per line into the predictions JSONL."
+        "one model_patch per line into the predictions JSONL. Rows without "
+        "`repo`/`base_commit` skip the clone step and run against a "
+        "throwaway tmpdir workspace — useful for chat/websearch-style "
+        "configs that don't need source files."
         "\n\nExample:  evomas run prediction --instances swebench_instances.jsonl --output evomas_predictions.jsonl --config chain"
     ),
 )
@@ -282,8 +315,12 @@ def run_prediction(
         "POSIX-only)."
         "\n  --remote           - submits to swebench.com via sb-cli "
         "(needs SWEBENCH_API_KEY; verdicts only, no per-instance logs)."
-        "\n\nExample:           evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --split dev"
-        "\nExample (remote):  evomas run evaluation --remote --predictions evomas_predictions.jsonl --subset lite --split dev"
+        "\n\nExample (predictions carry subset/split per row):"
+        "\n  evomas run evaluation --predictions evomas_predictions.jsonl"
+        "\nExample (force every row into one bucket):"
+        "\n  evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --split dev"
+        "\nExample (remote):"
+        "\n  evomas run evaluation --remote --predictions evomas_predictions.jsonl"
     ),
 )
 def run_evaluation(
@@ -292,16 +329,20 @@ def run_evaluation(
         ..., "--predictions",
         help="Path to the predictions JSONL.",
     ),
-    split: str = typer.Option(
-        ..., "--split",
-        help="Dataset split: dev | test | train. Remote only supports dev/test.",
-    ),
-    subset: str = typer.Option(
-        ..., "--subset",
+    split: Optional[str] = typer.Option(
+        None, "--split",
         help=(
-            "SWE-bench subset. Local accepts lite | full | verified. "
-            "Remote accepts lite | verified | multimodal (the hosted "
-            "API has no 'full' subset)."
+            "Override per-row split (forces every row into this bucket). "
+            "Omit to let the underlying script read each row's own split. "
+            "Local accepts dev | test | train; remote only dev / test."
+        ),
+    ),
+    subset: Optional[str] = typer.Option(
+        None, "--subset",
+        help=(
+            "Override per-row subset. Omit to let each row's own subset "
+            "decide. Local accepts lite | full | verified; remote accepts "
+            "lite | verified | multimodal (the hosted API has no 'full')."
         ),
     ),
     max_workers: int = typer.Option(
@@ -323,26 +364,32 @@ def run_evaluation(
 ) -> None:
     if remote:
         # Remote only forwards common args; max-workers is local-only.
-        forwarded: list[str] = [
-            "--predictions", predictions, "--split", split, "--subset", subset,
-        ]
+        forwarded: list[str] = ["--predictions", predictions]
+        if subset:
+            forwarded += ["--subset", subset]
+        if split:
+            forwarded += ["--split", split]
         if run_id:
             forwarded += ["--run-id", run_id]
         if report_dir:
             forwarded += ["--output-dir", report_dir]
         forwarded.extend(ctx.args)
-        raise typer.Exit(_run_script("run_swebench_evaluation_remote.py", forwarded))
+        raise typer.Exit(_run_script("evaluation/run_swebench_evaluation_remote.py", forwarded))
 
     forwarded = [
-        "--predictions", predictions, "--split", split, "--subset", subset,
+        "--predictions", predictions,
         "--max-workers", str(max_workers),
     ]
+    if subset:
+        forwarded += ["--subset", subset]
+    if split:
+        forwarded += ["--split", split]
     if run_id:
         forwarded += ["--run-id", run_id]
     if report_dir:
         forwarded += ["--report-dir", report_dir]
     forwarded.extend(ctx.args)
-    raise typer.Exit(_run_script("run_swebench_evaluation.py", forwarded))
+    raise typer.Exit(_run_script("evaluation/run_swebench_evaluation.py", forwarded))
 
 
 # ─── server entry points ──────────────────────────────────────────────────────
@@ -419,7 +466,7 @@ def apply(
     if model:
         forwarded += ["--model", model]
     forwarded.extend(ctx.args)
-    raise typer.Exit(_run_script("apply_and_test.py", forwarded))
+    raise typer.Exit(_run_script("evaluation/apply_and_test.py", forwarded))
 
 
 # ─── test runner ──────────────────────────────────────────────────────────────
@@ -473,7 +520,7 @@ def test(
         "\n  - From inputs (--config + --instances): no baseline to diff"
         " against, so the comparative section is omitted. Mirrors the"
         " Inference page download button."
-        "\n\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl"
+        "\n\nExample:  evomas notebook --predictions results/predictions/prediction-<run-id>.jsonl --evaluator apply_and_test"
     ),
 )
 def notebook(
@@ -493,6 +540,15 @@ def notebook(
              "is fed to the builder. Required with --config; ignored with "
              "--predictions (which already carries the ids).",
     ),
+    evaluator: str = typer.Option(
+        ..., "--evaluator",
+        help="Filename stem under `scripts/evaluation/` (no `.py`) to bake "
+             "into the notebook's section 5. Common choices: "
+             "`apply_and_test` (code-repair via pytest), "
+             "`run_swebench_evaluation` (SWE-bench POSIX harness), "
+             "`translate_eval` (BLEU vs .gold sidecars). Required — pick "
+             "the grader that matches your task.",
+    ),
     output: Optional[str] = typer.Option(
         None, "--output",
         help="Where to write the .ipynb. Defaults to a sensible stem in the cwd.",
@@ -511,7 +567,7 @@ def notebook(
     if predictions:
         pred_path = Path(predictions).resolve()
         try:
-            run_id, nb = build_notebook_for_prediction(pred_path)
+            run_id, nb = build_notebook_for_prediction(pred_path, evaluator=evaluator)
         except FileNotFoundError as exc:
             typer.echo(str(exc), err=True)
             raise typer.Exit(1)
@@ -557,10 +613,14 @@ def notebook(
         # Pass the user-supplied JSONL as the cache the row lookup
         # reads — that's where the (subset, split) per id and the
         # custom-row inputs live.
-        run_id, nb = build_notebook_for_inputs(
-            instance_ids=ids, config_data=cfg_data,
-            instances_path=inst_path,
-        )
+        try:
+            run_id, nb = build_notebook_for_inputs(
+                instance_ids=ids, config_data=cfg_data,
+                instances_path=inst_path, evaluator=evaluator,
+            )
+        except FileNotFoundError as exc:
+            typer.echo(str(exc), err=True)
+            raise typer.Exit(1)
         default_stem = f"notebook-{run_id}"
 
     out_path = Path(output) if output else Path.cwd() / f"{default_stem}.ipynb"

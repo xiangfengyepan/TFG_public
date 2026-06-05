@@ -1,5 +1,10 @@
 """Submit a predictions JSONL to the hosted SWE-bench leaderboards via `sb-cli`, as an alternative to the local Docker harness."""
 
+# No `EVOMAS_EVALUATOR` manifest needed -- defaults (single_shot, no
+# WSL) match this script: rows are grouped by (subset, split)
+# INTERNALLY so the framework calls us once with the unified evaluator
+# contract. See `docs/adding_a_new_problem.md`.
+
 import argparse
 import json
 import logging
@@ -14,7 +19,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SB_CLI_VENV = REPO_ROOT / "sb-cli" / "venv"
 
 # Map evomas subset names to sb-cli dataset slugs. `full` is intentionally
@@ -160,11 +165,59 @@ def run_remote_evaluation(
         tmp_json.unlink(missing_ok=True)
 
 
+def _group_predictions(
+    predictions_path: str,
+    instances_path: str | None,
+    subset_override: str | None,
+    split_override: str | None,
+) -> dict[tuple[str, str], list[str]]:
+    """Group prediction rows by (subset, split). Per-row resolution:
+    CLI override → row field → instances-cache lookup → ('lite','dev')."""
+    inst_cache: dict[str, tuple[str, str]] = {}
+    if instances_path:
+        try:
+            text = Path(instances_path).read_text(encoding="utf-8")
+        except OSError as exc:
+            logger.warning("could not open instances cache %s: %s", instances_path, exc)
+            text = ""
+        for raw in text.splitlines():
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                obj = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            iid = obj.get("instance_id")
+            if iid:
+                inst_cache[iid] = (
+                    obj.get("subset") or "lite",
+                    obj.get("split") or "dev",
+                )
+
+    buckets: dict[tuple[str, str], list[str]] = {}
+    for raw in Path(predictions_path).read_text(encoding="utf-8").splitlines():
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            obj = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        iid = obj.get("instance_id") or ""
+        subset = subset_override or obj.get("subset") or inst_cache.get(iid, ("lite", "dev"))[0]
+        split  = split_override  or obj.get("split")  or inst_cache.get(iid, ("lite", "dev"))[1]
+        buckets.setdefault((subset, split), []).append(raw)
+    return buckets
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Submit EvoMas predictions to the hosted SWE-bench leaderboards "
-            "via sb-cli, as an alternative to the local Docker harness."
+            "via sb-cli. Rows are grouped by (subset, split) internally -- "
+            "one submission per bucket -- so the framework can call this "
+            "script once with the unified evaluator contract."
         )
     )
     parser.add_argument(
@@ -173,24 +226,38 @@ def main() -> int:
         help="Path to the JSONL predictions file.",
     )
     parser.add_argument(
-        "--subset", choices=list(SUBSET_TO_SB_DATASET), default="lite",
-        help="SWE-bench subset (lite | verified | multimodal). 'full' has "
-             "no hosted API split.",
+        "--instances", default=None,
+        help="Instances JSONL used to resolve subset/split for rows that "
+             "don't carry them. Optional -- omit if every row already "
+             "declares those fields or you pass --subset/--split overrides.",
     )
     parser.add_argument(
-        "--split", choices=["dev", "test"], default="dev",
-        help="Dataset split. 'test' is only available on lite / verified / "
-             "multimodal subsets.",
+        "--model", default=None,
+        help="Accepted for the unified evaluator contract; unused here.",
+    )
+    parser.add_argument(
+        "--subset", choices=list(SUBSET_TO_SB_DATASET), default=None,
+        help="Override per-row subset (forces every row into this bucket). "
+             "lite | verified | multimodal -- 'full' has no hosted API split.",
+    )
+    parser.add_argument(
+        "--split", choices=["dev", "test"], default=None,
+        help="Override per-row split. 'test' is only available on lite / "
+             "verified / multimodal subsets.",
     )
     parser.add_argument(
         "--run-id", default=None,
-        help="Submission run-id (default: evomas-<split>-<timestamp>). "
-             "Must be unique per (subset, split) unless --overwrite is set.",
+        help="Submission run-id base. Multi-bucket runs append "
+             "-<subset>-<split>. Must be unique per bucket unless "
+             "--overwrite is set.",
     )
+    # Both flag spellings accepted: `--output-dir` (sb-cli native) and
+    # `--report-dir` (unified evaluator contract). They resolve to the
+    # same destination; whichever the caller passes wins.
     parser.add_argument(
-        "--output-dir", default=None,
-        help="Where sb-cli writes the downloaded report (default: "
-             "sb-cli-reports in the cwd).",
+        "--output-dir", "--report-dir", dest="output_dir", default=None,
+        help="Where sb-cli writes the downloaded report. Accepts both "
+             "--output-dir and --report-dir spellings.",
     )
     parser.add_argument(
         "--overwrite", action="store_true",
@@ -198,7 +265,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--no-gen-report", dest="gen_report", action="store_false",
-        help="Skip the report-fetch step after submission — useful when "
+        help="Skip the report-fetch step after submission - useful when "
              "submitting in batches and downloading reports later.",
     )
     parser.add_argument(
@@ -208,13 +275,34 @@ def main() -> int:
     parser.set_defaults(gen_report=True)
     args = parser.parse_args()
 
+    buckets = _group_predictions(args.predictions, args.instances, args.subset, args.split)
+    if not buckets:
+        logger.error("No predictions found in %s", args.predictions)
+        return 1
+
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    run_id = args.run_id or f"evomas-{args.split}-{ts}"
-    logger.info("Remote evaluation on %s/%s (run_id=%s)", args.subset, args.split, run_id)
-    return run_remote_evaluation(
-        args.predictions, run_id, args.subset, args.split,
-        args.output_dir, args.overwrite, args.gen_report, args.instance_ids,
-    )
+    base_run_id = args.run_id or f"evomas-{ts}"
+    output_dir = args.output_dir or "."
+    tmp_dir = Path(output_dir) / "_tmp_predictions"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    return_codes: list[int] = []
+    for (subset, split), lines in buckets.items():
+        bucket_path = tmp_dir / f"_bucket_{subset}_{split}.jsonl"
+        bucket_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        bucket_run_id = (
+            f"{base_run_id}-{subset}-{split}" if len(buckets) > 1 else base_run_id
+        )
+        logger.info(
+            "Remote bucket %s/%s -> %d row(s), run_id=%s",
+            subset, split, len(lines), bucket_run_id,
+        )
+        rc = run_remote_evaluation(
+            str(bucket_path), bucket_run_id, subset, split,
+            args.output_dir, args.overwrite, args.gen_report, args.instance_ids,
+        )
+        return_codes.append(rc)
+    return max(return_codes) if return_codes else 0
 
 
 if __name__ == "__main__":
