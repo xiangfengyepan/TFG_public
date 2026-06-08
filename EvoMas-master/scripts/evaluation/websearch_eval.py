@@ -8,10 +8,12 @@ fields are filled in from "did the agent actually run + write something"
 signals rather than test outcomes.
 
 Resolved criterion (per instance):
-1. Patch field is present in the prediction (i.e. inference completed).
-2. **Either** the prediction's model_patch is non-empty OR an
-   `answer*.md` file exists in the run's output dir (the agent called
-   `save_text` and the file landed somewhere we can find it).
+   The agent must have written an `answer*.md` file (or any
+   `*<instance_id>*.md`) somewhere reachable from the run's output
+   dir. This is the deliverable websearch tasks specify in their
+   problem statement (e.g. "Write the answer to ./answer-py.md"); a
+   model_patch alone is no longer enough — the file must actually
+   exist on disk after the agent runs.
 
 The CLI surface matches the unified evaluator contract used by
 `api/routers/evaluation.py` and the notebook generator's section 5 —
@@ -74,7 +76,7 @@ def evaluate_one(
     answer = _find_answer_file(report_dir, iid)
     has_answer = answer is not None
 
-    resolved = has_patch or has_answer
+    resolved = has_answer
     return {
         "instance_id": iid,
         "resolved": resolved,
@@ -82,7 +84,7 @@ def evaluate_one(
         "patch_chars": len(patch or ""),
         "answer_file": str(answer) if answer else None,
         "answer_chars": answer.stat().st_size if answer else 0,
-        "criterion": "patch_present OR answer_file_found",
+        "criterion": "answer_file_found",
     }
 
 
