@@ -34,7 +34,6 @@ jobs:
           STAGE=$(mktemp -d)
           rsync -a --delete \
             --exclude='.git/' \
-            --exclude='experiments/' \
             --exclude='results/' \
             --exclude='logs/' \
             --exclude='old_logs/' \
