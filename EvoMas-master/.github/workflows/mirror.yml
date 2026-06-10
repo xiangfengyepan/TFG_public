@@ -32,23 +32,28 @@ jobs:
         run: |
           set -euo pipefail
           STAGE=$(mktemp -d)
+          # Leading-slash patterns anchor to the repo root (mirrors the
+          # .gitignore convention). Without the slash, rsync would match
+          # `notebook-*/` and `logs/` anywhere — including the
+          # `experiments/notebook-X-5custom/` runs and their per-instance
+          # `predictions/logs/` subdirs that we explicitly want to mirror.
           rsync -a --delete \
             --exclude='.git/' \
-            --exclude='results/' \
-            --exclude='logs/' \
-            --exclude='old_logs/' \
-            --exclude='SWE-bench/' \
-            --exclude='sb-cli/' \
-            --exclude='notebook-*/' \
-            --exclude='notebook-*.ipynb' \
-            --exclude='swebench_*.jsonl' \
-            --exclude='custom_instances.jsonl' \
+            --exclude='/results/' \
+            --exclude='/logs/' \
+            --exclude='/old_logs/' \
+            --exclude='/SWE-bench/' \
+            --exclude='/sb-cli/' \
+            --exclude='/notebook-*/' \
+            --exclude='/notebook-*.ipynb' \
+            --exclude='/swebench_*.jsonl' \
+            --exclude='/custom_instances.jsonl' \
+            --exclude='/evomas.egg-info/' \
             --exclude='evomas/config/loaded/' \
             --exclude='evomas/venv/' \
             --exclude='**/__pycache__/' \
             --exclude='**/node_modules/' \
             --exclude='app/dist/' \
-            --exclude='evomas.egg-info/' \
             ./ "$STAGE/"
           echo "STAGE=$STAGE" >> "$GITHUB_ENV"
 
