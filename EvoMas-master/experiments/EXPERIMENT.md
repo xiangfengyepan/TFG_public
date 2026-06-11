@@ -21,7 +21,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-2b-5custom
 
 - **Started**: 2026-06-03 23:28:36
-- **Active wall-clock**: 7min 45s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 7min 45s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 0 / 5 = **0.0 %** of evaluated, 0.0 % of attempted
@@ -55,7 +55,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-4b-5custom
 
 - **Started**: 2026-06-03 23:39:17
-- **Active wall-clock**: 9min 53s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 9min 53s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 4 / 5 = **80.0 %** of evaluated, 80.0 % of attempted
@@ -96,7 +96,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-5custom
 
 - **Started**: 2026-06-04 00:41:34
-- **Active wall-clock**: 29min 2s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 29min 2s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 4 / 5 = **80.0 %** of evaluated, 80.0 % of attempted
@@ -137,7 +137,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-agentscope_hybrid-5custom
 
 - **Started**: 2026-06-04 01:17:57
-- **Active wall-clock**: 35min 21s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 35min 21s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 4 / 5 = **80.0 %** of evaluated, 80.0 % of attempted
@@ -179,7 +179,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-experepair_star-5custom
 
 - **Started**: 2026-06-04 01:59:53
-- **Active wall-clock**: 41min 18s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 41min 18s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -219,7 +219,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-hyperagent_star-5custom
 
 - **Started**: 2026-06-04 02:30:10
-- **Active wall-clock**: 29min 35s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 29min 35s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 5 / 5 = **100.0 %** of evaluated, 100.0 % of attempted
@@ -261,7 +261,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-joycode_star-5custom
 
 - **Started**: 2026-06-04 03:10:07
-- **Active wall-clock**: 39min 15s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 39min 15s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 5 / 5 = **100.0 %** of evaluated, 100.0 % of attempted
@@ -304,7 +304,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-lingxi_star-5custom
 
 - **Started**: 2026-06-04 03:53:07
-- **Active wall-clock**: 42min 22s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 42min 22s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 5 / 5 = **100.0 %** of evaluated, 100.0 % of attempted
@@ -346,7 +346,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-openhands_star-5custom
 
 - **Started**: 2026-06-04 04:11:19
-- **Active wall-clock**: 17min 32s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 17min 32s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 5 / 5 = **100.0 %** of evaluated, 100.0 % of attempted
@@ -388,7 +388,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-prometheus_tree-5custom
 
 - **Started**: 2026-06-04 04:45:34
-- **Active wall-clock**: 31min 41s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min 41s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -429,7 +429,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-openhands_star-23lite
 
 - **Started**: 2026-06-04 08:04:11
-- **Active wall-clock**: 3h 15min (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 3h 15min (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 23
 - **Evaluated**: 23
 - **Resolved**: 0 / 23 = **0.0 %** of evaluated, 0.0 % of attempted
@@ -481,7 +481,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-hyperagent_star-23lite
 
 - **Started**: 2026-06-04 23:26:39
-- **Active wall-clock**: 7h 40min (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 7h 40min (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 23
 - **Evaluated**: 23
 - **Resolved**: 2 / 23 = **8.7 %** of evaluated, 8.7 % of attempted
@@ -538,7 +538,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-coder3b-5custom
 
 - **Started**: 2026-06-05 00:43:27
-- **Active wall-clock**: 1min 9s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 1min 9s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 0 / 5 = **0.0 %** of evaluated, 0.0 % of attempted
@@ -572,7 +572,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-coder7b-5custom
 
 - **Started**: 2026-06-05 00:48:15
-- **Active wall-clock**: 4min 12s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 4min 12s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 1 / 5 = **20.0 %** of evaluated, 20.0 % of attempted
@@ -610,7 +610,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-hi-seed-random-5custom
 
 - **Started**: 2026-06-05 02:19:09
-- **Active wall-clock**: 29min 25s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 29min 25s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 2 / 5 = **40.0 %** of evaluated, 40.0 % of attempted
@@ -649,7 +649,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-hi-seed-random-rep2-5custom
 
 - **Started**: 2026-06-05 02:44:59
-- **Active wall-clock**: 25min 19s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 25min 19s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 4 / 5 = **80.0 %** of evaluated, 80.0 % of attempted
@@ -690,7 +690,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-hi-seed-random-rep3-5custom
 
 - **Started**: 2026-06-05 03:16:55
-- **Active wall-clock**: 31min 28s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min 28s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 4 / 5 = **80.0 %** of evaluated, 80.0 % of attempted
@@ -731,7 +731,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-23lite
 
 - **Started**: 2026-06-05 08:31:18
-- **Active wall-clock**: 4h 37min (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 4h 37min (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 23
 - **Evaluated**: 23
 - **Resolved**: 2 / 23 = **8.7 %** of evaluated, 8.7 % of attempted
@@ -788,7 +788,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-hi-seed-random-rep4-5custom
 
 - **Started**: 2026-06-07 12:16:25
-- **Active wall-clock**: 34min 28s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 34min 28s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -828,7 +828,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-hi-seed-random-rep5-5custom
 
 - **Started**: 2026-06-07 12:49:55
-- **Active wall-clock**: 32min 47s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 32min 47s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 4 / 5 = **80.0 %** of evaluated, 80.0 % of attempted
@@ -869,7 +869,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-lo-seed-random-5custom
 
 - **Started**: 2026-06-07 13:21:33
-- **Active wall-clock**: 31min 9s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min 9s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -909,7 +909,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-lo-seed-random-rep2-5custom
 
 - **Started**: 2026-06-07 13:54:21
-- **Active wall-clock**: 31min 48s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min 48s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -949,7 +949,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-lo-seed-random-rep3-5custom
 
 - **Started**: 2026-06-07 14:25:49
-- **Active wall-clock**: 31min (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -989,7 +989,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-lo-seed-random-rep4-5custom
 
 - **Started**: 2026-06-07 14:58:02
-- **Active wall-clock**: 31min 43s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min 43s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -1029,7 +1029,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-temp-lo-seed-random-rep5-5custom
 
 - **Started**: 2026-06-07 15:29:59
-- **Active wall-clock**: 31min 30s (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 31min 30s (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 5
 - **Evaluated**: 5
 - **Resolved**: 3 / 5 = **60.0 %** of evaluated, 60.0 % of attempted
@@ -1069,7 +1069,7 @@ python experiments/generate_report.py <folder-name>    # refresh one
 ## notebook-chain-9b-77litetest
 
 - **Started**: 2026-06-08 15:00:41
-- **Active wall-clock**: 16h 4min (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)
+- **Active wall-clock**: 16h 4min (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)
 - **Predictions written**: 77
 - **Evaluated**: 77
 - **Resolved**: 12 / 77 = **15.6 %** of evaluated, 15.6 % of attempted

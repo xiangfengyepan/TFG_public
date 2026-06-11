@@ -347,7 +347,7 @@ def _scan_run(run_dir: Path) -> dict[str, Any] | None:
         # (truncated logs, NDJSON-only API path, etc.).
         cell_start_ts = tok["cell_start_ts"] if tok["cell_start_ts"] is not None else (handoffs[0][2] if handoffs else None)
         cell_end_ts   = tok["cell_done_ts"]  if tok["cell_done_ts"]  is not None else (handoffs[-1][2] if handoffs else None)
-        # Prefer active-time (sum of inter-line gaps capped at 30 min)
+        # Prefer active-time (sum of inter-line gaps capped at 5 min)
         # over raw end-start: skips system-sleep / kernel-paused stretches
         # that would otherwise inflate single-cell durations to 14+ hours
         # when the laptop suspends mid-run.
@@ -403,7 +403,7 @@ def _scan_run(run_dir: Path) -> dict[str, Any] | None:
         # raw clock-delta to ~12h, which then trips the outlier guard and
         # drops the bracket entirely.
         line_ts = tok.get("line_ts") or []
-        idle_gap = tok.get("idle_gap_s") or 1800
+        idle_gap = tok.get("idle_gap_s") or 300
         def _active_between(t0: float, t1: float) -> float:
             if t1 <= t0:
                 return 0.0
@@ -534,7 +534,7 @@ def _render_run(run: dict[str, Any]) -> str:
     lines: list[str] = []
     lines.append(f"## {name}\n")
     lines.append(f"- **Started**: {run['started_at']}")
-    lines.append(f"- **Active wall-clock**: {_fmt_dur(run['span_s'])} (sum of inter-log-line gaps capped at 30 min; skips system-sleep / kernel-paused stretches)")
+    lines.append(f"- **Active wall-clock**: {_fmt_dur(run['span_s'])} (sum of inter-log-line gaps capped at 5 min; skips system-sleep / kernel-paused stretches)")
     lines.append(f"- **Predictions written**: {n_preds}")
     lines.append(f"- **Evaluated**: {n_eval}")
     lines.append(f"- **Resolved**: {n_resolved} / {n_eval} = **{pct:.1f} %** of evaluated, {(n_resolved/n_preds*100 if n_preds else 0):.1f} % of attempted")
