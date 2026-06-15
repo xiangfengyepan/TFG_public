@@ -8,6 +8,10 @@ a few are intentional stubs for runtimes EvoMas doesn't ship.
 from __future__ import annotations
 
 import json
+import os
+import shlex
+import shutil
+import sys
 from pathlib import Path
 
 from langchain_core.tools import BaseTool
@@ -119,7 +123,13 @@ def test_stubs_return_error_strings() -> None:
 
 def test_execute_command_tool_runs_through_canonical() -> None:
     """executeCommandTool delegates to OpenHands CmdRunTool."""
-    out = executeCommandTool.invoke({"command": "python -c \"print(42)\""})
+    # Prefer a bare `python` / `python3` that the host shell can find; fall
+    # back to sys.executable if neither is on PATH. Debian/Ubuntu only ship
+    # `python3`, so the original bare `python` invocation broke under
+    # OpenHands' /bin/sh subprocess on those systems.
+    py = shutil.which("python") or shutil.which("python3") or sys.executable
+    quote = (lambda s: f'"{s}"') if os.name == "nt" else shlex.quote
+    out = executeCommandTool.invoke({"command": f'{quote(py)} -c "print(42)"'})
     assert "42" in out
 
 
