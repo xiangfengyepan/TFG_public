@@ -11,9 +11,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _venv_python() -> Path:
+    # setup.{sh,ps1} install the venv at ~/.evomas-venv so the repo stays
+    # free of build artefacts; start_api.* and the notebooks use the same
+    # path. Keep this resolver in sync.
+    venv = Path.home() / ".evomas-venv"
     if os.name == "nt":
-        return REPO_ROOT / "evomas" / "venv" / "Scripts" / "python.exe"
-    return REPO_ROOT / "evomas" / "venv" / "bin" / "python"
+        return venv / "Scripts" / "python.exe"
+    return venv / "bin" / "python"
 
 
 def _banner(title: str) -> None:
@@ -26,8 +30,8 @@ def _run_backend(extra: list[str], integration: bool) -> int:
     if not venv_py.is_file():
         print(
             f"venv python not found at {venv_py}.\n"
-            f"  Set it up with: cd evomas && python -m venv venv && "
-            f"./venv/{'Scripts' if os.name == 'nt' else 'bin'}/pip install -r requirements.txt",
+            f"  Set it up by running ./setup.sh (or .\\setup.ps1 on Windows) "
+            f"from the repo root.",
             file=sys.stderr,
         )
         return 1
