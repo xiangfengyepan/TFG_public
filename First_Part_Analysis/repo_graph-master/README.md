@@ -4,6 +4,8 @@ Generates a GEXF graph from the SWE-bench repository analysis CSVs and opens it 
 
 A static deploy is also available — see [`deploy/`](deploy/README.md) — which publishes the visualizer to `https://xiangfengyepan.github.io/TFG_public/repo-graph/` so it can be cited from a document with one stable URL.
 
+The complete list of deployment URLs — the full graph and a per-repository subgraph link for each of the 48 repositories — is collected in [`DEPLOYMENTS.md`](DEPLOYMENTS.md).
+
 ## Prerequisites
 
 - **Windows** (tested on Windows 11)
