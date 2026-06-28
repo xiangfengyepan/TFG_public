@@ -69,9 +69,9 @@ export class AgentInspectorComponent {
   @Input() isLoadedConfig = false;
 
   // ── Inspector-local toggles ─────────────────────────────────────
-  @Input() paramsOpen = true;
-  @Input() toolsOpen = true;
-  @Input() promptsOpen = true;
+  @Input() paramsOpen = false;
+  @Input() toolsOpen = false;
+  @Input() promptsOpen = false;
   /** '' = collapsed, otherwise the visible slot key. */
   @Input() promptTab: 'system' | 'user' | 'proxy' | '' = '';
 
@@ -130,6 +130,13 @@ export class AgentInspectorComponent {
     if (m.startsWith('gemini/')) return 'gemini';
     if (m.startsWith('openai/')) return 'openai';
     return 'ollama';
+  }
+
+  /** Prompt slots that carry content, for the general-info box. */
+  get activePromptSlots(): string {
+    const slots = (['system', 'user', 'proxy'] as const)
+      .filter(slot => !!this.getPrompt(slot));
+    return slots.length ? slots.join(', ') : '—';
   }
 
   supportsKnob(knob: string): boolean {

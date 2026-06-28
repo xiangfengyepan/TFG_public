@@ -13,6 +13,11 @@
 
   @if (selectedAgent && agentBlock) {
 
+    <!-- Scrollable region holding the three collapsible sections. Kept
+         separate from the pinned Agent-info footer below so expanded
+         content scrolls ABOVE the footer instead of behind it. -->
+    <div class="inspector-scroll">
+
     <!-- Header with parameter help. Caret button toggles the
          section open/closed; state persists across node selections
          because TopologyComponent owns the field. -->
@@ -316,6 +321,26 @@
         </div>
       }
       }
+    </div>
+
+    </div><!-- /.inspector-scroll -->
+
+    <!-- ─── General info ────────────────────────────────────── -->
+    <!-- Read-only summary of the selected agent, pinned at the bottom
+         of the panel so the key identity (name/type/model/provider)
+         stays visible regardless of which sections are collapsed. -->
+    <div class="agent-info-box">
+      <div class="agent-info-title">Agent info</div>
+      <dl class="agent-info-grid">
+        <dt>Name</dt>    <dd class="mono">{{ selectedAgent }}</dd>
+        <dt>Class</dt>   <dd class="mono">{{ agentBlock.class || '—' }}</dd>
+        <dt>Model</dt>   <dd class="mono" [title]="agentBlock.model || '(none)'">{{ agentBlock.model || '(none)' }}</dd>
+        <dt>Prompts</dt> <dd>{{ activePromptSlots }}</dd>
+        <dt>Tools</dt>   <dd>{{ currentTools.length }}</dd>
+        @if (agentBlock.variant) {
+          <dt>Variant</dt><dd class="mono">{{ agentBlock.variant }}</dd>
+        }
+      </dl>
     </div>
 
   } @else {
