@@ -75,6 +75,27 @@
   white-space: nowrap;
 }
 
+/* Width-driven degradation. The `toolbar-cramped` flag above only fires
+ * when BOTH rails are open, so it misses the common 1366×768 case (one
+ * rail open, or a loaded config whose extra Save/History buttons don't
+ * fit). These container queries react to the REAL width the center column
+ * gives the toolbar — shedding the stats cluster first, then collapsing
+ * the button text to icons — so nothing clips off the right edge. The
+ * `topoCenter` container is declared on `.center-col` in
+ * topology.component.css. */
+@container topoCenter (max-width: 1380px) {
+  .graph-toolbar .topo-stats { display: none; }
+}
+@container topoCenter (max-width: 1240px) {
+  .graph-toolbar .btn-label { display: none; }
+  .graph-toolbar .topo-title {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 /* Thin vertical divider between toolbar button groups (Edit / Validate /
  * Save / View). Doesn't flex-grow -- visual grouping only. */
 .toolbar-group-sep {

@@ -42,6 +42,11 @@
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  /* Query container so the toolbar can collapse based on the real width
+   * it's given (rails open/collapsed + screen size) rather than guessing
+   * from rail state alone — see the @container rules in the toolbar CSS. */
+  container-type: inline-size;
+  container-name: topoCenter;
 }
 
 /* ─── Graph canvas ───────────────────────────────────────── */
