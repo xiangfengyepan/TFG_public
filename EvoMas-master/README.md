@@ -92,6 +92,32 @@ rm -r ~/.evomas-venv
 
 Then rerun the platform-appropriate setup command from the Install section above.
 
+### SWE-bench harness (local evaluation only)
+
+`evomas run evaluation` (and the Evaluation page) defaults to `--local`, which runs the official **SWE-bench Docker harness**. That harness is *not* a pip dependency of EvoMas — you have to clone the SWE-bench repo into the EvoMas repo root and install it into its own venv at `SWE-bench/venv/`. EvoMas auto-discovers it: it uses the active interpreter if `swebench` is importable, otherwise it falls back to `<repo>/SWE-bench/venv/`.
+
+```bash
+# From the EvoMas repo root
+git clone https://github.com/SWE-bench/SWE-bench.git
+cd SWE-bench
+python -m venv venv
+source venv/bin/activate      # activate the venv first
+pip install -e .              # installs the `swebench` package into the venv
+```
+
+On **Windows** the harness is POSIX-only and EvoMas shells it through WSL, so create that venv *inside WSL* (a Linux venv at `SWE-bench/venv/`, not a Windows one):
+
+```bash
+# In a WSL shell, from the EvoMas repo root
+git clone https://github.com/SWE-bench/SWE-bench.git
+cd SWE-bench
+python3 -m venv venv
+source venv/bin/activate
+pip install -e .
+```
+
+This step is only needed for **local** evaluation. Inference-only flows and `evomas run evaluation --remote` (the hosted leaderboard via `sb-cli`) don't require it. The `SWE-bench/` clone stays out of git (it's git-ignored / excluded from the public mirror).
+
 ## Environment
 
 Two `.env` files drive the framework. Copy the examples and fill in values for your machine — `cp` is an alias for `Copy-Item` in PowerShell, so the same line works in both shells:
@@ -112,7 +138,10 @@ cp api/.env.example    api/.env
 | `WANDB_API_KEY` | Optional. Only needed if you call `init_weave()`. |
 | `EVOMAS_GRAPH_MAX_REVISITS` | Optional. Per-node revisit budget for the LangGraph runtime; total super-step cap is `EVOMAS_GRAPH_MAX_REVISITS × num_agents`. Bounds cycles in cyclic topologies. Default: `2`. |
 | `SWEBENCH_API_KEY` | Required for `evomas run evaluation --remote` (hosted SWE-bench leaderboard via `sb-cli`). Not needed for local Docker evaluation. |
+| `SWEBENCH_DIR` | Optional. Location of the local SWE-bench repo clone used by `--local` evaluation; its harness venv must live at `<SWEBENCH_DIR>/venv`. Relative paths resolve against the repo root. Default: `<repo>/SWE-bench`. |
 | `RESULTS_DIR` | Optional. Where predictions + evaluations are written. Relative paths resolve against the repo root. Default: `<repo>/results`. Also accepted in `api/.env`, where it takes precedence. |
+
+> **Local evaluation needs the SWE-bench repo on disk.** The harness is discovered at `SWEBENCH_DIR` (default `<repo>/SWE-bench/`, venv at `<SWEBENCH_DIR>/venv/`). Clone it as described in [SWE-bench harness (local evaluation only)](#swe-bench-harness-local-evaluation-only). Inference-only flows and `--remote` evaluation don't need it.
 
 ### `api/.env` — FastAPI backend
 

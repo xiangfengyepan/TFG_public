@@ -18,7 +18,15 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SWEBENCH_VENV = REPO_ROOT / "SWE-bench" / "venv"
+# SWE-bench repo location. Override with the SWEBENCH_DIR env var; a relative
+# value resolves against the EvoMas repo root. Default: <repo>/SWE-bench. The
+# harness venv is expected at <SWEBENCH_DIR>/venv.
+_sb_dir = os.environ.get("SWEBENCH_DIR", "").strip()
+SWEBENCH_DIR = (
+    (Path(_sb_dir) if Path(_sb_dir).is_absolute() else REPO_ROOT / _sb_dir)
+    if _sb_dir else REPO_ROOT / "SWE-bench"
+)
+SWEBENCH_VENV = SWEBENCH_DIR / "venv"
 
 
 def _swebench_python() -> str:

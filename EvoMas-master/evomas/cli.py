@@ -114,7 +114,15 @@ def _run_script(script_name: str, extra_args: list[str]) -> int:
     if platform.system() == "Windows" and _script_needs_wsl(script_path):
         import shlex
         from evomas.utils.paths import to_wsl
-        swebench_py = REPO_ROOT / "SWE-bench" / "venv" / "bin" / "python"
+        # SWE-bench repo location, overridable with SWEBENCH_DIR (relative
+        # values resolve against the repo root). Mirrors the resolution in
+        # scripts/evaluation/run_swebench_evaluation.py. Default: <repo>/SWE-bench.
+        _sb_dir = os.environ.get("SWEBENCH_DIR", "").strip()
+        swebench_dir = (
+            (Path(_sb_dir) if Path(_sb_dir).is_absolute() else REPO_ROOT / _sb_dir)
+            if _sb_dir else REPO_ROOT / "SWE-bench"
+        )
+        swebench_py = swebench_dir / "venv" / "bin" / "python"
         inner = " ".join(shlex.quote(a) for a in [
             to_wsl(str(swebench_py)),
             to_wsl(str(script_path)),
