@@ -105,16 +105,18 @@ source venv/bin/activate      # activate the venv first
 pip install -e .              # installs the `swebench` package into the venv
 ```
 
-On **Windows** the harness is POSIX-only and EvoMas shells it through WSL, so create that venv *inside WSL* (a Linux venv at `SWE-bench/venv/`, not a Windows one):
+On **Windows** (PowerShell):
 
-```bash
-# In a WSL shell, from the EvoMas repo root
+```powershell
+# From the EvoMas repo root
 git clone https://github.com/SWE-bench/SWE-bench.git
 cd SWE-bench
-python3 -m venv venv
-source venv/bin/activate
-pip install -e .
+python -m venv venv
+.\venv\Scripts\activate.ps1   # activate the venv first
+pip install -e .              # installs the `swebench` package into the venv
 ```
+
+At evaluation time the harness itself is POSIX-only, so EvoMas shells it through WSL + Docker — but the venv above is created with PowerShell as shown.
 
 This step is only needed for **local** evaluation. Inference-only flows and `evomas run evaluation --remote` (the hosted leaderboard via `sb-cli`) don't require it. The `SWE-bench/` clone stays out of git (it's git-ignored / excluded from the public mirror).
 
