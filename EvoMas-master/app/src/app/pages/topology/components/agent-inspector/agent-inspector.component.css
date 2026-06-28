@@ -32,6 +32,26 @@
 }
 .right-box.collapsed ::ng-deep .evo-box-body { display: none; }
 
+/* Make the panel body a flex column: the section list scrolls in
+ * `.inspector-scroll` (flex:1) and the Agent-info footer sits below it
+ * as a fixed-height row — so expanded content scrolls ABOVE the footer
+ * rather than disappearing behind it. */
+.right-box ::ng-deep .evo-box-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.inspector-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* Reserve a stable gutter + a little breathing room so the scrollbar
+   * sits beside the controls (sliders/spinboxes) instead of overlapping
+   * their right edge. */
+  scrollbar-gutter: stable;
+  padding-right: 6px;
+}
+
 .agent-badge {
   padding: 3px 10px;
   border-radius: 12px;
@@ -341,6 +361,54 @@
   font-size: 10.5px;
   color: var(--text-muted);
   margin-top: 4px;
+}
+
+/* ─── General-info box (fixed footer below the scroll region) ─── */
+/* Non-scrolling footer: `.inspector-scroll` (flex:1) takes the slack so
+ * this sits at the panel bottom whether sections are collapsed or
+ * expanded. Capped with an internal scroll so it can never dominate. */
+.agent-info-box {
+  flex-shrink: 0;
+  margin-top: 10px;
+  max-height: 45%;
+  overflow-y: auto;
+  padding: 10px 12px;
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.agent-info-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.agent-info-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 12px;
+  row-gap: 5px;
+  font-size: 11.5px;
+}
+.agent-info-grid dt {
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+.agent-info-grid dd {
+  margin: 0;
+  min-width: 0;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-info-grid dd.mono {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 10.5px;
+  color: var(--accent);
 }
 
 /* ─── Misc ───────────────────────────────────────────────── */

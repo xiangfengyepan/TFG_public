@@ -43,6 +43,7 @@
   padding: 10px 12px;
   font-size: 11.5px;
   line-height: 1.5;
+  overflow-x: auto;
 }
 .hp-pop.right { left: auto; right: 0; }
 

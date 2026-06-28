@@ -1881,9 +1881,10 @@ export class TopologyComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ─── Inspector section toggles ─────────────────────────────────
-  paramsOpen = true;
-  toolsOpen = true;
-  promptsOpen = true;
+  // All three sections start collapsed so the inspector opens compact.
+  paramsOpen = false;
+  toolsOpen = false;
+  promptsOpen = false;
 
   // ─── Prompt editor ─────────────────────────────────────────────
   /** '' = collapsed, otherwise the visible slot key. */
