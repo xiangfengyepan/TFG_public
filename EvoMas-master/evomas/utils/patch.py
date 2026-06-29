@@ -16,13 +16,32 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import TypedDict
 
 logger = logging.getLogger(__name__)
+
+
+def _patch_env() -> dict[str, str] | None:
+    """Environment for invoking GNU `patch` on Windows.
+
+    Windows' installer-detection heuristic flags any executable named
+    `patch.exe` as an installer and demands UAC elevation, so a plain
+    `subprocess.run(["patch", ...])` dies with `WinError 740` before patch
+    ever runs. Setting `__COMPAT_LAYER=RunAsInvoker` tells the compatibility
+    layer to launch the process as the invoking (non-elevated) user, which
+    suppresses the false-positive elevation request. No-op off Windows.
+    """
+    if sys.platform != "win32":
+        return None
+    env = os.environ.copy()
+    env["__COMPAT_LAYER"] = "RunAsInvoker"
+    return env
 
 
 class PatchResult(TypedDict):
@@ -55,6 +74,7 @@ def _patch_cmd(args: list[str], cwd: str, timeout: int = 60) -> subprocess.Compl
         encoding="utf-8",
         errors="replace",
         timeout=timeout,
+        env=_patch_env(),
     )
 
 
