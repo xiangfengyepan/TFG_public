@@ -13,61 +13,61 @@ $EvomasExe    = Join-Path $VenvDir "Scripts\evomas.exe"
 function Test-Cli($name, $hint) {
     $found = Get-Command $name -ErrorAction SilentlyContinue
     if (-not $found) {
-        Write-Host "[setup] missing prerequisite: $name" -ForegroundColor Yellow
+        Write-Host "[install] missing prerequisite: $name" -ForegroundColor Yellow
         Write-Host "        $hint"
         return $false
     }
-    Write-Host "[setup] found $name -> $($found.Source)"
+    Write-Host "[install] found $name -> $($found.Source)"
     return $true
 }
 
 # --- 1. Prerequisite checks --------------------------------------------------
-Write-Host "[setup] checking prerequisites" -ForegroundColor Cyan
+Write-Host "[install] checking prerequisites" -ForegroundColor Cyan
 $pythonOk = Test-Cli "python" "Install Python 3.12+ from https://www.python.org/downloads/ (Python 3.12.6 is the dev baseline)."
 $ollamaOk = Test-Cli "ollama" "Install Ollama from https://ollama.com/download."
 $dockerOk = Test-Cli "docker" "Install Docker Desktop from https://www.docker.com/products/docker-desktop/ (required for default 'evomas run evaluation --local')."
 $npmOk    = Test-Cli "npm"    "Install Node.js 18+ from https://nodejs.org/ (needed for the Angular frontend)."
 
 if (-not $pythonOk) {
-    Write-Host "[setup] python is mandatory; aborting." -ForegroundColor Red
+    Write-Host "[install] python is mandatory; aborting." -ForegroundColor Red
     exit 1
 }
 if (-not $ollamaOk) {
-    Write-Host "[setup] continuing without ollama -- `evomas ollama *` will fail until you install it."
+    Write-Host "[install] continuing without ollama -- `evomas ollama *` will fail until you install it."
 }
 if (-not $dockerOk) {
-    Write-Host "[setup] continuing without docker -- `evomas run evaluation` (default --local) will fail; pass --remote to use sb-cli instead."
+    Write-Host "[install] continuing without docker -- `evomas run evaluation` (default --local) will fail; pass --remote to use sb-cli instead."
 }
 if (-not $npmOk) {
-    Write-Host "[setup] continuing without npm -- `evomas web` will fail until you install Node.js."
+    Write-Host "[install] continuing without npm -- `evomas web` will fail until you install Node.js."
 }
 
 # --- 2. Ensure the venv exists -----------------------------------------------
-# `setup.ps1` is non-destructive: we never delete an existing venv, since
+# `install.ps1` is non-destructive: we never delete an existing venv, since
 # that wipes any in-flight work or manually-installed extras. If something
 # in the venv is broken, the user should remove it themselves and rerun
 # setup -- see the troubleshooting section in README.md.
 if (Test-Path $VenvDir) {
-    Write-Host "[setup] reusing existing venv at $VenvDir (pass through pip resolves any drift)" -ForegroundColor Cyan
+    Write-Host "[install] reusing existing venv at $VenvDir (pass through pip resolves any drift)" -ForegroundColor Cyan
 } else {
-    Write-Host "[setup] creating venv at $VenvDir" -ForegroundColor Cyan
+    Write-Host "[install] creating venv at $VenvDir" -ForegroundColor Cyan
     python -m venv $VenvDir
 }
 
-Write-Host "[setup] upgrading pip + wheel" -ForegroundColor Cyan
+Write-Host "[install] upgrading pip + wheel" -ForegroundColor Cyan
 & $PythonEvomas -m pip install --upgrade pip wheel
 
 # --- 3. Install the project --------------------------------------------------
 # `-e .` reads pyproject.toml; deps are pinned there and an `evomas` console
 # script is registered against `evomas.cli:main`. No more hand-maintained
 # `pip install langchain langgraph ...` list.
-Write-Host "[setup] installing evomas (editable) + dependencies + dev extras" -ForegroundColor Cyan
+Write-Host "[install] installing evomas (editable) + dependencies + dev extras" -ForegroundColor Cyan
 & $PythonEvomas -m pip install -e ".[dev]"
 
 # Snapshot exact resolved versions to requirements.txt for reproducibility /
 # recovery if a downstream package ships a breaking release. pyproject.toml
 # stays the canonical input; this file is a regenerated lockfile.
-Write-Host "[setup] freezing pinned versions to requirements.txt" -ForegroundColor Cyan
+Write-Host "[install] freezing pinned versions to requirements.txt" -ForegroundColor Cyan
 & $PythonEvomas -m pip freeze | Out-File -Encoding utf8 (Join-Path $RepoRoot "requirements.txt")
 
 # --- 3b. Register the venv as a Jupyter kernel ------------------------------
@@ -77,7 +77,7 @@ Write-Host "[setup] freezing pinned versions to requirements.txt" -ForegroundCol
 # dropdown. `ipykernel` itself ships via the pip install above; this
 # step just publishes the kernelspec under the user's Jupyter data dir
 # (idempotent -- safe to re-run).
-Write-Host "[setup] registering 'evomas' Jupyter kernel" -ForegroundColor Cyan
+Write-Host "[install] registering 'evomas' Jupyter kernel" -ForegroundColor Cyan
 & $PythonEvomas -m ipykernel install --user --name evomas `
     --display-name "Python 3 (EvoMas)" 2>&1 | Out-Null
 
@@ -87,7 +87,7 @@ Write-Host "[setup] registering 'evomas' Jupyter kernel" -ForegroundColor Cyan
 # and exits with "could not determine executable to run". `npm install`
 # populates app\node_modules so npx finds the Angular CLI locally.
 if ($npmOk) {
-    Write-Host "[setup] installing app\ npm dependencies (Angular CLI + project deps)" -ForegroundColor Cyan
+    Write-Host "[install] installing app\ npm dependencies (Angular CLI + project deps)" -ForegroundColor Cyan
     Push-Location (Join-Path $RepoRoot "app")
     try {
         npm install --no-audit --no-fund
@@ -95,7 +95,7 @@ if ($npmOk) {
         Pop-Location
     }
 } else {
-    Write-Host "[setup] skipping npm install -- node/npm not available." -ForegroundColor Yellow
+    Write-Host "[install] skipping npm install -- node/npm not available." -ForegroundColor Yellow
 }
 
 # --- 5. PowerShell $PROFILE wrapper -----------------------------------------
@@ -111,7 +111,7 @@ $Marker = "# >>> evomas-cli >>>"
 $EndMarker = "# <<< evomas-cli <<<"
 $existing = Get-Content $ProfilePath -Raw -ErrorAction SilentlyContinue
 if ($existing -and $existing.Contains($Marker)) {
-    Write-Host "[setup] refreshing existing evomas function in $ProfilePath" -ForegroundColor Cyan
+    Write-Host "[install] refreshing existing evomas function in $ProfilePath" -ForegroundColor Cyan
     $pattern = "(?ms)" + [regex]::Escape($Marker) + ".*?" + [regex]::Escape($EndMarker)
     $existing = [regex]::Replace($existing, $pattern, "").TrimEnd() + "`r`n"
     Set-Content -Path $ProfilePath -Value $existing -Encoding utf8
@@ -125,18 +125,49 @@ function evomas {
 $EndMarker
 "@
 Add-Content -Path $ProfilePath -Value $Block -Encoding utf8
-Write-Host "[setup] appended evomas function to $ProfilePath" -ForegroundColor Green
+Write-Host "[install] appended evomas function to $ProfilePath" -ForegroundColor Green
 
-# --- 6. .env scaffolding hint ------------------------------------------------
-if (-not (Test-Path (Join-Path $RepoRoot "evomas\.env"))) {
-    Write-Host "[setup] reminder: copy evomas\.env.example -> evomas\.env and fill in OLLAMA_BASE_URL" -ForegroundColor Yellow
+# --- 6. Clone the SWE-bench harness (local evaluation only) -----------------
+# `evomas run evaluation` defaults to --local, which drives the official
+# SWE-bench Docker harness. That harness is NOT a pip dependency; it lives in a
+# sibling clone at <repo>\SWE-bench with its own venv. Clone it here (idempotent
+# -- skipped if the dir already exists). The harness is POSIX-only, so on Windows
+# its venv must be built inside WSL -- see README "SWE-bench harness".
+$SwebenchDir = Join-Path $RepoRoot "SWE-bench"
+if (Test-Path $SwebenchDir) {
+    Write-Host "[install] SWE-bench clone already present at $SwebenchDir (leaving as-is)" -ForegroundColor Cyan
+} else {
+    Write-Host "[install] cloning SWE-bench harness into $SwebenchDir" -ForegroundColor Cyan
+    git clone https://github.com/SWE-bench/SWE-bench.git $SwebenchDir
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[install] warning: SWE-bench clone failed -- 'evomas run evaluation --local' will not work until you clone it manually." -ForegroundColor Yellow
+    }
 }
-if (-not (Test-Path (Join-Path $RepoRoot "api\.env"))) {
-    Write-Host "[setup] reminder: copy api\.env.example -> api\.env if you need to override API_HOST / API_PORT" -ForegroundColor Yellow
+if (-not (Test-Path (Join-Path $SwebenchDir "venv\bin\python"))) {
+    Write-Host "[install] reminder: build the SWE-bench venv (POSIX-only -- run inside WSL on Windows) before local eval:" -ForegroundColor Yellow
+    Write-Host "          wsl  # then: cd SWE-bench && python3 -m venv venv && source venv/bin/activate && pip install -e ."
+}
+
+# --- 7. .env scaffolding -----------------------------------------------------
+# Copy the example env files into place (non-destructive: never clobber an
+# existing .env). Fill in OLLAMA_BASE_URL etc. afterwards -- see README.
+$EvomasEnv = Join-Path $RepoRoot "evomas\.env"
+if (-not (Test-Path $EvomasEnv)) {
+    Copy-Item (Join-Path $RepoRoot "evomas\.env.example") $EvomasEnv
+    Write-Host "[install] created evomas\.env from evomas\.env.example -- fill in OLLAMA_BASE_URL" -ForegroundColor Green
+} else {
+    Write-Host "[install] evomas\.env already exists (leaving as-is)" -ForegroundColor Cyan
+}
+$ApiEnv = Join-Path $RepoRoot "api\.env"
+if (-not (Test-Path $ApiEnv)) {
+    Copy-Item (Join-Path $RepoRoot "api\.env.example") $ApiEnv
+    Write-Host "[install] created api\.env from api\.env.example" -ForegroundColor Green
+} else {
+    Write-Host "[install] api\.env already exists (leaving as-is)" -ForegroundColor Cyan
 }
 
 Write-Host ""
-Write-Host "[setup] done." -ForegroundColor Green
+Write-Host "[install] done." -ForegroundColor Green
 Write-Host "        Open a fresh PowerShell window so the new \$PROFILE function loads, then:"
 Write-Host ""
 Write-Host "          evomas --help                                  # uses the venv automatically via the profile function"

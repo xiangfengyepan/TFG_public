@@ -237,11 +237,11 @@ def _build_reproduction_notebook(
             "\n"
             "The notebook's `kernelspec.name = \"evomas\"` (see metadata at "
             "the bottom of the file) tells Jupyter / VSCode to auto-pick the "
-            "interpreter `setup.ps1` / `setup.sh` registered for "
+            "interpreter `install.ps1` / `install.sh` registered for "
             "`~/.evomas-venv`. As a safety net the first cell also prepends "
             "the venv's site-packages to `sys.path` — so even if the kernel "
             "falls back to a generic Python 3 (different machine, no "
-            "`setup.ps1` run), the evomas imports still resolve. Adjust "
+            "`install.ps1` run), the evomas imports still resolve. Adjust "
             "`OLLAMA_BASE_URL` if your Ollama daemon isn't on the default "
             "host; `SWEBENCH_API_KEY` is only required by the remote-eval "
             "cell at the bottom.\n"
@@ -268,7 +268,7 @@ def _build_reproduction_notebook(
             "**\"Developer: Reload Window\"** so the Jupyter extension "
             "re-scans kernelspecs, or run `jupyter kernelspec list` to "
             "confirm `evomas` is registered (if not, re-run "
-            "`setup.ps1` / `setup.sh`)."
+            "`install.ps1` / `install.sh`)."
         ),
         code(
             "import os\n"
@@ -631,7 +631,7 @@ def _build_reproduction_notebook(
     return {
         "cells": cells,
         "metadata": {
-            # `evomas` kernelspec registered by `setup.ps1` via `python
+            # `evomas` kernelspec registered by `install.ps1` via `python
             # -m ipykernel install --user --name evomas`. Falls back to
             # any Python 3 kernel via the setup cell's sys.path prepend.
             "kernelspec": {
