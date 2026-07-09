@@ -24,17 +24,20 @@ EvoMas wires LangGraph multi-agent topologies (locator → patcher → reviewer 
 From a fresh clone to a topology graph in your browser — assumes Python 3.12+, Node 18+, Ollama, and Docker are already installed (see [Prerequisites](#prerequisites)).
 
 ```bash
-# 1. Set up the venv + register the `evomas` command on your $PATH
+# 1. Set up the venv, copy the .env files, clone the SWE-bench harness,
+#    and register the `evomas` command on your $PATH
 ./install.sh                 # or .\install.ps1 on Windows
 
-# 2. Drop in the .env files (defaults work for a local-only Ollama setup)
-cp evomas/.env.example evomas/.env
-cp api/.env.example    api/.env
+# 2. (optional) install.sh already copied evomas/.env + api/.env from their
+#    .example files — the defaults work for a local-only Ollama setup. Edit
+#    them only if you need remote hosts or hosted-model API keys.
 
 # 3. Pull the model used by the shipped predefined topologies
 evomas ollama pull qwen3.5:9b
 
-# 4. Start the backend (terminal 1) and the Angular frontend (terminal 2)
+# 4. Sanity-check the toolchain, then start the backend (terminal 1) and
+#    the Angular frontend (terminal 2)
+evomas status
 evomas api
 evomas web
 ```
@@ -74,23 +77,24 @@ chmod +x install.sh
 bash install.sh
 ```
 
-The install script checks for the prerequisites above, creates a venv at `~/.evomas-venv` (reusing it if already present, kept in the user's home so the repo stays free of build artefacts), runs `pip install -e "."` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
+The install script checks for the prerequisites above, creates a venv at `~/.evomas-venv` (reusing it if already present, kept in the user's home so the repo stays free of build artefacts), runs `pip install -e ".[dev]"` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, registers an `evomas` Jupyter kernel, installs the Angular frontend's npm dependencies, clones the SWE-bench harness into `<repo>/SWE-bench` (see [SWE-bench harness](#swe-bench-harness-local-evaluation-only)), copies `evomas/.env` + `api/.env` from their `.example` files (never clobbering existing ones), and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
 
-Open a new shell (or `source` the rc file) so the profile change takes effect, then verify:
+Open a new shell (or `source` the rc file) so the profile change takes effect, then verify — `evomas status` prints a colour-coded readiness check of the whole toolchain:
 
 ```bash
 evomas --help
+evomas status
 ```
 
 ### Setup fails or imports break after an upgrade
 
-The install script is intentionally non-destructive — it reuses any existing `~/.evomas-venv`. If a previous install left the venv in a broken state (missing packages, mismatched versions, `ModuleNotFoundError`), delete it and rerun setup (`rm -r` works in both bash and PowerShell, which aliases it to `Remove-Item -Recurse`):
+The install script is intentionally non-destructive — it reuses any existing `~/.evomas-venv`. If a previous install left the venv in a broken state (missing packages, mismatched versions, `ModuleNotFoundError`), delete it and rerun the installer (`rm -r` works in both bash and PowerShell, which aliases it to `Remove-Item -Recurse`):
 
 ```
 rm -r ~/.evomas-venv
 ```
 
-Then rerun the platform-appropriate setup command from the Install section above.
+Then rerun the platform-appropriate install command from the Install section above. (`uninstall.sh` / `uninstall.ps1` remove the venv and the rest of the install for you — see [Uninstall](#uninstall).)
 
 ### Uninstall
 
@@ -110,16 +114,16 @@ Open a new shell afterwards so the removed `evomas` function clears from your se
 
 ### SWE-bench harness (local evaluation only)
 
-`evomas run evaluation` (and the Evaluation page) defaults to `--local`, which runs the official **SWE-bench Docker harness**. That harness is *not* a pip dependency of EvoMas — you have to clone the SWE-bench repo into the EvoMas repo root and install it into its own venv at `SWE-bench/venv/`. EvoMas auto-discovers it: it uses the active interpreter if `swebench` is importable, otherwise it falls back to `<repo>/SWE-bench/venv/`.
+`evomas run evaluation` (and the Evaluation page) defaults to `--local`, which runs the official **SWE-bench Docker harness**. That harness is *not* a pip dependency of EvoMas — it lives in a sibling clone at `<repo>/SWE-bench` with its own venv at `SWE-bench/venv/`. `install.sh` / `install.ps1` **clone the repo for you** (idempotently); what they can't do is build the harness venv, because it's POSIX-only. EvoMas auto-discovers the harness: it uses the active interpreter if `swebench` is importable, otherwise it falls back to `<repo>/SWE-bench/venv/`.
 
-The harness is **POSIX-only**, so the venv must be a Linux venv. On **Windows you must do this inside WSL** — open a WSL shell first (`wsl`), then run the commands below there. On Linux / macOS run them directly.
+The harness is **POSIX-only**, so the venv must be a Linux venv. On **Windows you must do this inside WSL** — open a WSL shell first (`wsl`), then run the commands below there. On Linux / macOS run them directly. (`git clone` is only needed if the installer didn't already create `SWE-bench/`.)
 
 ```bash
 # On Windows ONLY: drop into WSL first, then continue inside it
 wsl
 
 # From the EvoMas repo root (Linux / macOS / WSL)
-git clone https://github.com/SWE-bench/SWE-bench.git
+git clone https://github.com/SWE-bench/SWE-bench.git   # skip if install.* already cloned it
 cd SWE-bench
 python3 -m venv venv
 source venv/bin/activate      # activate the venv first
@@ -130,7 +134,7 @@ This step is only needed for **local** evaluation. Inference-only flows and `evo
 
 ## Environment
 
-Two `.env` files drive the framework. Copy the examples and fill in values for your machine — `cp` is an alias for `Copy-Item` in PowerShell, so the same line works in both shells:
+Two `.env` files drive the framework. `install.sh` / `install.ps1` already copy them from the `.example` files on first run (without overwriting existing ones), so you normally just edit the values. To create them by hand — `cp` is an alias for `Copy-Item` in PowerShell, so the same line works in both shells:
 
 ```
 cp evomas/.env.example evomas/.env
@@ -308,6 +312,14 @@ evomas web
 
 ```bash
 evomas api
+```
+
+### Diagnostics
+
+**`evomas status`** — a read-only, colour-coded doctor check. Reports the prerequisites (python, git, ollama, docker, node), the `evomas/.env` + `api/.env` files, the `~/.evomas-venv`, the SWE-bench clone + its harness venv, and whether the Docker daemon and Ollama server are reachable. Run it after `install.sh` / `install.ps1` to confirm the toolchain is ready.
+
+```bash
+evomas status
 ```
 
 ## Acknowledgments
