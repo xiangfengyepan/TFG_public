@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -86,6 +87,17 @@ def _ollama_host_env() -> dict[str, str]:
     return env
 
 
+def _resolve_swebench_dir() -> Path:
+    """Location of the local SWE-bench repo clone used by `--local`
+    evaluation, overridable with SWEBENCH_DIR (relative values resolve
+    against the repo root). Default: <repo>/SWE-bench. Mirrors the
+    resolution in scripts/evaluation/run_swebench_evaluation.py."""
+    _sb_dir = os.environ.get("SWEBENCH_DIR", "").strip()
+    if not _sb_dir:
+        return REPO_ROOT / "SWE-bench"
+    return Path(_sb_dir) if Path(_sb_dir).is_absolute() else REPO_ROOT / _sb_dir
+
+
 def _script_needs_wsl(script_path: Path) -> bool:
     """True iff the script exposes `EVOMAS_EVALUATOR = {"needs_wsl": True}`."""
     import importlib.util
@@ -114,15 +126,7 @@ def _run_script(script_name: str, extra_args: list[str]) -> int:
     if platform.system() == "Windows" and _script_needs_wsl(script_path):
         import shlex
         from evomas.utils.paths import to_wsl
-        # SWE-bench repo location, overridable with SWEBENCH_DIR (relative
-        # values resolve against the repo root). Mirrors the resolution in
-        # scripts/evaluation/run_swebench_evaluation.py. Default: <repo>/SWE-bench.
-        _sb_dir = os.environ.get("SWEBENCH_DIR", "").strip()
-        swebench_dir = (
-            (Path(_sb_dir) if Path(_sb_dir).is_absolute() else REPO_ROOT / _sb_dir)
-            if _sb_dir else REPO_ROOT / "SWE-bench"
-        )
-        swebench_py = swebench_dir / "venv" / "bin" / "python"
+        swebench_py = _resolve_swebench_dir() / "venv" / "bin" / "python"
         inner = " ".join(shlex.quote(a) for a in [
             to_wsl(str(swebench_py)),
             to_wsl(str(script_path)),
@@ -417,6 +421,176 @@ def api() -> None:
     Example:  evomas api
     """
     raise typer.Exit(_run_shell_script("start_api", []))
+
+
+# ─── status / doctor ──────────────────────────────────────────────────────────
+_OK = "[ OK ]"
+_WARN = "[WARN]"
+_FAIL = "[FAIL]"
+# Marker -> colour. typer/click strips these ANSI codes automatically when the
+# output isn't a TTY (piped, or captured by CliRunner in the tests), so the
+# plain-text markers still match there.
+_STATUS_COLOR = {
+    _OK: typer.colors.GREEN,
+    _WARN: typer.colors.YELLOW,
+    _FAIL: typer.colors.RED,
+}
+
+
+def _print_section(title: str, *, blank_before: bool = True) -> None:
+    prefix = "\n" if blank_before else ""
+    typer.echo(prefix + typer.style(title, fg=typer.colors.CYAN, bold=True))
+
+
+def _path_present(path: Path) -> bool:
+    """True if `path` exists in any form -- including a symlink entry whose
+    target can't be resolved from here. The SWE-bench harness venv is built
+    inside WSL, so `SWE-bench/venv/bin/python` is a symlink into the Linux
+    filesystem: from Windows `exists()`/`is_file()` both return False (and a
+    raw `stat()` even raises WinError 1920), yet the entry is really there.
+    `lexists` (an `lstat`, no link-follow) catches that case."""
+    try:
+        return os.path.exists(path) or os.path.lexists(path)
+    except OSError:
+        return False
+
+
+def _print_check(status: str, label: str, detail: str = "") -> None:
+    # Plain ASCII markers -- Windows' default cp1252 console chokes on the
+    # nicer check/cross glyphs (same reason run_tests.py avoids box-drawing).
+    colour = _STATUS_COLOR.get(status)
+    marker = typer.style(status, fg=colour, bold=True) if colour else status
+    line = f"  {marker}  {typer.style(label, bold=True)}"
+    if detail:
+        line += f" -- {detail}"
+    typer.echo(line)
+
+
+def _docker_daemon_running() -> Optional[bool]:
+    """True if `docker info` succeeds, False if the CLI is present but the
+    daemon is unreachable, None if the docker CLI isn't installed at all."""
+    if shutil.which("docker") is None:
+        return None
+    try:
+        rc = subprocess.run(
+            ["docker", "info"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            timeout=15,
+        ).returncode
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+    return rc == 0
+
+
+def _ollama_reachable(url: str) -> Optional[bool]:
+    """True if the Ollama server answers at `url`, False on connection
+    error / timeout, None if no URL is configured."""
+    url = (url or "").strip()
+    if not url:
+        return None
+    import urllib.error
+    import urllib.request
+    endpoint = url.rstrip("/") + "/api/tags"
+    try:
+        with urllib.request.urlopen(endpoint, timeout=3) as resp:  # noqa: S310
+            return 200 <= resp.status < 500
+    except (urllib.error.URLError, OSError, ValueError):
+        return False
+
+
+@app.command(
+    "status",
+    help=(
+        "Doctor-style readiness check (read-only): prerequisites (python, "
+        "git, ollama, docker, node), the .env files, the ~/.evomas-venv, the "
+        "SWE-bench clone + its harness venv, and whether the Docker daemon "
+        "and Ollama server are reachable."
+        "\n\nExample:  evomas status"
+    ),
+)
+def status() -> None:
+    typer.echo(typer.style("EvoMas status", bold=True) + "\n")
+
+    # ── Prerequisites (CLIs on PATH) ────────────────────────────────────────
+    _print_section("Prerequisites", blank_before=False)
+    py_detail = f"{platform.python_version()} ({sys.executable})"
+    _print_check(_OK, "python", py_detail)
+    for name, why in (
+        ("git", "needed to clone the SWE-bench harness and repos under test"),
+        ("ollama", "hosts the local LLM each agent calls"),
+        ("docker", "runs the SWE-bench harness for `evomas run evaluation --local`"),
+        ("npm", "builds/serves the Angular frontend (`evomas web`)"),
+    ):
+        found = shutil.which(name)
+        if found:
+            _print_check(_OK, name, found)
+        else:
+            _print_check(_WARN, name, f"not on PATH -- {why}")
+
+    # ── Environment files ───────────────────────────────────────────────────
+    _print_section("Environment files")
+    for rel in ("evomas/.env", "api/.env"):
+        path = REPO_ROOT / rel
+        if path.is_file():
+            _print_check(_OK, rel, "present")
+        else:
+            example = f"{rel}.example"
+            _print_check(_WARN, rel, f"missing -- run `cp {example} {rel}`")
+
+    # ── Python venv ─────────────────────────────────────────────────────────
+    _print_section("Python venv")
+    venv_dir = Path.home() / ".evomas-venv"
+    venv_py = venv_dir / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    if venv_py.is_file():
+        _print_check(_OK, "~/.evomas-venv", str(venv_py))
+    else:
+        _print_check(
+            _WARN, "~/.evomas-venv",
+            "not found -- run ./install.sh (or .\\install.ps1 on Windows)",
+        )
+
+    # ── SWE-bench harness (local evaluation only) ───────────────────────────
+    _print_section("SWE-bench harness (local evaluation only)")
+    sb_dir = _resolve_swebench_dir()
+    if sb_dir.is_dir():
+        _print_check(_OK, "clone", str(sb_dir))
+        # POSIX-only harness venv; on Windows it lives under WSL's Linux tree,
+        # so bin/python is a symlink Windows can't resolve -- _path_present
+        # (lexists) still detects the entry.
+        sb_py = sb_dir / "venv" / "bin" / "python"
+        if _path_present(sb_py):
+            _print_check(_OK, "harness venv", str(sb_py))
+        else:
+            _print_check(
+                _WARN, "harness venv",
+                f"missing at {sb_py} -- build it (POSIX-only; use WSL on Windows)",
+            )
+    else:
+        _print_check(
+            _WARN, "clone",
+            f"missing at {sb_dir} -- `git clone "
+            "https://github.com/SWE-bench/SWE-bench.git` (only needed for --local eval)",
+        )
+
+    # ── Live services ───────────────────────────────────────────────────────
+    _print_section("Live services")
+    daemon = _docker_daemon_running()
+    if daemon is True:
+        _print_check(_OK, "docker daemon", "reachable")
+    elif daemon is False:
+        _print_check(_WARN, "docker daemon", "not reachable -- is Docker Desktop running?")
+    else:
+        _print_check(_WARN, "docker daemon", "docker CLI not installed")
+
+    ollama_url = os.environ.get("OLLAMA_BASE_URL", "").strip() or "http://localhost:11434"
+    reachable = _ollama_reachable(ollama_url)
+    if reachable is True:
+        _print_check(_OK, "ollama server", ollama_url)
+    else:
+        _print_check(_WARN, "ollama server", f"not reachable at {ollama_url}")
+
+    typer.echo("")
+    raise typer.Exit(0)
 
 
 # ─── apply (re-run pytest against a prediction's patch) ──────────────────────

@@ -133,6 +133,7 @@ def test_top_level_help_renders(runner: CliRunner) -> None:
     assert "test" in out
     assert "web" in out
     assert "api" in out
+    assert "status" in out
 
 
 @pytest.mark.parametrize("subcmd", [
@@ -143,6 +144,7 @@ def test_top_level_help_renders(runner: CliRunner) -> None:
     ["run", "evaluation", "--help"],
     ["apply", "--help"],
     ["test", "--help"],
+    ["status", "--help"],
 ])
 def test_every_help_renders(runner: CliRunner, subcmd: list[str]) -> None:
     result = _invoke(runner, subcmd)
@@ -616,6 +618,33 @@ def test_test_command_forwards_extra_args(
     assert result.exit_code == 0
     _, args = _last_forward(stub_runners)
     assert "-k" in args and "apply_description_fix" in args
+
+
+# ─── status ───────────────────────────────────────────────────────────────────
+
+
+@pytest.fixture
+def stub_status_probes(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Neuter the two live-service probes so `evomas status` never shells out
+    to `docker info` or hits the network during unit tests."""
+    monkeypatch.setattr(cli_mod, "_docker_daemon_running", lambda: True)
+    monkeypatch.setattr(cli_mod, "_ollama_reachable", lambda url: True)
+
+
+def test_status_reports_sections(
+    runner: CliRunner, stub_status_probes: None,
+) -> None:
+    """`evomas status` prints the checklist and exits 0 on a healthy repo
+    (python + the test runner script are always present in a checkout)."""
+    result = _invoke(runner, ["status"])
+    assert result.exit_code == 0, result.output
+    out = result.output
+    for section in (
+        "Prerequisites", "Environment files", "Python venv",
+        "SWE-bench", "Live services",
+    ):
+        assert section in out, f"missing section {section!r}:\n{out}"
+    assert "Integration tests" not in out
 
 
 # ─── help-text examples ──────────────────────────────────────────────────────

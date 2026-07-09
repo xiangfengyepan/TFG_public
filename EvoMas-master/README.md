@@ -25,7 +25,7 @@ From a fresh clone to a topology graph in your browser — assumes Python 3.12+,
 
 ```bash
 # 1. Set up the venv + register the `evomas` command on your $PATH
-./setup.sh                   # or .\setup.ps1 on Windows
+./install.sh                 # or .\install.ps1 on Windows
 
 # 2. Drop in the .env files (defaults work for a local-only Ollama setup)
 cp evomas/.env.example evomas/.env
@@ -64,17 +64,17 @@ evomas run evaluation --predictions evomas_predictions.jsonl --subset lite --spl
 Windows (PowerShell):
 
 ```powershell
-.\setup.ps1
+.\install.ps1
 ```
 
 Linux / macOS (bash):
 
 ```bash
-chmod +x setup.sh 
-bash setup.sh
+chmod +x install.sh 
+bash install.sh
 ```
 
-The setup script checks for the prerequisites above, creates a venv at `~/.evomas-venv` (reusing it if already present, kept in the user's home so the repo stays free of build artefacts), runs `pip install -e "."` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
+The install script checks for the prerequisites above, creates a venv at `~/.evomas-venv` (reusing it if already present, kept in the user's home so the repo stays free of build artefacts), runs `pip install -e "."` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
 
 Open a new shell (or `source` the rc file) so the profile change takes effect, then verify:
 
@@ -84,13 +84,29 @@ evomas --help
 
 ### Setup fails or imports break after an upgrade
 
-The setup script is intentionally non-destructive — it reuses any existing `~/.evomas-venv`. If a previous install left the venv in a broken state (missing packages, mismatched versions, `ModuleNotFoundError`), delete it and rerun setup (`rm -r` works in both bash and PowerShell, which aliases it to `Remove-Item -Recurse`):
+The install script is intentionally non-destructive — it reuses any existing `~/.evomas-venv`. If a previous install left the venv in a broken state (missing packages, mismatched versions, `ModuleNotFoundError`), delete it and rerun setup (`rm -r` works in both bash and PowerShell, which aliases it to `Remove-Item -Recurse`):
 
 ```
 rm -r ~/.evomas-venv
 ```
 
 Then rerun the platform-appropriate setup command from the Install section above.
+
+### Uninstall
+
+To reverse the install — remove the `~/.evomas-venv`, strip the `evomas` function from your shell rc / `$PROFILE`, unregister the `evomas` Jupyter kernel, and clear `app/node_modules`:
+
+```bash
+bash uninstall.sh            # or .\uninstall.ps1 on Windows
+```
+
+Your data is left untouched by default. Add `--purge` to *also* delete the `SWE-bench/` clone and the `evomas/.env` + `api/.env` files (which hold your API keys):
+
+```bash
+bash uninstall.sh --purge    # or .\uninstall.ps1 --purge on Windows
+```
+
+Open a new shell afterwards so the removed `evomas` function clears from your session.
 
 ### SWE-bench harness (local evaluation only)
 

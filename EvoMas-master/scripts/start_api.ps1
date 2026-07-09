@@ -102,12 +102,12 @@ foreach ($k in $allKeys) {
 }
 Write-Host ""
 
-# Venv installed by setup.ps1 to `~\.evomas-venv` (in the user's home so
+# Venv installed by install.ps1 to `~\.evomas-venv` (in the user's home so
 # the repo stays free of build artefacts).
 $VenvDir = Join-Path $HOME ".evomas-venv"
 $Uvicorn = Join-Path $VenvDir "Scripts\uvicorn.exe"
 if (-not (Test-Path $Uvicorn)) {
-    Write-Host "[start_api] uvicorn not found at $Uvicorn -- run setup.ps1 first." -ForegroundColor Red
+    Write-Host "[start_api] uvicorn not found at $Uvicorn -- run install.ps1 first." -ForegroundColor Red
     exit 1
 }
 
