@@ -21,25 +21,52 @@ function Test-Cli($name, $hint) {
     return $true
 }
 
+function Test-Wsl {
+    # wsl.exe ships with Windows even when no distro is installed, so a bare
+    # Get-Command check isn't enough -- probe that a distro actually runs.
+    $found = Get-Command wsl -ErrorAction SilentlyContinue
+    if (-not $found) {
+        Write-Host "[install] missing prerequisite: wsl2" -ForegroundColor Yellow
+        Write-Host "        Install WSL2 from https://learn.microsoft.com/windows/wsl/install (needed for local SWE-bench eval on Windows)."
+        return $false
+    }
+    try {
+        & wsl.exe -e true 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "[install] found wsl2 -> $($found.Source)"
+            return $true
+        }
+    } catch { }
+    Write-Host "[install] wsl present but no runnable distro" -ForegroundColor Yellow
+    Write-Host "        Install a distro (e.g. 'wsl --install -d Ubuntu') -- needed for local SWE-bench eval on Windows."
+    return $false
+}
+
 # --- 1. Prerequisite checks --------------------------------------------------
 Write-Host "[install] checking prerequisites" -ForegroundColor Cyan
 $pythonOk = Test-Cli "python" "Install Python 3.12+ from https://www.python.org/downloads/ (Python 3.12.6 is the dev baseline)."
-$ollamaOk = Test-Cli "ollama" "Install Ollama from https://ollama.com/download."
-$dockerOk = Test-Cli "docker" "Install Docker Desktop from https://www.docker.com/products/docker-desktop/ (required for default 'evomas run evaluation --local')."
+$ollamaOk = Test-Cli "ollama" "Install Ollama from https://ollama.com/download (only needed for local models)."
+$dockerOk = Test-Cli "docker" "Install Docker Desktop from https://www.docker.com/products/docker-desktop/ (needed for local SWE-bench eval)."
 $npmOk    = Test-Cli "npm"    "Install Node.js 18+ from https://nodejs.org/ (needed for the Angular frontend)."
+$wslOk    = Test-Wsl
 
+# Only python is mandatory. Ollama, Docker, Node and WSL2 are feature-gated --
+# warn and continue so an inference-only or CLI-only install still succeeds.
 if (-not $pythonOk) {
     Write-Host "[install] python is mandatory; aborting." -ForegroundColor Red
     exit 1
 }
 if (-not $ollamaOk) {
-    Write-Host "[install] continuing without ollama -- `evomas ollama *` will fail until you install it."
+    Write-Host "[install] continuing without ollama -- only needed for local models; `evomas ollama *` + ollama/* agents will fail until you install it."
 }
 if (-not $dockerOk) {
-    Write-Host "[install] continuing without docker -- `evomas run evaluation` (default --local) will fail; pass --remote to use sb-cli instead."
+    Write-Host "[install] continuing without docker -- only needed for local SWE-bench eval; `evomas run evaluation` (default --local) will fail; pass --remote to use sb-cli instead."
 }
 if (-not $npmOk) {
-    Write-Host "[install] continuing without npm -- `evomas web` will fail until you install Node.js."
+    Write-Host "[install] continuing without npm -- only needed for the Angular frontend; `evomas web` will fail until you install Node.js."
+}
+if (-not $wslOk) {
+    Write-Host "[install] continuing without WSL2 -- only needed for local SWE-bench eval on Windows ('evomas run evaluation --local')."
 }
 
 # --- 2. Ensure the venv exists -----------------------------------------------
@@ -127,25 +154,48 @@ $EndMarker
 Add-Content -Path $ProfilePath -Value $Block -Encoding utf8
 Write-Host "[install] appended evomas function to $ProfilePath" -ForegroundColor Green
 
-# --- 6. Clone the SWE-bench harness (local evaluation only) -----------------
+# --- 6. Set up the SWE-bench harness (local evaluation only) -----------------
 # `evomas run evaluation` defaults to --local, which drives the official
 # SWE-bench Docker harness. That harness is NOT a pip dependency; it lives in a
-# sibling clone at <repo>\SWE-bench with its own venv. Clone it here (idempotent
-# -- skipped if the dir already exists). The harness is POSIX-only, so on Windows
-# its venv must be built inside WSL -- see README "SWE-bench harness".
+# sibling clone at <repo>\SWE-bench with its own venv. It's POSIX-only and needs
+# Docker to run, so on Windows it requires BOTH Docker and WSL2 -- we gate the
+# whole clone+build behind those two checks and skip it otherwise.
 $SwebenchDir = Join-Path $RepoRoot "SWE-bench"
-if (Test-Path $SwebenchDir) {
-    Write-Host "[install] SWE-bench clone already present at $SwebenchDir (leaving as-is)" -ForegroundColor Cyan
+# POSIX venv layout: the venv is Linux-built (inside WSL), so python lives at venv/bin/.
+$SwebenchVenvPython = Join-Path $SwebenchDir "venv\bin\python"
+if (-not ($dockerOk -and $wslOk)) {
+    $missing = @()
+    if (-not $dockerOk) { $missing += "Docker" }
+    if (-not $wslOk)    { $missing += "WSL2" }
+    Write-Host "[install] skipping SWE-bench harness setup -- local eval on Windows needs $($missing -join ' + ')." -ForegroundColor Yellow
+    Write-Host "          Install the missing piece and rerun install.ps1 (or set it up manually -- see README 'SWE-bench harness')."
 } else {
-    Write-Host "[install] cloning SWE-bench harness into $SwebenchDir" -ForegroundColor Cyan
-    git clone https://github.com/SWE-bench/SWE-bench.git $SwebenchDir
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "[install] warning: SWE-bench clone failed -- 'evomas run evaluation --local' will not work until you clone it manually." -ForegroundColor Yellow
+    # Clone (idempotent -- skipped if the dir already exists).
+    if (Test-Path $SwebenchDir) {
+        Write-Host "[install] SWE-bench clone already present at $SwebenchDir (leaving as-is)" -ForegroundColor Cyan
+    } else {
+        Write-Host "[install] cloning SWE-bench harness into $SwebenchDir" -ForegroundColor Cyan
+        git clone https://github.com/SWE-bench/SWE-bench.git $SwebenchDir
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "[install] warning: SWE-bench clone failed -- 'evomas run evaluation --local' will not work until you clone it manually." -ForegroundColor Yellow
+        }
     }
-}
-if (-not (Test-Path (Join-Path $SwebenchDir "venv\bin\python"))) {
-    Write-Host "[install] reminder: build the SWE-bench venv (POSIX-only -- run inside WSL on Windows) before local eval:" -ForegroundColor Yellow
-    Write-Host "          wsl  # then: cd SWE-bench && python3 -m venv venv && source venv/bin/activate && pip install -e ."
+    # Build the harness venv inside WSL (idempotent -- skipped if already built).
+    if (Test-Path $SwebenchDir) {
+        if (Test-Path $SwebenchVenvPython) {
+            Write-Host "[install] SWE-bench venv already built at $SwebenchDir\venv (leaving as-is)" -ForegroundColor Cyan
+        } else {
+            Write-Host "[install] building SWE-bench harness venv inside WSL (POSIX-only)" -ForegroundColor Cyan
+            $WslPath = (& wsl.exe wslpath -a "$SwebenchDir").Trim()
+            & wsl.exe bash -lc "cd '$WslPath' && python3 -m venv venv && ./venv/bin/pip install -e ."
+            if ($LASTEXITCODE -eq 0 -and (Test-Path $SwebenchVenvPython)) {
+                Write-Host "[install] SWE-bench harness venv ready" -ForegroundColor Green
+            } else {
+                Write-Host "[install] warning: SWE-bench venv build failed (WSL may be missing python3-venv) -- build it manually:" -ForegroundColor Yellow
+                Write-Host "          wsl  # then: cd SWE-bench && python3 -m venv venv && source venv/bin/activate && pip install -e ."
+            }
+        }
+    }
 }
 
 # --- 7. .env scaffolding -----------------------------------------------------

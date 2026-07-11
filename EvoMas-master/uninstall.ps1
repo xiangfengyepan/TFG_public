@@ -59,10 +59,18 @@ foreach ($arg in $args) {
 
 # --- 1. Unregister the Jupyter kernel (before we delete the venv) ------------
 # The kernelspec lives under the user's Jupyter data dir, not inside the venv,
-# so remove it explicitly while the venv's python still exists.
+# so remove it explicitly while the venv's python still exists. Guarded in a
+# try/catch because the venv may not have jupyter (partial/broken install): with
+# $ErrorActionPreference = "Stop", the native command's stderr routed through
+# `2>&1` would otherwise surface as a terminating NativeCommandError and abort
+# the whole uninstall. Missing kernel/jupyter is a no-op, not a failure.
 if (Test-Path $PythonEvomas) {
     Write-Host "[uninstall] removing 'evomas' Jupyter kernel" -ForegroundColor Cyan
-    & $PythonEvomas -m jupyter kernelspec remove -f evomas 2>&1 | Out-Null
+    try {
+        & $PythonEvomas -m jupyter kernelspec remove -f evomas 2>&1 | Out-Null
+    } catch {
+        Write-Host "[uninstall] (kernel not registered or jupyter unavailable -- skipping)" -ForegroundColor Cyan
+    }
 }
 
 # --- 2. Strip the evomas function block from the PowerShell profile ----------
@@ -75,7 +83,13 @@ if (Test-Path $ProfilePath) {
         $pattern = "(?ms)" + [regex]::Escape($Marker) + ".*?" + [regex]::Escape($EndMarker)
         $existing = [regex]::Replace($existing, $pattern, "").TrimEnd()
         if ($existing) { $existing += "`r`n" }
-        Set-Content -Path $ProfilePath -Value $existing -Encoding utf8
+        # Guarded: a locked/read-only profile would otherwise throw under
+        # $ErrorActionPreference = "Stop" and skip the venv removal below.
+        try {
+            Set-Content -Path $ProfilePath -Value $existing -Encoding utf8 -ErrorAction Stop
+        } catch {
+            Write-Host "[uninstall] could not rewrite $ProfilePath -- remove the evomas function block by hand." -ForegroundColor Yellow
+        }
     }
 }
 
@@ -115,7 +129,11 @@ if ($Purge) {
     foreach ($envFile in @((Join-Path $RepoRoot "evomas\.env"), (Join-Path $RepoRoot "api\.env"))) {
         if (Test-Path $envFile) {
             Write-Host "[uninstall] --purge: removing $envFile (held your secrets)" -ForegroundColor Yellow
-            Remove-Item -Force $envFile
+            try {
+                Remove-Item -Force $envFile -ErrorAction Stop
+            } catch {
+                Write-Host "[uninstall] could not remove $envFile ($($_.Exception.Message)) -- delete it by hand." -ForegroundColor Yellow
+            }
         }
     }
 } else {

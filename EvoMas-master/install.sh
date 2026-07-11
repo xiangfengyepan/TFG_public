@@ -40,9 +40,12 @@ ollama_ok=0; test_cli ollama "Install Ollama from https://ollama.com/download." 
 docker_ok=0; test_cli docker "Install Docker (Desktop on macOS) from https://www.docker.com/products/docker-desktop/ (required for default 'evomas run evaluation --local')." && docker_ok=1 || true
 npm_ok=0;    test_cli npm    "Install Node.js 18+ from https://nodejs.org/ (needed for the Angular frontend)." && npm_ok=1 || true
 
-[ "$ollama_ok" = 0 ] && echo "[install] continuing without ollama -- 'evomas ollama *' will fail until you install it."
-[ "$docker_ok" = 0 ] && echo "[install] continuing without docker -- 'evomas run evaluation' (default --local) will fail; pass --remote to use sb-cli instead."
-[ "$npm_ok" = 0 ]    && echo "[install] continuing without npm -- 'evomas web' will fail until you install Node.js."
+# Only python is mandatory (the check above aborts if it's missing). Ollama,
+# Docker and Node are feature-gated -- warn and continue so an inference-only
+# or CLI-only install still succeeds.
+[ "$ollama_ok" = 0 ] && echo "[install] continuing without ollama -- only needed for local models; 'evomas ollama *' + ollama/* agents will fail until you install it."
+[ "$docker_ok" = 0 ] && echo "[install] continuing without docker -- only needed for local SWE-bench eval; 'evomas run evaluation' (default --local) will fail; pass --remote to use sb-cli instead."
+[ "$npm_ok" = 0 ]    && echo "[install] continuing without npm -- only needed for the Angular frontend; 'evomas web' will fail until you install Node.js."
 
 # ── 2. Ensure the venv exists ────────────────────────────────────────────────
 # Non-destructive: never delete an existing venv. If something is broken,
@@ -174,22 +177,41 @@ EOF
 fi
 echo "[install] appended evomas function to $RC_PATH"
 
-# ── 6. Clone the SWE-bench harness (local evaluation only) ───────────────────
+# ── 6. Set up the SWE-bench harness (local evaluation only) ──────────────────
 # `evomas run evaluation` defaults to --local, which drives the official
 # SWE-bench Docker harness. That harness is NOT a pip dependency; it lives in a
-# sibling clone at <repo>/SWE-bench with its own venv. Clone it here (idempotent
-# -- skipped if the dir already exists). The harness is POSIX-only, so its venv
-# must be built on Linux/macOS/WSL -- see README "SWE-bench harness".
-if [ -d "$REPO_ROOT/SWE-bench" ]; then
-    echo "[install] SWE-bench clone already present at $REPO_ROOT/SWE-bench (leaving as-is)"
+# sibling clone at <repo>/SWE-bench with its own venv. It's only usable when
+# Docker is present (the harness runs each instance in a container), so we gate
+# the whole clone+build behind the Docker check -- no point setting it up on a
+# box that can't run it.
+SWEBENCH_DIR="$REPO_ROOT/SWE-bench"
+if [ "$docker_ok" = 0 ]; then
+    echo "[install] skipping SWE-bench harness setup -- local eval needs Docker."
+    echo "          Install Docker and rerun install.sh (or set it up manually -- see README 'SWE-bench harness')."
 else
-    echo "[install] cloning SWE-bench harness into $REPO_ROOT/SWE-bench"
-    git clone https://github.com/SWE-bench/SWE-bench.git "$REPO_ROOT/SWE-bench" || \
-        echo "[install] warning: SWE-bench clone failed -- 'evomas run evaluation --local' will not work until you clone it manually."
-fi
-if [ ! -x "$REPO_ROOT/SWE-bench/venv/bin/python" ]; then
-    echo "[install] reminder: build the SWE-bench venv (POSIX-only) before local eval:"
-    echo "          cd SWE-bench && python3 -m venv venv && source venv/bin/activate && pip install -e ."
+    # Clone (idempotent -- skipped if the dir already exists).
+    if [ -d "$SWEBENCH_DIR" ]; then
+        echo "[install] SWE-bench clone already present at $SWEBENCH_DIR (leaving as-is)"
+    else
+        echo "[install] cloning SWE-bench harness into $SWEBENCH_DIR"
+        git clone https://github.com/SWE-bench/SWE-bench.git "$SWEBENCH_DIR" || \
+            echo "[install] warning: SWE-bench clone failed -- 'evomas run evaluation --local' will not work until you clone it manually."
+    fi
+    # Build the harness venv (idempotent -- skipped if already built).
+    if [ -d "$SWEBENCH_DIR" ]; then
+        if [ -x "$SWEBENCH_DIR/venv/bin/python" ]; then
+            echo "[install] SWE-bench venv already built at $SWEBENCH_DIR/venv (leaving as-is)"
+        else
+            echo "[install] building SWE-bench harness venv at $SWEBENCH_DIR/venv"
+            if "$PYTHON_BIN" -m venv "$SWEBENCH_DIR/venv" && \
+               "$SWEBENCH_DIR/venv/bin/pip" install -e "$SWEBENCH_DIR"; then
+                echo "[install] SWE-bench harness venv ready"
+            else
+                echo "[install] warning: SWE-bench venv build failed -- build it manually before local eval:"
+                echo "          cd SWE-bench && python3 -m venv venv && source venv/bin/activate && pip install -e ."
+            fi
+        fi
+    fi
 fi
 
 # ── 7. .env scaffolding ──────────────────────────────────────────────────────
