@@ -24,8 +24,9 @@ EvoMas wires LangGraph multi-agent topologies (locator → patcher → reviewer 
 From a fresh clone to a topology graph in your browser — assumes Python 3.12+, Node 18+, Ollama, and Docker are already installed (see [Prerequisites](#prerequisites)).
 
 ```bash
-# 1. Set up the venv, copy the .env files, clone the SWE-bench harness,
-#    and register the `evomas` command on your $PATH
+# 1. Set up the venv, copy the .env files, clone + build the SWE-bench
+#    harness (when Docker — plus WSL2 on Windows — is present), and
+#    register the `evomas` command on your $PATH
 ./install.sh                 # or .\install.ps1 on Windows
 
 # 2. (optional) install.sh already copied evomas/.env + api/.env from their
@@ -77,7 +78,7 @@ chmod +x install.sh
 bash install.sh
 ```
 
-The install script checks for the prerequisites above, creates a venv at `~/.evomas-venv` (reusing it if already present, kept in the user's home so the repo stays free of build artefacts), runs `pip install -e ".[dev]"` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, registers an `evomas` Jupyter kernel, installs the Angular frontend's npm dependencies, clones the SWE-bench harness into `<repo>/SWE-bench` (see [SWE-bench harness](#swe-bench-harness-local-evaluation-only)), copies `evomas/.env` + `api/.env` from their `.example` files (never clobbering existing ones), and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
+The install script checks for the prerequisites above — **only Python is mandatory** (it aborts without it); Ollama, Docker, Node.js, and WSL2 are feature-gated, so the installer warns and continues without them. It then creates a venv at `~/.evomas-venv` (reusing it if already present, kept in the user's home so the repo stays free of build artefacts), runs `pip install -e ".[dev]"` (which reads `pyproject.toml` for dependencies + registers the `evomas` console command), regenerates `requirements.txt` as a lockfile, registers an `evomas` Jupyter kernel, installs the Angular frontend's npm dependencies (when npm is present), clones **and builds** the SWE-bench harness into `<repo>/SWE-bench` when its prerequisites are present — Docker on Linux/macOS, Docker + WSL2 on Windows (see [SWE-bench harness](#swe-bench-harness-local-evaluation-only)); otherwise it skips that step with a note. Finally it copies `evomas/.env` + `api/.env` from their `.example` files (never clobbering existing ones), and appends an `evomas` function to your shell rc (`$PROFILE` on Windows, `~/.zshrc` / `~/.bashrc` / `~/.config/fish/config.fish` on Linux/macOS) so the command is reachable from any directory.
 
 Open a new shell (or `source` the rc file) so the profile change takes effect, then verify — `evomas status` prints a colour-coded readiness check of the whole toolchain:
 
@@ -114,9 +115,9 @@ Open a new shell afterwards so the removed `evomas` function clears from your se
 
 ### SWE-bench harness (local evaluation only)
 
-`evomas run evaluation` (and the Evaluation page) defaults to `--local`, which runs the official **SWE-bench Docker harness**. That harness is *not* a pip dependency of EvoMas — it lives in a sibling clone at `<repo>/SWE-bench` with its own venv at `SWE-bench/venv/`. `install.sh` / `install.ps1` **clone the repo for you** (idempotently); what they can't do is build the harness venv, because it's POSIX-only. EvoMas auto-discovers the harness: it uses the active interpreter if `swebench` is importable, otherwise it falls back to `<repo>/SWE-bench/venv/`.
+`evomas run evaluation` (and the Evaluation page) defaults to `--local`, which runs the official **SWE-bench Docker harness**. That harness is *not* a pip dependency of EvoMas — it lives in a sibling clone at `<repo>/SWE-bench` with its own venv at `SWE-bench/venv/`. `install.sh` / `install.ps1` **clone the repo and build its venv for you** (idempotently) — but only when the harness's prerequisites are present, since there's no point setting it up on a box that can't run it: **Docker** on Linux/macOS, **Docker + WSL2** on Windows (the venv is POSIX-only, so on Windows the installer builds it inside WSL). If those aren't installed, the installer skips the whole step with a note; install them and rerun, or follow the manual steps below. EvoMas auto-discovers the harness: it uses the active interpreter if `swebench` is importable, otherwise it falls back to `<repo>/SWE-bench/venv/`.
 
-The harness is **POSIX-only**, so the venv must be a Linux venv. On **Windows you must do this inside WSL** — open a WSL shell first (`wsl`), then run the commands below there. On Linux / macOS run them directly. (`git clone` is only needed if the installer didn't already create `SWE-bench/`.)
+**Manual setup (fallback when the installer skipped it).** The harness is **POSIX-only**, so the venv must be a Linux venv. On **Windows you must do this inside WSL** — open a WSL shell first (`wsl`), then run the commands below there. On Linux / macOS run them directly. (`git clone` is only needed if the installer didn't already create `SWE-bench/`.)
 
 ```bash
 # On Windows ONLY: drop into WSL first, then continue inside it

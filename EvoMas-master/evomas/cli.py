@@ -35,26 +35,28 @@ class _OllamaPassthroughGroup(TyperGroup):
     `ollama` binary so `evomas ollama -- rm qwen3:8b` works without
     wrapping every verb."""
 
-    def resolve_command(self, ctx: click.Context, args: list[str]):
-        try:
-            return super().resolve_command(ctx, args)
-        except click.UsageError:
-            # Bare `evomas ollama` still falls through to no_args_is_help.
-            if not args:
-                raise
-            forwarded = list(args)
 
-            def _passthrough() -> None:
-                raise typer.Exit(
-                    subprocess.run(
-                        ["ollama", *forwarded],
-                        env=_ollama_host_env(),
-                    ).returncode,
-                )
+    def resolve_command(self, ctx: click.Context, args: list[str]):  # type: ignore
+        # `# type: ignore`: typer (>=0.26) vendors its own click, so `get_command`
+        # / `resolve_command` type their `ctx` as `typer._click.core.Context`,
+        # which pyright reports as incompatible with the `click.Context` annotation
+        # even though they're the same object at runtime.
+        if not args or self.get_command(ctx, args[0]) is not None:  # type: ignore
+            return super().resolve_command(ctx, args)  # type: ignore
 
-            cmd = click.Command(name="<passthrough>", callback=_passthrough, params=[])
-            # `[]` so Click doesn't re-parse args; we already have them.
-            return cmd.name, cmd, []
+        forwarded = list(args)
+
+        def _passthrough() -> None:
+            raise typer.Exit(
+                subprocess.run(
+                    ["ollama", *forwarded],
+                    env=_ollama_host_env(),
+                ).returncode,
+            )
+
+        cmd = click.Command(name="<passthrough>", callback=_passthrough, params=[])
+        # `[]` so Click doesn't re-parse args; we already have them.
+        return cmd.name, cmd, []
 
 
 ollama_app = typer.Typer(
